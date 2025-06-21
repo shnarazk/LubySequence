@@ -1,0 +1,44 @@
+\documentclass{article}
+% \usepackage[utf8]{inputenc} % Allows Unicode characters
+\usepackage{amsmath}        % For math typesetting (optional)
+\usepackage{graphicx}       % For including images (optional)
+
+\title{Luby Sequence}
+\author{I and Gen AIs}
+\date{2025-06-20}
+
+\begin{document}
+\maketitle
+
+The Luby sequence is a sequence of natural numbers defined recursively.
+It is used in randomized algorithms and has applications in computer science.
+Actually, I haven’t seen it used in any areas other than Boolean satisfiability.
+
+The sequence is defined as follows:
+
+\begin{equation}
+Luby(k \ge 1) =
+\begin{cases}
+2^{i-1}, & \text{if } k = 2^i - 1 \text{ for some } i \geq 1, \\
+Luby\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k < 2^i - 1
+\end{cases}
+\end{equation}
+
+
+If we start the sequence from 0:
+
+\begin{eqnarray*}
+L(k \ge 0) &=& Luby(k+1) \\
+&=&
+\begin{cases}
+2^{i-1}, & \text{if } k = 2^i -2 \text{ for some } i \geq 1, \\
+Luby\left(k - 2^{i-1} + 2\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
+\end{cases}\\
+&=&
+\begin{cases}
+2^{i-1}, & \text{if } k = 2^i -2 \text{ for some } i \geq 1, \\
+L\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
+\end{cases}
+\end{eqnarray*}
+
+\end{document}

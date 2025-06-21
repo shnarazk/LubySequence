@@ -18,11 +18,12 @@
         devShells.default = pkgs.mkShell { packages = [
           pkgs.bashInteractive
           pkgs.elan
+          pkgs.texlab
           (pkgs.texlive.combine {
             inherit (pkgs.texlive)
               scheme-small lkproof fontawesome5 haranoaji ifoddpage
-              latexmk luatexja noto tcolorbox tex4ht textpos
-              tikz-ext tikzfill tikzpagenodes;
+              latexmk luatexja luaxml make4ht noto tcolorbox
+              tex4ht textpos tikz-ext tikzfill tikzpagenodes;
           })
           pkgs.vscodium
         ]; };
