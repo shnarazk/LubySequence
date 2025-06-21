@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: leanprover/lean-action@v1
-      - name: cd to Lean4 direcort
+      - name: cd to Lean4 directory
         run: cd proofs
       - name: Build Lean files there
         run: lean --make
