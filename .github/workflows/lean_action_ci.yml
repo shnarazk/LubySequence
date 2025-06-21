@@ -14,7 +14,3 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           lake-package-directory: "proofs"
-      - name: Build Lean files there
-        run: |
-          cd proofs
-          lean --make
