@@ -34,12 +34,24 @@ def isSpecial (k : Nat) : Bool :=
 #eval isSpecial 14  -- true because 14 is two less than 2^4
 
 -- Returns the largest power of 2 less than or equal to (k + 1)
-partial def largestPowerOf2LE (k : Nat) : Nat :=
+partial def largestPowerOf2LE₁ (k : Nat) : Nat :=
   let rec loop (i acc : Nat) :=
     if 2^i > k + 1 then acc else loop (i + 1) (2^i)
   loop 0 1
 
+#eval List.range 16 |>.map largestPowerOf2LE₁ --
+
+def largestPowerOf2LE (k : Nat) : Nat :=
+  let rec loop (d i acc : Nat) :=
+    match d with
+    | 0 => acc
+    | n + 1 => if 2^i > k + 1 then acc else loop n i.succ (2^i)
+  loop k.bits.length.succ 0 1
+
 #eval List.range 16 |>.map largestPowerOf2LE --
+
+theorem twoLelargestPower2ofKGtZero (k : Nat) (h : k > 0) : largestPowerOf2LE k ≥ 2 := by
+  sorry
 
 -- Well-founded version of the Luby sequence
 partial def luby : Nat → Nat
