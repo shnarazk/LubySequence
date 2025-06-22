@@ -29,6 +29,7 @@ def isSpecial (k : Nat) : Bool :=
   ((k + 2) &&& (k + 1)) == 0  -- k + 2 is a power of 2 ⇔ k + 1 = 2^i - 1
 
 #eval isSpecial 0  -- true because (0 + 1) is one less than 2^1
+#eval isSpecial 1
 #eval isSpecial 2  -- true because (2 + 1) is one less than 2^2
 #eval isSpecial 6  -- true because (6 + 1) is one less than 2^3
 #eval isSpecial 14  -- true because 14 is two less than 2^4
@@ -54,13 +55,34 @@ theorem twoLelargestPower2ofKGtZero (k : Nat) (h : k > 0) : largestPowerOf2LE k 
   sorry
 
 -- Well-founded version of the Luby sequence
-partial def luby : Nat → Nat
+partial def luby₁ : Nat → Nat
   | 0 => 1
   | k =>
     if isSpecial k then
       largestPowerOf2LE k
     else
-     luby (k +1 - (largestPowerOf2LE k))
+     luby₁ (k +1 - (largestPowerOf2LE k))
+
+
+-- Well-founded version of the Luby sequence
+def luby (n : ℕ) : Nat :=
+  if n > 0 then
+    if isSpecial n then largestPowerOf2LE n else luby (n + 1 - (largestPowerOf2LE n))
+  else
+    1
+termination_by n
+decreasing_by
+  rcases n with z | k1 | k2
+  { simp at * }
+  { simp [largestPowerOf2LE, largestPowerOf2LE.loop] }
+  {
+    ring_nf at *
+    simp at *
+    have : largestPowerOf2LE (2 + k2) ≥ 2 := by
+      apply twoLelargestPower2ofKGtZero
+      exact Nat.pos_of_neZero (2 + k2)
+    sorry
+  }
 
 end Luby
 
