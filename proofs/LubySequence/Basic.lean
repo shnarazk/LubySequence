@@ -11,32 +11,27 @@ namespace Luby
   L(k ≥ 1) = 2^(i-1)          if k = 2^i - 1 for some i ≥ 0,
            = L(k+1 - 2^(i-1)) if 2^(i-1) ≤ k ≤ 2^i - 1
 
-If we start the sequence from 0:
+If we want to start the sequence from 0, to make the mapping a total function:
 
-  L(k ≥ 0) = 2^(i-1)          if k = 2^i for some i ≥ 0,
-           = L(k+1 - 2^(i-1)) if 2^(i-1) - 1 ≤ k ≤ 2^i - 2
+  L(k ≥ 0) = 2^(i-1)          if k = 2^i - 2 for some i ≥ 0,
+           = L(k+2 - 2^(i-1)) if 2^(i-1) ≤ k + 1 ≤ 2^i - 1
 
 Or
 
-  L(k ≥ 0) = 2^(i-1)          if k = 2^i for some i ≥ 0,
-           = L(k+1 - 2^(i-1)) otherwise
-           where ∃i ≤ ⌈log₂ k⌉ st. 2^(i-1) - 1 ≤ k ≤ 2^i - 2
-
-  So, efficient algorithm is
-  1. compute i
-  2. check the 1st condition
-  3. if it holds, return 2^(i-1)
-  4. otherwise, recurse this
-  This is a total function.
+  L(k ≥ 0) = 2^(I(k)-1)          if (k + 2) &&& (k + 1) = 0,
+           = L(k+2 - 2^(I(k)-1)) otherwise
+where
+  I(n) = ⌈log₂(n+2)⌉
 -/
 
 -- Checks if (k + 1) is one less than a power of two
 def isSpecial (k : Nat) : Bool :=
-  let n := k + 1
-  let m := n + 1
-  (m &&& (m - 1)) == 0  -- m is a power of 2 ⇔ n = 2^i - 1
+  ((k + 2) &&& (k + 1)) == 0  -- k + 2 is a power of 2 ⇔ k + 1 = 2^i - 1
 
-#eval isSpecial 0  -- true
+#eval isSpecial 0  -- true because (0 + 1) is one less than 2^1
+#eval isSpecial 2  -- true because (2 + 1) is one less than 2^2
+#eval isSpecial 6  -- true because (6 + 1) is one less than 2^3
+#eval isSpecial 14  -- true because 14 is two less than 2^4
 
 -- Returns the largest power of 2 less than or equal to (k + 1)
 partial def largestPowerOf2LE (k : Nat) : Nat :=
