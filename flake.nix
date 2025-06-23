@@ -6,18 +6,26 @@
     url = "github:numtide/flake-utils";
     inputs.systems.follows = "systems";
   };
+  inputs.nixvim.url = "github:nix-community/nixvim";
 
   outputs =
-    { nixpkgs, flake-utils, ... }:
+    { nixpkgs, flake-utils, nixvim, ... }:
     flake-utils.lib.eachDefaultSystem (
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        nvim = nixvim.legacyPackages.${system};
       in
       {
         devShells.default = pkgs.mkShell { packages = [
           pkgs.bashInteractive
           pkgs.elan
+          (nvim.makeNixvim {
+            plugins.lean.enable = true;
+            plugins.lean.autoLoad = true;
+            # plugins.tree-sitter.enable = true;
+            # plugins.treesitter-textobjects.enable = true;
+          })
           pkgs.texlab
           (pkgs.texlive.combine {
             inherit (pkgs.texlive)
