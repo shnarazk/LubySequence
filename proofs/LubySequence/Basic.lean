@@ -87,7 +87,7 @@ decreasing_by
 end Luby
 
 -- 🧪 Test output
-#eval List.range 16 |>.map Luby.luby
+-- #eval List.range 16 |>.map Luby.luby
 -- Output: [1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1]
 #eval List.range 16 |>.map Luby.isSpecial
 #eval List.range 16 |>.map Nat.bits
