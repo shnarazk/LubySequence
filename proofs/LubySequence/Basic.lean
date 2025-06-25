@@ -3,6 +3,7 @@ import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Bits
 
 namespace Luby
+
 /-
   The Luby sequence is a sequence of natural numbers defined recursively.
   It is used in randomized algorithms and has applications in computer science.
