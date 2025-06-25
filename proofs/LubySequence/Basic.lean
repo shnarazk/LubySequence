@@ -51,6 +51,23 @@ def largestPowerOf2LE (k : Nat) : Nat :=
   loop k.bits.length.succ 0 1
 
 #eval List.range 16 |>.map largestPowerOf2LE --
+#eval (0 : Nat).bits
+
+theorem bitsLengthGEZero (n : Nat) : n.bits.length ≥ 0 := by
+  sorry
+
+theorem lPO2LEIsMono : ∀ n ≥ 0, largestPowerOf2LE n ≤ largestPowerOf2LE (n + 1) := by
+  intro i n0
+  induction' i with a h
+  { simp [largestPowerOf2LE, largestPowerOf2LE.loop] }
+  {
+    simp at h
+    simp [largestPowerOf2LE, largestPowerOf2LE.loop]
+    have : (a + 1).bits.length > 0 := by
+      have zero : (0 : Nat).bits.length = 0 := by rfl
+      sorry
+    sorry
+  }
 
 theorem twoLelargestPower2ofKGtZero (k : Nat) (h : k > 0) : largestPowerOf2LE k ≥ 2 := by
   sorry
