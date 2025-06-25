@@ -33,7 +33,7 @@
               latexmk luatexja luaxml make4ht noto tcolorbox
               tex4ht textpos tikz-ext tikzfill tikzpagenodes;
           })
-          pkgs.vscodium
+          # pkgs.vscodium
         ]; };
       }
     );

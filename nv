@@ -1,0 +1,65 @@
+#! /nix/store/nravshvfviv75plf26nwfwzg8ldl3z8s-bash-5.2p37/bin/bash -e
+export NVIM_SYSTEM_RPLUGIN_MANIFEST='/nix/store/pg47a8cn7m37zxssyvdr5l0r530gnxxz-neovim-0.11.2/rplugin.vim'
+export GEM_HOME='/nix/store/kc3k2lbffc0g1lr5mkn1gjqb3gfvgfjx-neovim-ruby-env/lib/ruby/gems/3.3.0'
+PATH=${PATH:+':'$PATH':'}
+if [[ $PATH != *':''/nix/store/kc3k2lbffc0g1lr5mkn1gjqb3gfvgfjx-neovim-ruby-env/bin'':'* ]]; then
+    PATH=$PATH'/nix/store/kc3k2lbffc0g1lr5mkn1gjqb3gfvgfjx-neovim-ruby-env/bin'
+fi
+PATH=${PATH#':'}
+PATH=${PATH%':'}
+export PATH
+LUA_PATH=${LUA_PATH:+';'$LUA_PATH';'}
+LUA_PATH=${LUA_PATH/';''/nix/store/2m7jc53njrcwkr90h8al1jf0hcxa9lc9-luajit-2.1.1741730670-env/share/lua/5.1/?/init.lua'';'/';'}
+LUA_PATH='/nix/store/2m7jc53njrcwkr90h8al1jf0hcxa9lc9-luajit-2.1.1741730670-env/share/lua/5.1/?/init.lua'$LUA_PATH
+LUA_PATH=${LUA_PATH#';'}
+LUA_PATH=${LUA_PATH%';'}
+export LUA_PATH
+LUA_PATH=${LUA_PATH:+';'$LUA_PATH';'}
+LUA_PATH=${LUA_PATH/';''/nix/store/2m7jc53njrcwkr90h8al1jf0hcxa9lc9-luajit-2.1.1741730670-env/share/lua/5.1/?.lua'';'/';'}
+LUA_PATH='/nix/store/2m7jc53njrcwkr90h8al1jf0hcxa9lc9-luajit-2.1.1741730670-env/share/lua/5.1/?.lua'$LUA_PATH
+LUA_PATH=${LUA_PATH#';'}
+LUA_PATH=${LUA_PATH%';'}
+export LUA_PATH
+LUA_CPATH=${LUA_CPATH:+';'$LUA_CPATH';'}
+LUA_CPATH=${LUA_CPATH/';''/nix/store/2m7jc53njrcwkr90h8al1jf0hcxa9lc9-luajit-2.1.1741730670-env/lib/lua/5.1/?.so'';'/';'}
+LUA_CPATH='/nix/store/2m7jc53njrcwkr90h8al1jf0hcxa9lc9-luajit-2.1.1741730670-env/lib/lua/5.1/?.so'$LUA_CPATH
+LUA_CPATH=${LUA_CPATH#';'}
+LUA_CPATH=${LUA_CPATH%';'}
+export LUA_CPATH
+PATH=${PATH:+':'$PATH':'}
+# PATH=${PATH/':''/nix/store/w6b7gx1b9vhvk0sf52v2l5c6n3m49jlr-lean4-4.20.0/bin'':'/':'}
+# PATH='/nix/store/w6b7gx1b9vhvk0sf52v2l5c6n3m49jlr-lean4-4.20.0/bin'$PATH
+PATH=${PATH#':'}
+PATH=${PATH%':'}
+export PATH
+LUA_PATH=${LUA_PATH:+';'$LUA_PATH';'}
+LUA_PATH=${LUA_PATH/';''/nix/store/l06fpmvh0br82nf40dz0hxr7v8ngpcd8-luajit-2.1.1741730670/share/lua/5.1/?.lua'';'/';'}
+LUA_PATH='/nix/store/l06fpmvh0br82nf40dz0hxr7v8ngpcd8-luajit-2.1.1741730670/share/lua/5.1/?.lua'$LUA_PATH
+LUA_PATH=${LUA_PATH#';'}
+LUA_PATH=${LUA_PATH%';'}
+export LUA_PATH
+LUA_PATH=${LUA_PATH:+';'$LUA_PATH';'}
+LUA_PATH=${LUA_PATH/';''/nix/store/gjr9m7k9hf8yjxa51x6179v8483b627x-luajit2.1-say-1.4.1-3/share/lua/5.1/?/init.lua'';'/';'}
+LUA_PATH='/nix/store/gjr9m7k9hf8yjxa51x6179v8483b627x-luajit2.1-say-1.4.1-3/share/lua/5.1/?/init.lua'$LUA_PATH
+LUA_PATH=${LUA_PATH#';'}
+LUA_PATH=${LUA_PATH%';'}
+export LUA_PATH
+LUA_PATH=${LUA_PATH:+';'$LUA_PATH';'}
+LUA_PATH=${LUA_PATH/';''/nix/store/gjr9m7k9hf8yjxa51x6179v8483b627x-luajit2.1-say-1.4.1-3/share/lua/5.1/?.lua'';'/';'}
+LUA_PATH='/nix/store/gjr9m7k9hf8yjxa51x6179v8483b627x-luajit2.1-say-1.4.1-3/share/lua/5.1/?.lua'$LUA_PATH
+LUA_PATH=${LUA_PATH#';'}
+LUA_PATH=${LUA_PATH%';'}
+export LUA_PATH
+LUA_PATH=${LUA_PATH:+';'$LUA_PATH';'}
+LUA_PATH=${LUA_PATH/';''/nix/store/yrm52w9iqjv2s3hlsmz5nnjqgyg73pv1-luajit2.1-luassert-1.9.0-1/share/lua/5.1/?/init.lua'';'/';'}
+LUA_PATH='/nix/store/yrm52w9iqjv2s3hlsmz5nnjqgyg73pv1-luajit2.1-luassert-1.9.0-1/share/lua/5.1/?/init.lua'$LUA_PATH
+LUA_PATH=${LUA_PATH#';'}
+LUA_PATH=${LUA_PATH%';'}
+export LUA_PATH
+LUA_PATH=${LUA_PATH:+';'$LUA_PATH';'}
+LUA_PATH=${LUA_PATH/';''/nix/store/yrm52w9iqjv2s3hlsmz5nnjqgyg73pv1-luajit2.1-luassert-1.9.0-1/share/lua/5.1/?.lua'';'/';'}
+LUA_PATH='/nix/store/yrm52w9iqjv2s3hlsmz5nnjqgyg73pv1-luajit2.1-luassert-1.9.0-1/share/lua/5.1/?.lua'$LUA_PATH
+LUA_PATH=${LUA_PATH#';'}
+LUA_PATH=${LUA_PATH%';'}
+export LUA_PATH
+exec "/nix/store/2a9k8062i7g5hy45rmfrnr0d7pr56vh7-neovim-unwrapped-0.11.2/bin/nvim"  --cmd "lua vim.g.loaded_node_provider=0;vim.g.loaded_perl_provider=0;vim.g.loaded_python_provider=0;vim.g.python3_host_prog='/nix/store/pg47a8cn7m37zxssyvdr5l0r530gnxxz-neovim-0.11.2/bin/nvim-python3';vim.g.ruby_host_prog='/nix/store/pg47a8cn7m37zxssyvdr5l0r530gnxxz-neovim-0.11.2/bin/nvim-ruby'" --cmd "set packpath^=/nix/store/wxd70y31ybpvyf8hcvdxl9yn3qick3an-vim-pack-dir" --cmd "set rtp^=/nix/store/wxd70y31ybpvyf8hcvdxl9yn3qick3an-vim-pack-dir" -u /nix/store/s7larsyhgcj3icd5w5jvl6028y72r4r9-init.lua "$@" 
