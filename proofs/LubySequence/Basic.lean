@@ -25,6 +25,9 @@ where
   I(n) = ⌈log₂(n+2)⌉
 -/
 
+def S₂ (n: Nat) := 2^(n.succ.size - 1)
+#eval List.range (16 : Nat) |>.map S₂
+
 -- Checks if (k + 1) is one less than a power of two
 def isSpecial (k : Nat) : Bool :=
   ((k + 2) &&& (k + 1)) == 0  -- k + 2 is a power of 2 ⇔ k + 1 = 2^i - 1
@@ -53,23 +56,25 @@ def largestPowerOf2LE (k : Nat) : Nat :=
 #eval List.range 16 |>.map largestPowerOf2LE --
 #eval (0 : Nat).bits
 
-theorem bitsLengthGEZero (n : Nat) : n.bits.length ≥ 0 := by
-  sorry
+theorem S₂GEzero (n : Nat) : S₂ n ≥ 0 := by
+  simp [S₂]
 
-theorem lPO2LEIsMono : ∀ n ≥ 0, largestPowerOf2LE n ≤ largestPowerOf2LE (n + 1) := by
+theorem S₂IsMono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   intro i n0
   induction' i with a h
-  { simp [largestPowerOf2LE, largestPowerOf2LE.loop] }
+  { simp [S₂, Nat.size, Nat.binaryRec] }
   {
     simp at h
-    simp [largestPowerOf2LE, largestPowerOf2LE.loop]
+    dsimp [S₂, Nat.size]
+    have (a b : Nat) : 2 ^ a ≤ 2 ^ b → a ≤ b := by apply?
+
     have : (a + 1).bits.length > 0 := by
       have zero : (0 : Nat).bits.length = 0 := by rfl
       sorry
     sorry
   }
 
-theorem twoLelargestPower2ofKGtZero (k : Nat) (h : k > 0) : largestPowerOf2LE k ≥ 2 := by
+theorem S₂GETwo (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
   sorry
 
 -- Well-founded version of the Luby sequence
@@ -77,26 +82,26 @@ partial def luby₁ : Nat → Nat
   | 0 => 1
   | k =>
     if isSpecial k then
-      largestPowerOf2LE k
+      S₂ k
     else
-     luby₁ (k +1 - (largestPowerOf2LE k))
+     luby₁ (k + 1 - (S₂ k))
 
 
 -- Well-founded version of the Luby sequence
 def luby (n : ℕ) : Nat :=
   if n > 0 then
-    if isSpecial n then largestPowerOf2LE n else luby (n + 1 - (largestPowerOf2LE n))
+    if isSpecial n then S₂ n else luby (n + 1 - (S₂ n))
   else
     1
 termination_by n
 decreasing_by
   rcases n with z | k1 | k2
   { simp at * }
-  { simp [largestPowerOf2LE, largestPowerOf2LE.loop] }
+  { simp [S₂] }
   {
     ring_nf at *
     simp at *
-    have : largestPowerOf2LE (2 + k2) ≥ 2 := by
+    have : S₂ (2 + k2) ≥ 2 := by
       apply twoLelargestPower2ofKGtZero
       exact Nat.pos_of_neZero (2 + k2)
     sorry
