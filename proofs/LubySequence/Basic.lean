@@ -60,7 +60,7 @@ def largestPowerOf2LE (k : Nat) : Nat :=
 theorem S₂GEzero (n : Nat) : S₂ n ≥ 0 := by
   simp [S₂]
 
-theorem S₂IsMono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
+theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   intro i n0
   induction' i with a h
   { simp [S₂, Nat.size, Nat.binaryRec] }
@@ -80,7 +80,7 @@ theorem S₂IsMono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
     omega
   }
 
-theorem S₂GETwo (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
+theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
   sorry
 
 -- Well-founded version of the Luby sequence
