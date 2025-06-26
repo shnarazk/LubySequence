@@ -66,11 +66,15 @@ theorem S₂IsMono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   {
     simp at h
     dsimp [S₂, Nat.size]
-    have (a b : Nat) : 2 ^ a ≤ 2 ^ b → a ≤ b := by apply?
-
-    have : (a + 1).bits.length > 0 := by
-      have zero : (0 : Nat).bits.length = 0 := by rfl
-      sorry
+    have hb (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
+      have : 2 > 0 := by exact Nat.zero_lt_two 
+      exact Nat.pow_le_pow_right this
+    apply hb
+    rw [←Nat.size]
+    rw [←Nat.size]
+    have (a b : Nat) : a ≤ b → a - 1 ≤ b - 1  := by
+      apply fun a_1 ↦ Nat.sub_le_sub_right a_1 1
+    apply this
     sorry
   }
 
