@@ -1,6 +1,7 @@
 import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Bits
+import Mathlib.Data.Nat.Size
 
 namespace Luby
 
@@ -67,7 +68,7 @@ theorem S₂IsMono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
     simp at h
     dsimp [S₂, Nat.size]
     have hb (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
-      have : 2 > 0 := by exact Nat.zero_lt_two 
+      have : 2 > 0 := by exact Nat.zero_lt_two
       exact Nat.pow_le_pow_right this
     apply hb
     rw [←Nat.size]
@@ -75,7 +76,8 @@ theorem S₂IsMono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
     have (a b : Nat) : a ≤ b → a - 1 ≤ b - 1  := by
       apply fun a_1 ↦ Nat.sub_le_sub_right a_1 1
     apply this
-    sorry
+    apply Nat.size_le_size
+    omega
   }
 
 theorem S₂GETwo (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
@@ -101,13 +103,13 @@ termination_by n
 decreasing_by
   rcases n with z | k1 | k2
   { simp at * }
-  { simp [S₂] }
+  { simp [S₂]; sorry }
   {
     ring_nf at *
     simp at *
-    have : S₂ (2 + k2) ≥ 2 := by
-      apply twoLelargestPower2ofKGtZero
-      exact Nat.pos_of_neZero (2 + k2)
+    -- have : S₂ (2 + k2) ≥ 2 := by
+    --   apply twoLelargestPower2ofKGtZero
+    --   exact Nat.pos_of_neZero (2 + k2)
     sorry
   }
 
