@@ -22,6 +22,7 @@
           pkgs.elan
           (nvim.makeNixvim {
             colorschemes.gruvbox.enable = true;
+            dependencies.lean.enable = false;
             globals = {
               mapleader = " ";
               maplocalleader = "  ";
@@ -49,10 +50,41 @@
                 lspBufAction = "hover";
               }
             ];
-            plugins.cmp.enable = true;
-            plugins.cmp.autoEnableSources = true;
+            plugins.blink-cmp = {
+              enable = true;
+              settings.keymap = {
+                preset = "enter";
+              };
+              settings.sources = {
+                default = [
+                  "lsp"
+                  "path"
+                  "buffer"
+                  "copilot"
+                ];
+                providers = {
+                  copilot = {
+                    async = true;
+                    module = "blink-copilot";
+                    name = "copilot";
+                    score_offset = 100;
+                    # Optional configurations
+                    opts = {
+                      max_completions = 3;
+                      max_attempts = 4;
+                      kind = "Copilot";
+                      debounce = 750;
+                      auto_refresh = {
+                        backward = true;
+                        forward = true;
+                      };
+                    };
+                  };
+                };
+              };
+            };
+            plugins.blink-copilot.enable = true;
             plugins.lean.enable = true;
-            plugins.lean.leanPackage = null;
             plugins.lean.autoLoad = true;
             plugins.lean.settings.mappings = true;
             plugins.lean.settings.progress_bars.enable = false;
