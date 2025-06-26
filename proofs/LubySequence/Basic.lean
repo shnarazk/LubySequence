@@ -1,5 +1,6 @@
 import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
+import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 
@@ -31,14 +32,12 @@ def S₂ (n: Nat) := 2^(n.succ.size - 1)
 
 -- Checks if (k + 1) is one less than a power of two
 def isSpecial (k : Nat) : Bool :=
-  ((k + 2) &&& (k + 1)) == 0  -- k + 2 is a power of 2 ⇔ k + 1 = 2^i - 1
+  -- ((k + 2) &&& (k + 1)) == 0  -- k + 2 is a power of 2 ⇔ k + 1 = 2^i - 1
+  S₂ (k + 2) == k + 2
 
-#eval isSpecial 0  -- true because (0 + 1) is one less than 2^1
-#eval isSpecial 1
-#eval isSpecial 2  -- true because (2 + 1) is one less than 2^2
-#eval isSpecial 6  -- true because (6 + 1) is one less than 2^3
-#eval isSpecial 14  -- true because 14 is two less than 2^4
+#eval List.range 16 |>.map isSpecial -- |>.map (if · then "T" else "F")
 
+/-
 -- Returns the largest power of 2 less than or equal to (k + 1)
 partial def largestPowerOf2LE₁ (k : Nat) : Nat :=
   let rec loop (i acc : Nat) :=
@@ -55,9 +54,13 @@ def largestPowerOf2LE (k : Nat) : Nat :=
   loop k.bits.length.succ 0 1
 
 #eval List.range 16 |>.map largestPowerOf2LE --
-#eval (0 : Nat).bits
+-/
 
-theorem S₂GEzero (n : Nat) : S₂ n ≥ 0 := by
+theorem pow2_le_pow2 (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
+  have : 2 > 0 := by exact Nat.zero_lt_two
+  exact Nat.pow_le_pow_right this
+
+theorem S₂_ge_zero (n : Nat) : S₂ n ≥ 0 := by
   simp [S₂]
 
 theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
@@ -67,10 +70,7 @@ theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   {
     simp at h
     dsimp [S₂, Nat.size]
-    have hb (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
-      have : 2 > 0 := by exact Nat.zero_lt_two
-      exact Nat.pow_le_pow_right this
-    apply hb
+    apply pow2_le_pow2
     rw [←Nat.size]
     rw [←Nat.size]
     have (a b : Nat) : a ≤ b → a - 1 ≤ b - 1  := by
@@ -81,7 +81,27 @@ theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   }
 
 theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
-  sorry
+  simp [S₂]
+  rw [(by rfl : 2 = 2 ^1)]
+  apply pow2_le_pow2
+  have (a b c : Nat) (h : c ≤ b) : a ≤ b - c → a + c ≤ b := by
+    apply Nat.add_le_of_le_sub h
+  apply Nat.le_sub_of_add_le
+  simp
+  have : 2 ≤ (k + 1).size := by
+    have h1 : k = 1 ∨ k > 1 := by exact LE.le.eq_or_gt h 
+    rcases h1 with h1|h2
+    { simp [h1, Nat.size, Nat.binaryRec] }
+    {
+      have h1 : 1 = (1 : Nat).size := by exact Eq.symm Nat.size_one -- apply?
+      have h2 : 2 ≤ (2 : Nat).size := by simp [Nat.size, Nat.binaryRec]
+      have h3 : 2 ≤ 1 + k := by omega
+      have h4 : Nat.size 2 ≤ Nat.size (k + 1) := by
+        simp only [Nat.add_comm k 1]
+        exact Nat.size_le_size h3
+      exact Nat.le_trans h2 h4
+    }
+  exact this
 
 -- Well-founded version of the Luby sequence
 partial def luby₁ : Nat → Nat
