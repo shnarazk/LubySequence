@@ -52,6 +52,7 @@
             plugins.cmp.enable = true;
             plugins.cmp.autoEnableSources = true;
             plugins.lean.enable = true;
+            plugins.lean.leanPackage = null;
             plugins.lean.autoLoad = true;
             plugins.lean.settings.mappings = true;
             plugins.lean.settings.progress_bars.enable = false;
