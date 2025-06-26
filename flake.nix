@@ -21,8 +21,43 @@
           pkgs.bashInteractive
           pkgs.elan
           (nvim.makeNixvim {
+            colorschemes.gruvbox.enable = true;
+            globals = {
+              mapleader = " ";
+              maplocalleader = "  ";
+            };
+            lsp.inlayHints.enable = true;
+            lsp.keymaps = [
+              {
+                key = "gd";
+                lspBufAction = "definition";
+              }
+              {
+                key = "gD";
+                lspBufAction = "references";
+              }
+              {
+                key = "gt";
+                lspBufAction = "type_definition";
+              }
+              {
+                key = "gi";
+                lspBufAction = "implementation";
+              }
+              {
+                key = "k";
+                lspBufAction = "hover";
+              }
+            ];
+            plugins.cmp.enable = true;
+            plugins.cmp.autoEnableSources = true;
             plugins.lean.enable = true;
             plugins.lean.autoLoad = true;
+            plugins.lean.settings.mappings = true;
+            plugins.lean.settings.progress_bars.enable = false;
+            plugins.lualine.enable = true;
+            plugins.nvim-surround.enable = true;
+            plugins.which-key.enable = true;
             # plugins.tree-sitter.enable = true;
             # plugins.treesitter-textobjects.enable = true;
           })
