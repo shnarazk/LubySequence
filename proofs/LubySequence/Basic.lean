@@ -147,7 +147,7 @@ end Luby
 
 structure LubyGenerator where
   c : Nat  -- index of cycle (an increasing sunsequence)
-  i : Nat
+  i : Nat  -- index of current cycle in the cycle
 
 def LubyGenerator.cycleBase (g : LubyGenerator) : Nat :=
    ∑ i < g.c, i
