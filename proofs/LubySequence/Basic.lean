@@ -123,14 +123,18 @@ termination_by n
 decreasing_by
   rcases n with z | k1 | k2
   { simp at * }
-  { simp [S₂]; sorry }
+  { simp [S₂, Nat.size, Nat.binaryRec]  }
   {
     ring_nf at *
     simp at *
-    -- have : S₂ (2 + k2) ≥ 2 := by
-    --   apply twoLelargestPower2ofKGtZero
-    --   exact Nat.pos_of_neZero (2 + k2)
-    sorry
+    have : 3 - S₂ (2 + k2) < 2 → 3 + k2 - S₂ (2 + k2) < 2 + k2 := by omega
+    apply this
+    have : 1 < S₂ (2 + k2) → 3 - S₂ (2 + k2) < 2 := by
+      intro h
+      have : S₂ (2 + k2) ≥ 2 := by exact S₂_ge_two (2 + k2) (by omega)
+      omega
+    apply this
+    apply S₂_ge_two (2 + k2) (by omega)
   }
 
 end Luby
