@@ -4,7 +4,7 @@
 \usepackage{graphicx}       % For including images (optional)
 
 \title{Luby Sequence}
-\author{I and Gen AIs}
+\author{I and gen. AIs}
 \date{2025-06-20}
 
 \begin{document}
@@ -17,28 +17,42 @@ Actually, I haven’t seen it used in any areas other than Boolean satisfiabilit
 The sequence is defined as follows:
 
 \begin{equation}
-Luby(k \ge 1) =
+Luby_1(k \ge 1) =
 \begin{cases}
 2^{i-1}, & \text{if } k = 2^i - 1 \text{ for some } i \geq 1, \\
-Luby\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k < 2^i - 1
+Luby_1\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k < 2^i - 1
 \end{cases}
 \end{equation}
 
 
 If we start the sequence from 0:
 
-\begin{eqnarray*}
-L(k \ge 0) &=& Luby(k+1) \\
-&=&
+\begin{align}
+Luby(k \ge 0) &= Luby_1(k+1) \notag\\
+&=
 \begin{cases}
 2^{i-1}, & \text{if } k = 2^i -2 \text{ for some } i \geq 1, \\
-Luby\left(k - 2^{i-1} + 2\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
-\end{cases}\\
-&=&
+Luby_1\left(k - 2^{i-1} + 2\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
+\end{cases}\notag\\
+&=
 \begin{cases}
 2^{i-1}, & \text{if } k = 2^i -2 \text{ for some } i \geq 1, \\
-L\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
+Luby\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
 \end{cases}
-\end{eqnarray*}
+\end{align}
+For simplicity, we introduce a sequence $S_2$
 
+\begin{align}
+	S_2 (k) = 2^{(k + 2).size}
+\end{align}
+where $size : N \longmapsto N $ returns the length of the binary representation of a natural number, defined in Lean4.
+
+\begin{align}
+Luby(k)
+&=
+\begin{cases}
+S_2(k), & \text{if } S_2(k+2) = k+2, \\
+Luby\left(k + 1 - S_2(k)\right), & \text{otherwise}
+\end{cases}
+\end{align}
 \end{document}
