@@ -44,3 +44,17 @@ def LubyIterator.next (self : LubyIterator) : Nat × LubyIterator :=
           self.segment_index_in_cycle.succ)
 
 #eval List.range 16 |>.foldl (fun lg _ ↦ let (i, g') := lg.snd.next; (lg.fst ++ [i], g')) (([] : List Nat), (default : LubyIterator)) |>.fst
+
+/-
+ - Sketch of proof on equality of iterator and Luby sequence:
+ - show the isomorphism between the iterator and the Luby sequence
+ - n : Nat → LubyIterator → next = Luby(n)
+ - category? IsIso ?
+-/
+
+def LubyIterator.ofNat (n : Nat) : LubyIterator := sorry "Not implemented yet"
+
+def LubyIterator.toNat (self : LubyIterator) : Nat := sorry "Not implemented yet"
+
+theorm LubyIteratorIsIsomorphism : ∀ n : Nat, LubyIterator.toNat (LubyIterator.ofNat n) = n := by
+  sorry "Not implemented yet"
