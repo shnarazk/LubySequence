@@ -144,10 +144,30 @@ end Luby
 -- Output: [1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1]
 
 structure LubyGenerator where
-  c : Nat  -- index of cycle (an increasing subsequence)
-  i : Nat  -- index in current cycle in the cycle
+  seg : Nat -- index of segment (an increasing subsequence)
+  -- cLen : Nat -- the length of the current segment
+  i   : Nat -- index in the current segment 
 
-def LubyGenerator.cycleBase (g : LubyGenerator) : Nat :=
-   ∑ i < g.c, i
+def LubyGenerator.spanOfSegment (self : LubyGenerator) : Nat :=
+  2 ^ self.seg
 
-#eval (LubyGenerator.mk 4 0).cycleBase
+def LubyGenerator.segmentBase (self : LubyGenerator) : Nat :=
+  ∑ i < self.seg, i
+
+def trailing_zero (n : Nat) : Nat :=
+  if h : n < 2
+  then 0
+  else (if n % 2 = 0 then 1 else 0) + trailing_zero (n / 2)
+-- termination_by n
+#eval List.range 9 |>.map trailing_zero 
+
+def LubyGenerator.next (self : LubyGenerator) : Nat × LubyGenerator :=
+  let s := trailing_zero self.i
+  let self' := if self.i + 1 = self.seg
+    then LubyGenerator.mk (self.seg + 1) 0
+    else LubyGenerator.mk self.seg (self.i + 1)
+  (s, self')
+
+#eval List.range 10 |>.foldl (fun lg _ ↦ let (i, g') := lg.snd.next; (lg.fst ++ [i], g')) (([] : List Nat), LubyGenerator.mk 0 0) |>.fst
+
+#eval (LubyGenerator.mk 4 0).segmentBase
