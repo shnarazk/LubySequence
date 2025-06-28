@@ -112,7 +112,6 @@ partial def luby₁ : Nat → Nat
     else
      luby₁ (k + 1 - (S₂ k))
 
-
 -- Well-founded version of the Luby sequence
 def luby (n : ℕ) : Nat :=
   if n > 0 then

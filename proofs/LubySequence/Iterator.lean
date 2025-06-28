@@ -1,0 +1,46 @@
+import Mathlib.Tactic
+import Mathlib.Data.Nat.Basic
+import Mathlib.Data.Nat.Init
+import Mathlib.Data.Nat.Bits
+import Mathlib.Data.Nat.Size
+import LubySequence.Basic
+
+structure LubyIterator where
+  cycle_index : Nat
+  span_of_cycle : Nat
+  segment_index_in_cycle : Nat
+
+instance LubyIterator.inst : Inhabited LubyIterator :=
+  ⟨0, 1, 1⟩
+
+#eval (default : LubyIterator)
+
+def trailing_zero (n : Nat) : Nat :=
+  if h : n < 2
+  then (1 - n)
+  else if n % 2 = 0 then 1 + trailing_zero (n / 2) else 0
+
+def trailing_one (n : Nat) : Nat :=
+  if h : n < 2
+  then n
+  else if n % 2 = 0 then 0 else 1 + trailing_one (n / 2)
+
+#eval List.range 9 |>.map trailing_zero
+#eval List.range 9 |>.map trailing_one
+
+def LubyIterator.next (self : LubyIterator) : Nat × LubyIterator :=
+  if self.segment_index_in_cycle = self.span_of_cycle
+    then
+      ( 1,
+        LubyIterator.mk
+          self.cycle_index.succ
+          (trailing_zero self.cycle_index.succ).succ
+          1)
+    else
+      ( 2^self.segment_index_in_cycle,
+        LubyIterator.mk
+          self.cycle_index
+          self.span_of_cycle
+          self.segment_index_in_cycle.succ)
+
+#eval List.range 16 |>.foldl (fun lg _ ↦ let (i, g') := lg.snd.next; (lg.fst ++ [i], g')) (([] : List Nat), (default : LubyIterator)) |>.fst
