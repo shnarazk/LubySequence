@@ -30,32 +30,6 @@ where
 def S₂ (n: Nat) := 2^(n.succ.size - 1)
 #eval List.range (16 : Nat) |>.map S₂
 
--- Checks if (k + 1) is one less than a power of two
-def isSpecial (k : Nat) : Bool :=
-  -- ((k + 2) &&& (k + 1)) == 0  -- k + 2 is a power of 2 ⇔ k + 1 = 2^i - 1
-  S₂ (k + 2) == k + 2
-
-#eval List.range 16 |>.map isSpecial -- |>.map (if · then "T" else "F")
-
-/-
--- Returns the largest power of 2 less than or equal to (k + 1)
-partial def largestPowerOf2LE₁ (k : Nat) : Nat :=
-  let rec loop (i acc : Nat) :=
-    if 2^i > k + 1 then acc else loop (i + 1) (2^i)
-  loop 0 1
-
-#eval List.range 16 |>.map largestPowerOf2LE₁ --
-
-def largestPowerOf2LE (k : Nat) : Nat :=
-  let rec loop (d i acc : Nat) :=
-    match d with
-    | 0 => acc
-    | n + 1 => if 2^i > k + 1 then acc else loop n i.succ (2^i)
-  loop k.bits.length.succ 0 1
-
-#eval List.range 16 |>.map largestPowerOf2LE --
--/
-
 theorem pow2_le_pow2 (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
   have : 2 > 0 := by exact Nat.zero_lt_two
   exact Nat.pow_le_pow_right this
@@ -93,7 +67,7 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
     rcases h1 with h1|h2
     { simp [h1, Nat.size, Nat.binaryRec] }
     {
-      have h1 : 1 = (1 : Nat).size := by exact Eq.symm Nat.size_one -- apply?
+      have h1 : 1 = (1 : Nat).size := by exact Eq.symm Nat.size_one
       have h2 : 2 ≤ (2 : Nat).size := by simp [Nat.size, Nat.binaryRec]
       have h3 : 2 ≤ 1 + k := by omega
       have h4 : Nat.size 2 ≤ Nat.size (k + 1) := by
@@ -104,25 +78,16 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
   exact this
 
 -- Well-founded version of the Luby sequence
-partial def luby₁ : Nat → Nat
-  | 0 => 1
-  | k =>
-    if isSpecial k then
-      S₂ k
-    else
-     luby₁ (k + 1 - (S₂ k))
-
--- Well-founded version of the Luby sequence
 def luby (n : ℕ) : Nat :=
   if n > 0 then
-    if isSpecial n then S₂ n else luby (n + 1 - (S₂ n))
+    if S₂ (n + 2) = n + 2 then S₂ n else luby (n + 1 - (S₂ n))
   else
     1
 termination_by n
 decreasing_by
   rcases n with z | k1 | k2
   { simp at * }
-  { simp [S₂, Nat.size, Nat.binaryRec]  }
+  { simp [S₂, Nat.size, Nat.binaryRec] }
   {
     ring_nf at *
     simp at *
