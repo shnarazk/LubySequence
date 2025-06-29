@@ -4,7 +4,7 @@
 \usepackage{graphicx}       % For including images (optional)
 
 \title{Luby Sequence}
-\author{I and gen. AIs}
+\author{shnarazk and Generative AIs}
 \date{2025-06-20}
 
 \begin{document}
@@ -12,7 +12,7 @@
 
 The Luby sequence is a sequence of natural numbers defined recursively.
 It is used in randomized algorithms and has applications in computer science.
-Actually, I haven’t seen it used in any areas other than Boolean satisfiability.
+However, outside of Boolean-satisfiability solvers, its applications appear to be rare.
 
 The sequence is defined as follows:
 
@@ -24,8 +24,7 @@ Luby_1\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k < 2^i - 1
 \end{cases}
 \end{equation}
 
-
-If we start the sequence from 0:
+To obtain a zero-based version, define \(L(k)\) for \(k\ge0\) by setting \(L(k)=L_1(k+1)\). Equivalently,
 
 \begin{align}
 Luby(k \ge 0) &= Luby_1(k+1) \notag\\
@@ -40,12 +39,13 @@ Luby_1\left(k - 2^{i-1} + 2\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
 Luby\left(k - 2^{i-1} + 1\right), & \text{if } 2^{i-1} \leq k + 1 < 2^i - 1
 \end{cases}
 \end{align}
+
 For simplicity, we introduce a sequence $S_2$
 
 \begin{align}
-	S_2 (k) = 2^{(k + 2).size}
+	S_2(k) = 2^{(k + 2).size}
 \end{align}
-where $size : N \longmapsto N $ returns the length of the binary representation of a natural number, defined in Lean4.
+where $size : N \longmapsto N $ returns the length of the binary representation of the binary representation of its argument (as in Lean 4).
 
 \begin{align}
 Luby(k)
