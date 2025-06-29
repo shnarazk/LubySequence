@@ -52,9 +52,11 @@ def LubyIterator.next (self : LubyIterator) : Nat × LubyIterator :=
  - category? IsIso ?
 -/
 
-def LubyIterator.ofNat (n : Nat) : LubyIterator := sorry "Not implemented yet"
+def LubyIterator.ofNat (n : Nat) : LubyIterator :=
+  panic s!"Not implemented yet {n}"
 
-def LubyIterator.toNat (self : LubyIterator) : Nat := sorry "Not implemented yet"
+def LubyIterator.toNat (self : LubyIterator) : Nat :=
+  panic s!"Not implemented yet {self.cycle_index}"
 
-theorm LubyIteratorIsIsomorphism : ∀ n : Nat, LubyIterator.toNat (LubyIterator.ofNat n) = n := by
-  sorry "Not implemented yet"
+theorem LubyIteratorIsIsomorphism : ∀ n : Nat, LubyIterator.toNat (LubyIterator.ofNat n) = n := by
+  sorry
