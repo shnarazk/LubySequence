@@ -43,8 +43,8 @@ def LubyIterator.next (self : LubyIterator) : Nat × LubyIterator :=
           self.span_of_cycle
           self.segment_index_in_cycle.succ)
 
-#eval List.range 16 |>.foldl (fun (l, g) _ ↦ let (i, g') := g.next; (l ++ [i], g')) (([] : List Nat), (default : LubyIterator)) |>.fst
-#eval List.range 16 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next.snd :: lg) [(default : LubyIterator)] |>.reverse |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle))
+#eval List.range 24 |>.foldl (fun (l, g) _ ↦ let (i, g') := g.next; (l ++ [i], g')) (([] : List Nat), (default : LubyIterator)) |>.fst
+#eval List.range 24 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next.snd :: lg) [(default : LubyIterator)] |>.reverse |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle))
 
 /-
  - Sketch of proof on equality of iterator and Luby sequence:
@@ -58,9 +58,9 @@ def LubyIterator.ofNat (n : Nat) : LubyIterator :=
 
 def S₁ (n: Nat) : Nat := n.succ.size.pred
 
-#eval List.range 16 |>.map (fun k ↦ S₁ k)
-#eval List.range 16 |>.map (fun k ↦ Luby.S₂ k)
-#eval List.range 16 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
+#eval List.range 24 |>.map (fun k ↦ S₁ k)
+#eval List.range 24 |>.map (fun k ↦ Luby.S₂ k)
+#eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
 
 def LubyIterator.toNat (self : LubyIterator) : Nat :=
   panic s!"Not implemented yet {self.cycle_index}"

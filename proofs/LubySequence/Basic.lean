@@ -28,7 +28,7 @@ where
 -/
 
 def S₂ (n: Nat) := 2^(n.succ.size - 1)
-#eval List.range (16 : Nat) |>.map S₂
+#eval List.range (24 : Nat) |>.map S₂
 
 theorem pow2_le_pow2 (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
   have : 2 > 0 := by exact Nat.zero_lt_two
@@ -104,5 +104,5 @@ decreasing_by
 end Luby
 
 -- 🧪 Test output
-#eval List.range 16 |>.map Luby.luby
+#eval List.range 24 |>.map Luby.luby
 -- Output: [1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1]
