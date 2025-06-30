@@ -43,7 +43,7 @@ def LubyIterator.next (self : LubyIterator) : Nat × LubyIterator :=
           self.span_of_cycle
           self.segment_index_in_cycle.succ)
 
-#eval List.range 16 |>.foldl (fun lg _ ↦ let (i, g') := lg.snd.next; (lg.fst ++ [i], g')) (([] : List Nat), (default : LubyIterator)) |>.fst
+#eval List.range 16 |>.foldl (fun (l, g) _ ↦ let (i, g') := g.next; (l ++ [i], g')) (([] : List Nat), (default : LubyIterator)) |>.fst
 #eval List.range 16 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next.snd :: lg) [(default : LubyIterator)] |>.reverse |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle))
 
 /-
