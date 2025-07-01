@@ -31,7 +31,7 @@ def S₂ (n: Nat) := 2^(n.succ.size - 1)
 #eval List.range (24 : Nat) |>.map S₂
 
 theorem pow2_le_pow2 (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
-  have : 2 > 0 := by exact Nat.zero_lt_two
+  have : 2 > 0 := by grind
   exact Nat.pow_le_pow_right this
 
 theorem S₂_ge_zero (n : Nat) : S₂ n ≥ 0 := by
@@ -51,7 +51,7 @@ theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
       apply fun a_1 ↦ Nat.sub_le_sub_right a_1 1
     apply this
     apply Nat.size_le_size
-    omega
+    grind
   }
 
 theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
@@ -96,7 +96,7 @@ decreasing_by
     have : 1 < S₂ (2 + k2) → 3 - S₂ (2 + k2) < 2 := by
       intro h
       have : S₂ (2 + k2) ≥ 2 := by exact S₂_ge_two (2 + k2) (by omega)
-      omega
+      grind
     apply this
     apply S₂_ge_two (2 + k2) (by omega)
   }
