@@ -69,7 +69,7 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
     {
       have h1 : 1 = (1 : Nat).size := by exact Eq.symm Nat.size_one
       have h2 : 2 ≤ (2 : Nat).size := by simp [Nat.size, Nat.binaryRec]
-      have h3 : 2 ≤ 1 + k := by omega
+      have h3 : 2 ≤ 1 + k := by grind
       have h4 : Nat.size 2 ≤ Nat.size (k + 1) := by
         simp only [Nat.add_comm k 1]
         exact Nat.size_le_size h3
@@ -95,10 +95,10 @@ decreasing_by
     apply this
     have : 1 < S₂ (2 + k2) → 3 - S₂ (2 + k2) < 2 := by
       intro h
-      have : S₂ (2 + k2) ≥ 2 := by exact S₂_ge_two (2 + k2) (by omega)
+      have : S₂ (2 + k2) ≥ 2 := by exact S₂_ge_two (2 + k2) (by grind)
       grind
     apply this
-    apply S₂_ge_two (2 + k2) (by omega)
+    apply S₂_ge_two (2 + k2) (by grind)
   }
 
 end Luby
