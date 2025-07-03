@@ -77,6 +77,21 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
     }
   exact this
 
+theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
+  induction' n with k h
+  { simp }
+  {
+    have h2 : 2 ^(k + 1) = 2^k * 2 := by omega
+    rw [h2]
+    have t1 : k + 1 + 1 ≤ 2 ^ k + 1 := by omega
+    have t2 : 2 ^ k + 1 ≤ 2 ^ k + 2 ^ k := by
+      have : 1 ≤ 2 ^ k := by omega
+      exact Nat.add_le_add_iff_left.mpr this
+    have (k : Nat) : k + k = k * 2 := by exact Eq.symm (Nat.mul_two k)
+    rw [this] at t2
+    exact Nat.le_trans t1 t2
+  }
+
 -- Well-founded version of the Luby sequence
 def luby (n : ℕ) : Nat :=
   if n > 0 then
