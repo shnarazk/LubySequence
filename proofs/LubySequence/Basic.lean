@@ -27,12 +27,15 @@ where
   I(n) = ⌈log₂(n+2)⌉
 -/
 
-def S₂ (n: Nat) := 2^(n.succ.size - 1)
+/--
+ - Basic relation between Nat and its binary representation.
+ - A kind of ceiling function.
+ -/
+def S₂ (n : Nat) := 2^(n.succ.size - 1)
 #eval List.range (24 : Nat) |>.map S₂
 
 theorem pow2_le_pow2 (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
-  have : 2 > 0 := by grind
-  exact Nat.pow_le_pow_right this
+  exact Nat.pow_le_pow_right (by grind : 2 > 0)
 
 theorem S₂_ge_zero (n : Nat) : S₂ n ≥ 0 := by
   simp [S₂]
@@ -46,10 +49,7 @@ theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
     dsimp [S₂, Nat.size]
     apply pow2_le_pow2
     rw [←Nat.size]
-    rw [←Nat.size]
-    have (a b : Nat) : a ≤ b → a - 1 ≤ b - 1  := by
-      apply fun a_1 ↦ Nat.sub_le_sub_right a_1 1
-    apply this
+    apply fun x ↦ Nat.sub_le_sub_right x 1
     apply Nat.size_le_size
     grind
   }
@@ -58,8 +58,6 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
   simp [S₂]
   rw [(by rfl : 2 = 2 ^1)]
   apply pow2_le_pow2
-  have (a b c : Nat) (h : c ≤ b) : a ≤ b - c → a + c ≤ b := by
-    apply Nat.add_le_of_le_sub h
   apply Nat.le_sub_of_add_le
   simp
   have : 2 ≤ (k + 1).size := by
