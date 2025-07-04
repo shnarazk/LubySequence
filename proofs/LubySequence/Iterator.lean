@@ -5,16 +5,6 @@ import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 import LubySequence.Basic
 
-structure LubyIterator where
-  cycle_index : Nat
-  span_of_cycle : Nat
-  segment_index_in_cycle : Nat
-
-instance LubyIterator.inst : Inhabited LubyIterator :=
-  ⟨0, 1, 1⟩
-
-#eval (default : LubyIterator)
-
 def trailing_zero (n : Nat) : Nat :=
   if h : n < 2
   then (1 - n)
@@ -28,23 +18,29 @@ def trailing_one (n : Nat) : Nat :=
 #eval List.range 9 |>.map trailing_zero
 #eval List.range 9 |>.map trailing_one
 
-def LubyIterator.next (self : LubyIterator) : Nat × LubyIterator :=
-  if self.segment_index_in_cycle = self.span_of_cycle
-    then
-      ( 1,
-        LubyIterator.mk
-          self.cycle_index.succ
-          (trailing_zero self.cycle_index.succ).succ
-          1)
-    else
-      ( 2^self.segment_index_in_cycle,
-        LubyIterator.mk
-          self.cycle_index
-          self.span_of_cycle
-          self.segment_index_in_cycle.succ)
+structure LubyIterator where
+  cycle_index : Nat
+  segment_index_in_cycle : Nat
 
-#eval List.range 24 |>.foldl (fun (l, g) _ ↦ let (i, g') := g.next; (l ++ [i], g')) (([] : List Nat), (default : LubyIterator)) |>.fst
-#eval List.range 24 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next.snd :: lg) [(default : LubyIterator)] |>.reverse |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle))
+instance LubyIterator.inst : Inhabited LubyIterator :=
+  ⟨0, 0⟩
+
+def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment_index_in_cycle
+def LubyIterator.span_of_cycle (self : LubyIterator) : Nat := match self.cycle_index with
+  | 0 => 1
+  | n + 1 => (trailing_zero n).succ
+
+#eval (default : LubyIterator)
+
+def LubyIterator.next (self : LubyIterator) : LubyIterator :=
+  if self.segment_index_in_cycle.succ = self.span_of_cycle
+    then
+      LubyIterator.mk self.cycle_index.succ 0
+    else
+      LubyIterator.mk self.cycle_index self.segment_index_in_cycle.succ
+
+#eval List.range 24 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next :: lg) [(default : LubyIterator)] |>.reverse |>.map (·.current_span)
+#eval List.range 38 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next :: lg) [(default : LubyIterator)] |>.reverse |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle, i.span_of_cycle, i.current_span))
 
 /-
  - Sketch of proof on equality of iterator and Luby sequence:
