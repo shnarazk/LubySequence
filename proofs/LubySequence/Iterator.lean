@@ -10,13 +10,23 @@ def trailing_zero (n : Nat) : Nat :=
   then (1 - n)
   else if n % 2 = 0 then 1 + trailing_zero (n / 2) else 0
 
+#eval List.range 9 |>.map trailing_zero
+
 def trailing_one (n : Nat) : Nat :=
   if h : n < 2
   then n
   else if n % 2 = 0 then 0 else 1 + trailing_one (n / 2)
 
-#eval List.range 9 |>.map trailing_zero
 #eval List.range 9 |>.map trailing_one
+
+def nexts {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool := true) : List α :=
+  match n with
+  | 0      => []
+  | n' + 1 => let nxt := f init; if start
+    then init :: nxt :: nexts f nxt n' false
+    else nxt :: nexts f nxt n' false
+
+#eval nexts (· + 1) 10 8
 
 structure LubyIterator where
   cycle_index : Nat
@@ -39,8 +49,8 @@ def LubyIterator.next (self : LubyIterator) : LubyIterator :=
     else
       LubyIterator.mk self.cycle_index self.segment_index_in_cycle.succ
 
-#eval List.range 24 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next :: lg) [(default : LubyIterator)] |>.reverse |>.map (·.current_span)
-#eval List.range 38 |>.foldl (fun lg _ ↦ match lg with | [] => [] | i :: _ => i.next :: lg) [(default : LubyIterator)] |>.reverse |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle, i.span_of_cycle, i.current_span))
+#eval nexts (·.next) (default : LubyIterator) 24 |>.map (·.current_span)
+#eval nexts (·.next) (default : LubyIterator) 36 |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle, i.span_of_cycle, i.current_span))
 
 /-
  - Sketch of proof on equality of iterator and Luby sequence:
