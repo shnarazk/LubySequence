@@ -22,35 +22,35 @@ def trailing_one (n : Nat) : Nat :=
 def nexts {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool := true) : List α :=
   match n with
   | 0      => []
-  | n' + 1 => let nxt := f init; if start
-    then init :: nxt :: nexts f nxt n' false
-    else nxt :: nexts f nxt n' false
+  | n' + 1 =>
+    let nxt := f init
+    if start
+      then init :: nxt :: nexts f nxt n' false
+      else nxt :: nexts f nxt n' false
 
 #eval nexts (· + 1) 10 8
 
 structure LubyIterator where
   cycle_index : Nat
-  segment_index_in_cycle : Nat
+  -- segment_index is a local index within the current cycle
+  segment_index : Nat
 
-instance LubyIterator.inst : Inhabited LubyIterator :=
-  ⟨0, 0⟩
+instance LubyIterator.inst : Inhabited LubyIterator := ⟨0, 0⟩
 
-def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment_index_in_cycle
+def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment_index
 def LubyIterator.span_of_cycle (self : LubyIterator) : Nat := match self.cycle_index with
-  | 0 => 1
+  | 0     => 1
   | n + 1 => (trailing_zero n).succ
 
 #eval (default : LubyIterator)
 
 def LubyIterator.next (self : LubyIterator) : LubyIterator :=
-  if self.segment_index_in_cycle.succ = self.span_of_cycle
-    then
-      LubyIterator.mk self.cycle_index.succ 0
-    else
-      LubyIterator.mk self.cycle_index self.segment_index_in_cycle.succ
+  if _h : self.segment_index.succ = self.span_of_cycle
+  then LubyIterator.mk self.cycle_index.succ 0
+  else LubyIterator.mk self.cycle_index self.segment_index.succ
 
 #eval nexts (·.next) (default : LubyIterator) 24 |>.map (·.current_span)
-#eval nexts (·.next) (default : LubyIterator) 36 |>.map (fun i ↦ (i.cycle_index, i.segment_index_in_cycle, i.span_of_cycle, i.current_span))
+#eval nexts (·.next) (default : LubyIterator) 36 |>.map (fun i ↦ (i.cycle_index, i.segment_index, i.span_of_cycle, i.current_span))
 
 /-
  - Sketch of proof on equality of iterator and Luby sequence:

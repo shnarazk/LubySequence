@@ -32,7 +32,7 @@ where
  - A kind of ceiling function.
  -/
 def S₂ (n : Nat) := 2^(n.succ.size - 1)
-#eval List.range (24 : Nat) |>.map S₂
+#eval List.range 24 |>.map S₂
 
 theorem pow2_le_pow2 (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
   exact Nat.pow_le_pow_right (by grind : 2 > 0)
