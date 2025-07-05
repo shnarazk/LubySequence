@@ -19,38 +19,43 @@ def trailing_one (n : Nat) : Nat :=
 
 #eval List.range 9 |>.map trailing_one
 
-def nexts {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool := true) : List α :=
+def scanList {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool := true) : List α :=
   match n with
   | 0      => []
   | n' + 1 =>
     let nxt := f init
     if start
-      then init :: nxt :: nexts f nxt n' false
-      else nxt :: nexts f nxt n' false
+      then init :: nxt :: scanList f nxt n' false
+      else nxt :: scanList f nxt n' false
 
-#eval nexts (· + 1) 10 8
+#eval scanList (· + 1) 10 8
 
 structure LubyIterator where
-  cycle_index : Nat
-  -- segment_index is a local index within the current cycle
-  segment_index : Nat
+  cycle : Nat
+  -- segment is a local index within the current cycle
+  segment : Nat
 
 instance LubyIterator.inst : Inhabited LubyIterator := ⟨0, 0⟩
 
-def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment_index
-def LubyIterator.span_of_cycle (self : LubyIterator) : Nat := match self.cycle_index with
+def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment
+def LubyIterator.span_of_cycle (self : LubyIterator) : Nat := match self.cycle with
   | 0     => 1
   | n + 1 => (trailing_zero n).succ
 
 #eval (default : LubyIterator)
 
-def LubyIterator.next (self : LubyIterator) : LubyIterator :=
-  if _h : self.segment_index.succ = self.span_of_cycle
-  then LubyIterator.mk self.cycle_index.succ 0
-  else LubyIterator.mk self.cycle_index self.segment_index.succ
+def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterator :=
+  match repeating with
+  | 0     => self
+  | r + 1 =>
+    if _h : self.segment.succ = self.span_of_cycle
+    then (LubyIterator.mk self.cycle.succ 0).next r
+    else (LubyIterator.mk self.cycle self.segment.succ).next r
 
-#eval nexts (·.next) (default : LubyIterator) 24 |>.map (·.current_span)
-#eval nexts (·.next) (default : LubyIterator) 36 |>.map (fun i ↦ (i.cycle_index, i.segment_index, i.span_of_cycle, i.current_span))
+#eval scanList (·.next) (default : LubyIterator) 24 |>.map (·.current_span)
+#eval scanList (·.next) (default : LubyIterator) 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
+#eval (default : LubyIterator).next 24 |>.current_span
+
 
 /-
  - Sketch of proof on equality of iterator and Luby sequence:
@@ -59,8 +64,7 @@ def LubyIterator.next (self : LubyIterator) : LubyIterator :=
  - category? IsIso ?
 -/
 
-def LubyIterator.ofNat (n : Nat) : LubyIterator :=
-  panic s!"Not implemented yet {n}"
+def LubyIterator.ofNat (n : Nat) : LubyIterator := (default : LubyIterator).next n
 
 def S₁ (n: Nat) : Nat := n.succ.size.pred
 
@@ -69,7 +73,10 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 #eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
 
 def LubyIterator.toNat (self : LubyIterator) : Nat :=
-  panic s!"Not implemented yet {self.cycle_index}"
+  panic s!"Not implemented yet {self.cycle}"
 
 theorem LubyIteratorIsIsomorphism : ∀ n : Nat, LubyIterator.toNat (LubyIterator.ofNat n) = n := by
   sorry
+
+instance : Coe Nat LubyIterator where
+  coe n := LubyIterator.ofNat n
