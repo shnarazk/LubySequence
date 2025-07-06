@@ -26,6 +26,7 @@
             pkgs.bashInteractive
             pkgs.elan
             home.packages.${system}.nvim4lean
+            pkgs.tex-fmt
             pkgs.texlab
             (pkgs.texlive.combine {
               inherit (pkgs.texlive)
