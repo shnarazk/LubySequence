@@ -14,9 +14,13 @@ structure LubyIterator where
 instance LubyIterator.inst : Inhabited LubyIterator := ⟨0, 0⟩
 
 def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment
-def LubyIterator.span_of_cycle (self : LubyIterator) : Nat := match self.cycle with
+
+
+def spanOfCycle (n : Nat) : Nat := match n with
   | 0     => 1
   | n + 1 => (trailing_zero n).succ
+
+def LubyIterator.span_of_cycle (self : LubyIterator) : Nat := spanOfCycle self.cycle
 
 #eval (default : LubyIterator)
 
@@ -49,10 +53,18 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 #eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
 
 def LubyIterator.toNat (self : LubyIterator) : Nat :=
-  panic s!"Not implemented yet {self.cycle}"
+  (∑ k < self.cycle, spanOfCycle k) + self.segment
+
+#eval scanList (·.next) (default : LubyIterator) 24 |>.map (·.toNat)
 
 theorem LubyIterator1 : ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
   intro n
+  induction' n with n0 n
+  {
+    dsimp [LubyIterator.ofNat, LubyIterator.next]
+    simp [default, LubyIterator.span_of_cycle]
+    sorry
+   }
   sorry
 
 theorem LubyIterator2 : ∀ n : Nat, (LubyIterator.ofNat n).current_span = Luby.luby n := by
