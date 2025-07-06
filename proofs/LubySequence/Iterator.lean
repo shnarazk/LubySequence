@@ -75,7 +75,15 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 def LubyIterator.toNat (self : LubyIterator) : Nat :=
   panic s!"Not implemented yet {self.cycle}"
 
-theorem LubyIteratorIsIsomorphism : ∀ n : Nat, LubyIterator.toNat (LubyIterator.ofNat n) = n := by
+theorem LubyIterator1 : ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
+  intro n
+  sorry
+
+theorem LubyIterator2 : ∀ n : Nat, (LubyIterator.ofNat n).current_span = Luby.luby n := by
+  intro n
+  sorry
+
+theorem LubyIterator3 : ∀ n : Nat, LubyIterator.toNat (LubyIterator.ofNat n) = n := by
   sorry
 
 instance : Coe Nat LubyIterator where
