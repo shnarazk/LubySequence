@@ -57,6 +57,28 @@ def LubyIterator.toNat (self : LubyIterator) : Nat :=
 
 #eval scanList (·.next) (default : LubyIterator) 24 |>.map (·.toNat)
 
+theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
+  intro n
+  induction' n with n0 n
+  {
+    dsimp [LubyIterator.ofNat, LubyIterator.next]
+    simp [default]
+    simp [LubyIterator.toNat]
+  }
+  {
+    simp [LubyIterator.ofNat, LubyIterator.next]
+    let h01 : (default : LubyIterator).segment + 1 = (default : LubyIterator).span_of_cycle
+        ∨ (default : LubyIterator).segment + 1 ≠ (default : LubyIterator).span_of_cycle := by
+      exact eq_or_ne ((default : LubyIterator).segment + 1) (default : LubyIterator).span_of_cycle
+    simp at *
+    rcases h01 with t|f
+    {
+      simp [t]
+      sorry
+    }
+    sorry
+  }
+
 theorem LubyIterator1 : ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
   intro n
   induction' n with n0 n
