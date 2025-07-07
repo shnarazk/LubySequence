@@ -36,6 +36,16 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
 #eval scanList (·.next) (default : LubyIterator) 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
 #eval (default : LubyIterator).next 24 |>.current_span
 
+theorem LubyIterator.is_divergent (lb : LubyIterator) : ¬(lb.next = lb) := by
+  sorry
+
+theorem LubyIterator.next_assoc (lb : LubyIterator) : ∀ n : Nat, (lb.next n).next = lb.next (n + 1) := by
+  intro n
+  induction' n with n hi
+  { dsimp [LubyIterator.next] }
+  {
+    sorry
+  }
 
 /-
  - Sketch of proof on equality of iterator and Luby sequence:
@@ -74,9 +84,14 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
     rcases h01 with t|f
     {
       simp [t]
+      
       sorry
     }
-    sorry
+    {
+      simp [f]
+
+      sorry
+    }
   }
 
 theorem LubyIterator1 : ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
@@ -91,9 +106,6 @@ theorem LubyIterator1 : ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 :
 
 theorem LubyIterator2 : ∀ n : Nat, (LubyIterator.ofNat n).current_span = Luby.luby n := by
   intro n
-  sorry
-
-theorem LubyIterator3 : ∀ n : Nat, LubyIterator.toNat (LubyIterator.ofNat n) = n := by
   sorry
 
 instance : Coe Nat LubyIterator where
