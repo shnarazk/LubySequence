@@ -12,6 +12,9 @@ structure LubyIterator where
   segment : Nat
 
 instance LubyIterator.inst : Inhabited LubyIterator := ⟨0, 0⟩
+def LubyIterator.zero := (default : LubyIterator)
+
+#check LubyIterator.zero
 
 def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment
 
@@ -32,12 +35,29 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
     then (LubyIterator.mk self.cycle.succ 0).next r
     else (LubyIterator.mk self.cycle self.segment.succ).next r
 
-#eval scanList (·.next) (default : LubyIterator) 24 |>.map (·.current_span)
-#eval scanList (·.next) (default : LubyIterator) 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
+#eval scanList (·.next) LubyIterator.zero 24 |>.map (·.current_span)
+#eval scanList (·.next) LubyIterator.zero 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
 #eval (default : LubyIterator).next 24 |>.current_span
 
 theorem LubyIterator.is_divergent (lb : LubyIterator) : ¬(lb.next = lb) := by
-  sorry
+  contrapose!
+  intro t₀
+  simp [LubyIterator.next]
+  have tf : lb.segment + 1 = lb.span_of_cycle ∨ lb.segment + 1 ≠ lb.span_of_cycle := by
+    exact eq_or_ne (lb.segment + 1) lb.span_of_cycle
+  rcases tf with t|f
+  {
+    simp [t]
+    have (a : LubyIterator) (h : ¬a.cycle = lb.cycle) : ¬a = lb := by
+      exact fun a_1 ↦ t₀ (h (congrArg cycle a_1))
+    simp [this]
+  }
+  {
+    simp [f] 
+    have (a : LubyIterator) (h : ¬a.segment = lb.segment) : ¬a = lb := by
+      exact fun a_1 ↦ t₀ (h (congrArg segment a_1))
+    simp [this]
+  }
 
 theorem LubyIterator.next_assoc (lb : LubyIterator) : ∀ n : Nat, (lb.next n).next = lb.next (n + 1) := by
   intro n
