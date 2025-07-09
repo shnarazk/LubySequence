@@ -18,7 +18,7 @@ def LubyIterator.zero := (default : LubyIterator)
 
 def LubyIterator.current_span (self : LubyIterator) : Nat := 2 ^ self.segment
 
-
+@[simp]
 def spanOfCycle (n : Nat) : Nat := match n with
   | 0     => 1
   | n + 1 => (trailing_zero n).succ
@@ -31,39 +31,62 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
   match repeating with
   | 0     => self
   | r + 1 =>
-    if _h : self.segment.succ = self.span_of_cycle
-    then (LubyIterator.mk self.cycle.succ 0).next r
-    else (LubyIterator.mk self.cycle self.segment.succ).next r
+    let li := self.next r
+    if _h : li.segment.succ = li.span_of_cycle
+    then LubyIterator.mk li.cycle.succ 0
+    else LubyIterator.mk li.cycle li.segment.succ
 
 #eval scanList (·.next) LubyIterator.zero 24 |>.map (·.current_span)
 #eval scanList (·.next) LubyIterator.zero 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
 #eval (default : LubyIterator).next 24 |>.current_span
 
-theorem LubyIterator.is_divergent (lb : LubyIterator) : ¬(lb.next = lb) := by
+theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
   contrapose!
   intro t₀
   simp [LubyIterator.next]
-  have tf : lb.segment + 1 = lb.span_of_cycle ∨ lb.segment + 1 ≠ lb.span_of_cycle := by
-    exact eq_or_ne (lb.segment + 1) lb.span_of_cycle
+  have tf : li.segment + 1 = li.span_of_cycle ∨ li.segment + 1 ≠ li.span_of_cycle := by
+    exact eq_or_ne (li.segment + 1) li.span_of_cycle
   rcases tf with t|f
   {
     simp [t]
-    have (a : LubyIterator) (h : ¬a.cycle = lb.cycle) : ¬a = lb := by
+    have (a : LubyIterator) (h : ¬a.cycle = li.cycle) : ¬a = li := by
       exact fun a_1 ↦ t₀ (h (congrArg cycle a_1))
     simp [this]
   }
   {
     simp [f] 
-    have (a : LubyIterator) (h : ¬a.segment = lb.segment) : ¬a = lb := by
+    have (a : LubyIterator) (h : ¬a.segment = li.segment) : ¬a = li := by
       exact fun a_1 ↦ t₀ (h (congrArg segment a_1))
     simp [this]
   }
 
-theorem LubyIterator.next_assoc (lb : LubyIterator) : ∀ n : Nat, (lb.next n).next = lb.next (n + 1) := by
+theorem LubyIterator.congr (a b : LubyIterator) (h : a = b) : a.next = b.next := by
+  exact congrFun (congrArg (@next) h) 1
+
+theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).next = li.next (n + 1) := by
   intro n
   induction' n with n hi
   { dsimp [LubyIterator.next] }
   {
+    simp [←hi]
+    nth_rw 3 [LubyIterator.next]
+    have tf : li.segment + 1 = li.span_of_cycle ∨ li.segment + 1 ≠ li.span_of_cycle := by
+      exact eq_or_ne (li.segment + 1) li.span_of_cycle
+    rcases tf with t|f
+    {
+      simp [t]
+      nth_rw 3 [LubyIterator.next]
+      simp [LubyIterator.span_of_cycle]      
+      have tf2 : (trailing_zero li.cycle = 0) ∨ ¬(trailing_zero li.cycle = 0) := by exact eq_or_ne _ _
+      rcases tf2 with t2|f2
+      {
+        simp [t2]
+        nth_rw 4 [LubyIterator.next _ _]
+        apply LubyIterator.congr
+    }
+    {
+      simp [f]
+
     sorry
   }
 
@@ -74,7 +97,7 @@ theorem LubyIterator.next_assoc (lb : LubyIterator) : ∀ n : Nat, (lb.next n).n
  - category? IsIso ?
 -/
 
-def LubyIterator.ofNat (n : Nat) : LubyIterator := (default : LubyIterator).next n
+def LubyIterator.ofNat (n : Nat) : LubyIterator := (default : LubyIterator).next li
 
 def S₁ (n: Nat) : Nat := n.succ.size.pred
 
