@@ -32,7 +32,7 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
   | 0     => self
   | r + 1 =>
     let li := self.next r
-    if _h : li.segment.succ = li.span_of_cycle
+    if li.segment.succ = li.span_of_cycle
     then LubyIterator.mk li.cycle.succ 0
     else LubyIterator.mk li.cycle li.segment.succ
 
@@ -68,26 +68,22 @@ theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).n
   induction' n with n hi
   { dsimp [LubyIterator.next] }
   {
-    simp [←hi]
     nth_rw 3 [LubyIterator.next]
-    have tf : li.segment + 1 = li.span_of_cycle ∨ li.segment + 1 ≠ li.span_of_cycle := by
-      exact eq_or_ne (li.segment + 1) li.span_of_cycle
+    have tf : ((li.next (n + 1)).segment.succ = (li.next (n + 1)).span_of_cycle)
+        ∨ ¬((li.next (n + 1)).segment.succ = (li.next (n + 1)).span_of_cycle) := by
+      exact eq_or_ne _ _
     rcases tf with t|f
     {
-      simp [t]
-      nth_rw 3 [LubyIterator.next]
-      simp [LubyIterator.span_of_cycle]      
-      have tf2 : (trailing_zero li.cycle = 0) ∨ ¬(trailing_zero li.cycle = 0) := by exact eq_or_ne _ _
-      rcases tf2 with t2|f2
-      {
-        simp [t2]
-        nth_rw 4 [LubyIterator.next _ _]
-        apply LubyIterator.congr
+      simp only [t]
+      simp
+      have : LubyIterator.mk ((li.next (n + 1)).cycle + 1) 0 = (li.next (n + 1)).next := by
+        sorry
+      simp only [this]
     }
     {
       simp [f]
-
-    sorry
+      sorry
+    }
   }
 
 /-
