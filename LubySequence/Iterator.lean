@@ -60,6 +60,9 @@ theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
     simp [this]
   }
 
+theorem LubyIterator.next0 (a : LubyIterator) : a.next 0 = a := by
+  simp [LubyIterator.next]
+
 theorem LubyIterator.congr (a b : LubyIterator) (h : a = b) : a.next = b.next := by
   exact congrFun (congrArg (@next) h) 1
 
@@ -76,13 +79,19 @@ theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).n
     {
       simp only [t]
       simp
-      have : LubyIterator.mk ((li.next (n + 1)).cycle + 1) 0 = (li.next (n + 1)).next := by
-        sorry
+      have : (li.next (n + 1)).next = LubyIterator.mk ((li.next (n + 1)).cycle + 1) 0 := by
+        nth_rw 1 [LubyIterator.next]
+        simp [LubyIterator.next0]
+        exact t
       simp only [this]
     }
     {
       simp [f]
-      sorry
+      have : (li.next (n + 1)).next = LubyIterator.mk ((li.next (n + 1)).cycle) ((li.next (n + 1)).segment + 1) := by
+        nth_rw 1 [LubyIterator.next]
+        simp [LubyIterator.next0]
+        exact f
+      simp only [this]
     }
   }
 
@@ -93,7 +102,7 @@ theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).n
  - category? IsIso ?
 -/
 
-def LubyIterator.ofNat (n : Nat) : LubyIterator := (default : LubyIterator).next li
+def LubyIterator.ofNat (n : Nat) : LubyIterator := (default : LubyIterator).next n
 
 def S₁ (n: Nat) : Nat := n.succ.size.pred
 
@@ -122,12 +131,12 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
     simp at *
     rcases h01 with t|f
     {
-      simp [t]
+      -- simp [t]
       
       sorry
     }
     {
-      simp [f]
+      -- simp [f]
 
       sorry
     }
