@@ -110,14 +110,20 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 #eval List.range 24 |>.map (fun k ↦ Luby.S₂ k)
 #eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
 
-def LubyIterator.toNat (self : LubyIterator) : Nat :=
-  (∑ k < self.cycle, spanOfCycle k) + self.segment
+-- @[simp]
+def cycleToNat (n : Nat) : Nat := match n with
+  | 0     => 1
+  | m + 1 => spanOfCycle n + cycleToNat m
+
+def LubyIterator.toNat (self : LubyIterator) : Nat := match self.cycle with
+  | 0 => 0
+  | n + 1 => cycleToNat n + self.segment
 
 #eval scanList (·.next) (default : LubyIterator) 24 |>.map (·.toNat)
 
 theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   intro n
-  induction' n with n0 n
+  induction' n with n hn
   {
     dsimp [LubyIterator.ofNat, LubyIterator.next]
     simp [default]
@@ -125,18 +131,24 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   }
   {
     simp [LubyIterator.ofNat, LubyIterator.next]
-    let h01 : (default : LubyIterator).segment + 1 = (default : LubyIterator).span_of_cycle
-        ∨ (default : LubyIterator).segment + 1 ≠ (default : LubyIterator).span_of_cycle := by
-      exact eq_or_ne ((default : LubyIterator).segment + 1) (default : LubyIterator).span_of_cycle
-    simp at *
-    rcases h01 with t|f
+    -- simp [LubyIterator.ofNat] at hn
+    let h0 : ((default : LubyIterator).next n).segment + 1 = ((default : LubyIterator).next n).span_of_cycle
+        ∨ ¬(((default : LubyIterator).next n).segment + 1 = ((default : LubyIterator).next n).span_of_cycle) := by
+      exact eq_or_ne _ _
+    rcases h0 with t0|f0
     {
-      -- simp [t]
-      
-      sorry
+      simp [t0]
+      simp [LubyIterator.toNat]
+      simp [LubyIterator.toNat] at hn
+      have tf : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+      rcases tf with t1|f1
+      { simp [t1] at *; simp [LubyIterator.next, cycleToNat] }
+      {
+        sorry
+      }
     }
     {
-      -- simp [f]
+      simp [f0]
 
       sorry
     }
