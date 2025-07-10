@@ -183,8 +183,20 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
       rcases tf with t1|f1
       { simp [t1] at *; simp [LubyIterator.next, LubyIterator.zero, cycleToNat] }
       {
-        
-        sorry
+        have q : n > 0 → (LubyIterator.zero.next n).cycle > 0 := by
+          intro n0 
+          have mono : ∀ n ≥ 1, (LubyIterator.zero.next n).cycle ≥ (LubyIterator.zero.next 1).cycle := by 
+            exact LubyIterator.cycle_is_mono 1
+          have : (LubyIterator.zero.next 1).cycle = 1 := by rfl
+          simp [this] at mono
+          exact mono n f1
+        have q1: (LubyIterator.zero.next n).cycle ≠ 0 := by apply?
+        have q2: LubyIterator.ofNat n = LubyIterator.zero.next n := by rfl
+        split at hn
+        { next q => grind }
+        { next _ n1 p1 =>
+          sorry
+        } 
       }
     }
     {
