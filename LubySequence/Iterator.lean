@@ -25,7 +25,7 @@ def spanOfCycle (n : Nat) : Nat := match n with
 
 def LubyIterator.span_of_cycle (self : LubyIterator) : Nat := spanOfCycle self.cycle
 
-#eval (default : LubyIterator)
+#eval LubyIterator.zero
 
 def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterator :=
   match repeating with
@@ -38,7 +38,7 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
 
 #eval scanList (·.next) LubyIterator.zero 24 |>.map (·.current_span)
 #eval scanList (·.next) LubyIterator.zero 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
-#eval (default : LubyIterator).next 24 |>.current_span
+#eval LubyIterator.zero.next 24 |>.current_span
 
 theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
   contrapose!
@@ -60,11 +60,37 @@ theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
     simp [this]
   }
 
+theorem LubyIterator.cycle_is_mono : ∀ li : LubyIterator, li.next.cycle ≥ li.cycle := by
+  intro li
+  simp [LubyIterator.next]
+  have : li.segment + 1 = li.span_of_cycle ∨ ¬(li.segment + 1 = li.span_of_cycle) := by exact eq_or_ne _ _
+  rcases this with t|f
+  { simp [t] }
+  { simp [f] }
+
 theorem LubyIterator.next0 (a : LubyIterator) : a.next 0 = a := by
   simp [LubyIterator.next]
 
 theorem LubyIterator.congr (a b : LubyIterator) (h : a = b) : a.next = b.next := by
   exact congrFun (congrArg (@next) h) 1
+
+theorem LubyIterator.cycle0 {n : Nat} : n = 0 ↔ (LubyIterator.zero.next n).cycle = 0 := by
+  constructor
+  { intro h; rw [h]; exact rfl }
+  {
+    intro h
+    by_contra x
+    have base1 : (LubyIterator.zero.next 1).cycle = 1 := by rfl
+    have : n ≥ 1 → (LubyIterator.zero.next n).cycle ≥ 1 := by
+      
+      sorry
+    have n1 : n ≥ 1 := by exact Nat.one_le_iff_ne_zero.mpr x
+    simp only [n1] at this
+    simp at this
+    have base1' : 0 < (LubyIterator.zero.next n).cycle := by exact this
+    have base1'' : (LubyIterator.zero.next n).cycle ≠ 0 := by grind
+    exact absurd h base1''
+  }
 
 theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).next = li.next (n + 1) := by
   intro n
@@ -102,7 +128,7 @@ theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).n
  - category? IsIso ?
 -/
 
-def LubyIterator.ofNat (n : Nat) : LubyIterator := (default : LubyIterator).next n
+def LubyIterator.ofNat (n : Nat) : LubyIterator := LubyIterator.zero.next n
 
 def S₁ (n: Nat) : Nat := n.succ.size.pred
 
@@ -119,21 +145,21 @@ def LubyIterator.toNat (self : LubyIterator) : Nat := match self.cycle with
   | 0 => 0
   | n + 1 => cycleToNat n + self.segment
 
-#eval scanList (·.next) (default : LubyIterator) 24 |>.map (·.toNat)
+#eval scanList (·.next) LubyIterator.zero 24 |>.map (·.toNat)
 
 theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   intro n
   induction' n with n hn
   {
     dsimp [LubyIterator.ofNat, LubyIterator.next]
-    simp [default]
+    simp [LubyIterator.zero]
     simp [LubyIterator.toNat]
   }
   {
     simp [LubyIterator.ofNat, LubyIterator.next]
     -- simp [LubyIterator.ofNat] at hn
-    let h0 : ((default : LubyIterator).next n).segment + 1 = ((default : LubyIterator).next n).span_of_cycle
-        ∨ ¬(((default : LubyIterator).next n).segment + 1 = ((default : LubyIterator).next n).span_of_cycle) := by
+    let h0 : (LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle
+        ∨ ¬((LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle) := by
       exact eq_or_ne _ _
     rcases h0 with t0|f0
     {
@@ -142,14 +168,13 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
       simp [LubyIterator.toNat] at hn
       have tf : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
       rcases tf with t1|f1
-      { simp [t1] at *; simp [LubyIterator.next, cycleToNat] }
+      { simp [t1] at *; simp [LubyIterator.next, LubyIterator.zero, cycleToNat] }
       {
         sorry
       }
     }
     {
       simp [f0]
-
       sorry
     }
   }
