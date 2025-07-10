@@ -99,14 +99,11 @@ theorem LubyIterator.cycle0 {n : Nat} : n = 0 ↔ (LubyIterator.zero.next n).cyc
     by_contra x
     have base1 : (LubyIterator.zero.next 1).cycle = 1 := by rfl
     have : n ≥ 1 → (LubyIterator.zero.next n).cycle ≥ 1 := by
-      
-      sorry
-    have n1 : n ≥ 1 := by exact Nat.one_le_iff_ne_zero.mpr x
-    simp only [n1] at this
-    simp at this
-    have base1' : 0 < (LubyIterator.zero.next n).cycle := by exact this
-    have base1'' : (LubyIterator.zero.next n).cycle ≠ 0 := by grind
-    exact absurd h base1''
+      have sub : n ≥ 1 → (zero.next n).cycle ≥ (zero.next 1).cycle := by exact fun a ↦ cycle_is_mono 1 n a
+      exact sub 
+    have np : n ≥ 1 := by exact Nat.one_le_iff_ne_zero.mpr x
+    simp [np] at this
+    grind
   }
 
 theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).next = li.next (n + 1) := by
