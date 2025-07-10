@@ -60,13 +60,30 @@ theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
     simp [this]
   }
 
-theorem LubyIterator.cycle_is_mono : ∀ li : LubyIterator, li.next.cycle ≥ li.cycle := by
+theorem LubyIterator.cycle_is_increasing : ∀ li : LubyIterator, li.next.cycle ≥ li.cycle := by
   intro li
   simp [LubyIterator.next]
   have : li.segment + 1 = li.span_of_cycle ∨ ¬(li.segment + 1 = li.span_of_cycle) := by exact eq_or_ne _ _
   rcases this with t|f
   { simp [t] }
   { simp [f] }
+
+theorem LubyIterator.cycle_is_mono (n : Nat) : ∀ n' ≥ n, (LubyIterator.zero.next n').cycle ≥ (LubyIterator.zero.next n).cycle := by
+  let cn := (LubyIterator.zero.next n).cycle
+  have cp : cn = value_of% cn := rfl
+  intro n' np
+  let d := n' - n 
+  have dp : d = value_of% d := rfl
+  have dp' : n' = n + d := by exact Eq.symm (Nat.add_sub_of_le np)
+  simp [dp']
+  induction' d with d dq
+  { simp }
+  {
+    have a1 : zero.next (n + d + 1) = (zero.next (n + d)).next := by exact rfl
+    have a2 : (zero.next (n + d)).next.cycle ≥ (zero.next (n + d)).cycle := by exact cycle_is_increasing (zero.next (n + d))
+    simp at a2
+    exact le_trans dq a2
+  }
 
 theorem LubyIterator.next0 (a : LubyIterator) : a.next 0 = a := by
   simp [LubyIterator.next]
@@ -157,7 +174,6 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   }
   {
     simp [LubyIterator.ofNat, LubyIterator.next]
-    -- simp [LubyIterator.ofNat] at hn
     let h0 : (LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle
         ∨ ¬((LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle) := by
       exact eq_or_ne _ _
@@ -170,6 +186,7 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
       rcases tf with t1|f1
       { simp [t1] at *; simp [LubyIterator.next, LubyIterator.zero, cycleToNat] }
       {
+        
         sorry
       }
     }
