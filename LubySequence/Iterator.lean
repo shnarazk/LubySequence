@@ -207,17 +207,20 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
 
 theorem LubyIterator1 : ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
   intro n
-  induction' n with n0 n
-  {
-    dsimp [LubyIterator.ofNat, LubyIterator.next]
-    simp [default, LubyIterator.span_of_cycle]
-    sorry
-   }
-  sorry
+  calc
+    (LubyIterator.ofNat n).next.toNat = (LubyIterator.zero.next n).next.toNat := by exact rfl
+    _ = (LubyIterator.zero.next (n + 1)).toNat := by exact rfl
+    _ = n + 1 := by exact LubyIterator0 (n + 1)
 
 theorem LubyIterator2 : ∀ n : Nat, (LubyIterator.ofNat n).current_span = Luby.luby n := by
   intro n
-  sorry
+  induction' n using Nat.strong_induction_on with n hn
+  {
+    simp [LubyIterator.current_span]
+    rw [Luby.luby]
+  
+    sorry
+  }
 
 instance : Coe Nat LubyIterator where
   coe n := LubyIterator.ofNat n
