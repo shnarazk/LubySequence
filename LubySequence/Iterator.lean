@@ -218,6 +218,7 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
         split
         {
           expose_names
+          simp [←ps] at h 
           simp [←pc]
           rw [cycleToNat.eq_def]
           cases cp : c with
@@ -226,8 +227,14 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
             have n0 := LubyIterator.cycle0.mpr (Eq.symm pc)
             exact n0
           | succ m =>
-            simp
-            sorry
+            simp -- [cp]
+            simp [cp] at hn
+            -- let t := (LubyIterator.zero.next n).span_of_cycle 
+            -- have tp : t = value_of% t := rfl
+            -- simp [←tp] at h
+            have h' := Eq.symm h
+            simp [LubyIterator.span_of_cycle] at h'
+            grind
         }
         { sorry }
       }
