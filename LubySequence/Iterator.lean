@@ -163,45 +163,56 @@ def LubyIterator.toNat (self : LubyIterator) : Nat := match self.cycle with
 
 theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   intro n
+  change (LubyIterator.zero.next n).toNat = n
   induction' n with n hn
+  { simp [LubyIterator.next, LubyIterator.zero, LubyIterator.toNat] }
   {
-    dsimp [LubyIterator.ofNat, LubyIterator.next]
-    simp [LubyIterator.zero]
-    simp [LubyIterator.toNat]
-  }
-  {
-    simp [LubyIterator.ofNat, LubyIterator.next]
-    let h0 : (LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle
-        ∨ ¬((LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle) := by
-      exact eq_or_ne _ _
-    rcases h0 with t0|f0
+    simp [LubyIterator.toNat] at *
+    split at hn
     {
-      simp [t0]
-      simp [LubyIterator.toNat]
-      simp [LubyIterator.toNat] at hn
-      have tf : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
-      rcases tf with t1|f1
-      { simp [t1] at *; simp [LubyIterator.next, LubyIterator.zero, cycleToNat] }
-      {
-        have q : n > 0 → (LubyIterator.zero.next n).cycle > 0 := by
-          intro n0 
-          have mono : ∀ n ≥ 1, (LubyIterator.zero.next n).cycle ≥ (LubyIterator.zero.next 1).cycle := by 
-            exact LubyIterator.cycle_is_mono 1
-          have : (LubyIterator.zero.next 1).cycle = 1 := by rfl
-          simp [this] at mono
-          exact mono n f1
-        have q1: (LubyIterator.zero.next n).cycle ≠ 0 := by apply?
-        have q2: LubyIterator.ofNat n = LubyIterator.zero.next n := by rfl
-        split at hn
-        { next q => grind }
-        { next _ n1 p1 =>
-          sorry
-        } 
+      simp [←hn] at *
+      split
+      { next hh ou => exact id (Eq.symm ou) }
+      { next nh nn k =>
+        have c1 : LubyIterator.zero.next.cycle = 1 := by exact rfl
+        have s1 : LubyIterator.zero.next.segment = 0 := by exact rfl
+        simp [c1] at k
+        simp [k, cycleToNat, s1]
       }
     }
     {
-      simp [f0]
-      sorry
+      expose_names
+      split
+      {
+        next a b =>
+        have : ∀ n' ≥ 1, (LubyIterator.zero.next n').cycle ≥ (LubyIterator.zero.next 1).cycle := by
+          exact fun n' a ↦ LubyIterator.cycle_is_mono 1 n' a
+        rcases this (n + 1) with g
+        have : n + 1 ≥ 1 := by exact Nat.le_add_left 1 n
+        simp [this] at g
+        have : LubyIterator.zero.next.cycle = 1 := by exact rfl
+        simp [this] at g
+        have : (LubyIterator.zero.next (n + 1)).cycle ≠ 0 := by
+          (expose_names; exact Nat.ne_zero_of_lt (this_1 (n + 1) this_2))
+        exact absurd b this
+      }
+      {
+        expose_names
+        have : (LubyIterator.zero.next n).cycle - 1 = n_2 := by
+          exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq)))
+        simp only [←this] at *
+        clear this
+        have : (LubyIterator.zero.next (n + 1)).cycle - 1 = n_4 := by
+          exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq_1)))
+        simp only [←this] at *
+        clear this
+        have : LubyIterator.zero.next (n + 1) = (LubyIterator.zero.next n).next := by exact rfl
+        simp [this] at *
+        clear this
+
+        --
+        sorry  
+      }
     }
   }
 
