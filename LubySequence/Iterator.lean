@@ -208,10 +208,28 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
         clear this
         have : LubyIterator.zero.next (n + 1) = (LubyIterator.zero.next n).next := by exact rfl
         simp [this] at *
-        clear this
-
-        --
-        sorry  
+        clear this heq heq_1
+        let c := (LubyIterator.zero.next n).cycle
+        have pc : c = value_of% c := rfl
+        let s := (LubyIterator.zero.next n).segment
+        have ps : s = value_of% s := rfl
+        simp [←pc, ←ps] at hn 
+        simp [LubyIterator.next]
+        split
+        {
+          expose_names
+          simp [←pc]
+          rw [cycleToNat.eq_def]
+          cases cp : c with
+          | zero =>
+            simp [cp] at *
+            have n0 := LubyIterator.cycle0.mpr (Eq.symm pc)
+            exact n0
+          | succ m =>
+            simp
+            sorry
+        }
+        { sorry }
       }
     }
   }
