@@ -2,3 +2,4 @@
 -- Import modules here that should be built as part of the library.
 import LubySequence.Basic
 import LubySequence.Iterator
+import LubySequence.Tree
