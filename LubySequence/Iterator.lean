@@ -236,7 +236,7 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
             simp [LubyIterator.span_of_cycle] at h'
             grind
         }
-        { sorry }
+        { grind }
       }
     }
   }
