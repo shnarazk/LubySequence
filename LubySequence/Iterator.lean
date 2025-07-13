@@ -145,7 +145,8 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 
 -- @[simp]
 def cycleToNat (n : Nat) : Nat := match n with
-  | 0     => 1
+  | 0     => 0
+  | 1     => 0
   | m + 1 => spanOfCycle n + cycleToNat m
 
 def LubyIterator.toNat (self : LubyIterator) : Nat := match self.cycle with
@@ -158,7 +159,12 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   intro n
   change (LubyIterator.zero.next n).toNat = n
   induction' n with n hn
-  { simp [LubyIterator.next, LubyIterator.zero, LubyIterator.toNat] }
+  { 
+    simp [LubyIterator.zero,LubyIterator.next, LubyIterator.toNat]
+    constructor
+    { simp [cycleToNat] }
+    { exact rfl }
+  }
   {
     simp [LubyIterator.toNat] at *
     split at hn
