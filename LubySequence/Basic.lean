@@ -90,28 +90,26 @@ theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
     exact Nat.le_trans t1 t2
   }
 
+#eval S₂ 0
+
 -- Well-founded version of the Luby sequence
 def luby (n : ℕ) : Nat :=
-  if n > 0 then
     if S₂ (n + 2) = n + 2 then S₂ n else luby (n + 1 - (S₂ n))
-  else
-    1
 termination_by n
 decreasing_by
-  rcases n with z | k1 | k2
-  { simp at * }
-  { simp [S₂, Nat.size, Nat.binaryRec] }
+  rcases n with z | n 
+  { 
+    expose_names;
+    have : Nat.size 3 = 2 := by simp [Nat.size, Nat.binaryRec]
+    simp [S₂, this] at h;
+  }
   {
+    expose_names
     ring_nf at *
     simp at *
-    have : 3 - S₂ (2 + k2) < 2 → 3 + k2 - S₂ (2 + k2) < 2 + k2 := by omega
+    have : 1 < S₂ (1 + n) → 2 + n - S₂ (1 + n) < 1 + n := by omega
     apply this
-    have : 1 < S₂ (2 + k2) → 3 - S₂ (2 + k2) < 2 := by
-      intro h
-      have : S₂ (2 + k2) ≥ 2 := by exact S₂_ge_two (2 + k2) (by grind)
-      grind
-    apply this
-    apply S₂_ge_two (2 + k2) (by grind)
+    apply S₂_ge_two (1 + n) (by grind)
   }
 
 end Luby
