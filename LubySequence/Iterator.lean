@@ -179,9 +179,7 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
         have c0 : (default : LubyIterator).cycle = 2 := by exact rfl
         have s0 : (default : LubyIterator).segment = 0 := by exact rfl
         have sp0 : (default : LubyIterator).span_of_cycle = 1 := by
-          simp [LubyIterator.zero, LubyIterator.span_of_cycle]
-          simp [trailing_zero]
-
+          simp [LubyIterator.span_of_cycle, trailing_zero]
         simp [LubyIterator.zero, LubyIterator.next] at heq_1
         split at heq_1
         {
