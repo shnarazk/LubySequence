@@ -11,7 +11,7 @@ structure LubyIterator where
   -- segment is a local index within the current cycle
   segment : Nat
 
-instance LubyIterator.inst : Inhabited LubyIterator := ⟨2, 0⟩
+instance LubyIterator.inst : Inhabited LubyIterator := ⟨0, 0⟩
 def LubyIterator.zero := (default : LubyIterator)
 
 #check LubyIterator.zero
@@ -154,6 +154,15 @@ def cycleToNat (n : Nat) : Nat := match n with
   | 1     => 0
   | m + 1 => spanOfCycle n + cycleToNat m
 
+#eval (spanOfCycle 1, cycleToNat 0)
+#eval List.range 18 |>.map (fun n ↦ Luby.luby n)
+#eval List.range 18 |>.map (fun n ↦ Luby.luby n.succ - Luby.luby n)
+#eval List.range 18 |>.map (fun n ↦ cycleToNat n)
+#eval List.range 25 |>.map (fun n ↦ spanOfCycle n.succ)
+#eval List.range 25 |>.map (fun n ↦ cycleToNat n.succ - cycleToNat n)
+
+theorem cycleToNat.diff (n : Nat) : cycleToNat (n + 2) - cycleToNat (n + 1) = spanOfCycle n := by sorry
+
 def LubyIterator.toNat (self : LubyIterator) : Nat := match self.cycle with
   | 0 => 0
   | n + 1 => cycleToNat n + self.segment
@@ -238,7 +247,7 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
           {
             simp
             have : (LubyIterator.zero.next (n + 1)).cycle ≠ 0 := by 
-              sorry
+              exact LubyIterator.cycle_ne_zero (n + 1)
             exact absurd b this
           }
 
@@ -269,7 +278,7 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
         split
         {
           expose_names
-          simp [←ps] at h 
+          -- simp [←ps] at h 
           simp [←pc]
           rw [cycleToNat.eq_def]
           cases cp : c with
@@ -283,7 +292,31 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
             -- have tp : t = value_of% t := rfl
             -- simp [←tp] at h
             have h' := Eq.symm h
-            simp [LubyIterator.span_of_cycle] at h'
+            simp [LubyIterator.span_of_cycle, ←pc] at h'
+            simp [←cp]
+            have : ¬(c = 0 ∨ c = 1) → c ≥ 2 := by
+              intro a
+              have : c < 2 ∨ c ≥ 2 := by exact Nat.lt_or_ge c 2
+              rcases this with c01|c2
+              {
+                have : c < 2 → c = 0 ∨ c = 1 := by sorry
+                exact absurd (this c01) a
+              }
+              {
+                sorry
+              }
+            have : (c = 0) ∨ (c = 1) ∨ (c ≥ 2) := by apply? --  exact eq_or_ne _ _
+            rcases this with t|f
+            {
+              simp [t]
+              have : c ≠ 0 := by exact LubyIterator.cycle_ne_zero n
+              exact absurd t this
+            }
+            {
+              simp [f]
+
+
+
             sorry
         }
         { grind }
