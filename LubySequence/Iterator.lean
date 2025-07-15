@@ -40,6 +40,8 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
 #eval scanList (·.next) LubyIterator.zero 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
 #eval LubyIterator.zero.next 24 |>.current_span
 
+#eval List.range 64 |>.map (fun n ↦ Luby.luby n == (LubyIterator.zero.next n).current_span) |>.all (·)
+
 theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
   contrapose!
   intro t₀
@@ -91,20 +93,23 @@ theorem LubyIterator.next0 (a : LubyIterator) : a.next 0 = a := by
 theorem LubyIterator.congr (a b : LubyIterator) (h : a = b) : a.next = b.next := by
   exact congrFun (congrArg (@next) h) 1
 
-theorem LubyIterator.cycle0 {n : Nat} : n = 0 ↔ (LubyIterator.zero.next n).cycle = 0 := by
-  constructor
-  { intro h; rw [h]; exact rfl }
+theorem LubyIterator.cycle_ge_one {n : Nat} : (LubyIterator.zero.next n).cycle ≥ 1 := by
+  induction' n with n hi
+  { simp [LubyIterator.zero, LubyIterator.next]; grind }
   {
-    intro h
-    by_contra x
-    have base1 : (LubyIterator.zero.next 1).cycle = 1 := by rfl
-    have : n ≥ 1 → (LubyIterator.zero.next n).cycle ≥ 1 := by
-      have sub : n ≥ 1 → (zero.next n).cycle ≥ (zero.next 1).cycle := by exact fun a ↦ cycle_is_mono 1 n a
-      exact sub 
-    have np : n ≥ 1 := by exact Nat.one_le_iff_ne_zero.mpr x
-    simp [np] at this
-    grind
-  }
+    simp [LubyIterator.next]
+    have tf : (LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle ∨
+              ¬((LubyIterator.zero.next n).segment + 1 = (LubyIterator.zero.next n).span_of_cycle) := by
+      exact eq_or_ne _ _
+    rcases tf with t|f
+    { simp [t] }
+    { simp [f]; exact hi }
+  } 
+
+theorem LubyIterator.cycle_ne_zero (n : Nat) : ¬(LubyIterator.zero.next n).cycle = 0 := by
+  have h1 : 0 < 1 := by exact Nat.one_pos
+  have h2 : (LubyIterator.zero.next n).cycle ≥ 1 := by exact LubyIterator.cycle_ge_one
+  exact Nat.ne_zero_of_lt h2
 
 theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).next = li.next (n + 1) := by
   intro n
@@ -135,13 +140,6 @@ theorem LubyIterator.next_assoc (li : LubyIterator) : ∀ n : Nat, (li.next n).n
     }
   }
 
-/-
- - Sketch of proof on equality of iterator and Luby sequence:
- - show the isomorphism between the iterator and the Luby sequence
- - n : Nat → LubyIterator → next = Luby(n)
- - category? IsIso ?
--/
-
 def LubyIterator.ofNat (n : Nat) : LubyIterator := LubyIterator.zero.next n
 
 def S₁ (n: Nat) : Nat := n.succ.size.pred
@@ -152,33 +150,81 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 
 -- @[simp]
 def cycleToNat (n : Nat) : Nat := match n with
-  | 0     => 1
+  | 0     => 0
+  | 1     => 0
   | m + 1 => spanOfCycle n + cycleToNat m
+
+#eval (spanOfCycle 1, cycleToNat 0)
+#eval List.range 18 |>.map (fun n ↦ Luby.luby n)
+#eval List.range 18 |>.map (fun n ↦ Luby.luby n.succ - Luby.luby n)
+#eval List.range 18 |>.map (fun n ↦ cycleToNat n)
+#eval List.range 25 |>.map (fun n ↦ spanOfCycle n.succ)
+#eval List.range 25 |>.map (fun n ↦ cycleToNat n.succ - cycleToNat n)
+
+theorem cycleToNat.diff (n : Nat) : cycleToNat (n + 2) - cycleToNat (n + 1) = spanOfCycle n := by sorry
 
 def LubyIterator.toNat (self : LubyIterator) : Nat := match self.cycle with
   | 0 => 0
   | n + 1 => cycleToNat n + self.segment
 
 #eval scanList (·.next) LubyIterator.zero 24 |>.map (·.toNat)
+#eval LubyIterator.zero.next.cycle
+#eval LubyIterator.zero.span_of_cycle
 
 theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   intro n
   change (LubyIterator.zero.next n).toNat = n
   induction' n with n hn
-  { simp [LubyIterator.next, LubyIterator.zero, LubyIterator.toNat] }
+  { 
+    simp [LubyIterator.zero,LubyIterator.next, LubyIterator.toNat]
+    constructor
+    { simp [cycleToNat] }
+    { exact rfl }
+  }
   {
     simp [LubyIterator.toNat] at *
     split at hn
     {
       simp [←hn] at *
       split
-      { next hh ou => exact id (Eq.symm ou) }
-      { next nh nn k =>
-        have c1 : LubyIterator.zero.next.cycle = 1 := by exact rfl
-        have s1 : LubyIterator.zero.next.segment = 0 := by exact rfl
-        simp [c1] at k
-        simp [k, cycleToNat, s1]
+      { expose_names; simp [LubyIterator.zero, LubyIterator.next] at heq }
+      { 
+        expose_names
+        have c0 : (default : LubyIterator).cycle = 2 := by exact rfl
+        have s0 : (default : LubyIterator).segment = 0 := by exact rfl
+        have sp0 : (default : LubyIterator).span_of_cycle = 1 := by
+          simp [LubyIterator.span_of_cycle, trailing_zero]
+        simp [LubyIterator.zero, LubyIterator.next] at heq_1
+        split at heq_1
+        {
+          simp[c0] at *
+          simp [heq_1, cycleToNat, trailing_zero, LubyIterator.zero, default, LubyIterator.next]
+          simp [LubyIterator.span_of_cycle, spanOfCycle, trailing_zero]
+        }
+        {
+          expose_names
+          simp [c0] at heq_1
+          simp [heq_1, cycleToNat, LubyIterator.next]
+          split
+          {
+            expose_names
+            simp [LubyIterator.zero] at h_1
+            simp [s0] at h
+            simp [LubyIterator.span_of_cycle, trailing_zero] at h
+          }
+          {
+            expose_names
+            simp [LubyIterator.zero]
+            exact s0
+          }
+        }
       }
+    --  { next nh nn k =>
+    --    have c1 : LubyIterator.zero.next.cycle = 1 := by exact rfl
+    --    have s1 : LubyIterator.zero.next.segment = 0 := by exact rfl
+    --    simp [c1] at k
+    --    simp [k, cycleToNat, s1]
+    --  }
     }
     {
       expose_names
@@ -190,10 +236,24 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
         rcases this (n + 1) with g
         have : n + 1 ≥ 1 := by exact Nat.le_add_left 1 n
         simp [this] at g
-        have : LubyIterator.zero.next.cycle = 1 := by exact rfl
+        have : LubyIterator.zero.next.cycle = 3 := by
+          simp [LubyIterator.next]
+          split
+          {
+            expose_names
+            simp
+            exact rfl
+          }
+          {
+            simp
+            have : (LubyIterator.zero.next (n + 1)).cycle ≠ 0 := by 
+              exact LubyIterator.cycle_ne_zero (n + 1)
+            exact absurd b this
+          }
+
         simp [this] at g
         have : (LubyIterator.zero.next (n + 1)).cycle ≠ 0 := by
-          (expose_names; exact Nat.ne_zero_of_lt (this_1 (n + 1) this_2))
+          (expose_names; exact Nat.ne_zero_of_lt g)
         exact absurd b this
       }
       {
@@ -218,23 +278,46 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
         split
         {
           expose_names
-          simp [←ps] at h 
+          -- simp [←ps] at h 
           simp [←pc]
           rw [cycleToNat.eq_def]
           cases cp : c with
           | zero =>
             simp [cp] at *
-            have n0 := LubyIterator.cycle0.mpr (Eq.symm pc)
-            exact n0
+            have : (LubyIterator.zero.next n).cycle = 0 := by exact id (Eq.symm pc)
+            exact absurd this (LubyIterator.cycle_ne_zero n)
           | succ m =>
-            simp -- [cp]
             simp [cp] at hn
             -- let t := (LubyIterator.zero.next n).span_of_cycle 
             -- have tp : t = value_of% t := rfl
             -- simp [←tp] at h
             have h' := Eq.symm h
-            simp [LubyIterator.span_of_cycle] at h'
-            grind
+            simp [LubyIterator.span_of_cycle, ←pc] at h'
+            simp [←cp]
+            have : ¬(c = 0 ∨ c = 1) → c ≥ 2 := by
+              intro a
+              have : c < 2 ∨ c ≥ 2 := by exact Nat.lt_or_ge c 2
+              rcases this with c01|c2
+              {
+                have : c < 2 → c = 0 ∨ c = 1 := by sorry
+                exact absurd (this c01) a
+              }
+              {
+                sorry
+              }
+            have : (c = 0) ∨ (c = 1) ∨ (c ≥ 2) := by apply? --  exact eq_or_ne _ _
+            rcases this with t|f
+            {
+              simp [t]
+              have : c ≠ 0 := by exact LubyIterator.cycle_ne_zero n
+              exact absurd t this
+            }
+            {
+              simp [f]
+
+
+
+            sorry
         }
         { grind }
       }
@@ -253,9 +336,23 @@ theorem LubyIterator2 : ∀ n : Nat, (LubyIterator.ofNat n).current_span = Luby.
   induction' n using Nat.strong_induction_on with n hn
   {
     simp [LubyIterator.current_span]
+    simp [LubyIterator.current_span] at hn
     rw [Luby.luby]
-  
-    sorry
+    -- rw [Luby.luby] at hn
+    split
+    { 
+      -- power 2 cases
+      expose_names
+      simp [Luby.S₂]
+      simp [Luby.S₂] at h
+      have hn' := hn (n + 1 - Luby.S₂ n)
+      simp [Luby.S₂] at hn'
+      sorry
+    }
+    {
+      expose_names
+      sorry
+    }
   }
 
 instance : Coe Nat LubyIterator where
