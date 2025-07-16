@@ -36,8 +36,8 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
     then LubyIterator.mk li.cycle.succ 0
     else LubyIterator.mk li.cycle li.segment.succ
 
-#eval scanList (·.next) LubyIterator.zero 24 |>.map (·.current_span)
-#eval scanList (·.next) LubyIterator.zero 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
+#eval scanList (·.next) LubyIterator.zero 24 |>.drop 3 |>.map (·.current_span)
+#eval scanList (·.next) LubyIterator.zero 36 |>.drop 3 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
 #eval LubyIterator.zero.next 24 |>.current_span
 
 theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
