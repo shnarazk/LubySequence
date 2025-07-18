@@ -13,16 +13,16 @@ namespace Tree
 
 inductive LubyTree where
   | leaf : LubyTree
-  | sub (tree : LubyTree) : LubyTree
+  | wrap (tree : LubyTree) : LubyTree
 deriving BEq
 
 def LubyTree.mk (level : Nat) : LubyTree := match level with
   | 0     => LubyTree.leaf
-  | l + 1 => LubyTree.sub (LubyTree.mk l)
+  | l + 1 => wrap (LubyTree.mk l)
 
 def LubyTree.toString (self : LubyTree) : String := match self with
   | .leaf => "leaf"
-  | .sub (tree : LubyTree) => s!"↑{tree.toString}"
+  | wrap (tree : LubyTree) => s!"↑{tree.toString}"
 
 instance : ToString LubyTree where
   toString := LubyTree.toString
@@ -30,9 +30,29 @@ instance : ToString LubyTree where
 def t4 := LubyTree.mk 4
 #eval t4 -- LubyTree.mk 4
 
+theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    simp [←ih]
+    nth_rw 2 [LubyTree.mk.eq_def]
+    split
+    {
+      expose_names
+      have (n : Nat) : n + 1 ≠ 0 := by exact Ne.symm (Nat.zero_ne_add_one n)
+      have hne := this (n + 1)
+      exact absurd heq hne
+    }
+    {
+      expose_names
+      have : n + 1 = l := by exact Nat.succ_inj.mp heq
+      rw [←this]
+      simp [ih]
+    }
+
 def LubyTree.size (self : LubyTree) : Nat := match self with
   | .leaf => 1
-  | .sub tree => tree.size * 2 + 1
+  | wrap tree => tree.size * 2 + 1
 
 #eval List.range 5 |>.map (fun n ↦ (LubyTree.mk n).size)
 
@@ -40,31 +60,36 @@ theorem size_is_two_sub_sizes_add_one (n : Nat) :
     (LubyTree.mk (n + 1)).size = 2 * (LubyTree.mk n).size + 1 := by
   rw [LubyTree.mk, LubyTree.size]
   grind
+ 
+theorem size_is_two_sub_sizes_add_one' (n : Nat) :
+    (LubyTree.mk n).wrap.size = 2 * (LubyTree.mk n).size + 1 := by
+  simp [←size_is_two_sub_sizes_add_one]
+  exact rfl
 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match self with
-  | .leaf   => 0
-  | .sub sb =>
+  | .leaf    => 0
+  | wrap sub =>
     if h2: self.size = s
     then 0
     else
-      if h3 : sb.size < s
+      if h3 : sub.size < s
       then
-        have h1 : (s - sb.size) ≤ sb.size := by
+        have h1 : (s - sub.size) ≤ sub.size := by
           simp [size] at h1
-          have : self.size = sb.size * 2 + 1 := by sorry
+          have : self.size = sub.size * 2 + 1 := by sorry
           simp [this] at h2
-          have s2 : s ≤ sb.size * 2 := by sorry
-          have h' : sb.size ≤ s := by exact Nat.le_of_succ_le h3
-          have : s ≤ sb.size + sb.size → s - sb.size ≤ sb.size := by
+          have s2 : s ≤ sub.size * 2 := by sorry
+          have h' : sub.size ≤ s := by exact Nat.le_of_succ_le h3
+          have : s ≤ sub.size + sub.size → s - sub.size ≤ sub.size := by
             -- exact Nat.sub_lt_left_of_lt_add h' 
             sorry
           apply this
           rw [←Nat.two_mul, Nat.mul_comm]
           exact s2
-        sb.valueAtSize (s - sb.size) h1
+        sub.valueAtSize (s - sub.size) h1
       else
-        have h2 : s ≤ sb.size := by sorry 
-        sb.valueAtSize s h2
+        have h2 : s ≤ sub.size := by sorry 
+        sub.valueAtSize s h2
 
 end Tree
 
