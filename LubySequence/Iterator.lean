@@ -253,7 +253,7 @@ theorem LubyIterator.next_is_succ :
 
 #eval List.range 28 |>.map (fun n ↦ ((LubyIterator.ofNat (n + 3)).current_span, Luby.luby n))
 
-theorem LubyIterator.is_luby3 :
+theorem LubyIterator.is_luby_offset_3 :
     ∀ n : Nat, (LubyIterator.ofNat (n + 3)).current_span = Luby.luby n := by
   intro n
   induction' n using Nat.strong_induction_on with n hn
@@ -263,10 +263,28 @@ theorem LubyIterator.is_luby3 :
     split 
     { 
       expose_names
-      simp [LubyIterator.current_span, Luby.S₂]
+      simp [LubyIterator.current_span]
+      simp [Luby.S₂] at *
+      -- simp [ofNat]
       sorry
     }
-    sorry
+    {
+      expose_names
+      simp [LubyIterator.ofNat]
+      change (zero.next (n + 2)).next.current_span = Luby.luby (n + 1 - Luby.S₂ n)
+      rw [LubyIterator.next]
+      simp [LubyIterator.next0]
+      --
+      split
+      {
+        expose_names
+
+        sorry
+      }
+      {
+        sorry
+      }
+   }
   }
 
 instance : Coe Nat LubyIterator where
