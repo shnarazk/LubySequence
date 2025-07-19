@@ -66,9 +66,9 @@ theorem size_is_two_sub_sizes_add_one' (n : Nat) :
   simp [←size_is_two_sub_sizes_add_one]
   exact rfl
 
-def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match self with
-  | .leaf    => 0
-  | wrap sub =>
+def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match h : self with
+  | .leaf     => 0
+  | .wrap sub =>
     if h2: self.size = s
     then 0
     else
@@ -76,19 +76,18 @@ def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Na
       then
         have h1 : (s - sub.size) ≤ sub.size := by
           simp [size] at h1
-          have : self.size = sub.size * 2 + 1 := by sorry
+          have : self.size = sub.size * 2 + 1 := by simp [h]; exact rfl
           simp [this] at h2
-          have s2 : s ≤ sub.size * 2 := by sorry
+          have s2 : s ≤ sub.size * 2 := by grind
           have h' : sub.size ≤ s := by exact Nat.le_of_succ_le h3
           have : s ≤ sub.size + sub.size → s - sub.size ≤ sub.size := by
-            -- exact Nat.sub_lt_left_of_lt_add h' 
-            sorry
+            exact fun a ↦ Nat.sub_le_of_le_add a
           apply this
           rw [←Nat.two_mul, Nat.mul_comm]
           exact s2
         sub.valueAtSize (s - sub.size) h1
       else
-        have h2 : s ≤ sub.size := by sorry 
+        have h2 : s ≤ sub.size := by grind 
         sub.valueAtSize s h2
 
 end Tree
