@@ -30,6 +30,10 @@ instance : ToString LubyTree where
 def t4 := LubyTree.mk 4
 #eval t4 -- LubyTree.mk 4
 
+def LubyTree.depth (self : LubyTree) : Nat := match self with
+  | .leaf => 1
+  | wrap tree => tree.depth + 1
+
 theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
   induction n with
   | zero => rfl
@@ -67,10 +71,10 @@ theorem size_is_two_sub_sizes_add_one' (n : Nat) :
   exact rfl
 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match h : self with
-  | .leaf     => 0
+  | .leaf     => 1
   | .wrap sub =>
     if h2: self.size = s
-    then 0
+    then 2 ^ self.depth
     else
       if h3 : sub.size < s
       then
@@ -89,6 +93,35 @@ def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Na
       else
         have h2 : s ≤ sub.size := by grind 
         sub.valueAtSize s h2
+
+def LubyTree.valueAt (s : Nat) : Nat :=
+  let e := 2 ^ s
+  have ep : e = value_of% e := rfl
+  have h1 : s ≤ e := by
+    simp [ep]
+    induction s
+    { grind }
+    {
+      expose_names
+      simp at h
+      simp [Nat.pow_add]
+      simp [mul_two]
+      refine Nat.add_le_add h ?_
+      exact Nat.one_le_two_pow
+    }
+  have h2 : e ≤ (mk e).size := by
+    induction e
+    { simp }
+    {
+      expose_names
+      simp [mk]
+      simp [size]
+      grind
+    }
+  have : s ≤ (mk e).size := by exact Nat.le_trans h1 h2
+  (LubyTree.mk e).valueAtSize s this
+
+#eval List.range 6 |>.map LubyTree.valueAt
 
 end Tree
 
