@@ -74,7 +74,7 @@ def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Na
   | .leaf     => 1
   | .wrap sub =>
     if h2: self.size = s
-    then 2 ^ self.depth
+    then 2 ^ self.depth.pred
     else
       if h3 : sub.size < s
       then
@@ -121,7 +121,7 @@ def LubyTree.valueAt (s : Nat) : Nat :=
   have : s ≤ (mk e).size := by exact Nat.le_trans h1 h2
   (LubyTree.mk e).valueAtSize s this
 
-#eval List.range 6 |>.map LubyTree.valueAt
+#eval List.range 9 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
 end Tree
 
