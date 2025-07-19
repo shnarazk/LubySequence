@@ -246,12 +246,17 @@ theorem LubyIterator.next_is_succ :
     ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
   intro n
   calc
-    (LubyIterator.ofNat n).next.toNat = (LubyIterator.zero.next n).next.toNat := by
-        exact rfl
+    (LubyIterator.ofNat n).next.toNat = (LubyIterator.zero.next n).next.toNat := by exact rfl
     _ = (LubyIterator.zero.next (n + 1)).toNat := by exact rfl
     _ = n + 1 := by exact LubyIterator.is_iso (n + 1)
 
 #eval List.range 28 |>.map (fun n ↦ ((LubyIterator.ofNat (n + 3)).current_span, Luby.luby n))
+
+theorem LubyIterator.span_prop2
+    (n : Nat)
+    (h : ¬(LubyIterator.zero.next n).segment.succ = (LubyIterator.zero.next n).span_of_cycle) :
+    (LubyIterator.zero.next n).segment = (LubyIterator.zero.next (n - Luby.S₂ n)).segment := by
+  sorry
 
 theorem LubyIterator.is_luby_offset_3 :
     ∀ n : Nat, (LubyIterator.ofNat (n + 3)).current_span = Luby.luby n := by
@@ -271,9 +276,29 @@ theorem LubyIterator.is_luby_offset_3 :
     {
       expose_names
       simp [LubyIterator.ofNat]
-      change (zero.next (n + 2)).next.current_span = Luby.luby (n + 1 - Luby.S₂ n)
+      have : ((LubyIterator.zero.next (n + 3)).segment.succ = (LubyIterator.zero.next (n + 3)).span_of_cycle) ∨ ¬((LubyIterator.zero.next (n + 3)).segment.succ = (LubyIterator.zero.next (n + 3)).span_of_cycle) := by exact eq_or_ne _ _
+      rcases this with t|f
+      {
+        sorry }
+      {
+        expose_names
+        -- rw [LubyIterator.span_prop2 (n + 3) f]
+        sorry
+      }
+
+
+      /-
+      -- change (zero.next (n + 2)).next.current_span = Luby.luby (n + 1 - Luby.S₂ n)
+      -- rw [LubyIterator.next]
+      -- simp [LubyIterator.next0]
+      simp [LubyIterator.current_span]
       rw [LubyIterator.next]
-      simp [LubyIterator.next0]
+      have : (Luby.S₂ (n + 2) = n + 2) ∨ ¬(Luby.S₂ (n + 2) = n + 2) := eq_or_ne _ _
+      rcases this with t|f
+      {}
+      {
+        
+
       --
       split
       {
@@ -282,8 +307,12 @@ theorem LubyIterator.is_luby_offset_3 :
         sorry
       }
       {
+        expose_names
+        simp [LubyIterator.span_prop2]
+
         sorry
       }
+      -/
    }
   }
 
