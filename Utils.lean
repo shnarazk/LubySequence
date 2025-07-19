@@ -1,3 +1,8 @@
+import Mathlib.Tactic
+import Mathlib.Data.Nat.Basic
+import Mathlib.Data.Nat.Init
+import Mathlib.Data.Nat.Bits
+import Mathlib.Data.Nat.Size
 
 def trailing_zero (n : Nat) : Nat :=
   if h : n < 2
@@ -23,3 +28,8 @@ def scanList {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool :
       else nxt :: scanList f nxt n' false
 
 #eval scanList (· + 1) 10 8
+
+theorem self_ne_pow_two_succ_of_size (n : Nat) : n < 2 ^ n.size.succ := by
+  refine Nat.size_le.mp ?_
+  grind
+

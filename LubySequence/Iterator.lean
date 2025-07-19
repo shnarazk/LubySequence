@@ -36,8 +36,8 @@ def LubyIterator.next (self : LubyIterator) (repeating : Nat := 1) : LubyIterato
     then LubyIterator.mk li.cycle.succ 0
     else LubyIterator.mk li.cycle li.segment.succ
 
-#eval scanList (·.next) LubyIterator.zero 24 |>.map (·.current_span)
-#eval scanList (·.next) LubyIterator.zero 36 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
+#eval scanList (·.next) LubyIterator.zero 24 |>.drop 3 |>.map (·.current_span)
+#eval scanList (·.next) LubyIterator.zero 36 |>.drop 3 |>.map (fun i ↦ (i.cycle, i.segment, i.span_of_cycle, i.current_span))
 #eval LubyIterator.zero.next 24 |>.current_span
 
 theorem LubyIterator.is_divergent (li : LubyIterator) : ¬(li.next = li) := by
@@ -161,7 +161,7 @@ def LubyIterator.toNat (self : LubyIterator) : Nat := match self.cycle with
 
 #eval scanList (·.next) LubyIterator.zero 24 |>.map (·.toNat)
 
-theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
+theorem LubyIterator.is_iso : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
   intro n
   change (LubyIterator.zero.next n).toNat = n
   induction' n with n hn
@@ -206,7 +206,8 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
           exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq_1)))
         simp only [←this] at *
         clear this
-        have : LubyIterator.zero.next (n + 1) = (LubyIterator.zero.next n).next := by exact rfl
+        have : LubyIterator.zero.next (n + 1) = (LubyIterator.zero.next n).next := by
+          exact rfl
         simp [this] at *
         clear this heq heq_1
         let c := (LubyIterator.zero.next n).cycle
@@ -241,22 +242,79 @@ theorem LubyIterator0 : ∀ n : Nat, (LubyIterator.ofNat n).toNat = n := by
     }
   }
 
-theorem LubyIterator1 : ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
+theorem LubyIterator.next_is_succ :
+    ∀ n : Nat, (LubyIterator.ofNat n).next.toNat = n + 1 := by
   intro n
   calc
     (LubyIterator.ofNat n).next.toNat = (LubyIterator.zero.next n).next.toNat := by exact rfl
     _ = (LubyIterator.zero.next (n + 1)).toNat := by exact rfl
-    _ = n + 1 := by exact LubyIterator0 (n + 1)
+    _ = n + 1 := by exact LubyIterator.is_iso (n + 1)
 
-theorem LubyIterator2 : ∀ n : Nat, (LubyIterator.ofNat n).current_span = Luby.luby n := by
+#eval List.range 28 |>.map (fun n ↦ ((LubyIterator.ofNat (n + 3)).current_span, Luby.luby n))
+
+theorem LubyIterator.span_prop2
+    (n : Nat)
+    (h : ¬(LubyIterator.zero.next n).segment.succ = (LubyIterator.zero.next n).span_of_cycle) :
+    (LubyIterator.zero.next n).segment = (LubyIterator.zero.next (n - Luby.S₂ n)).segment := by
+  sorry
+
+theorem LubyIterator.is_luby_offset_3 :
+    ∀ n : Nat, (LubyIterator.ofNat (n + 3)).current_span = Luby.luby n := by
   intro n
   induction' n using Nat.strong_induction_on with n hn
   {
-    simp [LubyIterator.current_span]
+    -- simp [LubyIterator.current_span]
     rw [Luby.luby]
-  
-    sorry
+    split 
+    { 
+      expose_names
+      simp [LubyIterator.current_span]
+      simp [Luby.S₂] at *
+      -- simp [ofNat]
+      sorry
+    }
+    {
+      expose_names
+      simp [LubyIterator.ofNat]
+      have : ((LubyIterator.zero.next (n + 3)).segment.succ = (LubyIterator.zero.next (n + 3)).span_of_cycle) ∨ ¬((LubyIterator.zero.next (n + 3)).segment.succ = (LubyIterator.zero.next (n + 3)).span_of_cycle) := by exact eq_or_ne _ _
+      rcases this with t|f
+      {
+        sorry }
+      {
+        expose_names
+        -- rw [LubyIterator.span_prop2 (n + 3) f]
+        sorry
+      }
+
+
+      /-
+      -- change (zero.next (n + 2)).next.current_span = Luby.luby (n + 1 - Luby.S₂ n)
+      -- rw [LubyIterator.next]
+      -- simp [LubyIterator.next0]
+      simp [LubyIterator.current_span]
+      rw [LubyIterator.next]
+      have : (Luby.S₂ (n + 2) = n + 2) ∨ ¬(Luby.S₂ (n + 2) = n + 2) := eq_or_ne _ _
+      rcases this with t|f
+      {}
+      {
+        
+
+      --
+      split
+      {
+        expose_names
+
+        sorry
+      }
+      {
+        expose_names
+        simp [LubyIterator.span_prop2]
+
+        sorry
+      }
+      -/
+   }
   }
 
 instance : Coe Nat LubyIterator where
-  coe n := LubyIterator.ofNat n
+  coe n := LubyIterator.ofNat (n + 3)
