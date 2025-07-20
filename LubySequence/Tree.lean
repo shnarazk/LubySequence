@@ -73,7 +73,7 @@ theorem size_is_two_sub_sizes_add_one' (n : Nat) :
 
 #eval Nat.bits (2 * 5)
 
-example (n : Nat) : n.bits.length = n.size := by exact Nat.size_eq_bits_len n
+theorem length_of_bits_eq_size (n : Nat) : n.bits.length = n.size := by exact Nat.size_eq_bits_len n
 
 theorem bits_of_double_eq_cons_false_and_bits (n : Nat) (h : n > 0) :
     (2 * n).bits = false :: n.bits := by
@@ -93,8 +93,8 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
     expose_names
     simp [LubyTree.depth]
     simp [LubyTree.size]
-
-    sorry
+    simp [tree_ih]
+    simp [←length_of_bits_eq_size, Nat.mul_comm tree.size 2]
   }
 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match h : self with
