@@ -71,6 +71,32 @@ theorem size_is_two_sub_sizes_add_one' (n : Nat) :
   simp [←size_is_two_sub_sizes_add_one]
   exact rfl
 
+#eval Nat.bits (2 * 5)
+
+example (n : Nat) : n.bits.length = n.size := by exact Nat.size_eq_bits_len n
+
+theorem bits_of_double_eq_cons_false_and_bits (n : Nat) (h : n > 0) :
+    (2 * n).bits = false :: n.bits := by
+  have : n ≠ 0 := by exact Nat.ne_zero_of_lt h
+  exact Nat.bit0_bits n this
+
+example (n : Nat) : (2 * n + 1).bits = true :: n.bits := by
+  exact Nat.bit1_bits n
+
+theorem size_of_two_mul_eq_aize_add_one (n : Nat) (h : n > 0) : n.size + 1 = (n * 2).size := by
+  simp [←Nat.size_eq_bits_len, Nat.mul_comm n 2, bits_of_double_eq_cons_false_and_bits n h]
+
+theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
+  induction tree
+  { simp [LubyTree.depth, LubyTree.size] }
+  {
+    expose_names
+    simp [LubyTree.depth]
+    simp [LubyTree.size]
+
+    sorry
+  }
+
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match h : self with
   | .leaf     => 1
   | .wrap sub =>
