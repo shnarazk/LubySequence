@@ -3,6 +3,7 @@ import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
+import Utils
 
 namespace Tree
 
@@ -95,20 +96,13 @@ def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Na
         sub.valueAtSize s h2
 
 def LubyTree.valueAt (s : Nat) : Nat :=
-  let e := 2 ^ s
+  let e := 2 ^ s.size.succ
   have ep : e = value_of% e := rfl
   have h1 : s ≤ e := by
     simp [ep]
-    induction s
-    { grind }
-    {
-      expose_names
-      simp at h
-      simp [Nat.pow_add]
-      simp [mul_two]
-      refine Nat.add_le_add h ?_
-      exact Nat.one_le_two_pow
-    }
+    have (a b : Nat) : a < b → a ≤ b := by exact fun a_1 ↦ Nat.le_of_succ_le a_1
+    apply this
+    exact self_ne_pow_two_succ_of_size s
   have h2 : e ≤ (mk e).size := by
     induction e
     { simp }
@@ -121,7 +115,7 @@ def LubyTree.valueAt (s : Nat) : Nat :=
   have : s ≤ (mk e).size := by exact Nat.le_trans h1 h2
   (LubyTree.mk e).valueAtSize s this
 
-#eval List.range 9 |>.map (fun n ↦ LubyTree.valueAt n.succ)
+#eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
 end Tree
 
