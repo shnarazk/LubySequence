@@ -97,6 +97,9 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
     simp [←length_of_bits_eq_size, Nat.mul_comm tree.size 2]
   }
 
+def LubyTree.enveloveMax (t : LubyTree) : Nat := 2 ^ (t.depth - 1) - 1
+
+/- This is an envelove that covers the last segment. -/ 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match h : self with
   | .leaf     => 1
   | .wrap sub =>

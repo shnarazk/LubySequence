@@ -30,8 +30,10 @@ where
 /--
  - Basic relation between Nat and its binary representation.
  - A kind of ceiling function.
+ -
+ - This is the envelopeMax (zero-based indexed)
  -/
-def S₂ (n : Nat) := 2^(n.succ.size - 1)
+def S₂ (n : Nat) := 2 ^ (n.succ.size - 1)
 #eval List.range 24 |>.map S₂
 
 theorem pow2_le_pow2 (a b : Nat) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
@@ -89,6 +91,9 @@ theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
     rw [this] at t2
     exact Nat.le_trans t1 t2
   }
+
+#eval List.range 24 |>.map (fun k ↦ S₂ k == k)
+#eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
 -- Well-founded version of the Luby sequence
 def luby (n : ℕ) : Nat :=
