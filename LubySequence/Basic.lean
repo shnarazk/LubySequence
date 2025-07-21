@@ -96,29 +96,32 @@ theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
 #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
 -- Well-founded version of the Luby sequence
-def luby (n : ℕ) : Nat :=
-  if n > 0 then
-    if S₂ (n + 2) = n + 2 then S₂ n else luby (n + 1 - (S₂ n))
-  else
-    1
+def luby (n : ℕ) : Nat := if S₂ (n + 2) = n + 2 then S₂ n else luby (n + 1 - (S₂ n))
 termination_by n
 decreasing_by
-  rcases n with z | k1 | k2
-  { simp at * }
-  { simp [S₂, Nat.size, Nat.binaryRec] }
+  rcases n with z | k
   {
+    expose_names
+    simp at *
+    have : S₂ 2 = 2 := by simp [S₂, Nat.size, Nat.binaryRec]
+    exact absurd this h
+  }
+  {
+    expose_names
     ring_nf at *
     simp at *
-    have : 3 - S₂ (2 + k2) < 2 → 3 + k2 - S₂ (2 + k2) < 2 + k2 := by omega
+    have : 2 - S₂ (1 + k) < 1 → 2 + k - S₂ (1 + k) < 1 + k := by omega
     apply this
-    have : 1 < S₂ (2 + k2) → 3 - S₂ (2 + k2) < 2 := by
+    have : 1 < S₂ (1 + k) → 2 - S₂ (1 + k) < 1 := by
       intro h
-      have : S₂ (2 + k2) ≥ 2 := by exact S₂_ge_two (2 + k2) (by grind)
+      have : S₂ (1 + k) ≥ 2 := by exact S₂_ge_two (1 + k) (by grind)
       grind
     apply this
-    apply S₂_ge_two (2 + k2) (by grind)
+    apply S₂_ge_two (1 + k) (by grind)
   }
 
+#eval S₂ 0 -- 2 = 2 -- 0
+#eval luby 0 -- 2 = 2 -- 0
 end Luby
 
 -- 🧪 Test output
