@@ -252,13 +252,18 @@ theorem LubyIterator.next_is_succ :
 
 #eval List.range 28 |>.map (fun n ↦ ((LubyIterator.ofNat (n + 3)).current_span, Luby.luby n))
 
-theorem LubyIterator.span_prop2
+/- theorem LubyIterator.span_prop2
     (n : Nat)
     (h : ¬(LubyIterator.zero.next n).segment.succ = (LubyIterator.zero.next n).span_of_cycle) :
     (LubyIterator.zero.next n).segment = (LubyIterator.zero.next (n - Luby.S₂ n)).segment := by
+  let l := (LubyIterator.zero.next n).current_span
+  have lp : l = value_of% l := rfl
+  simp [LubyIterator.current_span, LubyIterator.next] at lp
+  -- simp [LubyIterator.next]
   sorry
+-/
 
-theorem LubyIterator.is_luby_offset_3 :
+/- theorem LubyIterator.is_luby_offset_3 :
     ∀ n : Nat, (LubyIterator.ofNat (n + 3)).current_span = Luby.luby n := by
   intro n
   induction' n using Nat.strong_induction_on with n hn
@@ -315,6 +320,7 @@ theorem LubyIterator.is_luby_offset_3 :
       -/
    }
   }
+-/
 
 instance : Coe Nat LubyIterator where
   coe n := LubyIterator.ofNat (n + 3)

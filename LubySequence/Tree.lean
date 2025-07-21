@@ -35,6 +35,31 @@ def LubyTree.depth (self : LubyTree) : Nat := match self with
   | .leaf => 1
   | wrap tree => tree.depth + 1
 
+theorem LubyTree.depth_gt_one : ∀ t : LubyTree, t.depth ≥ 1 := by
+  intro t
+  induction t <;> simp [LubyTree.depth]
+
+theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) = t := by
+  induction t with
+  | leaf => simp [LubyTree.depth, LubyTree.mk]
+  | wrap sub =>
+    expose_names
+    simp [LubyTree.depth]
+    rw [LubyTree.mk.eq_def]
+    split
+    {
+      expose_names
+      have this := LubyTree.depth_gt_one sub
+      have : ¬sub.depth = 0 := by exact Nat.ne_zero_of_lt this
+      exact absurd heq this
+    }
+    {
+      expose_names
+      have : sub.depth - 1 = l.succ - 1 := by exact congrFun (congrArg HSub.hSub heq) 1
+      have : sub.depth - 1 = l := by exact this
+      simp [←this, tree_ih]
+    }
+
 theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
   induction n with
   | zero => rfl
@@ -145,6 +170,25 @@ def LubyTree.valueAt (s : Nat) : Nat :=
   (LubyTree.mk e).valueAtSize s this
 
 #eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
+
+theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true) := by
+  induction t
+  { simp [LubyTree.size] }
+  {
+    expose_names
+    let n := tree.depth
+    have hn : n = value_of% n := by rfl
+    have : LubyTree.mk (n - 1) = tree := by simp [hn] ; exact LubyTree.mk_of_depth_eq_self tree
+    simp -- [LubyTree.size]
+    simp at tree_ih
+    simp only [←this, size_is_two_sub_sizes_add_one' (n - 1)]
+    simp only [Nat.bit1_bits]
+    have notin_cons (a : Bool) (l : List Bool) : false ≠ a → false ∉ l → false ∉ a :: l := by 
+      exact fun a_1 a_2 ↦ List.not_mem_cons_of_ne_of_not_mem a_1 a_2
+    apply notin_cons
+    { simp }
+    { simp [this] ; exact tree_ih }
+  }
 
 end Tree
 
