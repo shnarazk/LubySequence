@@ -9,6 +9,11 @@ def trailing_zero (n : Nat) : Nat :=
   then (1 - n)
   else if n % 2 = 0 then 1 + trailing_zero (n / 2) else 0
 
+def trailing_ones (n : Nat) : Nat :=
+  if h : n < 2
+  then n
+  else if n % 2 = 1 then 1 + trailing_ones (n / 2) else 0
+
 #eval List.range 9 |>.map trailing_zero
 
 def trailing_one (n : Nat) : Nat :=
