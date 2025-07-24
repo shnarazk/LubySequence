@@ -131,14 +131,7 @@ def LubyTree.enveloveMax (t : LubyTree) : Nat := 2 ^ (t.depth - 1) - 1
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
   | .leaf     => 1
   | .wrap sub =>
-    if self.size ≤ s
-    then 2 ^ self.depth.pred
-    else
-      if sub.size < s
-      then
-        sub.valueAtSize (s - sub.size)
-      else
-        sub.valueAtSize s
+    if self.size ≤ s then 2 ^ self.depth.pred else sub.valueAtSize ((s - 1) % sub.size + 1)
 
 def LubyTree.valueAt (s : Nat) : Nat := (LubyTree.mk (2 ^ s.size.succ)).valueAtSize s
 
@@ -173,10 +166,41 @@ theorem LubyTree.is_symmetry (d : Nat) :
     simp [LubyTree.size]
   }
   {
-    nth_rw 2 [LubyTree.valueAt]
+    rw [LubyTree.valueAtSize.eq_def]
+    rw [LubyTree.valueAtSize.eq_def]
+    split
+    { rfl } -- case: leaf
+    {
+      -- case: wrap sub
+      expose_names
+      have d_tree : mk d = tree := by sorry
 
+      have : (n - 1) % tree.size + 1 = (n + ((mk (d + 1)).size - 1) / 2 - 1) % tree.size + 1 := by sorry
+      simp only [←this]
+      -- swap left and right to split by more complex term
+      split
+      {
+        -- case: top or over
+        expose_names
+        rw [LubyTree.valueAtSize.eq_def]
+        split
+        { exact rfl }
+        {
+          expose_names
+          simp [←d_tree] at *
 
-  sorry
+          sorry }
+      }
+      {
+        split
+        {sorry}
+        {
+          -- case: go down recursively
+          exact rfl 
+        }
+      }
+   }
+ }
 
 end Tree
 
