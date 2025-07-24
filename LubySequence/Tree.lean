@@ -86,6 +86,9 @@ def LubyTree.size (self : LubyTree) : Nat := match self with
 
 #eval List.range 5 |>.map (fun n ↦ (LubyTree.mk n).size)
 
+theorem LubyTree.size_ge_one (t : LubyTree) : t.size ≥ 1 := by
+  induction t <;> simp [LubyTree.size]
+
 theorem size_is_two_sub_sizes_add_one (n : Nat) :
     (LubyTree.mk (n + 1)).size = 2 * (LubyTree.mk n).size + 1 := by
   rw [LubyTree.mk, LubyTree.size]
@@ -125,49 +128,19 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
 def LubyTree.enveloveMax (t : LubyTree) : Nat := 2 ^ (t.depth - 1) - 1
 
 /- This is an envelove that covers the last segment. -/ 
-def LubyTree.valueAtSize (self : LubyTree) (s : Nat) (h1 : s ≤ self.size) : Nat := match h : self with
+def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
   | .leaf     => 1
   | .wrap sub =>
-    if h2: self.size = s
+    if self.size ≤ s
     then 2 ^ self.depth.pred
     else
-      if h3 : sub.size < s
+      if sub.size < s
       then
-        have h1 : (s - sub.size) ≤ sub.size := by
-          simp [size] at h1
-          have : self.size = sub.size * 2 + 1 := by simp [h]; exact rfl
-          simp [this] at h2
-          have s2 : s ≤ sub.size * 2 := by grind
-          have h' : sub.size ≤ s := by exact Nat.le_of_succ_le h3
-          have : s ≤ sub.size + sub.size → s - sub.size ≤ sub.size := by
-            exact fun a ↦ Nat.sub_le_of_le_add a
-          apply this
-          rw [←Nat.two_mul, Nat.mul_comm]
-          exact s2
-        sub.valueAtSize (s - sub.size) h1
+        sub.valueAtSize (s - sub.size)
       else
-        have h2 : s ≤ sub.size := by grind 
-        sub.valueAtSize s h2
+        sub.valueAtSize s
 
-def LubyTree.valueAt (s : Nat) : Nat :=
-  let e := 2 ^ s.size.succ
-  have ep : e = value_of% e := rfl
-  have h1 : s ≤ e := by
-    simp [ep]
-    have (a b : Nat) : a < b → a ≤ b := by exact fun a_1 ↦ Nat.le_of_succ_le a_1
-    apply this
-    exact self_ne_pow_two_succ_of_size s
-  have h2 : e ≤ (mk e).size := by
-    induction e
-    { simp }
-    {
-      expose_names
-      simp [mk]
-      simp [size]
-      grind
-    }
-  have : s ≤ (mk e).size := by exact Nat.le_trans h1 h2
-  (LubyTree.mk e).valueAtSize s this
+def LubyTree.valueAt (s : Nat) : Nat := (LubyTree.mk (2 ^ s.size.succ)).valueAtSize s
 
 #eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
@@ -189,6 +162,21 @@ theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true
     { simp }
     { simp [this] ; exact tree_ih }
   }
+
+theorem LubyTree.is_symmetry (d : Nat) :
+    ∀ n ≤ ((LubyTree.mk d).size - 1) / 2,
+      (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2)  := by
+  intro n hn
+  induction' d with d dh
+  { 
+    simp [LubyTree.mk]
+    simp [LubyTree.size]
+  }
+  {
+    nth_rw 2 [LubyTree.valueAt]
+
+
+  sorry
 
 end Tree
 
