@@ -80,6 +80,21 @@ theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) =
       simp [ih]
     }
 
+
+theorem LubyTree.unwrap_wrap_self_eq_self (d : Nat) (t : LubyTree) :
+    LubyTree.mk (d + 1) = t.wrap ↔ LubyTree.mk d = t := by
+  constructor
+  {
+    intro h
+    simp [LubyTree.mk] at h
+    exact h
+  }
+  {
+    intro h
+    simp [LubyTree.mk]
+    exact h
+  }
+
 def LubyTree.size (self : LubyTree) : Nat := match self with
   | .leaf => 1
   | wrap tree => tree.size * 2 + 1
@@ -158,8 +173,8 @@ theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true
 
 theorem LubyTree.is_symmetry (d : Nat) :
     ∀ n ≤ ((LubyTree.mk d).size - 1) / 2,
-      (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2)  := by
-  intro n hn
+      n > 0 → (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2)  := by
+  intro n hn nz
   induction' d with d dh
   { 
     simp [LubyTree.mk]
@@ -173,32 +188,38 @@ theorem LubyTree.is_symmetry (d : Nat) :
     {
       -- case: wrap sub
       expose_names
-      have d_tree : mk d = tree := by sorry
-
-      have : (n - 1) % tree.size + 1 = (n + ((mk (d + 1)).size - 1) / 2 - 1) % tree.size + 1 := by sorry
-      simp only [←this]
-      -- swap left and right to split by more complex term
+      have d_tree : mk d = tree := by exact (unwrap_wrap_self_eq_self d tree).mp heq
+      simp [←d_tree] at *
+      -- simp [heq] at *
+      have d_eq : (mk (d + 1)).depth = (mk d).depth + 1 := by exact rfl
+      simp only [d_eq] at * 
       split
       {
-        -- case: top or over
-        expose_names
-        rw [LubyTree.valueAtSize.eq_def]
         split
-        { exact rfl }
+        { expose_names ; exact rfl }
         {
           expose_names
-          simp [←d_tree] at *
-
-          sorry }
-      }
+          have : ¬(mk (d + 1)).size ≤ n := by grind
+          exact absurd h this
+        }
+      } 
       {
         split
-        {sorry}
+        { expose_names ; grind }
         {
-          -- case: go down recursively
-          exact rfl 
-        }
-      }
+          expose_names
+          have : (n - 1) % (mk d).size = (n + ((mk (d + 1)).size - 1) / 2 - 1) % (mk d).size := by
+            have : (mk (d + 1)).size = 2 * (mk d).size + 1 := by exact size_is_two_sub_sizes_add_one d
+            simp [this]
+            rw [add_comm]
+            -- have (m a : Nat) : (m + a) % m = a % m := by apply? -- exact Nat.sub_add_comm h
+            rw [←Nat.add_mod_left (mk d).size (n - 1)] 
+            have : (mk d).size + (n - 1) = (mk d).size + n - 1 := by
+              exact Eq.symm (Nat.add_sub_assoc nz (mk d).size)
+            rw [this]
+          simp [this]
+       }
+     }
    }
  }
 
