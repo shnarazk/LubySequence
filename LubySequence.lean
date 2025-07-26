@@ -3,3 +3,4 @@
 import LubySequence.Basic
 import LubySequence.Tree
 import LubySequence.Generator
+import LubySequence.Equality

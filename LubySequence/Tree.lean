@@ -31,6 +31,19 @@ instance : ToString LubyTree where
 def t4 := LubyTree.mk 4
 #eval t4 -- LubyTree.mk 4
 
+theorem LubyTree.wrap_is_congruent (t1 t2 : LubyTree) : t1.wrap = t2.wrap ↔ t1 = t2 := by
+  constructor
+  {
+    intro h
+    simp at h
+    exact h
+  }
+  {
+    intro h
+    simp
+    exact h
+  }
+
 def LubyTree.depth (self : LubyTree) : Nat := match self with
   | .leaf => 1
   | wrap tree => tree.depth + 1
@@ -60,6 +73,18 @@ theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) 
       simp [←this, tree_ih]
     }
 
+theorem LubyTree.mk_zero_is_leaf {n : Nat} : LubyTree.mk n = LubyTree.leaf → n = 0 := by
+  induction' n with n hn
+  {
+    intro h
+    simp [mk] at h
+    exact rfl
+  }
+  {
+    intro h
+    simp [mk] at h
+  }
+
 theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
   induction n with
   | zero => rfl
@@ -80,6 +105,29 @@ theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) =
       simp [ih]
     }
 
+theorem LubyTree.mk_unique (m n : Nat) : LubyTree.mk m = LubyTree.mk n → m = n := by
+  induction m generalizing n with
+  | zero =>
+    intro z
+    simp [mk] at z
+    have h := Eq.symm z
+    apply LubyTree.mk_zero_is_leaf at h
+    grind
+  | succ m hm =>
+    intro h
+    have tf : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
+    rcases tf with t|f
+    { simp [t,mk] at h }  
+    {
+      have : n = (n - 1) + 1 := by exact Eq.symm (Nat.succ_pred_eq_of_ne_zero f)
+      rw [this] at h
+      rw [←LubyTree.wrap_n_eq_n_add_one] at h
+      rw [←LubyTree.wrap_n_eq_n_add_one] at h
+      have : mk m = mk (n - 1) := by
+        exact (wrap_is_congruent (mk m) (mk (n - 1))).mp h
+      have h' := hm (n - 1) this
+      grind
+   }
 
 theorem LubyTree.unwrap_wrap_self_eq_self (d : Nat) (t : LubyTree) :
     LubyTree.mk (d + 1) = t.wrap ↔ LubyTree.mk d = t := by
