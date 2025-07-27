@@ -220,11 +220,10 @@ def LubyTree.quotient (s : Nat) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 #eval LubyTree.enveloveSize 2
 #eval LubyTree.is_envelove 1
 #eval LubyTree.is_envelove 0
-
-theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by
-  intro n h2
-  simp [LubyTree.quotient]
-
+-- This is impossible
+-- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by sorry
+theorem LubyTree.envelop_of_quotient_is_desceasing:
+    ∀ n ≥ 2, LubyTree.enveloveSize n ≥ LubyTree.enveloveSize (LubyTree.quotient n) := by
   sorry
 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
@@ -243,15 +242,14 @@ def LubyTree.luby (s : Nat) : Nat :=
         simp [is_envelove, enveloveSize, enveloveDepth]
         rcases this with s01|s01 <;> simp [s01] 
       exact absurd this h
-    have dec : s ≥ 2 → s > LubyTree.quotient s := by
-      exact fun a ↦ quotient_is_decreasing s this
-    have s_is_decreasing := dec this
+    have dec : s ≥ 2 → LubyTree.enveloveSize s > LubyTree.enveloveSize (LubyTree.quotient s) := by
+      sorry
     LubyTree.luby (LubyTree.quotient s)
-termination_by s
+termination_by LubyTree.enveloveSize s
 
 def LubyTree.valueAt (s : Nat) : Nat := (LubyTree.mk (s.succ.size - 1)).valueAtSize s
 
-#eval List.range 28 |>.map (fun n ↦ LubyTree.luby n.succ)
+#eval! List.range 28 |>.map (fun n ↦ LubyTree.luby n.succ)
 #eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
 theorem level_to_size (n : Nat) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
