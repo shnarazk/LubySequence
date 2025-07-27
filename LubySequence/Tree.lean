@@ -221,9 +221,11 @@ def LubyTree.quotient (s : Nat) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 #eval LubyTree.is_envelove 1
 #eval LubyTree.is_envelove 0
 -- This is impossible
--- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by sorry
+-- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by 
 theorem LubyTree.envelop_of_quotient_is_desceasing:
-    ∀ n ≥ 2, LubyTree.enveloveSize n ≥ LubyTree.enveloveSize (LubyTree.quotient n) := by
+    ∀ n ≥ 2, ¬LubyTree.is_envelove n → LubyTree.enveloveSize n > LubyTree.enveloveSize (LubyTree.quotient n) := by
+  intro n hn env
+  simp [quotient]
   sorry
 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
@@ -243,7 +245,7 @@ def LubyTree.luby (s : Nat) : Nat :=
         rcases this with s01|s01 <;> simp [s01] 
       exact absurd this h
     have dec : s ≥ 2 → LubyTree.enveloveSize s > LubyTree.enveloveSize (LubyTree.quotient s) := by
-      sorry
+     exact fun a ↦ envelop_of_quotient_is_desceasing s this h
     LubyTree.luby (LubyTree.quotient s)
 termination_by LubyTree.enveloveSize s
 
