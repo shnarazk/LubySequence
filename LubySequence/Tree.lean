@@ -203,13 +203,56 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
     simp [←length_of_bits_eq_size, Nat.mul_comm tree.size 2]
   }
 
+/-
+ - The envelope is the smallest tree containing `s` elements.
+ -/
+def LubyTree.enveloveDepth (s : Nat) : Nat := s.size
+def LubyTree.enveloveSize (s : Nat) : Nat := 2 ^ (LubyTree.enveloveDepth s) - 1
+def LubyTree.envelove (s : Nat) : LubyTree := LubyTree.mk (LubyTree.enveloveDepth s - 1)
+def LubyTree.is_envelove (s : Nat) : Bool := LubyTree.enveloveSize s = s
+def LubyTree.quotientOfSize (s : Nat) (e : Nat) := (s - 1) % ((e - 1) / 2) + 1
+def LubyTree.quotient (s : Nat) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
+
+#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.enveloveDepth (n + 1)))
+#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.enveloveSize (n + 1), LubyTree.is_envelove (n + 1)))
+#eval LubyTree.quotientOfSize 2 3
+#eval LubyTree.is_envelove 2
+#eval LubyTree.enveloveSize 2
+#eval LubyTree.is_envelove 1
+#eval LubyTree.is_envelove 0
+
+theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by
+  intro n h2
+  simp [LubyTree.quotient]
+
+  sorry
 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
   | .leaf     => 1
   | .wrap sub =>
     if self.size ≤ s then 2 ^ self.depth.pred else sub.valueAtSize ((s - 1) % sub.size + 1)
 
+def LubyTree.luby (s : Nat) : Nat :=
+  if h : LubyTree.is_envelove s
+  then 2 ^ (LubyTree.enveloveDepth s).pred
+  else
+    have : s ≥ 2 := by
+      by_contra h'
+      have : s = 0 ∨ s = 1 := by grind
+      have : is_envelove s = true := by
+        simp [is_envelove, enveloveSize, enveloveDepth]
+        rcases this with s01|s01 <;> simp [s01] 
+      exact absurd this h
+    have dec : s ≥ 2 → s > LubyTree.quotient s := by
+      exact fun a ↦ quotient_is_decreasing s this
+    have s_is_decreasing := dec this
+    LubyTree.luby (LubyTree.quotient s)
+termination_by s
+
 def LubyTree.valueAt (s : Nat) : Nat := (LubyTree.mk (s.succ.size - 1)).valueAtSize s
+
+#eval List.range 28 |>.map (fun n ↦ LubyTree.luby n.succ)
+#eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
 theorem level_to_size (n : Nat) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
   induction n with
@@ -224,19 +267,6 @@ theorem level_to_size (n : Nat) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
       _ = 2 ^ (n + 1 + 1) - 2 + 1 := by omega
       _ = 2 ^ (n + 1 + 1) + 1 - 2 := by omega
       _ = 2 ^ (n + 1 + 1) - 1 := by omega
-
-/-
- - The envelope is the smallest tree containing `s` elements.
- -/
-def LubyTree.enveloveDepth (s : Nat) : Nat := s.succ.size - 1
-def LubyTree.enveloveSize (s : Nat) : Nat := 2 ^ (LubyTree.enveloveDepth s) - 1
-def LubyTree.envelove (s : Nat) : LubyTree := LubyTree.mk (LubyTree.enveloveDepth s - 1)
-def LubyTree.is_envelove (s : Nat) : Bool := LubyTree.enveloveSize s = s
-def LubyTree.qoutientOfSize (s : Nat) (e : Nat) := (s - 1) % ((e - 1) / 2) + 1
-
-#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.enveloveSize (n + 1), LubyTree.is_envelove (n + 1)))
-
-#eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
 theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true) := by
   induction t
