@@ -203,9 +203,7 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
     simp [←length_of_bits_eq_size, Nat.mul_comm tree.size 2]
   }
 
-def LubyTree.enveloveMax (t : LubyTree) : Nat := 2 ^ (t.depth - 1) - 1
 
-/- This is an envelove that covers the last segment. -/ 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
   | .leaf     => 1
   | .wrap sub =>
@@ -227,15 +225,16 @@ theorem level_to_size (n : Nat) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
       _ = 2 ^ (n + 1 + 1) + 1 - 2 := by omega
       _ = 2 ^ (n + 1 + 1) - 1 := by omega
 
-def envelop_size (s : Nat) : Nat :=
-  let n := s.succ.size - 1
-  2 ^ n - 1
+/-
+ - The envelope is the smallest tree containing `s` elements.
+ -/
+def LubyTree.enveloveDepth (s : Nat) : Nat := s.succ.size - 1
+def LubyTree.enveloveSize (s : Nat) : Nat := 2 ^ (LubyTree.enveloveDepth s) - 1
+def LubyTree.envelove (s : Nat) : LubyTree := LubyTree.mk (LubyTree.enveloveDepth s - 1)
+def LubyTree.is_envelove (s : Nat) : Bool := LubyTree.enveloveSize s = s
+def LubyTree.qoutientOfSize (s : Nat) (e : Nat) := (s - 1) % ((e - 1) / 2) + 1
 
-def size_is_top (s : Nat) : Bool :=
-  let n := s.succ.size - 1
-  2 ^ n - 1 = s
-
-#eval List.range 20 |>.map (fun n ↦ (n + 1, envelop_size (n + 1), size_is_top (n + 1)))
+#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.enveloveSize (n + 1), LubyTree.is_envelove (n + 1)))
 
 #eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
