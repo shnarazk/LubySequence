@@ -243,7 +243,7 @@ theorem LubyTree.envelop_of_quotient_is_desceasing :
       exact goal
     refine Nat.sub_le_sub_right ?_ 1
     exact Nat.sub_le_sub_right this 1
-  have t1 : 2 ^ n.size - 1 = 2 * (((2 ^ n.size - 1 - 1) / 2) - 1 + 1) := by
+  have t1 : 2 ^ n.size - 1 - 1 = 2 * (((2 ^ n.size - 1 - 1) / 2) - 1 + 1) := by
     have : 2 * (((2 ^ n.size - 1 - 1) / 2) - 1 + 1) = 2 * (((2 ^ n.size - 1 - 1) / 2)) := by
       refine mk_unique (2 * ((2 ^ n.size - 1 - 1) / 2 - 1 + 1)) (2 * ((2 ^ n.size - 1 - 1) / 2)) ?_
       have : (2 * ((2 ^ n.size - 1 - 1) / 2 - 1 + 1)) = (2 * ((2 ^ n.size - 1 - 1) / 2)) := by
@@ -279,12 +279,15 @@ theorem LubyTree.envelop_of_quotient_is_desceasing :
         refine Nat.size_pos.mpr ?_
         exact Nat.zero_lt_of_lt hn
       simp [this]
-    -- 
-    sorry
+    simp [this]
   -- use h
-  have t2 : 2 * (((2 ^ n.size - 1 - 1) / 2) - 1 + 1) > 2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1) := by sorry
-  exact Nat.lt_of_lt_of_eq t2 (id (Eq.symm t1))
-
+  have : (2 ^ n.size - 1 - 1) / 2 - 1 + 1 = (2 ^ n.size - 1 - 1) / 2 := by
+    refine Eq.symm (Nat.div_eq_of_eq_mul_right (by grind) t1)
+  simp [this] at t1
+  have t2 : 2 * (((2 ^ n.size - 1 - 1) / 2) + 1) > 2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1) := by
+    sorry
+  have t0 : 2 ^ n.size - 1 > 2 * ((2 ^ n.size - 1 - 1) / 2 + 1) := by sorry
+  exact Nat.lt_trans t2 t0
 
 theorem LubyTree.envelop_of_quotient_is_desceasing':
     ∀ n ≥ 2, ¬LubyTree.is_envelove n → LubyTree.enveloveSize n > LubyTree.enveloveSize (LubyTree.quotient n) := by
