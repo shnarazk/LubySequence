@@ -38,3 +38,15 @@ theorem self_ne_pow_two_succ_of_size (n : Nat) : n < 2 ^ n.size.succ := by
   refine Nat.size_le.mp ?_
   grind
 
+theorem mod_gt_right (a b : Nat) (h : 0 < b) : a % b < b := by exact Nat.mod_lt a h
+
+theorem mod_gt_right' (a b : Nat) (ha : 0 < a) (hb : 0 < b) :
+    a % b = 0 → (a - 1) % b + 1 = b := by
+  intro h
+  simp [←Nat.dvd_iff_mod_eq_zero] at h
+  
+  sorry
+
+theorem mod_gt_right'' (a b : Nat) (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
+    (a - 1) % b + 1 < b := by
+  sorry

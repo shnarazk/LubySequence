@@ -308,11 +308,14 @@ theorem LubyTree.envelop_of_quotient_is_desceasing :
       exact rfl
     simp only [t0]
     simp
-    have mod (a b : Nat) (h : 0 < b) (h1 : a < b) : (a - 1) % b + 1 ≤ b := by sorry
+    have mod (a b : Nat) (h : 0 < b) (h1 : a < b) : (a - 1) % b + 1 < b := by
+      have mod1 (a b : Nat) (h : 0 < b) : (a - 1) % b < b := by
+      apply?
+      sorry
     simp [t0] at h 
     have h1 : 0 < 2 ^ (n.size - 1) - 1 := by exact Nat.zero_lt_of_lt h
     exact mod n (2 ^ (n.size - 1) - 1) h1 h
-  have t0 : 2 ^ n.size - 1 = 2 * ((2 ^ n.size - 1 - 1) / 2 + 1) := by
+  have t0 : 2 ^ n.size - 1 = 2 * ((2 ^ n.size - 1 - 1) / 2 + 1) - 1 := by
     have : 2 * ((2 ^ n.size - 1 - 1) / 2 + 1) = (2 ^ n.size - 1 - 1) + 2 := by
       calc
         2 * ((2 ^ n.size - 1 - 1) / 2 + 1) = 2 * ((2 ^ n.size - 1 - 1) / 2) + 2 * 1 := by
@@ -327,9 +330,8 @@ theorem LubyTree.envelop_of_quotient_is_desceasing :
         refine Nat.pow_le_pow_right (by grind) le2n
       exact Nat.le_trans t1 t2
     simp [this]
-    sorry
-
   -- exact Nat.lt_trans t2 t0
+  rw [t0]
   sorry
 
 theorem LubyTree.envelop_of_quotient_is_desceasing':
