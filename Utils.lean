@@ -108,4 +108,4 @@ theorem mod_gt_right'' {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) 
     apply mod_gt_right'_mpr ha hb at e
     grind
   }
-  sorry
+  exact l
