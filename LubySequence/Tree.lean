@@ -232,6 +232,9 @@ theorem LubyTree.envelop_of_quotient_is_desceasing :
   have le2 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size hn
   have le2' : 2 ≤ (2 : Nat).size := by exact Nat.le_of_eq (id (Eq.symm s2))
   have le2n : 2 ≤ n.size := by exact Nat.le_trans le2' le2
+  have le2p : 4 ≤ 2 ^ n.size := by
+    have : 2 ^ 2 ≤ 2 ^ n.size := by refine Nat.pow_le_pow_right (by grind) le2n
+    exact this
   have tr1 : 2 ≤ 2 ^ (2 : Nat).size - 1 - 1 := by
     have : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
     simp [this]
@@ -282,46 +285,32 @@ theorem LubyTree.envelop_of_quotient_is_desceasing :
         exact Nat.zero_lt_of_lt hn
       simp [this]
     simp [this]
-  -- use h
   have : (2 ^ n.size - 1 - 1) / 2 - 1 + 1 = (2 ^ n.size - 1 - 1) / 2 := by
     refine Eq.symm (Nat.div_eq_of_eq_mul_right (by grind) t1)
   simp [this] at t1
   clear this
+  have t1' : 2 ^ n.size - 1 = 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 := by
+    have c1 : 2 ^ n.size - 1 - 1 + 1 = 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 := by
+      exact congrFun (congrArg HAdd.hAdd t1) 1
+    have c2 : 2 ^ n.size - 1 - 1 + 1 = 2 ^ n.size - 1 := by
+      refine Nat.sub_add_cancel ?_
+      have : 1 + 1 ≤ 2 ^ n.size := by exact Nat.le_of_add_left_le le2p
+      exact Nat.le_sub_one_of_lt this
+    rw [←c2]
+    exact c1
   have t2 : 2 * ((2 ^ n.size - 1 - 1) / 2) ≥ 2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1) := by
-    have t0 : (2 ^ n.size - 1 - 1) / 2 = 2 ^ (n.size - 1) - 1 := by  
-      refine Nat.div_eq_of_eq_mul_right (by grind) ?_
-      have : 2 * (2 ^(n.size - 1) - 1) = 2 * 2 ^ (n.size - 1) - 2 * 1 := by 
-        exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 1
-      simp [this]
-      clear this
-      have : 2 * 2 ^ (n.size - 1) = 2 ^ 1 * 2 ^ (n.size - 1) := by exact rfl
-      simp [this]
-      clear this
-      have : 2 ^ 1 * 2 ^ (n.size - 1) = 2 ^ n.size := by
-        refine pow_mul_pow_sub 2 ?_
-        have lt1 : 1 < (2 : Nat).size := by simp [s2]
-        have le1 : 1 ≤ (2 : Nat).size := by exact Nat.one_le_of_lt lt1
-        exact Nat.le_trans le1 le2
-      have : 2 ^ 1 * 2 ^ (n.size - 1) - 2 = 2 ^ n.size - 2 := by 
-        exact congrFun (congrArg HSub.hSub this) 2
-      simp only [this]
-      exact rfl
-    simp only [t0]
-    simp
-    have mod (a b : Nat) (h : 0 < b) (h1 : a < b) : (a - 1) % b + 1 < b := by
-      have mod1 (a b : Nat) (h : 0 < b) : (a - 1) % b < b := by
-      apply?
-      sorry
-    simp [t0] at h 
-    have h1 : 0 < 2 ^ (n.size - 1) - 1 := by exact Nat.zero_lt_of_lt h
-    exact mod n (2 ^ (n.size - 1) - 1) h1 h
-  have t0 : 2 ^ n.size - 1 = 2 * ((2 ^ n.size - 1 - 1) / 2 + 1) - 1 := by
-    have : 2 * ((2 ^ n.size - 1 - 1) / 2 + 1) = (2 ^ n.size - 1 - 1) + 2 := by
-      calc
-        2 * ((2 ^ n.size - 1 - 1) / 2 + 1) = 2 * ((2 ^ n.size - 1 - 1) / 2) + 2 * 1 := by
-          exact rfl
-        _ = 2 * ((2 ^ n.size - 1 - 1) / 2) + 2 := by exact rfl  
-        _ = (2 ^ n.size - 1 - 1) + 2 := by exact congrFun (congrArg HAdd.hAdd (id (Eq.symm t1))) 2
+    have c1 : (n - 1) % ((2 ^ n.size - 1 - 1) / 2) < (2 ^ n.size - 1 - 1) / 2 := by
+      refine mod_gt_right (n - 1) ((2 ^ n.size - 1 - 1) / 2) ?_
+      grind
+    have c2 : (n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1 ≤ (2 ^ n.size - 1 - 1) / 2 := by exact c1
+    have c3 : 2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1) ≤ 2 * ((2 ^ n.size - 1 - 1) / 2) := by
+      exact Nat.mul_le_mul_left 2 c1
+    clear c2
+    exact c3
+  have t2' : 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 > 2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1) := by
+    exact Order.lt_add_one_iff.mpr t2
+  have t0 : 2 ^ n.size - 1 = 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 := by
+    have : 2 * ((2 ^ n.size - 1 - 1) / 2) = (2 ^ n.size - 1 - 1) := by exact id (Eq.symm t1)
     simp only [this]
     have : 2 ^ n.size - 1 - 1 + 2 = 2 ^ n.size := by
       refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
@@ -331,8 +320,9 @@ theorem LubyTree.envelop_of_quotient_is_desceasing :
       exact Nat.le_trans t1 t2
     simp [this]
   -- exact Nat.lt_trans t2 t0
-  rw [t0]
-  sorry
+  nth_rewrite 1 [t0]
+  clear t0
+  exact t2'
 
 theorem LubyTree.envelop_of_quotient_is_desceasing':
     ∀ n ≥ 2, ¬LubyTree.is_envelove n → LubyTree.enveloveSize n > LubyTree.enveloveSize (LubyTree.quotient n) := by
