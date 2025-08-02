@@ -91,11 +91,11 @@ theorem mod_gt_right'_mpr {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
   have cn : ¬a0 % b0 = 0 := by
     have r := @Nat.succ_mod_succ_eq_zero_iff a0 b0
     have (a b : Prop) (h : ¬a) : (b ↔ a) → ¬b := by exact (@iff_false_right a b h).mp
-    have s := this ((a0 + 1) % (b0 + 1) = 0) (a0 % (b0 + 1) = b0) 
+    have s := this ((a0 + 1) % (b0 + 1) = 0) (a0 % (b0 + 1) = b0)
     exact False.elim (this ((a0 + 1) % (b0 + 1) = 0) (a0 % (b0 + 1) = b0) h2 (id (Iff.symm r)) h1)
   have : (a0 + 1) % (b0 + 1) = 0 := by exact Nat.succ_mod_succ_eq_zero_iff.mpr h1
   exact absurd this h2
-  
+
 theorem mod_gt_right'' {b : Nat} (a : Nat) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
   refine Nat.add_le_of_le_sub hb ?_
   refine Nat.le_sub_one_of_lt ?_
@@ -129,7 +129,7 @@ theorem size_of_two_mul_eq_aize_add_one (n : Nat) (h : n > 0) :
 
 theorem size_lt {a b : Nat} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   intro hg
-  have s1 : (2 * a).bits = false :: a.bits := by refine Nat.bit0_bits a (by grind) 
+  have s1 : (2 * a).bits = false :: a.bits := by refine Nat.bit0_bits a (by grind)
   have s2 : (false :: a.bits).length = 1 + a.bits.length := by
     exact Nat.succ_eq_one_add a.bits.length
   have s3 :(2 * a).bits.length = 1 + a.bits.length := by simp only [s1, s2]
@@ -154,15 +154,33 @@ theorem size_lt {a b : Nat} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   have hg' : 2 * a ≤ b := by exact Nat.le_of_succ_le hg
   have tr2 : (2 * a).size ≤ b.size := by refine Nat.size_le_size hg'
   exact Nat.lt_of_lt_of_le tr1 tr2
-    
+
 theorem pow_two_of_size_le_self {n : Nat} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := by
   refine Nat.lt_size.mp ?_
-  have s1 : (2 * n).bits = false :: n.bits := by refine Nat.bit0_bits n (by grind) 
+  have s1 : (2 * n).bits = false :: n.bits := by refine Nat.bit0_bits n (by grind)
   have s2 : (false :: n.bits).length = 1 + n.bits.length := by
     exact Nat.succ_eq_one_add n.bits.length
   have s3 :(2 * n).bits.length = 1 + n.bits.length := by simp only [s1, s2]
   simp [length_of_bits_eq_size] at s3
   simp [s3]
 
-  
+theorem bitlength_sub {n k : Nat} (h :k ≤ n) :
+    (2 ^ n.bits.length - k).bits.length = (2 ^ n.bits.length).bits.length := by
+  sorry
+
+theorem bitlength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
+    (n / 2).bits.length = n.bits.length - 1 := by
+  let n2b := (n / 2).bits
+  have n2bp : n2b = value_of% n2b := by rfl
+  have np : (2 * (n / 2)).bits.length = (n / 2).bits.length + 1 := by
+    have s1 : (2 * (n / 2)).bits = false :: (n / 2).bits := by
+      refine Nat.bit0_bits (n / 2) (by grind) 
+    have s2 : (false :: (n / 2).bits).length = 1 + (n / 2).bits.length := by
+      exact Nat.succ_eq_one_add (n / 2).bits.length
+    simp only [←s1] at s2
+    simp [s2]
+    exact Nat.add_comm 1 (n / 2).bits.length
+  have : 2 * (n /2) = n := by exact Nat.mul_div_cancel' h2
+  simp [this] at np
+  exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
