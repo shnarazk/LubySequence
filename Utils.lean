@@ -96,16 +96,73 @@ theorem mod_gt_right'_mpr {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
   have : (a0 + 1) % (b0 + 1) = 0 := by exact Nat.succ_mod_succ_eq_zero_iff.mpr h1
   exact absurd this h2
   
-theorem mod_gt_right'' {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
+theorem mod_gt_right'' {b : Nat} (a : Nat) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
+  refine Nat.add_le_of_le_sub hb ?_
+  refine Nat.le_sub_one_of_lt ?_
+  exact mod_gt_right (a - 1) b hb
+
+theorem mod_gt_right''' {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
     (a - 1) % b + 1 < b := by
-  have : (a - 1) % b + 1 ≤ b := by
-    refine Nat.add_le_of_le_sub hb ?_
-    refine Nat.le_sub_one_of_lt ?_
-    exact mod_gt_right (a - 1) b hb
-  have el : (a - 1) % b + 1 = b ∨ (a - 1) % b + 1 < b := by exact Nat.eq_or_lt_of_le this
+  have el : (a - 1) % b + 1 = b ∨ (a - 1) % b + 1 < b := by
+    exact Nat.eq_or_lt_of_le (mod_gt_right'' a hb)
   rcases el with e|l
   {
     apply mod_gt_right'_mpr ha hb at e
     grind
   }
   exact l
+
+theorem length_of_bits_eq_size (n : Nat) : n.bits.length = n.size := by
+  exact Nat.size_eq_bits_len n
+
+theorem bits_of_double_eq_cons_false_and_bits (n : Nat) (h : n > 0) :
+    (2 * n).bits = false :: n.bits := by
+  have : n ≠ 0 := by exact Nat.ne_zero_of_lt h
+  exact Nat.bit0_bits n this
+
+example (n : Nat) : (2 * n + 1).bits = true :: n.bits := by
+  exact Nat.bit1_bits n
+
+theorem size_of_two_mul_eq_aize_add_one (n : Nat) (h : n > 0) :
+    n.size + 1 = (n * 2).size := by
+  simp [←Nat.size_eq_bits_len, Nat.mul_comm n 2, bits_of_double_eq_cons_false_and_bits n h]
+
+theorem size_lt {a b : Nat} (h : 0 < a) : 2 * a < b → a.size < b.size := by
+  intro hg
+  have s1 : (2 * a).bits = false :: a.bits := by refine Nat.bit0_bits a (by grind) 
+  have s2 : (false :: a.bits).length = 1 + a.bits.length := by
+    exact Nat.succ_eq_one_add a.bits.length
+  have s3 :(2 * a).bits.length = 1 + a.bits.length := by simp only [s1, s2]
+  simp [length_of_bits_eq_size] at s3
+  have stricten (a b c : Nat) (h : 0 < b) : (a + b = c) → (a < c) := by
+    have le := @Nat.le.intro a c b
+    intro hh
+    have le' := le hh
+    clear le
+    have tf : a < c ∨ a = c := by exact Or.symm (Nat.eq_or_lt_of_le le')
+    clear le'
+    rcases tf with t|f
+    { expose_names ; exact t }
+    {
+      expose_names
+      simp [f] at hh
+      have : ¬b = 0 := by exact Nat.ne_zero_of_lt h
+      exact absurd hh this
+    }
+  have tr1 : a.size < (2 * a).size := by
+    exact stricten a.size 1 (2 * a).size (by grind) (by grind)
+  have hg' : 2 * a ≤ b := by exact Nat.le_of_succ_le hg
+  have tr2 : (2 * a).size ≤ b.size := by refine Nat.size_le_size hg'
+  exact Nat.lt_of_lt_of_le tr1 tr2
+    
+theorem pow_two_of_size_le_self {n : Nat} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := by
+  refine Nat.lt_size.mp ?_
+  have s1 : (2 * n).bits = false :: n.bits := by refine Nat.bit0_bits n (by grind) 
+  have s2 : (false :: n.bits).length = 1 + n.bits.length := by
+    exact Nat.succ_eq_one_add n.bits.length
+  have s3 :(2 * n).bits.length = 1 + n.bits.length := by simp only [s1, s2]
+  simp [length_of_bits_eq_size] at s3
+  simp [s3]
+
+  
+
