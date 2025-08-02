@@ -78,7 +78,7 @@ theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) 
 
 theorem LubyTree.mk_self_eq_depth_add_one (n: Nat) : (LubyTree.mk n).depth = n + 1 := by
   induction n with
-  | zero => 
+  | zero =>
     simp [LubyTree.mk]
     rfl
   | succ n ih =>
@@ -130,7 +130,7 @@ theorem LubyTree.mk_unique (m n : Nat) : LubyTree.mk m = LubyTree.mk n → m = n
     intro h
     have tf : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
     rcases tf with t|f
-    { simp [t,mk] at h }  
+    { simp [t,mk] at h }
     {
       have : n = (n - 1) + 1 := by exact Eq.symm (Nat.succ_pred_eq_of_ne_zero f)
       rw [this] at h
@@ -169,7 +169,7 @@ theorem size_is_two_sub_sizes_add_one (n : Nat) :
     (LubyTree.mk (n + 1)).size = 2 * (LubyTree.mk n).size + 1 := by
   rw [LubyTree.mk, LubyTree.size]
   grind
- 
+
 theorem size_is_two_sub_sizes_add_one' (n : Nat) :
     (LubyTree.mk n).wrap.size = 2 * (LubyTree.mk n).size + 1 := by
   simp [←size_is_two_sub_sizes_add_one]
@@ -207,7 +207,7 @@ def LubyTree.quotient (s : Nat) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 #eval LubyTree.is_envelove 0
 
 -- This is impossible
--- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by 
+-- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by
 
 theorem LubyTree.envelop_of_quotient_is_decreasing :
     ∀ n ≥ 2, n < (2 ^ n.size - 1 - 1) / 2 → LubyTree.enveloveSize n > 2 * (LubyTree.quotient n) := by
@@ -239,7 +239,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing :
       have : (2 * ((2 ^ n.size - 1 - 1) / 2 - 1 + 1)) = (2 * ((2 ^ n.size - 1 - 1) / 2)) := by
         refine (Nat.mul_right_inj ?_).mpr (by grind)
         exact Ne.symm (Nat.zero_ne_add_one 1)
-      simp [this] 
+      simp [this]
     have : (2 ^ n.size - 1 - 1) / 2 - 1 + 1 = (2 ^ n.size - 1 - 1) / 2 := by
       refine Nat.sub_add_cancel ?_
       have : (2 ^ (2 : Nat).size - 1 -1) / 2 ≤ (2 ^ n.size - 1 - 1) / 2 := by
@@ -338,40 +338,44 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
   apply (s2 ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1).size n.size 2 (by grind)).mp
   clear s2
   -- size_lt で条件が緩くなりすぎる
-  -- refine size_lt (by grind) ?_  
+  -- refine size_lt (by grind) ?_
   -- やり直し
-  have r1 : (n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1 ≤ (2 ^ n.size - 1 - 1) / 2 := by
+  simp [←length_of_bits_eq_size]
+
+
+  have r1 : (n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1 ≤ (2 ^ n.bits.length - 1 - 1) / 2 := by
     refine mod_gt_right'' n ?_
     {
-      have : 4 - 1 ≤ 2 ^ n.size - 1 := by exact Nat.sub_le_sub_right le2p 1
+      have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p 1
       simp at this
-      have : 3 - 1 ≤ 2 ^ n.size - 1 - 1 := by exact Nat.sub_le_sub_right this 1
+      have : 3 - 1 ≤ 2 ^ n.bits.length - 1 - 1 := by exact Nat.sub_le_sub_right this 1
       simp at this
-      have : 2 / 2 ≤ (2 ^ n.size - 1 - 1) / 2 := by exact Nat.div_le_div_right this
+      have : 2 / 2 ≤ (2 ^ n.bits.length - 1 - 1) / 2 := by exact Nat.div_le_div_right this
       simp at this
       exact this
     }
-  have r1' : 2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1) ≤ (2 ^ n.size - 1 - 1) := by
-    sorry
-  have r2 : (2 ^ n.size - 1 - 1) / 2 < n := by
-    have : (2 ^ n.size - 1 - 1) / 2 = 2 ^ n.size / 2 - 1 := by
+  have r2 : (2 ^ n.bits.length - 1 - 1) / 2 < n := by
+    have : (2 ^ n.bits.length - 1 - 1) / 2 = 2 ^ n.bits.length / 2 - 1 := by
       calc
-        (2 ^ n.size - 1 - 1) / 2 = (2 ^ n.size - 2) / 2 := by exact rfl
-        _ = 2 ^ n.size / 2 - 2 / 2 := by
+        (2 ^ n.bits.length - 1 - 1) / 2 = (2 ^ n.bits.length - 2) / 2 := by exact rfl
+        _ = 2 ^ n.bits.length / 2 - 2 / 2 := by
           refine Nat.div_eq_of_eq_mul_right (by grind) ?_
           simp [Nat.mul_sub]
-          have : 2 * (2 ^ n.size / 2) = 2 ^ n.size := by
+          have : 2 * (2 ^ n.bits.length / 2) = 2 ^ n.bits.length := by
             refine Nat.mul_div_cancel' ?_
             refine Dvd.dvd.pow (by grind) (by grind)
           simp [this]
-        _ = 2 ^ n.size / 2 - 1 := by exact rfl
-    simp [this]        
+        _ = 2 ^ n.bits.length / 2 - 1 := by exact rfl
+    simp [this]
     have : 2 ^ n.size ≤ 2 * n := by exact pow_two_of_size_le_self (by grind)
-    have : 2 ^ n.size / 2 ≤ n := by exact Nat.div_le_of_le_mul this
-    have tr1 : 2 ^ n.size / 2 - 1 ≤ n - 1 := by exact Nat.sub_le_sub_right this 1
+    have : 2 ^ n.bits.length ≤ 2 * n := by
+      rw [length_of_bits_eq_size]
+      exact this
+    have : 2 ^ n.bits.length / 2 ≤ n := by exact Nat.div_le_of_le_mul this
+    have tr1 : 2 ^ n.bits.length / 2 - 1 ≤ n - 1 := by exact Nat.sub_le_sub_right this 1
     have tr2 : n - 1 < n := by exact Nat.sub_one_lt_of_lt hn
     exact Nat.lt_of_le_of_lt tr1 tr2
-
+  
   -- apply?
   exact Nat.lt_of_le_of_lt r1' r2
   done
@@ -419,7 +423,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     -- case: n is not top
   }
 
-  
+
 
 
   sorry
@@ -449,7 +453,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
       have : (2 * ((2 ^ n.size - 1 - 1) / 2 - 1 + 1)) = (2 * ((2 ^ n.size - 1 - 1) / 2)) := by
         refine (Nat.mul_right_inj ?_).mpr (by grind)
         exact Ne.symm (Nat.zero_ne_add_one 1)
-      simp [this] 
+      simp [this]
     have : (2 ^ n.size - 1 - 1) / 2 - 1 + 1 = (2 ^ n.size - 1 - 1) / 2 := by
       refine Nat.sub_add_cancel ?_
       have : (2 ^ (2 : Nat).size - 1 -1) / 2 ≤ (2 ^ n.size - 1 - 1) / 2 := by
@@ -520,7 +524,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
 
 
 
-  
+
 
   sorry
 
@@ -543,7 +547,7 @@ def LubyTree.luby (s : Nat) : Nat :=
       have : s = 0 ∨ s = 1 := by grind
       have : is_envelove s = true := by
         simp [is_envelove, enveloveSize, enveloveDepth]
-        rcases this with s01|s01 <;> simp [s01] 
+        rcases this with s01|s01 <;> simp [s01]
       exact absurd this h
     have dec : s ≥ 2 → LubyTree.enveloveSize s > LubyTree.enveloveSize (LubyTree.quotient s) := by
      exact fun a ↦ envelop_of_quotient_is_desceasing' s this h
@@ -583,7 +587,7 @@ theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true
     simp at tree_ih
     simp only [←this, size_is_two_sub_sizes_add_one' (n - 1)]
     simp only [Nat.bit1_bits]
-    have notin_cons (a : Bool) (l : List Bool) : false ≠ a → false ∉ l → false ∉ a :: l := by 
+    have notin_cons (a : Bool) (l : List Bool) : false ≠ a → false ∉ l → false ∉ a :: l := by
       exact fun a_1 a_2 ↦ List.not_mem_cons_of_ne_of_not_mem a_1 a_2
     apply notin_cons
     { simp }
@@ -595,7 +599,7 @@ theorem LubyTree.is_symmetry (d : Nat) :
       n > 0 → (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2)  := by
   intro n hn nz
   induction' d with d dh
-  { 
+  {
     simp [LubyTree.mk]
     simp [LubyTree.size]
   }
@@ -611,7 +615,7 @@ theorem LubyTree.is_symmetry (d : Nat) :
       simp [←d_tree] at *
       -- simp [heq] at *
       have d_eq : (mk (d + 1)).depth = (mk d).depth + 1 := by exact rfl
-      simp only [d_eq] at * 
+      simp only [d_eq] at *
       split
       {
         split
@@ -621,7 +625,7 @@ theorem LubyTree.is_symmetry (d : Nat) :
           have : ¬(mk (d + 1)).size ≤ n := by grind
           exact absurd h this
         }
-      } 
+      }
       {
         split
         { expose_names ; grind }
@@ -632,7 +636,7 @@ theorem LubyTree.is_symmetry (d : Nat) :
             simp [this]
             rw [add_comm]
             -- have (m a : Nat) : (m + a) % m = a % m := by apply? -- exact Nat.sub_add_comm h
-            rw [←Nat.add_mod_left (mk d).size (n - 1)] 
+            rw [←Nat.add_mod_left (mk d).size (n - 1)]
             have : (mk d).size + (n - 1) = (mk d).size + n - 1 := by
               exact Eq.symm (Nat.add_sub_assoc nz (mk d).size)
             rw [this]
