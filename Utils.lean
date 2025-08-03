@@ -168,6 +168,25 @@ theorem pow2_of_bitlength_eq_self {n : Nat} (h : 0 < n) :
     (2 ^ n.bits.length).bits.length = n.bits.length := by
   sorry
 
+theorem pow2_sub_one {n : Nat} : (2 ^ n - 1).bits = List.iterate (·) true n := by
+  induction' n with n hn
+  { simp }
+  {
+    have s1 : 2 ^ (n + 1) - 1 = 2 * (2 ^ n - 1) + 1 := by 
+      calc
+        2 ^ (n + 1) - 1 = 2 * 2 ^ n - 1 := by grind
+        _ = 2 * 2 ^ n + 1 - 2 := by exact rfl
+        _ = 1 + 2 * 2 ^ n - 2 := by rw [add_comm]
+        _ = 1 + 2 * (2 ^ n - 1) := by
+          simp [Nat.mul_sub]
+          refine Nat.add_sub_assoc ?_ 1
+          have : 0 < 2 ^ n := by exact Nat.two_pow_pos n
+          grind
+        _ = 2 * (2 ^ n - 1) + 1 := by rw [add_comm]
+    simp [s1]
+    exact hn
+  }
+
 theorem bitlength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n.bits.length - 1)) :
     (2 ^ n.bits.length - k).bits.length = n.bits.length - 1 := by
   have p1 : 0 < n.bits.length := by
