@@ -324,6 +324,20 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
   have le2p : 4 ≤ 2 ^ n.size := by
     have : 2 ^ 2 ≤ 2 ^ n.size := by refine Nat.pow_le_pow_right (by grind) le2n
     exact this
+  have le2p' : 4 ≤ 2 ^ n.bits.length := by
+    simp [length_of_bits_eq_size]
+    exact le2p
+  have le2nbl : 2 ≤ n.bits.length := by
+    have step1 : (2 : Nat).bits.length ≤ n.bits.length := by exact bitslength_le_bitslength hn 
+    have step2 : (2 : Nat).bits.length = 2 := by
+      calc
+        (2 : Nat).bits.length = [false, true].length := by
+          have : (2 : Nat).bits = [false, true] := by simp [Nat.bits, Nat.binaryRec]
+          simp [this]
+        _ = 2 := by exact rfl
+    simp [step2] at step1
+    exact step1
+
   simp [enveloveSize, enveloveDepth]
   have s1 : 2 ^ (quotient n).size < 2 ^ n.size → 2 ^ (quotient n).size - 1 < 2 ^ n.size - 1 := by
     have (a b : Nat) (h : 1 ≤ a) : a < b → a - 1 < b - 1 := by
@@ -341,12 +355,89 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
   -- refine size_lt (by grind) ?_
   -- やり直し
   simp [←length_of_bits_eq_size]
-
+  -- - 1 - 1 を削除して % を削除して + 1 を削除して
+  -- (2 ^ (n.bits.length - 1)).bits.length < n.bits.length の形に持ち込みたい。
+  have s1 : (2 ^ n.bits.length - 1 - 1).bits.length = n.bits.length := by
+    have tmp : (2 ^ n.bits.length - 1 - 1).bits.length = (2 ^ n.bits.length - 2).bits.length := by
+      have : 2 ^ n.bits.length - 1 - 1 = 2 ^ n.bits.length - 2 := by exact rfl
+      exact rfl
+    simp [tmp]
+    clear tmp
+    refine bitslength_sub (by grind) (by grind) ?_
+    have tmp1 : 1 ≤ n.bits.length - 1 := by exact Nat.le_sub_one_of_lt le2nbl
+    have tmp2 : 2 ^ 1 ≤ 2 ^ (n.bits.length - 1) := by exact Nat.le_pow tmp1
+    exact tmp2
+  have s1' : ((2 ^ n.bits.length - 1 - 1) / 2).bits.length = n.bits.length - 1 := by
+    have t1 {x : Nat} (h : 2 ≤ x) : (x / 2).bits = x.bits.tail := by
+      let v := (x / 2).bits
+      have vp : v = value_of% v := by exact rfl
+      have tf : x % 2 = 0 ∨ ¬ x % 2 = 0 := by exact eq_or_ne _ _
+      rcases tf with t|f
+      {
+        have s1 : Even x := by refine Nat.even_iff.mpr t 
+        have s2 : x = 2 * (x / 2) := by refine Eq.symm (Nat.two_mul_div_two_of_even s1)
+        have s3 : x.bits = (2 * (x / 2)).bits := by exact congrArg Nat.bits s2
+        have s4 : (2 * (x / 2)).bits = false :: (x / 2).bits := by
+          refine Nat.bit0_bits (x / 2) ?_
+          have t1 : 0 < 2 / 2 := by grind
+          have t2 : 2 / 2 ≤ x / 2 := by exact Nat.div_le_div_right h
+          have t3 : 0 < x / 2 := by exact t2
+          have t4 : x / 2 ≠ 0 := by exact Nat.ne_zero_of_lt t2
+          exact t4
+        simp [←s2] at s4
+        have s4' : x.bits.tail = (false :: (x / 2).bits).tail := by exact congrArg List.tail s4
+        have s5 : (false :: (x / 2).bits).tail = (x /2).bits := by exact vp 
+        simp [←s4'] at s5
+        exact id (Eq.symm s4')
+      }
+      {
+        have : x % 2 = 1 := by exact Nat.mod_two_ne_zero.mp f
+        have s1 : ¬ Even x := by exact Nat.not_even_iff.mpr this
+        have s1' : Odd x := by exact Nat.odd_iff.mpr this
+        have s2 : x = 2 * (x / 2) + 1 := by exact Eq.symm (Nat.two_mul_div_two_add_one_of_odd s1')
+        have s3 : x.bits = (2 * (x / 2) + 1).bits := by exact congrArg Nat.bits s2
+        have s4 : (2 * (x / 2) + 1).bits = true :: (x / 2).bits := by exact Nat.bit1_bits (x / 2)
+        simp [←s2] at s4
+        have s4' : x.bits.tail = (true :: (x / 2).bits).tail := by exact congrArg List.tail s4
+        exact id (Eq.symm s4')
+      }
+    have t2 : 2 ≤ 2 ^ n.bits.length - 1 - 1 := by grind
+    have t1' := t1 t2
+    clear t1 t2
+    have t1'' : ((2 ^ n.bits.length - 1 - 1) / 2).bits.length = (2 ^ n.bits.length - 1 - 1).bits.tail.length := by 
+      exact congrArg List.length t1'
+    clear t1'
+    simp [t1'']
+    clear t1''
+    simp [s1]
+  have s2 : ((n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1) ≤ ((2 ^ n.bits.length - 1 - 1) / 2) := by
+    refine mod_gt_right'' ?_ ?_
+    have tmp : 0 < (2 ^ n.bits.length - 1 - 1) / 2 := by
+      have : 0 < 2 ^ n.bits.length - 1 - 1 := by
+        have : 2 ^ 2 ≤ 2 ^ n.bits.length := by refine Nat.pow_le_pow_right (by grind) le2nbl
+        have : 2 ^ 2 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right this 1
+        simp at this
+        have : 3 - 1 ≤ 2 ^ n.bits.length - 1 - 1 := by exact Nat.sub_le_sub_right this 1
+        simp at this
+        exact Nat.zero_lt_of_lt this
+      have : 0 < (2 ^ n.bits.length - 1 - 1) / 2 := by
+        refine Nat.div_pos ?_ (by grind) 
+        {
+          have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p' 1
+          have : 4 - 1 - 1 ≤ 2 ^ n.bits.length - 1 - 1 := by exact Nat.sub_le_sub_right this 1
+          simp at this
+          exact this
+        }
+      exact this
+    exact tmp
+  have s2' : ((n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1).bits.length ≤ ((2 ^ n.bits.length - 1 - 1) / 2).bits.length := by
+    exact bitslength_le_bitslength s2
+  clear s2 
 
   have r1 : (n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1 ≤ (2 ^ n.bits.length - 1 - 1) / 2 := by
     refine mod_gt_right'' n ?_
     {
-      have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p 1
+      have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p' 1
       simp at this
       have : 3 - 1 ≤ 2 ^ n.bits.length - 1 - 1 := by exact Nat.sub_le_sub_right this 1
       simp at this
@@ -375,163 +466,9 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     have tr1 : 2 ^ n.bits.length / 2 - 1 ≤ n - 1 := by exact Nat.sub_le_sub_right this 1
     have tr2 : n - 1 < n := by exact Nat.sub_one_lt_of_lt hn
     exact Nat.lt_of_le_of_lt tr1 tr2
-  
-  -- apply?
-  exact Nat.lt_of_le_of_lt r1' r2
-  done
-
---
-  -- junk
-  have r1 {a b : Nat} : a ≤ b → a.size ≠ b.size → a.size < b.size := by
-    have : a ≤ b → a.size ≤ b.size := by exact fun a_1 ↦ Nat.size_le_size a_1
-    exact fun a_1 a_2 ↦ Nat.lt_of_le_of_ne (this a_1) a_2
-  refine r1 ?_ ?_
-  {
-    -- case: quotient n ≤ n
-    clear r1
-    have : (n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1 ≤ (2 ^ n.size - 1 - 1) / 2 := by
-      refine mod_gt_right'' n ?_
-      {
-        have : 4 - 1 ≤ 2 ^ n.size - 1 := by exact Nat.sub_le_sub_right le2p 1
-        simp at this
-        have : 3 - 1 ≤ 2 ^ n.size - 1 - 1 := by exact Nat.sub_le_sub_right this 1
-        simp at this
-        have : 2 / 2 ≤ (2 ^ n.size - 1 - 1) / 2 := by exact Nat.div_le_div_right this
-        simp at this
-        exact this
-      }
-    refine le_trans this ?_
-    have : (2 ^ n.size - 1 - 1) / 2 = 2 ^ n.size / 2 - 1 := by
-      sorry
-    simp [this]
-    have : 2 ^ n.size ≤ 2 * n := by
-      refine Nat.lt_size.mp ?_
-      refine size_lt ?_
-      have np : 0 < n := by exact Nat.zero_lt_of_lt hn
-      exact lt_two_mul_self np
-    have tr1 : 2 ^ n.size / 2 ≤ n := by exact Nat.div_le_of_le_mul this
-    have tr2 : n < n + 1 := by exact lt_add_one n
-    exact Nat.le_add_right_of_le tr1
-  }
-  {
-    -- case: (quotient n).size ≠ n.size
-    sorry
-    done
-  }
-  }
-  {
-    -- case: n is not top
-  }
-
-
-
-
-  sorry
-  have s2 : Nat.size 2 = 2 := by simp [Nat.size, Nat.binaryRec]
-  have le2 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size hn
-  have le2' : 2 ≤ (2 : Nat).size := by exact Nat.le_of_eq (id (Eq.symm s2))
-  have le2n : 2 ≤ n.size := by exact Nat.le_trans le2' le2
-  have le2p : 4 ≤ 2 ^ n.size := by
-    have : 2 ^ 2 ≤ 2 ^ n.size := by refine Nat.pow_le_pow_right (by grind) le2n
-    exact this
-  have tr1 : 2 ≤ 2 ^ (2 : Nat).size - 1 - 1 := by
-    have : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
-    simp [this]
-  have s3 : 2 ^ (2 : Nat).size - 1 - 1 ≤ 2 ^ n.size - 1 - 1 := by
-    have : 2 ^ (2 : Nat).size ≤ 2 ^ n.size := by
-      refine (Nat.pow_le_pow_iff_right (by grind)).mpr ?_
-      have {a b : Nat} : a ≤ b → a.size ≤ b.size := by
-        exact fun a_1 ↦ Nat.size_le_size a_1
-      have hn' : 2 ≤ n := by exact hn
-      have goal := this hn'
-      exact goal
-    refine Nat.sub_le_sub_right ?_ 1
-    exact Nat.sub_le_sub_right this 1
-  have t1 : 2 ^ n.size - 1 - 1 = 2 * (((2 ^ n.size - 1 - 1) / 2) - 1 + 1) := by
-    have : 2 * (((2 ^ n.size - 1 - 1) / 2) - 1 + 1) = 2 * (((2 ^ n.size - 1 - 1) / 2)) := by
-      refine mk_unique (2 * ((2 ^ n.size - 1 - 1) / 2 - 1 + 1)) (2 * ((2 ^ n.size - 1 - 1) / 2)) ?_
-      have : (2 * ((2 ^ n.size - 1 - 1) / 2 - 1 + 1)) = (2 * ((2 ^ n.size - 1 - 1) / 2)) := by
-        refine (Nat.mul_right_inj ?_).mpr (by grind)
-        exact Ne.symm (Nat.zero_ne_add_one 1)
-      simp [this]
-    have : (2 ^ n.size - 1 - 1) / 2 - 1 + 1 = (2 ^ n.size - 1 - 1) / 2 := by
-      refine Nat.sub_add_cancel ?_
-      have : (2 ^ (2 : Nat).size - 1 -1) / 2 ≤ (2 ^ n.size - 1 - 1) / 2 := by
-        refine Nat.div_le_div_right ?_
-        simp [s2]
-        exact Nat.le_trans tr1 s3
-      exact Nat.one_le_of_lt s0
-    simp [this]
-    have : 2 * ((2 ^ n.size - 1 - 1) / 2) = 2 ^ n.size - 1 - 1 := by
-      refine Nat.two_mul_div_two_of_even ?_
-      simp [Even]
-      use 2 ^ (n.size - 1) - 1
-      have : 2 ^ (n.size - 1) - 1 + (2 ^ (n.size - 1) - 1) = 2 * 2 ^ (n.size - 1) - 1 - 1 := by
-        have step1 : 2 ^ (n.size - 1) - 1 + (2 ^ (n.size - 1) - 1) =2 ^ (n.size - 1) - 1 + 2 ^ (n.size - 1) - 1 := by
-          refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (n.size - 1) - 1))
-          have : 2 ^ ((2 : Nat).size - 1) ≤ 2 ^ (n.size - 1) := by
-            refine Nat.pow_le_pow_right (by grind) ?_
-            exact Nat.sub_le_sub_right le2 1
-          simp [s2] at this
-          exact Nat.one_le_two_pow
-        simp [step1]
-        grind
-      simp [this]
-      have : 2 * 2 ^ (n.size - 1) = 2 ^ n.size := by
-        refine mul_pow_sub_one ?_ 2
-        refine Nat.ne_zero_iff_zero_lt.mpr ?_
-        refine Nat.size_pos.mpr ?_
-        exact Nat.zero_lt_of_lt hn
-      simp [this]
-    simp [this]
-  have : (2 ^ n.size - 1 - 1) / 2 - 1 + 1 = (2 ^ n.size - 1 - 1) / 2 := by
-    refine Eq.symm (Nat.div_eq_of_eq_mul_right (by grind) t1)
-  simp [this] at t1
-  clear this
-  have t1' : 2 ^ n.size - 1 = 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 := by
-    have c1 : 2 ^ n.size - 1 - 1 + 1 = 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 := by
-      exact congrFun (congrArg HAdd.hAdd t1) 1
-    have c2 : 2 ^ n.size - 1 - 1 + 1 = 2 ^ n.size - 1 := by
-      refine Nat.sub_add_cancel ?_
-      have : 1 + 1 ≤ 2 ^ n.size := by exact Nat.le_of_add_left_le le2p
-      exact Nat.le_sub_one_of_lt this
-    rw [←c2]
-    exact c1
-  have t2 : (2 ^ n.size - 1 - 1) / 2 ≥ (n - 1) % ((2 ^ n.size - 1 - 1) / 2) := by
-    have c1 : (n - 1) % ((2 ^ n.size - 1 - 1) / 2) < (2 ^ n.size - 1 - 1) / 2 := by
-      refine mod_gt_right (n - 1) ((2 ^ n.size - 1 - 1) / 2) ?_
-      grind
-    exact Nat.le_of_succ_le c1
-  have t2' : 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 > 2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1) := by
-    exact Order.lt_add_one_iff.mpr t2
-  have t0 : 2 ^ n.size - 1 = 2 * ((2 ^ n.size - 1 - 1) / 2) + 1 := by
-    have : 2 * ((2 ^ n.size - 1 - 1) / 2) = (2 ^ n.size - 1 - 1) := by exact id (Eq.symm t1)
-    simp only [this]
-    have : 2 ^ n.size - 1 - 1 + 2 = 2 ^ n.size := by
-      refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
-      have t1 : 2 ≤ 2 ^ (2 : Nat) := by exact Nat.succ_le_succ_sqrt' 1
-      have t2 : 2 ^ (2 : Nat) ≤ 2 ^ n.size := by
-        refine Nat.pow_le_pow_right (by grind) le2n
-      exact Nat.le_trans t1 t2
-    simp [this]
-  -- exact Nat.lt_trans t2 t0
-  -- nth_rewrite 1 [t0]
-  -- clear t0
-  refine lt_trans t2 ?_
-  have : 2 * ((2 ^ n.size - 1 - 1) / 2) = 2 ^ n.size - 1 - 1 := by
-    exact id (Eq.symm t1)
-  simp [this]
-
-
-
-
-
-  sorry
-
-
-
-
-
+  simp [s1'] at s2'
+  have : n.bits.length - 1 < n.bits.length := by exact Nat.sub_one_lt_of_lt le2nbl
+  exact Nat.lt_of_le_of_lt s2' this
 
 def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
   | .leaf     => 1
