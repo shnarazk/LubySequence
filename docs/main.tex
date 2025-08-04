@@ -2,6 +2,9 @@
 % \usepackage[utf8]{inputenc} % Allows Unicode characters
 \usepackage{amsmath}        % For math typesetting (optional)
 \usepackage{graphicx}       % For including images (optional)
+\usepackage{tikz}           % For drawing diagrams (optional)
+% \usepackage{tikz-cd}
+\usetikzlibrary{arrows.meta, cd, positioning}
 
 \title{Luby Sequence}
 \author{shnarazk and Generative AIs}
@@ -59,4 +62,23 @@ representation of the binary representation of its argument (as in Lean 4).
     Luby\left(k + 1 - S_2(k)\right), & \text{otherwise}
   \end{cases}
 \end{align}
+
+\begin{tikzcd}
+n \arrow[ddr, bend right, "O(\log(n))" description]
+% \arrow[dr, dotted, "{(x,y)}" description]
+& S_{1} \arrow[d, "O(1)^{n-1}"]
+&
+& n + 1
+% \arrow[dl, bend left, "O(1)"]
+\arrow[ddl, bend left, "O(\log(n))" description]
+\\
+& S_{n} \arrow[r, "O(1)"] \arrow[d, "O(1)"]
+& S_{n + 1} \arrow[d, "O(1)"]
+&
+\\
+& Luby(n)
+& Luby(n+1)
+&
+\end{tikzcd}
+
 \end{document}

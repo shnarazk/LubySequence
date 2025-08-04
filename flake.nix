@@ -43,6 +43,7 @@
                 tcolorbox
                 tex4ht
                 textpos
+                tikz-cd
                 tikz-ext
                 tikzfill
                 tikzpagenodes
