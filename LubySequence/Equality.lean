@@ -26,24 +26,54 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       simp [LubyTree.enveloveDepth]
     }
     {
+      -- to show a conflict
       expose_names
+      -- by `h` and `h_1`
+      simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [LubyTree.enveloveDepth]
-      sorry
+      have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
+        have t1 : (n + 2 + 1).size - 1 = (n + 1).size := by
+          simp [←length_of_bits_eq_size]
+
+          sorry
+        have t1' : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by exact congrArg (HPow.hPow 2) t1
+        exact t1'
+      simp [h] at c1
+      exact absurd c1 h_1
     }
   }
   {
     split
     {
       expose_names
+      -- by `h` and `h_1`
+      simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
+      simp [Luby.S₂] at h_1
+      expose_names
+      have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
+        have t1 : (n + 2 + 1).size - 1 = (n + 1).size := by
+          simp [←length_of_bits_eq_size]
+
+          sorry
+        have t1' : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by exact congrArg (HPow.hPow 2) t1
+        exact t1'
+      -- simp [h] at c1
+      -- exact absurd c1 h_1
       sorry
     }
     {
       expose_names
-      sorry
+      simp [Luby.S₂, LubyTree.quotient]
+      have : n % ((2 ^ (n + 1).size - 1 - 1) / 2) = n + 1 - 2 ^ ((n + 1).size - 1) := by
+        sorry
+      simp [this]
+      have : n + 1 - 2 ^ ((n + 1).size - 1) < n := by sorry
+      have hn' := hn (n + 1 - 2 ^ ((n + 1).size - 1)) this
+      exact hn'
     }
    }
 
-
+/-
 theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n := by
   intro n
 
@@ -111,10 +141,11 @@ theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n 
     }
   }
   sorry
-  
+ -/ 
 
 #eval (LubyTree.mk 3).size
 
+/-
 theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n := by
   intro n
   induction' n using Nat.strong_induction_on with n hn
@@ -127,3 +158,4 @@ theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n 
     sorry
    }
   sorry
+  -/
