@@ -195,7 +195,7 @@ theorem pow2_sub_one {n : Nat} : (2 ^ n - 1).bits = List.iterate (·) true n := 
     exact hn
   }
 
-theorem bitlength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n.bits.length - 1)) :
+theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n.bits.length - 1)) :
     (2 ^ n.bits.length - k).bits.length = n.bits.length := by
   have p1 : 0 < n.bits.length := by
     have p : 1 ≤ n := by exact h
@@ -267,7 +267,7 @@ theorem bitlength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n.bi
     exact r2'
   exact Nat.le_antisymm t1 t2
 
-theorem bitlength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
+theorem bitslength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
     (n / 2).bits.length = n.bits.length - 1 := by
   let n2b := (n / 2).bits
   have n2bp : n2b = value_of% n2b := by rfl
@@ -283,3 +283,8 @@ theorem bitlength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
   simp [this] at np
   exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
+-- TODO: use this here and there in this file
+theorem bitslength_le_bitslength {a b : Nat} (h : a ≤ b) : a.bits.length ≤ b.bits.length := by
+  have t := Nat.size_le_size h
+  simp [←length_of_bits_eq_size] at t
+  exact t
