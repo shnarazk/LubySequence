@@ -487,7 +487,7 @@ def LubyTree.luby (s : Nat) : Nat :=
         rcases this with s01|s01 <;> simp [s01]
       exact absurd this h
     have dec : s ≥ 2 → LubyTree.enveloveSize s > LubyTree.enveloveSize (LubyTree.quotient s) := by
-     exact fun a ↦ envelop_of_quotient_is_desceasing' s this h
+     exact fun a ↦ envelop_of_quotient_is_decreasing' s this h
     LubyTree.luby (LubyTree.quotient s)
 termination_by LubyTree.enveloveSize s
 
