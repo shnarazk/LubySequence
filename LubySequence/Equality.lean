@@ -18,13 +18,12 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n :
   induction' n using Nat.strong_induction_on with n hn
   rw [Luby.luby]
   -- simp [LubyTree.valueAt]
-  rw [LubyTree.valueAtSize.eq_def]
+  rw [LubyTree.valueAt.eq_def]
   split
   {
     -- case: Tree is leaf
     expose_names
-    split
-    {
+    /- {
       -- case: Luby is stopped
       expose_names
       have : LubyTree.leaf = LubyTree.mk 0 := by rfl
@@ -34,46 +33,21 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n :
         exact heq
       have : ∀ k : Nat, 2 ^ k ≠ 0 := by exact fun k ↦ Ne.symm (NeZero.ne' (2 ^ k))
       (expose_names; exact False.elim (this ((n + 1).size + 1) this_2))
-    }
+    } -/
     {
       -- case: down recursively
       expose_names
       simp [Luby.S₂]
       have : LubyTree.leaf = LubyTree.mk 0 := by exact rfl
-      simp [this] at heq
-      apply LubyTree.mk_unique (2 ^ ((n + 1).size + 1)) 0 at heq
-      have : ¬2 ^ ((n + 1).size + 1) = 0 := by exact NeZero.ne (2 ^ ((n + 1).size + 1))
-      exact absurd heq this
+      -- simp [this] at heq
+      -- apply LubyTree.mk_unique (2 ^ ((n + 1).size + 1)) 0 at heq
+      -- have : ¬2 ^ ((n + 1).size + 1) = 0 := by exact NeZero.ne (2 ^ ((n + 1).size + 1))
+      -- exact absurd heq this
+      sorry
     }
   }
-  {
-    -- two cases
-    split
-    {
-      -- case: top
-      split
-      {
-        expose_names
-        simp [depth_and_size]
-        have : (LubyTree.mk (2 ^ ((n + 1).size + 1))).depth = (LubyTree.mk (2 ^ ((n + 1).size + 1))).size.size := by 
-          exact depth_and_size (LubyTree.mk (2 ^ ((n + 1).size + 1)))
-        simp only [←this]
-        simp [LubyTree.mk_self_eq_depth_add_one]
-        simp [Luby.S₂]
-        sorry
-      }
-      {
-        expose_names
-        simp [LubyTree.mk_self_eq_depth_add_one]
-        rw [Luby.luby] 
-
-
-
-        sorry
-      }
-    }
-    sorry
-   }
+  sorry
+  
 
 #eval (LubyTree.mk 3).size
 
@@ -85,8 +59,7 @@ theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n 
   {
     expose_names
     have : Luby.S₂ (n + 2) = n + 2 → 2 ^ (n.size + 1) - 1 = n := by
-
-
       sorry
+    sorry
    }
-
+  sorry
