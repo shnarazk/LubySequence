@@ -2,6 +2,10 @@ import Mathlib.Tactic
 import LubySequence.Basic
 import LubySequence.Tree
 import LubySequence.Generator
+import Mathlib.Data.Nat.Basic
+import Mathlib.Data.Nat.Init
+import Mathlib.Data.Nat.Bits
+import Mathlib.Data.Nat.Size
 
 open Tree
 
@@ -65,16 +69,27 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
             simp [this]
           _ = 2 ^ ((2 ^ a + 1).bits.length) / 2 ^ 1 := by
             refine Eq.symm (Nat.pow_div ?_ (by grind))
-            sorry
+            have step1 : 2 ^ 1 + 1 ≤ 2 ^ a + 1 := by
+              refine Nat.add_le_add ?_ (by grind) 
+              grind
+            simp at step1
+            have step2 : (2 : Nat).bits.length ≤ (2 ^ a + 1).bits.length := by
+              refine bitslength_le_bitslength ?_
+              exact Nat.le_add_right_of_le step1
+            have step3 : (2 : Nat).bits.length = 2 := by
+              have s1 : (1 : Nat).bits = [true] := by exact Nat.one_bits
+              have s2 : (2 * 1).bits = false :: (1 : Nat).bits  := by
+                refine Nat.bit0_bits 1 (by grind)
+              simp [s1] at s2
+              simp [s2]
+            simp [step3] at step2
+            exact Nat.one_le_of_lt step2
           _ = n + 2 := by sorry -- exact id (Eq.symm na_eq)
-      
 
       have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
         have t1 : (n + 2 + 1).size - 1 = (n + 1).size := by
           simp [←length_of_bits_eq_size]
           simp [←length_of_bits_eq_size] at h
-
-
           
           sorry
         have t1' : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by exact congrArg (HPow.hPow 2) t1
