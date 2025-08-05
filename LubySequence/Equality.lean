@@ -31,10 +31,51 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       -- by `h` and `h_1`
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [LubyTree.enveloveDepth]
+      simp [←length_of_bits_eq_size] at h
+      have h' : n = 2 ^ (n + 1).bits.length - 2 := by exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
+
+      let a := (n + 1).bits.length
+      have ap : a = value_of% a := by exact rfl
+      let ap2 : 1 ≤ a := by
+        have s1 : 0 ≤ n := by exact Nat.zero_le n
+        have s2 : (1 : Nat).bits = [true] := by exact Nat.one_bits
+        have s3 : (1 : Nat).bits.length = 1 := by simp [s2]
+        have s4 : (0 + 1).bits.length = 1 := by exact s3
+        have s5 : (0 + 1).bits.length ≤ (n + 1).bits.length := by
+         refine bitslength_le_bitslength ?_
+         grind
+        -- simp  at s5
+        simp [←ap] at s5
+        exact s5
+      simp [←ap] at h'
+      have na_eq : 2 ^ a - 2 = n := by
+        calc
+          2 ^ a - 2 = 2 ^ (n + 1).bits.length - 2 := by exact rfl
+          _ = n + 2 - 2 := by exact id (Eq.symm h')
+          _ = n := by exact rfl
+      have h_1_anti : 2 ^ ((n + 2 + 1).bits.length - 1) = n + 2 := by
+        calc
+          2 ^ ((n + 2 + 1).bits.length - 1) = 2 ^ (((2 ^ a - 2) + 2 + 1).bits.length - 1) := by
+            simp [←na_eq]
+          _ = 2 ^ ((2 ^ a - 2 + 2 + 1).bits.length - 1) := by exact rfl
+          _ = 2 ^ ((2 ^ a + 1).bits.length - 1) := by
+            have : 2 ^ a - 2 + 2 = 2 ^ a := by
+              refine Nat.sub_add_cancel ?_
+              grind
+            simp [this]
+          _ = 2 ^ ((2 ^ a + 1).bits.length) / 2 ^ 1 := by
+            refine Eq.symm (Nat.pow_div ?_ (by grind))
+            sorry
+          _ = n + 2 := by sorry -- exact id (Eq.symm na_eq)
+      
+
       have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
         have t1 : (n + 2 + 1).size - 1 = (n + 1).size := by
           simp [←length_of_bits_eq_size]
+          simp [←length_of_bits_eq_size] at h
 
+
+          
           sorry
         have t1' : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by exact congrArg (HPow.hPow 2) t1
         exact t1'
@@ -46,7 +87,6 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     split
     {
       expose_names
-      -- by `h` and `h_1`
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [Luby.S₂] at h_1
       expose_names
@@ -57,9 +97,9 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
           sorry
         have t1' : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by exact congrArg (HPow.hPow 2) t1
         exact t1'
-      -- simp [h] at c1
-      -- exact absurd c1 h_1
-      sorry
+      simp [h_1] at c1
+      have : 2 ^ (n + 1).size = n + 2 := by exact id (Eq.symm c1)
+      exact absurd this h 
     }
     {
       expose_names
