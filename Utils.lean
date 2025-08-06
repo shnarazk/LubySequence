@@ -195,6 +195,11 @@ theorem pow2_sub_one {n : Nat} : (2 ^ n - 1).bits = List.iterate (·) true n := 
     exact hn
   }
 
+theorem bitslength_add {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n.bits.length - 1)) :
+    (2 ^ n.bits.length + k).bits.length = n.bits.length := by
+      sorry
+
+
 theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n.bits.length - 1)) :
     (2 ^ n.bits.length - k).bits.length = n.bits.length := by
   have p1 : 0 < n.bits.length := by
