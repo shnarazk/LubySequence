@@ -36,42 +36,44 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [LubyTree.enveloveDepth]
       simp [←length_of_bits_eq_size] at h
-      have h' : n = 2 ^ (n + 1).bits.length - 2 := by exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
+      have h' : n = 2 ^ (n + 1).bits.length - 2 := by
+        exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
 
       let a := (n + 1).bits.length
       have ap : a = value_of% a := by exact rfl
-      let ap2 : 1 ≤ a := by
+      have ap2 : 1 ≤ a := by
         have s1 : 0 ≤ n := by exact Nat.zero_le n
         have s2 : (1 : Nat).bits = [true] := by exact Nat.one_bits
         have s3 : (1 : Nat).bits.length = 1 := by simp [s2]
         have s4 : (0 + 1).bits.length = 1 := by exact s3
         have s5 : (0 + 1).bits.length ≤ (n + 1).bits.length := by
-         refine bitslength_le_bitslength ?_
-         grind
-        -- simp  at s5
+         refine bitslength_le_bitslength (by grind)
         simp [←ap] at s5
         exact s5
+      have ap3 : 2 ^ a = n + 2 := by
+        simp [ap]
+        exact h
       simp [←ap] at h'
       have na_eq : 2 ^ a - 2 = n := by
         calc
           2 ^ a - 2 = 2 ^ (n + 1).bits.length - 2 := by exact rfl
           _ = n + 2 - 2 := by exact id (Eq.symm h')
           _ = n := by exact rfl
+      have ap4 : 2 ^ (2 ^ a).bits.length = 2 ^ (a + 1) := by
+        have : (2 ^ a).bits.length = a + 1 := by exact bitslength_of_pow2_eq_self_add_one a
+        exact congrArg (HPow.hPow 2) this
       have h_1_anti : 2 ^ ((n + 2 + 1).bits.length - 1) = n + 2 := by
         calc
           2 ^ ((n + 2 + 1).bits.length - 1) = 2 ^ (((2 ^ a - 2) + 2 + 1).bits.length - 1) := by
             simp [←na_eq]
           _ = 2 ^ ((2 ^ a - 2 + 2 + 1).bits.length - 1) := by exact rfl
           _ = 2 ^ ((2 ^ a + 1).bits.length - 1) := by
-            have : 2 ^ a - 2 + 2 = 2 ^ a := by
-              refine Nat.sub_add_cancel ?_
-              grind
+            have : 2 ^ a - 2 + 2 = 2 ^ a := by refine Nat.sub_add_cancel (by grind)
             simp [this]
           _ = 2 ^ ((2 ^ a + 1).bits.length) / 2 ^ 1 := by
             refine Eq.symm (Nat.pow_div ?_ (by grind))
             have step1 : 2 ^ 1 + 1 ≤ 2 ^ a + 1 := by
-              refine Nat.add_le_add ?_ (by grind) 
-              grind
+              refine Nat.add_le_add (by grind) (by grind) 
             simp at step1
             have step2 : (2 : Nat).bits.length ≤ (2 ^ a + 1).bits.length := by
               refine bitslength_le_bitslength ?_
@@ -84,7 +86,9 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
               simp [s2]
             simp [step3] at step2
             exact Nat.one_le_of_lt step2
-          _ = n + 2 := by sorry -- exact id (Eq.symm na_eq)
+          _ = n + 2 := by
+
+            sorry -- exact id (Eq.symm na_eq)
 
       have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
         have t1 : (n + 2 + 1).size - 1 = (n + 1).size := by
