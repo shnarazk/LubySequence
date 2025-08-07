@@ -80,13 +80,10 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     expose_names
     split
     {
-      -- expose_names
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [Luby.S₂] at *
       expose_names
       simp [←length_of_bits_eq_size] at *
-      -- have h' : n = 2 ^ (n + 1).bits.length - 2 := by exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
-
       let a := (n + 2 + 1).bits.length
       have ap : a = value_of% a := by exact rfl
       have ap2 : n = 2 ^ (a - 1) - 2 := by
@@ -131,7 +128,58 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       have : n % ((2 ^ (n + 1).size - 1 - 1) / 2) = n + 1 - 2 ^ ((n + 1).size - 1) := by
         sorry
       simp [this]
-      have : n + 1 - 2 ^ ((n + 1).size - 1) < n := by sorry
+      have tf : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
+      rcases tf with t|f
+      {
+        simp [t] at *
+        simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
+      }
+      have : n + 1 - 2 ^ ((n + 1).size - 1) < n := by
+        have : 1 < 2 ^ ((n + 1).size - 1) := by
+          have step1 : 2 < 2 ^ (n + 1).size := by
+            have s1 : 1 ≤ n := by exact Nat.one_le_iff_ne_zero.mpr f
+            have s2 : 1 + 1 ≤ n + 1 := by exact Nat.add_le_add_right s1 1
+            have s3 : 2 ^ (1 + 1).size ≤ 2 ^ (n + 1).size := by
+              refine Luby.pow2_le_pow2 (1 + 1).size (n + 1).size ?_
+              exact Nat.size_le_size s2
+            have : 2 ^ (1 + 1).size = 4 := by
+              simp only [Nat.reduceAdd]
+              simp [Nat.size, Nat.binaryRec]
+            simp [this] at s3
+            exact Nat.lt_of_add_left_lt s3
+          have step2 : 2 / 2 < 2 ^ (n + 1).size / 2 := by
+            refine Nat.div_lt_div_of_lt_of_dvd ?_ step1
+            refine Dvd.dvd.pow ?_ ?_
+            exact (Nat.minFac_eq_two_iff 2).mp rfl
+            have t1 : 0 < (1 : Nat).size := by simp [Nat.size]
+            have t2 : (1 : Nat).size ≤ (n + 1).size := by
+              refine Nat.size_le_size ?_
+              exact Nat.le_add_left 1 n
+            have : 0 < (n + 1).size := by exact Nat.lt_of_lt_of_le t1 t2
+            exact Nat.ne_zero_of_lt this
+          simp at step2
+          have right : 2 ^ (n + 1).size / (2 ^ 1) = 2 ^ ((n + 1).size - 1) := by
+            refine Nat.pow_div ?_ (by grind)
+            have t1 : Nat.size 1 ≤ (n + 1).size := by
+              refine Nat.size_le_size ?_
+              exact Nat.le_add_left 1 n
+            have t2 : Nat.size 1 = 1 := by exact Nat.size_one
+            simp [t2] at t1
+            exact t1
+          simp at right
+          simp only [right] at step2
+          exact step2
+        have t1 : n + 1 < n + 2 ^ ((n + 1).size - 1) := by exact Nat.add_lt_add_left this n
+        have t2 : 2 ^ ((n + 1).size - 1) ≤ n + 1 := by
+          refine Nat.lt_size.mp ?_
+          refine Nat.sub_one_lt ?_
+          have t1 : Nat.size 1 = 1 := by exact Nat.size_one
+          have t2 : Nat.size 1 ≤ (n + 1).size := by
+            refine Nat.size_le_size ?_
+            exact Nat.le_add_left 1 n
+          simp [t1] at t2
+          exact Nat.ne_zero_of_lt t2
+        exact Nat.sub_lt_right_of_lt_add t2 t1
       have hn' := hn (n + 1 - 2 ^ ((n + 1).size - 1)) this
       exact hn'
     }
