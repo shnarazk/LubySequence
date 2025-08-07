@@ -59,56 +59,36 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
           2 ^ a - 2 = 2 ^ (n + 1).bits.length - 2 := by exact rfl
           _ = n + 2 - 2 := by exact id (Eq.symm h')
           _ = n := by exact rfl
-      have ap4 : 2 ^ (2 ^ a).bits.length = 2 ^ (a + 1) := by
-        have : (2 ^ a).bits.length = a + 1 := by exact bitslength_of_pow2_eq_self_add_one a
-        exact congrArg (HPow.hPow 2) this
-      have h_1_anti : 2 ^ ((n + 2 + 1).bits.length - 1) = n + 2 := by
-        calc
-          2 ^ ((n + 2 + 1).bits.length - 1) = 2 ^ (((2 ^ a - 2) + 2 + 1).bits.length - 1) := by
-            simp [←na_eq]
-          _ = 2 ^ ((2 ^ a - 2 + 2 + 1).bits.length - 1) := by exact rfl
-          _ = 2 ^ ((2 ^ a + 1).bits.length - 1) := by
-            have : 2 ^ a - 2 + 2 = 2 ^ a := by refine Nat.sub_add_cancel (by grind)
-            simp [this]
-          _ = 2 ^ ((2 ^ a + 1).bits.length) / 2 ^ 1 := by
-            refine Eq.symm (Nat.pow_div ?_ (by grind))
-            have step1 : 2 ^ 1 + 1 ≤ 2 ^ a + 1 := by
-              refine Nat.add_le_add (by grind) (by grind) 
-            simp at step1
-            have step2 : (2 : Nat).bits.length ≤ (2 ^ a + 1).bits.length := by
-              refine bitslength_le_bitslength ?_
-              exact Nat.le_add_right_of_le step1
-            have step3 : (2 : Nat).bits.length = 2 := by
-              have s1 : (1 : Nat).bits = [true] := by exact Nat.one_bits
-              have s2 : (2 * 1).bits = false :: (1 : Nat).bits  := by
-                refine Nat.bit0_bits 1 (by grind)
-              simp [s1] at s2
-              simp [s2]
-            simp [step3] at step2
-            exact Nat.one_le_of_lt step2
-          _ = 2 ^ ((2 ^ a).bits.length) / 2 ^ 1 := by
-            have : (2 ^ a + 1).bits.length = (2 ^ a).bits.length := by
-              let b := (2 ^ a).bits
-              have bp : b = value_of% b := by exact rfl
-              have b1 : b = true :: List.iterate (·) false a := by
-                simp [bp]
-                sorry
-              sorry
-            simp [←this] 
-          _ = 1 := by sorry
-          _ = n + 2 := by
-            sorry -- exact id (Eq.symm na_eq)
+      have ap4 : (2 ^ a + 1).bits.length = a + 1 := by
+        refine bitslength_add (by grind) (by grind)
+      simp [ap3] at ap4
+      have ap4' : 2 ^ (n + 2 + 1).bits.length = 2 ^ (a + 1) := by
+        exact congrArg (HPow.hPow 2) ap4
+      clear ap4
+      have : 2 ^ (a + 1) = 2 * 2 ^ a := by apply?
+      simp [this] at ap4'
+      clear this
+      have ap5 : 2 ^ (n + 2 + 1).bits.length / 2 = 2 * 2 ^ a / 2 := by
+        exact congrFun (congrArg HDiv.hDiv ap4') 2
+      clear ap4' 
 
-      have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
-        have t1 : (n + 2 + 1).size - 1 = (n + 1).size := by
-          simp [←length_of_bits_eq_size]
-          simp [←length_of_bits_eq_size] at h
-          
-          sorry
-        have t1' : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by exact congrArg (HPow.hPow 2) t1
-        exact t1'
-      simp [h] at c1
-      exact absurd c1 h_1
+      have sl : 2 ^ (n + 2 + 1).bits.length / 2 = 2 ^ ((n + 2 + 1).bits.length - 1) := by
+        refine Nat.div_eq_of_eq_mul_right (by grind) ?_
+        refine Eq.symm (mul_pow_sub_one ?_ 2)
+        refine Nat.pos_iff_ne_zero.mp ?_
+        have t1 : (2 + 1).bits.length = 2 := by simp [Nat.bits, Nat.binaryRec]
+        have t2 : 0 < 2 := by grind
+        have t3 : (2 + 1).bits.length ≤ (n + 2 + 1).bits.length := by
+          refine bitslength_le_bitslength (by grind)
+        simp [t1] at t3
+        exact Nat.zero_lt_of_lt t3
+      simp [sl] at ap5
+      have ap6 : 2 ^ ((n + 2 + 1).bits.length - 1) = 2 ^ a := by
+        exact congrArg (HPow.hPow 2) ap5
+      clear ap5
+      simp [ap3] at ap6
+      simp [←length_of_bits_eq_size] at h_1
+      exact absurd ap6 h_1
     }
   }
   {
