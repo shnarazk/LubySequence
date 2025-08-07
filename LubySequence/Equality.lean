@@ -77,22 +77,53 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     }
   }
   {
+    expose_names
     split
     {
-      expose_names
+      -- expose_names
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
-      simp [Luby.S₂] at h_1
+      simp [Luby.S₂] at *
       expose_names
-      have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
-        have t1 : (n + 2 + 1).size - 1 = (n + 1).size := by
-          simp [←length_of_bits_eq_size]
+      simp [←length_of_bits_eq_size] at *
+      -- have h' : n = 2 ^ (n + 1).bits.length - 2 := by exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
 
-          sorry
-        have t1' : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by exact congrArg (HPow.hPow 2) t1
-        exact t1'
-      simp [h_1] at c1
-      have : 2 ^ (n + 1).size = n + 2 := by exact id (Eq.symm c1)
-      exact absurd this h 
+      let a := (n + 2 + 1).bits.length
+      have ap : a = value_of% a := by exact rfl
+      have ap2 : n = 2 ^ (a - 1) - 2 := by
+        simp [←ap] at h_2
+        exact Nat.eq_sub_of_add_eq (id (Eq.symm h_2))
+      have ap3 : 2 ≤ a := by
+        have step1 : (2 + 1).bits.length = 2 := by simp [Nat.bits, Nat.binaryRec]
+        have step2 : (2 + 1).bits.length ≤ (n + 2 + 1).bits.length := by
+          refine bitslength_le_bitslength ?_
+          grind
+        simp [step1, ←ap] at step2
+        exact step2
+      have : 2 ^ (n + 1).bits.length = n + 2 := by
+        have : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) - 2 + 2 := by 
+          have left : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) := by 
+            have : (2 ^ (a - 1) - 2 + 1).bits.length = a - 1 := by
+              have : (2 ^ (a - 1) - 1).bits.length = a - 1 := by
+                refine bitslength_sub ?_ (by grind) ?_
+                { refine Nat.zero_lt_sub_of_lt (by grind) }
+                { exact Nat.one_le_two_pow }
+              have eq1 : 2 ^ (a - 1) - 2 + 1 = 2 ^ (a - 1) - 1 := by
+                refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
+                have : 2 ≤ 2 ^ (a - 1) := by
+                  refine Nat.le_pow ?_
+                  exact Nat.zero_lt_sub_of_lt ap3
+                exact Nat.le_sub_one_of_lt this
+              simp [eq1]
+              exact this
+            exact congrArg (HPow.hPow 2) this
+          have right : 2 ^ (a - 1) - 2 + 2 = 2 ^ (a - 1) := by
+            refine Nat.sub_add_cancel ?_
+            refine Nat.le_pow ?_
+            exact Nat.zero_lt_sub_of_lt ap3
+          simp [left, right]
+        simp [←ap2] at this
+        exact this
+      exact absurd this h
     }
     {
       expose_names
