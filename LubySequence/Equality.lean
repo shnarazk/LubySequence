@@ -86,8 +86,17 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
               simp [s2]
             simp [step3] at step2
             exact Nat.one_le_of_lt step2
+          _ = 2 ^ ((2 ^ a).bits.length) / 2 ^ 1 := by
+            have : (2 ^ a + 1).bits.length = (2 ^ a).bits.length := by
+              let b := (2 ^ a).bits
+              have bp : b = value_of% b := by exact rfl
+              have b1 : b = true :: List.iterate (·) false a := by
+                simp [bp]
+                sorry
+              sorry
+            simp [←this] 
+          _ = 1 := by sorry
           _ = n + 2 := by
-
             sorry -- exact id (Eq.symm na_eq)
 
       have c1 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ (n + 1).size := by
