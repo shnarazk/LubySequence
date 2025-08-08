@@ -120,6 +120,16 @@ theorem bits_of_double_eq_cons_false_and_bits (n : Nat) (h : n > 0) :
   have : n ≠ 0 := by exact Nat.ne_zero_of_lt h
   exact Nat.bit0_bits n this
 
+theorem size_of_double_eq_self_add_one (n : Nat) (h : n > 0) : (2 * n).size = n.size + 1 := by
+  have h : (2 * n).bits = false :: n.bits := by
+    exact bits_of_double_eq_cons_false_and_bits n h
+  have t1 : (2 * n).bits.length = (false :: n.bits).length := by
+    exact congrArg List.length h
+  have t2 : (false :: n.bits).length = n.bits.length + 1 := by
+    exact rfl
+  simp [t2, length_of_bits_eq_size] at t1
+  exact t1
+
 example (n : Nat) : (2 * n + 1).bits = true :: n.bits := by
   exact Nat.bit1_bits n
 
