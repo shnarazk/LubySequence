@@ -112,7 +112,7 @@ theorem mod_gt_right''' {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0)
   }
   exact l
 
-theorem length_of_bits_eq_size (n : Nat) : n.bits.length = n.size := by
+theorem bitslength_eq_size (n : Nat) : n.bits.length = n.size := by
   exact Nat.size_eq_bits_len n
 
 theorem bits_of_double_eq_cons_false_and_bits (n : Nat) (h : n > 0) :
@@ -127,7 +127,7 @@ theorem size_of_double_eq_self_add_one (n : Nat) (h : n > 0) : (2 * n).size = n.
     exact congrArg List.length h
   have t2 : (false :: n.bits).length = n.bits.length + 1 := by
     exact rfl
-  simp [t2, length_of_bits_eq_size] at t1
+  simp [t2, bitslength_eq_size] at t1
   exact t1
 
 example (n : Nat) : (2 * n + 1).bits = true :: n.bits := by
@@ -143,7 +143,7 @@ theorem size_lt {a b : Nat} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   have s2 : (false :: a.bits).length = 1 + a.bits.length := by
     exact Nat.succ_eq_one_add a.bits.length
   have s3 :(2 * a).bits.length = 1 + a.bits.length := by simp only [s1, s2]
-  simp [length_of_bits_eq_size] at s3
+  simp [bitslength_eq_size] at s3
   have stricten (a b c : Nat) (h : 0 < b) : (a + b = c) → (a < c) := by
     have le := @Nat.le.intro a c b
     intro hh
@@ -171,7 +171,7 @@ theorem pow_two_of_size_le_self {n : Nat} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := 
   have s2 : (false :: n.bits).length = 1 + n.bits.length := by
     exact Nat.succ_eq_one_add n.bits.length
   have s3 : (2 * n).bits.length = 1 + n.bits.length := by simp only [s1, s2]
-  simp [length_of_bits_eq_size] at s3
+  simp [bitslength_eq_size] at s3
   simp [s3]
 
 theorem bitslength_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).bits.length = n + 1 := by
@@ -220,7 +220,7 @@ theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
     have : (2 ^ n).size ≤ (2 ^ n + k).size := by
       refine Nat.size_le_size ?_
       exact Nat.le_add_right (2 ^ n) k
-    simp only [←length_of_bits_eq_size] at this
+    simp only [←bitslength_eq_size] at this
     exact this
   have p1' : n + 1 ≤ (2 ^ n + k).bits.length := by
     have : (2 ^ n).bits.length = n + 1 := by
@@ -248,7 +248,7 @@ theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
     have s1 : (2 ^ n + k).bits.length ≤ (2 ^ (n + 1) - 1).bits.length := by
       have : (2 ^ n + k).size ≤ (2 ^ (n + 1) - 1).size := by
         exact Nat.size_le_size p2
-      simp [←length_of_bits_eq_size] at this
+      simp [←bitslength_eq_size] at this
       exact this
     have s2 : (2 ^ (n + 1) - 1).bits.length = n + 1 := by
       have : (2 ^ (n + 1) - 1).bits = List.iterate (·) true (n + 1) := by
@@ -265,7 +265,7 @@ theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.b
   have t2 : n.size ≤ (n + k).size := by
     refine Nat.size_le_size ?_
     grind
-  simp [←length_of_bits_eq_size] at t2
+  simp [←bitslength_eq_size] at t2
   have le : n.bits.length < (n + k).bits.length ∨ n.bits.length = (n + k).bits.length := by
     exact Or.symm (Nat.eq_or_lt_of_le t2)
   rcases le with l|e
@@ -296,7 +296,7 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
       exact r1
     have : (2 ^ n - k).size ≤ (2 ^ n - 1).size := by
       exact Nat.size_le_size r1
-    simp [←length_of_bits_eq_size] at this
+    simp [←bitslength_eq_size] at this
     exact this
   simp [e1] at t1
   clear e1 r1
@@ -307,7 +307,7 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
     have r2' : (2 ^ n - 2 ^ (n - 1)).bits.length ≤ (2 ^ n - k).bits.length := by
       have : (2 ^ n - 2 ^ (n - 1)).size ≤ (2 ^ n - k).size := by
         exact Nat.size_le_size r2
-      simp [←length_of_bits_eq_size] at this
+      simp [←bitslength_eq_size] at this
       exact this
     clear r2
     have e2 : 2 ^ n - 2 ^ (n - 1) = 2 ^ (n - 1) := by
@@ -330,7 +330,7 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
     have e2' : (2 ^ n - 2 ^ (n - 1)).bits.length = (2 ^ (n - 1)).bits.length := by
       have : (2 ^ n - 2 ^ (n - 1)).size = (2 ^ (n - 1)).size := by
         exact congrArg Nat.size e2
-      simp [←length_of_bits_eq_size] at this
+      simp [←bitslength_eq_size] at this
       exact this
     clear e2
     simp [e2'] at r2'
@@ -365,5 +365,5 @@ theorem bitslength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
 -- TODO: use this here and there in this file
 theorem bitslength_le_bitslength {a b : Nat} (h : a ≤ b) : a.bits.length ≤ b.bits.length := by
   have t := Nat.size_le_size h
-  simp [←length_of_bits_eq_size] at t
+  simp [←bitslength_eq_size] at t
   exact t

@@ -35,7 +35,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       -- by `h` and `h_1`
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [LubyTree.enveloveDepth]
-      simp [←length_of_bits_eq_size] at h
+      simp [←bitslength_eq_size] at h
       have h' : n = 2 ^ (n + 1).bits.length - 2 := by
         exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
 
@@ -56,7 +56,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       clear this
       have ap5 : 2 ^ (n + 2 + 1).bits.length / 2 = 2 * 2 ^ a / 2 := by
         exact congrFun (congrArg HDiv.hDiv ap4) 2
-      clear ap4 
+      clear ap4
       have sl : 2 ^ (n + 2 + 1).bits.length / 2 = 2 ^ ((n + 2 + 1).bits.length - 1) := by
         refine Nat.div_eq_of_eq_mul_right (by grind) ?_
         refine Eq.symm (mul_pow_sub_one ?_ 2)
@@ -72,7 +72,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
         exact congrArg (HPow.hPow 2) ap5
       clear ap5
       simp [ap2] at ap6
-      simp [←length_of_bits_eq_size] at h_1
+      simp [←bitslength_eq_size] at h_1
       exact absurd ap6 h_1
     }
   }
@@ -83,7 +83,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [Luby.S₂] at *
       expose_names
-      simp [←length_of_bits_eq_size] at *
+      simp [←bitslength_eq_size] at *
       let a := (n + 2 + 1).bits.length
       have ap : a = value_of% a := by exact rfl
       have ap2 : n = 2 ^ (a - 1) - 2 := by
@@ -97,8 +97,8 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
         simp [step1, ←ap] at step2
         exact step2
       have : 2 ^ (n + 1).bits.length = n + 2 := by
-        have : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) - 2 + 2 := by 
-          have left : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) := by 
+        have : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) - 2 + 2 := by
+          have left : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) := by
             have : (2 ^ (a - 1) - 2 + 1).bits.length = a - 1 := by
               have : (2 ^ (a - 1) - 1).bits.length = a - 1 := by
                 refine bitslength_sub ?_ (by grind) ?_
@@ -283,14 +283,14 @@ theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n 
       have step4 : ¬1 = (n + 1 + 1).size := by exact Nat.ne_of_lt le1
       have step4 : ¬(n + 1 + 1).size = 1 := by exact fun a ↦ step4 (id (Eq.symm step2))
       exact absurd step2 step4
-    } 
+    }
     {
       expose_names
 
       sorry
     }
 
-    
+
     /- {
       -- case: Luby is stopped
       expose_names
@@ -315,7 +315,7 @@ theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n 
     }
   }
   sorry
- -/ 
+ -/
 
 #eval (LubyTree.mk 3).size
 

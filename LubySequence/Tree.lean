@@ -185,7 +185,7 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
     simp [LubyTree.depth]
     simp [LubyTree.size]
     simp [tree_ih]
-    simp [←length_of_bits_eq_size, Nat.mul_comm tree.size 2]
+    simp [←bitslength_eq_size, Nat.mul_comm tree.size 2]
   }
 
 /-
@@ -325,10 +325,10 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     have : 2 ^ 2 ≤ 2 ^ n.size := by refine Nat.pow_le_pow_right (by grind) le2n
     exact this
   have le2p' : 4 ≤ 2 ^ n.bits.length := by
-    simp [length_of_bits_eq_size]
+    simp [bitslength_eq_size]
     exact le2p
   have le2nbl : 2 ≤ n.bits.length := by
-    have step1 : (2 : Nat).bits.length ≤ n.bits.length := by exact bitslength_le_bitslength hn 
+    have step1 : (2 : Nat).bits.length ≤ n.bits.length := by exact bitslength_le_bitslength hn
     have step2 : (2 : Nat).bits.length = 2 := by
       calc
         (2 : Nat).bits.length = [false, true].length := by
@@ -354,7 +354,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
   -- size_lt で条件が緩くなりすぎる
   -- refine size_lt (by grind) ?_
   -- やり直し
-  simp [←length_of_bits_eq_size]
+  simp [←bitslength_eq_size]
   -- - 1 - 1 を削除して % を削除して + 1 を削除して
   -- (2 ^ (n.bits.length - 1)).bits.length < n.bits.length の形に持ち込みたい。
   have s1 : (2 ^ n.bits.length - 1 - 1).bits.length = n.bits.length := by
@@ -374,7 +374,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
       have tf : x % 2 = 0 ∨ ¬ x % 2 = 0 := by exact eq_or_ne _ _
       rcases tf with t|f
       {
-        have s1 : Even x := by refine Nat.even_iff.mpr t 
+        have s1 : Even x := by refine Nat.even_iff.mpr t
         have s2 : x = 2 * (x / 2) := by refine Eq.symm (Nat.two_mul_div_two_of_even s1)
         have s3 : x.bits = (2 * (x / 2)).bits := by exact congrArg Nat.bits s2
         have s4 : (2 * (x / 2)).bits = false :: (x / 2).bits := by
@@ -386,7 +386,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
           exact t4
         simp [←s2] at s4
         have s4' : x.bits.tail = (false :: (x / 2).bits).tail := by exact congrArg List.tail s4
-        have s5 : (false :: (x / 2).bits).tail = (x /2).bits := by exact vp 
+        have s5 : (false :: (x / 2).bits).tail = (x /2).bits := by exact vp
         simp [←s4'] at s5
         exact id (Eq.symm s4')
       }
@@ -404,7 +404,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     have t2 : 2 ≤ 2 ^ n.bits.length - 1 - 1 := by grind
     have t1' := t1 t2
     clear t1 t2
-    have t1'' : ((2 ^ n.bits.length - 1 - 1) / 2).bits.length = (2 ^ n.bits.length - 1 - 1).bits.tail.length := by 
+    have t1'' : ((2 ^ n.bits.length - 1 - 1) / 2).bits.length = (2 ^ n.bits.length - 1 - 1).bits.tail.length := by
       exact congrArg List.length t1'
     clear t1'
     simp [t1'']
@@ -421,7 +421,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
         simp at this
         exact Nat.zero_lt_of_lt this
       have : 0 < (2 ^ n.bits.length - 1 - 1) / 2 := by
-        refine Nat.div_pos ?_ (by grind) 
+        refine Nat.div_pos ?_ (by grind)
         {
           have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p' 1
           have : 4 - 1 - 1 ≤ 2 ^ n.bits.length - 1 - 1 := by exact Nat.sub_le_sub_right this 1
@@ -432,7 +432,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     exact tmp
   have s2' : ((n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1).bits.length ≤ ((2 ^ n.bits.length - 1 - 1) / 2).bits.length := by
     exact bitslength_le_bitslength s2
-  clear s2 
+  clear s2
 
   have r1 : (n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1 ≤ (2 ^ n.bits.length - 1 - 1) / 2 := by
     refine mod_gt_right'' n ?_
@@ -460,7 +460,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     simp [this]
     have : 2 ^ n.size ≤ 2 * n := by exact pow_two_of_size_le_self (by grind)
     have : 2 ^ n.bits.length ≤ 2 * n := by
-      rw [length_of_bits_eq_size]
+      rw [bitslength_eq_size]
       exact this
     have : 2 ^ n.bits.length / 2 ≤ n := by exact Nat.div_le_of_le_mul this
     have tr1 : 2 ^ n.bits.length / 2 - 1 ≤ n - 1 := by exact Nat.sub_le_sub_right this 1
@@ -584,4 +584,3 @@ theorem LubyTree.is_symmetry (d : Nat) :
  }
 
 end Tree
-
