@@ -124,15 +124,77 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     }
     {
       expose_names
+      have n_lower : 1 ≤ n := by
+        by_contra nlim
+        simp at nlim
+        have c : LubyTree.is_envelove (n + 1) = true := by
+          simp [nlim, LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth]
+        exact absurd c h
+      have nsize_lower : 1 ≤ n.size := by
+        have t1 : Nat.size 1 = 1 := by exact Nat.size_one
+        have t2 : Nat.size 1 ≤ n.size := by exact Nat.size_le_size n_lower
+        exact le_of_eq_of_le (id (Eq.symm t1)) t2
       simp [Luby.S₂, LubyTree.quotient]
-      have : n % ((2 ^ (n + 1).size - 1 - 1) / 2) = n + 1 - 2 ^ ((n + 1).size - 1) := by
+      have ind : n % ((2 ^ (n + 1).size - 1 - 1) / 2) = n + 1 - 2 ^ ((n + 1).size - 1) := by
+        -- n には下限がある。求めよ。また上限もある。この場合modは減算になる。
+        have low : 2 ^ ((n + 1).size - 1) ≤ n := by
+          have has_margin : (n + 1).size = n.size := by
+            have t1 : n.size ≤ (n + 1).size := by refine Nat.size_le_size (by grind)
+            have t2 : (n + 1).size ≤ n.size := by
+              have : n + 1 < 2 ^ n.size := by
+                simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
+                have u1 : n < 2 ^ n.size := by exact Nat.lt_size_self n
+                have u2 : n + 1 ≤ 2 ^ n.size := by exact u1
+                have u3 : n + 2 ≠ 2 ^ n.size := by
+                  by_contra h'
+                  have h'' : n + 1 = 2 ^ n.size - 1 := by
+                    exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm h')))
+                  have u3 : (n + 1).size = (2 ^ n.size - 1).size := by
+                    exact congrArg Nat.size h''
+
+                  have w1 : (2 ^ (n + 2).size).size = (n + 2).size + 1 := by
+                    exact Nat.size_pow
+                  have w2 : (2 ^ n.size - 1).size = n.size := by
+                    sorry
+                  have c : 2 ^ (n + 1).size = n + 2 := by
+                    simp [u3, w2]
+                    exact id (Eq.symm h')
+                  exact absurd c h
+                have : n + 1 < 2 ^ n.size := by sorry
+
+                sorry
+              exact Nat.size_le.mpr this
+            exact Nat.le_antisymm t2 t1
+          simp [has_margin]
+          have : (2 ^ (n.size - 1)).size = n.size := by
+            have : (2 ^ (n.size - 1)).size = n.size - 1 + 1 := by
+              exact Nat.size_pow
+            simp [this]
+            exact Nat.sub_add_cancel nsize_lower
+          refine Nat.lt_size.mp ?_
+          have s1 : 0 < n := by
+            by_contra n0
+            have z : n = 0 := by exact Nat.eq_zero_of_not_pos n0
+            have c : LubyTree.is_envelove (n + 1) := by
+              simp [z, LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth]
+            exact absurd c h
+          have : n.size ≠ 0 := by
+            have z' : 1 ≤ n := by exact s1
+            have t1 : Nat.size 1 = 1 := by exact Nat.size_one
+            have t2 : Nat.size 1 ≤ n.size := by exact Nat.size_le_size s1
+            simp [t1] at t2
+            exact Nat.ne_zero_of_lt t2
+          refine Nat.sub_one_lt ?_
+          exact this
+        have high : n < 2 ^ (n + 1).size - 1 := by
+          sorry
         sorry
-      simp [this]
+      simp [ind]
       have tf : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
       rcases tf with t|f
       {
         simp [t] at *
-        simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
+        -- simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       }
       have : n + 1 - 2 ^ ((n + 1).size - 1) < n := by
         have : 1 < 2 ^ ((n + 1).size - 1) := by
