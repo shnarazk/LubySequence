@@ -186,6 +186,10 @@ theorem bitslength_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).bits.length = n 
     exact hn
   }
 
+theorem size_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).size = n + 1 := by
+  simp [←bitslength_eq_size]
+  exact bitslength_of_pow2_eq_self_add_one n
+
 theorem pow2_bit {n : Nat} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
   induction' n with n hn
   { simp }
@@ -259,6 +263,11 @@ theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
   have p2'' : (2 ^ n + k).bits.length ≤ n + 1 := by exact p2'
   exact Nat.le_antisymm p2' p1'
 
+theorem size_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
+      (2 ^ n + k).size = n + 1 := by
+  simp [←bitslength_eq_size]
+  exact bitslength_add ha hb
+
 theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.bits.length + 1) :
     (n + k).bits.length = n.bits.length := by
   have t1 : n < n + k := by exact Nat.lt_add_of_pos_right ha
@@ -275,6 +284,12 @@ theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.b
     exact absurd hb l''
   }
   { exact id (Eq.symm e) }
+
+theorem size_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).size < n.size + 1) :
+    (n + k).size = n.size := by
+  simp [←bitslength_eq_size]
+  simp [←bitslength_eq_size] at hb
+  exact bitslength_add' ha hb
 
 theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
     (2 ^ n - k).bits.length = n := by
@@ -346,6 +361,11 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
     exact r2'
   exact Nat.le_antisymm t1 t2
 
+theorem size_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
+      (2 ^ n - k).size = n := by
+  simp [←bitslength_eq_size]
+  exact bitslength_sub h ha hb
+
 theorem bitslength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
     (n / 2).bits.length = n.bits.length - 1 := by
   let n2b := (n / 2).bits
@@ -362,7 +382,10 @@ theorem bitslength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
   simp [this] at np
   exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
--- TODO: use this here and there in this file
+theorem size_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
+  simp [←bitslength_eq_size]
+  exact bitslength_div h1 h2
+
 theorem bitslength_le_bitslength {a b : Nat} (h : a ≤ b) : a.bits.length ≤ b.bits.length := by
   have t := Nat.size_le_size h
   simp [←bitslength_eq_size] at t
