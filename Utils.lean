@@ -249,6 +249,23 @@ theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
   have p2'' : (2 ^ n + k).bits.length ≤ n + 1 := by exact p2'
   exact Nat.le_antisymm p2' p1'
 
+theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.bits.length + 1) :
+    (n + k).bits.length = n.bits.length := by
+  have t1 : n < n + k := by exact Nat.lt_add_of_pos_right ha
+  have t2 : n.size ≤ (n + k).size := by
+    refine Nat.size_le_size ?_
+    grind
+  simp [←length_of_bits_eq_size] at t2
+  have le : n.bits.length < (n + k).bits.length ∨ n.bits.length = (n + k).bits.length := by
+    exact Or.symm (Nat.eq_or_lt_of_le t2)
+  rcases le with l|e
+  {
+    have l' : n.bits.length + 1 ≤ (n + k).bits.length := by exact l
+    have l'' : ¬(n + k).bits.length < n.bits.length + 1 := by exact Nat.not_lt.mpr l
+    exact absurd hb l''
+  }
+  { exact id (Eq.symm e) }
+
 theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
     (2 ^ n - k).bits.length = n := by
   have p1 : 0 < n := by
