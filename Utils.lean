@@ -218,6 +218,7 @@ theorem pow2_sub_one {n : Nat} : (2 ^ n - 1).bits = List.iterate (·) true n := 
     exact hn
   }
 
+@[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
 theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
     (2 ^ n + k).bits.length = n + 1 := by
   have p1 : (2 ^ n).bits.length ≤ (2 ^ n + k).bits.length := by
@@ -268,6 +269,7 @@ theorem size_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
   simp [←bitslength_eq_size]
   exact bitslength_add ha hb
 
+@[deprecated "Use `size_add'` instead of `bitslength_add'`" (since := "2025-08-10")]
 theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.bits.length + 1) :
     (n + k).bits.length = n.bits.length := by
   have t1 : n < n + k := by exact Nat.lt_add_of_pos_right ha
@@ -291,6 +293,7 @@ theorem size_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).size < n.size + 1) :
   simp [←bitslength_eq_size] at hb
   exact bitslength_add' ha hb
 
+@[deprecated "Use `size_sub` instead of `bitslength_sub`" (since := "2025-08-10")]
 theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
     (2 ^ n - k).bits.length = n := by
   have p1 : 0 < n := by
@@ -366,6 +369,7 @@ theorem size_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
   simp [←bitslength_eq_size]
   exact bitslength_sub h ha hb
 
+@[deprecated "Use `size_div` instead of `bitslength_div`" (since := "2025-08-10")]
 theorem bitslength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
     (n / 2).bits.length = n.bits.length - 1 := by
   let n2b := (n / 2).bits
