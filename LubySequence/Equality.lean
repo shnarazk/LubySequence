@@ -134,66 +134,32 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       simp [Luby.S₂, LubyTree.quotient]
       have ind : n % ((2 ^ (n + 1).size - 1 - 1) / 2) = n + 1 - 2 ^ ((n + 1).size - 1) := by
         -- n には下限がある。求めよ。また上限もある。この場合modは減算になる。
-        have low : 2 ^ ((n + 1).size - 1) ≤ n := by
-          have has_margin : (n + 1).size = n.size := by
-            have t1 : n.size ≤ (n + 1).size := by refine Nat.size_le_size (by grind)
-            have t2 : (n + 1).size ≤ n.size := by
-              have : n + 1 < 2 ^ n.size := by
-                simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
-                have u1 : n < 2 ^ n.size := by exact Nat.lt_size_self n
-                have u2 : n + 1 ≤ 2 ^ n.size := by exact u1
-                have u3 : n + 2 ≠ 2 ^ n.size := by
-                  by_contra h'
-                  have h'' : n + 1 = 2 ^ n.size - 1 := by
-                    exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm h')))
-                  have u3 : (n + 1).size = (2 ^ n.size - 1).size := by
-                    exact congrArg Nat.size h''
-
-                  have w1 : (2 ^ (n + 2).size).size = (n + 2).size + 1 := by
-                    exact Nat.size_pow
-                  have w2 : (2 ^ n.size - 1).size = n.size := by
-                    refine size_sub ?_ ?_ ?_
-                    { grind }
-                    { grind }
-                    {
-                      have t1 : 2 ^ (Nat.size 1 - 1) ≤ 2 ^ (n.size - 1) := by
-                        refine Luby.pow2_le_pow2 (Nat.size 1 - 1) (n.size - 1) ?_
-                        refine Nat.sub_le_sub_right ?_ 1
-                        exact Nat.size_le_size n_lower
-                      simp at t1
-                      exact t1
-                    }
-                  have c : 2 ^ (n + 1).size = n + 2 := by
-                    simp [u3, w2]
-                    exact id (Eq.symm h')
-                  exact absurd c h
-                have : n + 1 < 2 ^ n.size := by
-                  sorry
-
-                sorry
-              exact Nat.size_le.mpr this
-            exact Nat.le_antisymm t2 t1
-          simp [has_margin]
-          have : (2 ^ (n.size - 1)).size = n.size := by
-            have : (2 ^ (n.size - 1)).size = n.size - 1 + 1 := by
-              exact Nat.size_pow
-            simp [this]
-            exact Nat.sub_add_cancel nsize_lower
-          refine Nat.lt_size.mp ?_
-          have s1 : 0 < n := by
-            by_contra n0
-            have z : n = 0 := by exact Nat.eq_zero_of_not_pos n0
-            have c : LubyTree.is_envelove (n + 1) := by
-              simp [z, LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth]
-            exact absurd c h
-          have : n.size ≠ 0 := by
-            have z' : 1 ≤ n := by exact s1
-            have t1 : Nat.size 1 = 1 := by exact Nat.size_one
-            have t2 : Nat.size 1 ≤ n.size := by exact Nat.size_le_size s1
-            simp [t1] at t2
-            exact Nat.ne_zero_of_lt t2
-          refine Nat.sub_one_lt ?_
-          exact this
+        have low : 2 ^ ((n + 1).size - 1 - 1) / 2 ≤ n := by
+          have n1upto : (n + 1).size ≤ n.size + 1 := by
+            have s1 : n + 1 ≤ 2 * n := by exact add_one_le_two_mul n_lower
+            have s2 : (n + 1).size ≤ (2 * n).size := by exact Nat.size_le_size s1
+            have s3 : (2 * n).size = n.size + 1 := by
+              exact size_of_double_eq_self_add_one n n_lower
+            simp [s3] at s2
+            exact s2
+          have goal1 : 2 ^ ((n + 1).size - 1 - 1) ≤ 2 * n := by 
+            have s1 : (2 ^ ((n + 1).size - 1 - 1)).size < (2 * n).size := by
+              have left : (2 ^ ((n + 1).size - 1 - 1)).size = (n + 1).size - 1 - 1 + 1 := by
+                exact Nat.size_pow
+              have right : (2 * n).size = n.size + 1 := by
+                exact size_of_double_eq_self_add_one n n_lower
+              simp [left, right]
+              have n1upto' : (n + 1).size - 1 ≤ n.size := by
+                exact Nat.sub_le_of_le_add n1upto
+              refine Nat.sub_one_lt_of_le ?_ n1upto'
+              have cngr1 : (1 + 1).size ≤ (n + 1).size := by
+                refine Nat.size_le_size ?_
+                exact Nat.add_le_add_right n_lower 1
+              have cngr2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+              simp [cngr2] at cngr1
+              grind
+            have : 2 ^ ((n + 1).size - 1 - 1) < 2 * n := by exact le_if_le_size s1
+          exact Nat.div_le_of_le_mul goal1
         have high : n < 2 ^ (n + 1).size - 1 := by
           sorry
         sorry

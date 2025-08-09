@@ -394,3 +394,12 @@ theorem bitslength_le_bitslength {a b : Nat} (h : a ≤ b) : a.bits.length ≤ b
   have t := Nat.size_le_size h
   simp [←bitslength_eq_size] at t
   exact t
+
+theorem le_if_le_size {a b : Nat} : a.size < b.size → a < b := by
+  intro h1
+  by_contra h2
+  simp at h2
+  have c1 : b.size ≤ a.size := by exact Nat.size_le_size h2
+  have c2 : ¬a.size < b.size := by exact Nat.not_lt.mpr c1
+  exact absurd h1 c2
+
