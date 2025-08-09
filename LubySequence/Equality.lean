@@ -35,7 +35,6 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       -- by `h` and `h_1`
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [LubyTree.enveloveDepth]
-      -- simp [←bitslength_eq_size] at h
       have h' : n = 2 ^ (n + 1).size - 2 := by
         exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
 
@@ -82,25 +81,24 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [Luby.S₂] at *
       expose_names
-      simp [←bitslength_eq_size] at *
-      let a := (n + 2 + 1).bits.length
+      let a := (n + 2 + 1).size
       have ap : a = value_of% a := by exact rfl
       have ap2 : n = 2 ^ (a - 1) - 2 := by
         simp [←ap] at h_2
         exact Nat.eq_sub_of_add_eq (id (Eq.symm h_2))
       have ap3 : 2 ≤ a := by
-        have step1 : (2 + 1).bits.length = 2 := by simp [Nat.bits, Nat.binaryRec]
-        have step2 : (2 + 1).bits.length ≤ (n + 2 + 1).bits.length := by
-          refine bitslength_le_bitslength ?_
+        have step1 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+        have step2 : (2 + 1).size ≤ (n + 2 + 1).size := by
+          refine Nat.size_le_size ?_
           grind
         simp [step1, ←ap] at step2
         exact step2
-      have : 2 ^ (n + 1).bits.length = n + 2 := by
-        have : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) - 2 + 2 := by
-          have left : 2 ^ (2 ^ (a - 1) - 2 + 1).bits.length = 2 ^ (a - 1) := by
-            have : (2 ^ (a - 1) - 2 + 1).bits.length = a - 1 := by
-              have : (2 ^ (a - 1) - 1).bits.length = a - 1 := by
-                refine bitslength_sub ?_ (by grind) ?_
+      have : 2 ^ (n + 1).size = n + 2 := by
+        have : 2 ^ (2 ^ (a - 1) - 2 + 1).size = 2 ^ (a - 1) - 2 + 2 := by
+          have left : 2 ^ (2 ^ (a - 1) - 2 + 1).size = 2 ^ (a - 1) := by
+            have : (2 ^ (a - 1) - 2 + 1).size = a - 1 := by
+              have : (2 ^ (a - 1) - 1).size = a - 1 := by
+                refine size_sub ?_ (by grind) ?_
                 { refine Nat.zero_lt_sub_of_lt (by grind) }
                 { exact Nat.one_le_two_pow }
               have eq1 : 2 ^ (a - 1) - 2 + 1 = 2 ^ (a - 1) - 1 := by
@@ -154,12 +152,23 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
                   have w1 : (2 ^ (n + 2).size).size = (n + 2).size + 1 := by
                     exact Nat.size_pow
                   have w2 : (2 ^ n.size - 1).size = n.size := by
-                    sorry
+                    refine size_sub ?_ ?_ ?_
+                    { grind }
+                    { grind }
+                    {
+                      have t1 : 2 ^ (Nat.size 1 - 1) ≤ 2 ^ (n.size - 1) := by
+                        refine Luby.pow2_le_pow2 (Nat.size 1 - 1) (n.size - 1) ?_
+                        refine Nat.sub_le_sub_right ?_ 1
+                        exact Nat.size_le_size n_lower
+                      simp at t1
+                      exact t1
+                    }
                   have c : 2 ^ (n + 1).size = n + 2 := by
                     simp [u3, w2]
                     exact id (Eq.symm h')
                   exact absurd c h
-                have : n + 1 < 2 ^ n.size := by sorry
+                have : n + 1 < 2 ^ n.size := by
+                  sorry
 
                 sorry
               exact Nat.size_le.mpr this
@@ -246,89 +255,3 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     }
    }
 
-/-
-theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n := by
-  intro n
-
-  have le1 : 2 ≤ (n + 1 + 1).size := by
-    have t1 : (2 : Nat).size ≤ (n + 1 + 1).size := by
-      refine Nat.size_le_size ?_
-      simp
-    nth_rewrite 1 [Nat.size] at t1
-    simp [Nat.binaryRec] at t1
-    exact t1
-
-  induction' n using Nat.strong_induction_on with n hn
-  rw [Luby.luby]
-  simp [LubyTree.valueAt]
-  simp [LubyTree.valueAt.eq_def] at *
-  split
-  {
-    -- case: at top
-    expose_names
-    rw [LubyTree.valueAtSize.eq_def]
-    split
-    {
-      -- case: leaf
-      expose_names
-      have : LubyTree.leaf = LubyTree.mk 0 := by rfl
-      simp [this] at heq
-      have step1 : (n + 1 + 1).size - 1 = 0 := by exact LubyTree.mk_zero_is_leaf heq
-      have step2 : (n + 1 + 1).size - 1 + 1 = 0 + 1 := by exact congrFun (congrArg HAdd.hAdd step1) 1
-      have step3 : (n + 1 + 1).size - 1 + 1 = (n + 1 + 1).size := by
-        refine Nat.sub_add_cancel ?_
-        exact Nat.one_le_of_lt le1
-      simp [step3] at step2
-      have step4 : ¬1 = (n + 1 + 1).size := by exact Nat.ne_of_lt le1
-      have step4 : ¬(n + 1 + 1).size = 1 := by exact fun a ↦ step4 (id (Eq.symm step2))
-      exact absurd step2 step4
-    }
-    {
-      expose_names
-
-      sorry
-    }
-
-
-    /- {
-      -- case: Luby is stopped
-      expose_names
-      have : LubyTree.leaf = LubyTree.mk 0 := by rfl
-      simp [this] at heq
-      have : 2 ^ ((n + 1).size + 1) = 0 := by
-        apply LubyTree.mk_unique at heq
-        exact heq
-      have : ∀ k : Nat, 2 ^ k ≠ 0 := by exact fun k ↦ Ne.symm (NeZero.ne' (2 ^ k))
-      (expose_names; exact False.elim (this ((n + 1).size + 1) this_2))
-    } -/
-    {
-      -- case: down recursively
-      expose_names
-      simp [Luby.S₂]
-      have : LubyTree.leaf = LubyTree.mk 0 := by exact rfl
-      -- simp [this] at heq
-      -- apply LubyTree.mk_unique (2 ^ ((n + 1).size + 1)) 0 at heq
-      -- have : ¬2 ^ ((n + 1).size + 1) = 0 := by exact NeZero.ne (2 ^ ((n + 1).size + 1))
-      -- exact absurd heq this
-      sorry
-    }
-  }
-  sorry
- -/
-
-#eval (LubyTree.mk 3).size
-
-/-
-theorem LubyTree_is_Luby' : ∀ n : Nat, LubyTree.valueAt (n + 1) = Luby.luby n := by
-  intro n
-  induction' n using Nat.strong_induction_on with n hn
-  rw [Luby.luby]
-  split
-  {
-    expose_names
-    have : Luby.S₂ (n + 2) = n + 2 → 2 ^ (n.size + 1) - 1 = n := by
-      sorry
-    sorry
-   }
-  sorry
-  -/
