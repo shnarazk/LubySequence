@@ -159,6 +159,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
               simp [cngr2] at cngr1
               grind
             have : 2 ^ ((n + 1).size - 1 - 1) < 2 * n := by exact le_if_le_size s1
+            exact Nat.le_of_succ_le this
           exact Nat.div_le_of_le_mul goal1
         have high : n < 2 ^ (n + 1).size - 1 := by
           sorry
