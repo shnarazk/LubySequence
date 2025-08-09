@@ -35,44 +35,43 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       -- by `h` and `h_1`
       simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
       simp [LubyTree.enveloveDepth]
-      simp [←bitslength_eq_size] at h
-      have h' : n = 2 ^ (n + 1).bits.length - 2 := by
+      -- simp [←bitslength_eq_size] at h
+      have h' : n = 2 ^ (n + 1).size - 2 := by
         exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
 
-      let a := (n + 1).bits.length
+      let a := (n + 1).size
       have ap : a = value_of% a := by exact rfl
       have ap2 : 2 ^ a = n + 2 := by
         simp [ap]
         exact h
       simp [←ap] at h'
-      have ap3 : (2 ^ a + 1).bits.length = a + 1 := by
-        refine bitslength_add (by grind) (by grind)
+      have ap3 : (2 ^ a + 1).size = a + 1 := by
+        refine size_add (by grind) (by grind)
       simp [ap2] at ap3
-      have ap4 : 2 ^ (n + 2 + 1).bits.length = 2 ^ (a + 1) := by
+      have ap4 : 2 ^ (n + 2 + 1).size = 2 ^ (a + 1) := by
         exact congrArg (HPow.hPow 2) ap3
       clear ap3
       have : 2 ^ (a + 1) = 2 * 2 ^ a := by exact Nat.pow_succ'
       simp [this] at ap4
       clear this
-      have ap5 : 2 ^ (n + 2 + 1).bits.length / 2 = 2 * 2 ^ a / 2 := by
+      have ap5 : 2 ^ (n + 2 + 1).size / 2 = 2 * 2 ^ a / 2 := by
         exact congrFun (congrArg HDiv.hDiv ap4) 2
       clear ap4
-      have sl : 2 ^ (n + 2 + 1).bits.length / 2 = 2 ^ ((n + 2 + 1).bits.length - 1) := by
+      have sl : 2 ^ (n + 2 + 1).size / 2 = 2 ^ ((n + 2 + 1).size - 1) := by
         refine Nat.div_eq_of_eq_mul_right (by grind) ?_
         refine Eq.symm (mul_pow_sub_one ?_ 2)
         refine Nat.pos_iff_ne_zero.mp ?_
-        have t1 : (2 + 1).bits.length = 2 := by simp [Nat.bits, Nat.binaryRec]
+        have t1 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
         have t2 : 0 < 2 := by grind
-        have t3 : (2 + 1).bits.length ≤ (n + 2 + 1).bits.length := by
-          refine bitslength_le_bitslength (by grind)
+        have t3 : (2 + 1).size ≤ (n + 2 + 1).size := by
+          refine Nat.size_le_size (by grind)
         simp [t1] at t3
         exact Nat.zero_lt_of_lt t3
       simp [sl] at ap5
-      have ap6 : 2 ^ ((n + 2 + 1).bits.length - 1) = 2 ^ a := by
+      have ap6 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ a := by
         exact congrArg (HPow.hPow 2) ap5
       clear ap5
       simp [ap2] at ap6
-      simp [←bitslength_eq_size] at h_1
       exact absurd ap6 h_1
     }
   }
