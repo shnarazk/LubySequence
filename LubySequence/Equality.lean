@@ -141,6 +141,9 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       have ind : n % ((2 ^ (n + 1).size - 1 - 1) / 2) = n + 1 - 2 ^ ((n + 1).size - 1) := by
         -- n には下限がある。求めよ。また上限もある。この場合modは減算になる。
         have low : (2 ^ (n + 1).size - 1 - 1) / 2 ≤ n := by
+          /- 両者の桁数は同じはず。その上で左辺がその桁数で表される最小の
+           - 数であることから証明可能。
+          -/
           have n1upto : (n + 1).size ≤ n.size + 1 := by
             have s1 : n + 1 ≤ 2 * n := by exact add_one_le_two_mul n_lower
             have s2 : (n + 1).size ≤ (2 * n).size := by exact Nat.size_le_size s1
