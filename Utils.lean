@@ -403,3 +403,25 @@ theorem le_if_le_size {a b : Nat} : a.size < b.size → a < b := by
   have c2 : ¬a.size < b.size := by exact Nat.not_lt.mpr c1
   exact absurd h1 c2
 
+theorem size_limit {n : Nat} (h : 0 < n) :
+    (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
+  have s1 : n.size ≤ (n + 1).size := by
+    refine Nat.size_le_size ?_
+    exact Nat.le_add_right n 1
+  have s2 : (n + 1).size ≤ n.size + 1 := by
+    have t1 : (2 * n).size = n.size + 1 := by exact size_of_double_eq_self_add_one n h
+    have t2 : n + 1 ≤ 2 * n := by exact add_one_le_two_mul h
+    have t2' : (n + 1).size ≤ (2 * n).size := by exact Nat.size_le_size t2
+    simp [t1] at t2'
+    exact t2'
+  by_contra h'
+  push_neg at h'
+  rcases h' with ⟨a, b⟩
+  have c1 : n.size < (n + 1).size := by
+    exact Nat.lt_of_le_of_ne s1 (id (Ne.symm a))
+  have c2 : (n + 1).size < n.size + 1 := by 
+    exact Nat.lt_of_le_of_ne s2 b
+  have c2' : (n + 1).size ≤ n.size  := by exact Nat.le_of_lt_succ c2
+  have c2'' : ¬(n + 1).size > n.size := by exact Nat.not_lt.mpr c2'
+  exact absurd c1 c2''
+
