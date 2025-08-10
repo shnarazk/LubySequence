@@ -184,7 +184,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
                   simp [t2] at t1
                   exact Nat.sub_ne_zero_iff_lt.mpr t1
                 }
-              sorry -- grind
+              simp [n_upper']
             have : 2 ^ (n + 1).size - 1 - 1 < 2 * n := by exact le_if_le_size s1
             exact Nat.le_of_succ_le this
           have goal2 : (2 ^ (n + 1).size - 1 - 1) / 2 ≤ n := by 
@@ -195,16 +195,16 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
         -- have high : n ≤ 2 ^ ((n + 1).size - 1 - 1) / 2 := by
         have mod {a b : Nat} (h : 0 < a) (h1 : a ≤ b) (h2 : b < a * 2) :
             b % a = b - a := by
-          let a := b - a
-          have ap : a = value_of% a := by exact rfl
-          have ap1 : a < a := by
+          let d := b - a
+          have dp : d = value_of% d := by exact rfl
+          have ap1 : d < a := by
             refine Nat.sub_lt_left_of_lt_add h1 ?_
             simp [mul_two] at h2
             exact h2
-          have : b = a + a := by exact Eq.symm (Nat.add_sub_of_le h1)
+          have : b = a + d := by exact Eq.symm (Nat.add_sub_of_le h1)
           nth_rewrite 1 [this]
-          have : (a + a) % a = a % a := by exact Nat.add_mod_left a a
-          simp [this, ←ap]
+          have : (a + d) % a = d % a := by exact Nat.add_mod_left a d
+          simp [this, ←dp]
           exact Nat.mod_eq_of_lt ap1
         have g := mod (by grind) low high
         simp [g]
