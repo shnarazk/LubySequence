@@ -183,9 +183,26 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
         have low' : 2 ^ (n + 1).size - 1 - 1 ≤ 2 * n := by exact low
         have low'' : (2 ^ (n + 1).size - 1 - 1) / 2 ≤ n := by
           exact Nat.div_le_of_le_mul low
-
+        clear low low'
         have high : n < (2 ^ (n + 1).size - 1 - 1) / 2 * 2 := by
-          sorry
+          have s1 : (2 ^ (n + 1).size - 1 - 1) / 2 * 2 = (2 ^ (n + 1).size - 2) / 2 * 2 := by
+            exact rfl
+          simp [s1]
+          clear s1
+          have s2 : (2 ^ (n + 1).size - 2) / 2 * 2 = 2 ^ (n + 1).size - 2 := by
+            refine Nat.div_mul_cancel ?_
+            refine Nat.dvd_sub ?_ (by grind)
+            {
+              refine dvd_pow (by grind) ?_
+              { exact Nat.ne_zero_of_lt n1size1 }
+            }
+          simp [s2]
+          apply Nat.lt_sub_of_add_lt
+          have t1 : n + 1 < 2 ^ (n + 1).size := by exact Nat.lt_size_self (n + 1)
+          have t1' : n + 2 ≤ 2 ^ (n + 1).size := by exact t1
+          have t2 : n + 2 < 2 ^ (n + 1).size := by
+            exact Nat.lt_of_le_of_ne t1 (id (Ne.symm n_upper))
+          exact t2
         -- have high : n ≤ 2 ^ ((n + 1).size - 1 - 1) / 2 := by
         have mod {a b : Nat} (h : 0 < a) (h1 : a ≤ b) (h2 : b < a * 2) :
             b % a = b - a := by
