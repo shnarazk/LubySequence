@@ -425,3 +425,12 @@ theorem size_limit {n : Nat} (h : 0 < n) :
   have c2'' : ¬(n + 1).size > n.size := by exact Nat.not_lt.mpr c2'
   exact absurd c1 c2''
 
+theorem pow2_is_minimum (k : Nat) : ∀ n < 2 ^ k, n.size ≤ k := by 
+  intro n hn
+  have t1 : n.size ≤ (2 ^ k).size := by
+    refine Nat.size_le_size ?_
+    exact Nat.le_of_succ_le hn
+  have t2 : (2 ^ k).size = k + 1 := by exact size_of_pow2_eq_self_add_one k
+  simp [t2] at t1
+  exact Nat.size_le.mpr hn
+
