@@ -370,7 +370,7 @@ theorem size_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
   exact bitslength_sub h ha hb
 
 @[deprecated "Use `size_div` instead of `bitslength_div`" (since := "2025-08-10")]
-theorem bitslength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
+theorem bitslength_div {n : Nat} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
     (n / 2).bits.length = n.bits.length - 1 := by
   let n2b := (n / 2).bits
   have n2bp : n2b = value_of% n2b := by rfl
@@ -386,7 +386,7 @@ theorem bitslength_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) :
   simp [this] at np
   exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
-theorem size_div {n : Nat} (h1 : 1 < n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
+theorem size_div {n : Nat} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_div h1 h2
 
