@@ -18,6 +18,8 @@ def LubyGenerator.zero := (default : LubyGenerator)
 
 def LubyGenerator.current_span (self : LubyGenerator) : Nat := 2 ^ self.segment
 
+def LubyGenerator.luby := LubyGenerator.current_span
+
 @[simp]
 def spanOfCycle (n : Nat) : Nat := match n with
   | 0     => 1
