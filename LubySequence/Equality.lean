@@ -313,9 +313,10 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     }
    }
 
-/- we need to respresent or define luby value with tree depth. -/
+/- TODO: we need to respresent or define luby value with tree depth. -/
 #eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat (n + 3)).segment + 1, LubyTree.enveloveDepth (n + 1)))
 
+/- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth). -/
 theorem LubyGenerator_segment_is_tree_depth : ∀ n : Nat, (LubyGenerator.ofNat (n + 3)).cycle = LubyTree.enveloveDepth (n + 1) := by
   sorry
 
