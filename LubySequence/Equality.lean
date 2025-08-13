@@ -27,14 +27,14 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     split
     {
       expose_names
-      simp [LubyTree.enveloveDepth]
+      simp [LubyTree.envelopeDepth]
     }
     {
       -- to show a conflict
       expose_names
       -- by `h` and `h_1`
-      simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
-      simp [LubyTree.enveloveDepth]
+      simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at h
+      simp [LubyTree.envelopeDepth]
       have h' : n = 2 ^ (n + 1).size - 2 := by
         exact Nat.eq_sub_of_add_eq (id (Eq.symm h))
 
@@ -78,7 +78,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     expose_names
     split
     {
-      simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
+      simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at h
       simp [Luby.S₂] at *
       expose_names
       let a := (n + 2 + 1).size
@@ -124,8 +124,8 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       have n_lower : 1 ≤ n := by
         by_contra nlim
         simp at nlim
-        have c : LubyTree.is_envelove (n + 1) = true := by
-          simp [nlim, LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth]
+        have c : LubyTree.is_envelope (n + 1) = true := by
+          simp [nlim, LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth]
         exact absurd c h
       have nsize_lower : 1 ≤ n.size := by
         have t1 : Nat.size 1 = 1 := by exact Nat.size_one
@@ -134,8 +134,8 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       simp [Luby.S₂, LubyTree.quotient]
       have n_upper : 2 ^ (n + 1).size ≠ n + 2 := by
         by_contra nlim
-        have c : LubyTree.is_envelove (n + 1) = true := by
-          simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth]
+        have c : LubyTree.is_envelope (n + 1) = true := by
+          simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth]
           exact nlim
         exact absurd c h
       have n1size1 : 2 ≤ (n + 1).size := by
@@ -260,7 +260,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       rcases tf with t|f
       {
         simp [t] at *
-        -- simp [LubyTree.is_envelove, LubyTree.enveloveSize, LubyTree.enveloveDepth] at h
+        -- simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at h
       }
       have : n + 1 - 2 ^ ((n + 1).size - 1) < n := by
         have : 1 < 2 ^ ((n + 1).size - 1) := by
@@ -314,10 +314,10 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
    }
 
 /- TODO: we need to respresent or define luby value with tree depth. -/
-#eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat (n + 3)).segment + 1, LubyTree.enveloveDepth (n + 1)))
+#eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat (n + 3)).segment + 1, LubyTree.envelopeDepth (n + 1)))
 
 /- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth). -/
-theorem LubyGenerator_segment_is_tree_depth : ∀ n : Nat, (LubyGenerator.ofNat (n + 3)).cycle = LubyTree.enveloveDepth (n + 1) := by
+theorem LubyGenerator_segment_is_tree_depth : ∀ n : Nat, (LubyGenerator.ofNat (n + 3)).cycle = LubyTree.envelopeDepth (n + 1) := by
   sorry
 
 #eval List.range 30 |>.map (fun n ↦ (LubyGenerator.ofNat (n + 3)).luby)

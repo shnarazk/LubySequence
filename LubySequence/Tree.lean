@@ -191,28 +191,28 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
 /-
  - The envelope is the smallest tree containing `s` elements.
  -/
-def LubyTree.enveloveDepth (s : Nat) : Nat := s.size
-def LubyTree.enveloveSize (s : Nat) : Nat := 2 ^ (LubyTree.enveloveDepth s) - 1
-def LubyTree.envelove (s : Nat) : LubyTree := LubyTree.mk (LubyTree.enveloveDepth s - 1)
-def LubyTree.is_envelove (s : Nat) : Bool := LubyTree.enveloveSize s = s
+def LubyTree.envelopeDepth (s : Nat) : Nat := s.size
+def LubyTree.envelopeSize (s : Nat) : Nat := 2 ^ (LubyTree.envelopeDepth s) - 1
+def LubyTree.envelope (s : Nat) : LubyTree := LubyTree.mk (LubyTree.envelopeDepth s - 1)
+def LubyTree.is_envelope (s : Nat) : Bool := LubyTree.envelopeSize s = s
 def LubyTree.quotientOfSize (s : Nat) (e : Nat) := (s - 1) % ((e - 1) / 2) + 1
 def LubyTree.quotient (s : Nat) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 
-#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.enveloveDepth (n + 1)))
-#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.enveloveSize (n + 1), LubyTree.is_envelove (n + 1)))
+#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeDepth (n + 1)))
+#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeSize (n + 1), LubyTree.is_envelope (n + 1)))
 #eval LubyTree.quotientOfSize 2 3
-#eval LubyTree.is_envelove 2
-#eval LubyTree.enveloveSize 2
-#eval LubyTree.is_envelove 1
-#eval LubyTree.is_envelove 0
+#eval LubyTree.is_envelope 2
+#eval LubyTree.envelopeSize 2
+#eval LubyTree.is_envelope 1
+#eval LubyTree.is_envelope 0
 
 -- This is impossible
 -- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by
 
 theorem LubyTree.envelop_of_quotient_is_decreasing :
-    ∀ n ≥ 2, n < (2 ^ n.size - 1 - 1) / 2 → LubyTree.enveloveSize n > 2 * (LubyTree.quotient n) := by
+    ∀ n ≥ 2, n < (2 ^ n.size - 1 - 1) / 2 → LubyTree.envelopeSize n > 2 * (LubyTree.quotient n) := by
   intro n hn h
-  simp only [LubyTree.quotient, LubyTree.enveloveSize, LubyTree.enveloveDepth]
+  simp only [LubyTree.quotient, LubyTree.envelopeSize, LubyTree.envelopeDepth]
   have s2 : Nat.size 2 = 2 := by simp [Nat.size, Nat.binaryRec]
   have le2 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size hn
   have le2' : 2 ≤ (2 : Nat).size := by exact Nat.le_of_eq (id (Eq.symm s2))
@@ -309,12 +309,12 @@ theorem LubyTree.envelop_of_quotient_is_decreasing :
   clear t0
   exact t2'
 
-#eval List.range 28 |>.map (· + 2) |>.map (fun n ↦ (n, LubyTree.is_envelove n, LubyTree.enveloveSize n, LubyTree.enveloveSize (LubyTree.quotient n)))
+#eval List.range 28 |>.map (· + 2) |>.map (fun n ↦ (n, LubyTree.is_envelope n, LubyTree.envelopeSize n, LubyTree.envelopeSize (LubyTree.quotient n)))
 
 #eval List.range 28 |>.map (· + 2) |>.map (fun n ↦ (2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1), ((2 ^ n.size - 1 - 1) / 2), n))
 
 theorem LubyTree.envelop_of_quotient_is_decreasing':
-    ∀ n ≥ 2, ¬LubyTree.is_envelove n → LubyTree.enveloveSize n > LubyTree.enveloveSize (LubyTree.quotient n) := by
+    ∀ n ≥ 2, ¬LubyTree.is_envelope n → LubyTree.envelopeSize n > LubyTree.envelopeSize (LubyTree.quotient n) := by
   intro n hn env
   -- basic facts
   have es2 : Nat.size 2 = 2 := by simp [Nat.size, Nat.binaryRec]
@@ -338,7 +338,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     simp [step2] at step1
     exact step1
 
-  simp [enveloveSize, enveloveDepth]
+  simp [envelopeSize, envelopeDepth]
   have s1 : 2 ^ (quotient n).size < 2 ^ n.size → 2 ^ (quotient n).size - 1 < 2 ^ n.size - 1 := by
     have (a b : Nat) (h : 1 ≤ a) : a < b → a - 1 < b - 1 := by
       exact fun a_1 ↦ Nat.sub_lt_sub_right h a_1
@@ -476,20 +476,20 @@ def LubyTree.valueAtSize (self : LubyTree) (s : Nat) : Nat := match self with
     if self.size ≤ s then 2 ^ self.depth.pred else sub.valueAtSize ((s - 1) % sub.size + 1)
 
 def LubyTree.luby (s : Nat) : Nat :=
-  if h : LubyTree.is_envelove s
-  then 2 ^ (LubyTree.enveloveDepth s).pred
+  if h : LubyTree.is_envelope s
+  then 2 ^ (LubyTree.envelopeDepth s).pred
   else
     have : s ≥ 2 := by
       by_contra h'
       have : s = 0 ∨ s = 1 := by grind
-      have : is_envelove s = true := by
-        simp [is_envelove, enveloveSize, enveloveDepth]
+      have : is_envelope s = true := by
+        simp [is_envelope, envelopeSize, envelopeDepth]
         rcases this with s01|s01 <;> simp [s01]
       exact absurd this h
-    have dec : s ≥ 2 → LubyTree.enveloveSize s > LubyTree.enveloveSize (LubyTree.quotient s) := by
+    have dec : s ≥ 2 → LubyTree.envelopeSize s > LubyTree.envelopeSize (LubyTree.quotient s) := by
      exact fun a ↦ envelop_of_quotient_is_decreasing' s this h
     LubyTree.luby (LubyTree.quotient s)
-termination_by LubyTree.enveloveSize s
+termination_by LubyTree.envelopeSize s
 
 def LubyTree.valueAt (s : Nat) : Nat := (LubyTree.mk (s.succ.size - 1)).valueAtSize s
 
