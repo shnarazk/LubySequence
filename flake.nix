@@ -26,6 +26,9 @@
             pkgs.bashInteractive
             pkgs.elan
             home.packages.${system}.nvim4lean
+            pkgs.tinymist
+            pkgs.typst
+            
             pkgs.tex-fmt
             pkgs.texlab
             (pkgs.texlive.combine {
