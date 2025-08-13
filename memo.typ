@@ -76,7 +76,9 @@ $
 
 === segments
 
-#let luby = (1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16, 1)
+We define *segments* as a monotone increasing subsequence in Luby sequence. Here are the first 16 segments. Each segment is alternately in red and blue.
+
+#let luby = (1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16)
 
 #let even = true
 #let last = luby.at(0) - 1
@@ -86,6 +88,8 @@ $
   last = n
   text(fill: clr, str(n) + ", ")
 }
+
+As you see, the Luby value is equal to two powered by a local index in a segment. So we can define Luby sequence in another form.
 
 === Luby state `S`
 #figure(caption: [The definition of Luby Status `S`])[
@@ -119,7 +123,7 @@ def S.luby (self : S) : Nat = 2 ^ self.locIx
 	node((2, 2), $L u b y(n + 1)$)
 })]
 
-= Equality
+= Equivalence of $L u b y$ and Luby state `S`
 
 #figure(caption: "Main goal")[
 #align(left)[
