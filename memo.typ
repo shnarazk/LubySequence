@@ -81,12 +81,10 @@ We define *segments* as a monotone increasing subsequence in Luby sequence. Here
 #let luby = (1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16)
 
 #let even = true
-#let last = luby.at(0) - 1
-#for n in luby {
-  even = if last < n { even } else { not even }
-  let clr = if even { red } else { blue }
-  last = n
-  text(fill: clr, str(n) + ", ")
+#luby.insert(0, luby.at(0) - 1)
+#for (p, n) in luby.windows(2) {
+  even = if p < n { even } else { not even }
+  text(fill: if even { red } else { blue }, str(n) + ", ")
 }
 
 As you see, the Luby value is equal to two powered by a local index in a segment. So we can define Luby sequence in another form.
