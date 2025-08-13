@@ -76,18 +76,18 @@ $
 
 === segments
 
-#let segs = (
-  (1,), (1, 2), (1,), (1, 2, 4), (1,), (1, 2), (1,), (1, 2, 4, 8),
-  (1,), (1, 2), (1,), (1, 2, 4), (1,), (1, 2), (1,), (1, 2, 4, 8, 16)
-)
-// | 1 | 1 2 | 1 | 1 2 4 | 1 | 1 2 | 1 | 1 2 4 8 16 | 1 )
+#let luby = (1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16, 1)
+
 #let even = true
-#for seg in segs {
+#let last = luby.at(0) - 1
+#for n in luby {
+  even = if last < n { even } else { not even }
   let clr = if even { red } else { blue }
-  even = not even
-  text(fill: clr, seg.map(str).join(", ") + ", ")
+  last = n
+  text(fill: clr, str(n) + ", ")
 }
 
+=== Luby state `S`
 #figure(caption: [The definition of Luby Status `S`])[
   #align(left)[
 ```lean
