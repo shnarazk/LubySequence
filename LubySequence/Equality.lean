@@ -171,7 +171,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
             by_contra c
             simp at c
             have c1 := pow2_is_minimum k x c
-            have c1' : x.size < k + 1 := by exact Order.lt_add_one_iff.mpr c1 
+            have c1' : x.size < k + 1 := by exact Order.lt_add_one_iff.mpr c1
             have c1'' : ¬x.size = k + 1 := by exact Nat.ne_of_lt c1'
             exact absurd h c1''
           have applied := left_is_smallest sr
@@ -223,7 +223,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
           have s1 : (2 ^ (n + 1).size - 1 - 1) / 2 = (2 ^ (n + 1).size - 2) / 2 := by
             exact rfl
           simp [s1]
-          clear s1 
+          clear s1
           have s2 : (2 ^ (n + 1).size - 2) / 2 = 2 ^ (n + 1).size / 2 - 2 / 2 := by
             refine Eq.symm (Nat.sub_eq_of_eq_add ?_)
             refine Nat.div_eq_sub_div (by grind) ?_
