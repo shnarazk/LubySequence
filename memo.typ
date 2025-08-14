@@ -5,7 +5,8 @@
 #set text(font: (
   (name: "New Computer Modern", covers: "latin-in-cjk"),
   "Hiragino Mincho Pro"
-))
+  ),
+  size: 10.5pt)
 // #show raw: set text(font: "New Computer Modern Mono")
 #show raw: set text(font: "Monaspace Argon")
 #set heading(numbering: "1.")
@@ -18,9 +19,21 @@
 The Luby sequence is a sequence of natural numbers defined recursively.
 It is used in randomized algorithms and has applications in computer science.
 However, outside of Boolean-satisfiability solvers, its applications
-appear to be rare.
+appear to be rare. It starts like this:
 
 $1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16, 1, dots.h.c $
+
+
+
+== Definition
+
+In the paper, the sequence is defined as follows:
+$
+  L u b y_1(k >= 1) = cases(
+    2^(i-1)\, & " if" k = 2^i - 1 " for some " i >= 1,
+    L u b y_1(k - 2^(i-1) + 1)\, & " if " 2^(i-1) <= k < 2^i - 1
+  )
+$
 
 #figure(caption: [An interpretation on natural number triangle], gap: 16pt)[
 #canvas({
@@ -52,15 +65,6 @@ $1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1
    spread: 0.2)
 })]
 
-== Definition
-
-The sequence is defined as follows:
-$
-  L u b y_1(k >= 1) = cases(
-    2^(i-1)\, & " if" k = 2^i - 1 " for some " i >= 1,
-    L u b y_1(k - 2^(i-1) + 1)\, & " if " 2^(i-1) <= k < 2^i - 1
-  )
-$
 == An interpretation on binary trees
 
 #figure(caption: [Binary tree reprisenting `Nat`], gap: 16pt)[
@@ -71,38 +75,41 @@ $
   }
 
   set-style(content: (padding: 0.5em))
+  line((8, -4), (6, -4), mark: (end: "stealth"), stroke: 6pt + blue)
   tree.tree(
-    ([ ?\*\* ],
-      ([ ?\* ],
+    ([ [01]\*\* ],
+      ([ 0[01]\* ],
         (
-          [ ? ],
+          [ 00[01] ],
           ([#encircle($0$)]),
           ([#encircle($1$)]),
         ),
         (
-          [ ? ],
+          [ 01[01] ],
           ([$2 arrow 0$]),
           ([#encircle($3$)]),
         ),
       ),
-      ([ ?\* ],
+      ([ 1[01]\* ],
         (
-          [ ? ],
+          [ 10[01] ],
           ([$4 arrow 0$]),
           ([$5 arrow 1$]),
         ),
         (
-          [ ? ],
+          [ 11[01] ],
           ([$6 arrow 2$]),
           ([#encircle($7$)]),
         ),
       )
     ))
+  // line((-0.5, 0), (4, 0))
+  // line((0, -0.5), (0, 1))
 })]
 
-== An efficient implementation
+= An efficient implementation
 
-=== segments
+== segments
 
 We define *segments* as a monotone increasing subsequence in Luby sequence. Here are the first 16 segments. Each segment is alternately in red and blue.
 
@@ -140,7 +147,7 @@ As you see, the Luby value is equal to two powered by a local index in a segment
     ))
 })]
 
-=== Luby state `S`
+== Luby state `S`
 #figure(caption: [The definition of Luby Status `S`])[
   #align(left)[
 ```lean
