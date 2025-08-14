@@ -11,10 +11,6 @@ open Tree
 
 #eval List.range 24 |>.map (fun n ↦ LubyTree.valueAt (n + 1))
 #eval List.range 24 |>.map (fun n ↦ Luby.luby n)
-#eval LubyTree.mk 0
-#eval LubyTree.valueAt 1
-#eval (1 : Nat).bits
-#eval LubyTree.mk 0
 #eval List.range 20 |>.map (fun n ↦ LubyTree.valueAt (n + 1) == Luby.luby n)
 
 theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := by
@@ -313,11 +309,11 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     }
    }
 
-/- TODO: we need to respresent or define luby value with tree depth. -/
-#eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat (n + 3)).locIx + 1, LubyTree.envelopeDepth (n + 1)))
+#eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat (n + 0)).segIx, (LubyGenerator.ofNat (n + 0)).segment_height, LubyTree.envelopeDepth (n + 1)))
 
 /- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth). -/
 theorem LubyGenerator_segIx_is_tree_depth : ∀ n : Nat, (LubyGenerator.ofNat (n + 3)).segIx = LubyTree.envelopeDepth (n + 1) := by
+  -- sapply?
   sorry
 
 #eval List.range 30 |>.map (fun n ↦ (LubyGenerator.ofNat (n + 3)).luby)

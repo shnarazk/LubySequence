@@ -24,7 +24,7 @@ def trailing_zero' (n : Nat) : Nat := match n with
   | 0     => 1
   | n + 1 => (trailing_zero n).succ
 
-def LubyGenerator.segment_span (self : LubyGenerator) : Nat := trailing_zero' self.segIx
+def LubyGenerator.segment_height (self : LubyGenerator) : Nat := trailing_zero' self.segIx
 
 #eval LubyGenerator.zero
 
@@ -33,20 +33,20 @@ def LubyGenerator.next (self : LubyGenerator) (repeating : Nat := 1) : LubyGener
   | 0     => self
   | r + 1 =>
     let li := self.next r
-    if li.locIx.succ = li.segment_span
+    if li.locIx.succ = li.segment_height
     then LubyGenerator.mk li.segIx.succ 0
     else LubyGenerator.mk li.segIx li.locIx.succ
 
 #eval scanList (·.next) LubyGenerator.zero 24 |>.drop 3 |>.map (·.luby)
-#eval scanList (·.next) LubyGenerator.zero 36 |>.drop 3 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_span, i.luby))
+#eval scanList (·.next) LubyGenerator.zero 36 |>.drop 3 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
 #eval LubyGenerator.zero.next 24 |>.luby
 
 theorem LubyGenerator.is_divergent (li : LubyGenerator) : ¬(li.next = li) := by
   contrapose!
   intro t₀
   simp [LubyGenerator.next]
-  have tf : li.locIx + 1 = li.segment_span ∨ li.locIx + 1 ≠ li.segment_span := by
-    exact eq_or_ne (li.locIx + 1) li.segment_span
+  have tf : li.locIx + 1 = li.segment_height ∨ li.locIx + 1 ≠ li.segment_height := by
+    exact eq_or_ne (li.locIx + 1) li.segment_height
   rcases tf with t|f
   {
     simp [t]
@@ -64,7 +64,8 @@ theorem LubyGenerator.is_divergent (li : LubyGenerator) : ¬(li.next = li) := by
 theorem LubyGenerator.segIx_is_increasing : ∀ li : LubyGenerator, li.next.segIx ≥ li.segIx := by
   intro li
   simp [LubyGenerator.next]
-  have : li.locIx + 1 = li.segment_span ∨ ¬(li.locIx + 1 = li.segment_span) := by exact eq_or_ne _ _
+  have : li.locIx + 1 = li.segment_height ∨ ¬(li.locIx + 1 = li.segment_height) := by
+    exact eq_or_ne _ _
   rcases this with t|f
   { simp [t] }
   { simp [f] }
@@ -113,8 +114,8 @@ theorem LubyGenerator.next_assoc (li : LubyGenerator) : ∀ n : Nat, (li.next n)
   { dsimp [LubyGenerator.next] }
   {
     nth_rw 3 [LubyGenerator.next]
-    have tf : ((li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_span)
-        ∨ ¬((li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_span) := by
+    have tf : ((li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height)
+        ∨ ¬((li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height) := by
       exact eq_or_ne _ _
     rcases tf with t|f
     {
@@ -232,7 +233,7 @@ theorem LubyGenerator.is_iso : ∀ n : Nat, (LubyGenerator.ofNat n).toNat = n :=
             simp -- [cp]
             simp [cp] at hn
             have h' := Eq.symm h
-            simp [LubyGenerator.segment_span] at h'
+            simp [LubyGenerator.segment_height] at h'
             grind
         }
         { grind }
