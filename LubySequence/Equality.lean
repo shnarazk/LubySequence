@@ -309,20 +309,19 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     }
    }
 
-#eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat (n + 0)).segIx, (LubyGenerator.ofNat (n + 0)).segment_height, LubyTree.envelopeDepth (n + 1)))
+#eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat n).segIx, (LubyGenerator.ofNat n).segment_height, LubyTree.envelopeDepth (n + 1)))
 
 /- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth). -/
-theorem LubyGenerator_segIx_is_tree_depth : ∀ n : Nat, (LubyGenerator.ofNat (n + 3)).segIx = LubyTree.envelopeDepth (n + 1) := by
+theorem LubyGenerator_segIx_is_tree_depth : ∀ n : Nat, (LubyGenerator.ofNat n).segIx = LubyTree.envelopeDepth (n + 1) := by
   -- sapply?
   sorry
 
-#eval List.range 30 |>.map (fun n ↦ (LubyGenerator.ofNat (n + 3)).luby)
+#eval List.range 30 |>.map (fun n ↦ (LubyGenerator.ofNat n).luby)
 
-theorem LubyGenerator_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyGenerator.ofNat (n + 3)).luby := by
+theorem LubyGenerator_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyGenerator.ofNat n).luby := by
   intro n
   induction' n using Nat.strong_induction_on with n hn
   rw [LubyTree.luby, LubyGenerator.ofNat, LubyGenerator.luby]
   split
   sorry
   sorry
-

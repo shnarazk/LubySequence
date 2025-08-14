@@ -12,7 +12,7 @@ structure LubyGenerator where
   -- local index within the current segment
   locIx : Nat
 
-instance LubyGenerator.inst : Inhabited LubyGenerator := ⟨0, 0⟩
+instance LubyGenerator.inst : Inhabited LubyGenerator := ⟨1, 0⟩
 def LubyGenerator.zero := (default : LubyGenerator)
 
 #check LubyGenerator.zero
@@ -24,7 +24,7 @@ def trailing_zero' (n : Nat) : Nat := match n with
   | 0     => 1
   | n + 1 => (trailing_zero n).succ
 
-def LubyGenerator.segment_height (self : LubyGenerator) : Nat := trailing_zero' self.segIx
+def LubyGenerator.segment_height (self : LubyGenerator) : Nat := trailing_zero self.segIx + 1
 
 #eval LubyGenerator.zero
 
@@ -87,21 +87,33 @@ theorem LubyGenerator.segIx_is_mono (n : Nat) : ∀ n' ≥ n, (LubyGenerator.zer
     exact le_trans dq a2
   }
 
+theorem LubyGenerator.segId_ge_one : ∀ n : Nat, (LubyGenerator.zero.next n).segIx ≥ 1 := by
+  intro n
+  have p := LubyGenerator.segIx_is_mono 0 n (Nat.zero_le n)
+  have z : (zero.next 0).segIx = 1 := by
+    simp [LubyGenerator.zero, LubyGenerator.next, default]
+  simp [z] at p
+  exact p
+
 theorem LubyGenerator.next0 (a : LubyGenerator) : a.next 0 = a := by
   simp [LubyGenerator.next]
 
 theorem LubyGenerator.congr (a b : LubyGenerator) (h : a = b) : a.next = b.next := by
   exact congrFun (congrArg (@next) h) 1
 
-theorem LubyGenerator.segId0 {n : Nat} : n = 0 ↔ (LubyGenerator.zero.next n).segIx = 0 := by
+theorem LubyGenerator.segId0 {n : Nat} : n = 0 ↔ (LubyGenerator.zero.next n).segIx = 1 := by
   constructor
   { intro h; rw [h]; exact rfl }
   {
     intro h
     by_contra x
-    have base1 : (LubyGenerator.zero.next 1).segIx = 1 := by rfl
-    have : n ≥ 1 → (LubyGenerator.zero.next n).segIx ≥ 1 := by
-      have sub : n ≥ 1 → (zero.next n).segIx ≥ (zero.next 1).segIx := by exact fun a ↦ LubyGenerator.segIx_is_mono 1 n a
+    have base1 : (LubyGenerator.zero.next 1).segIx = 2 := by
+      simp [LubyGenerator.zero, LubyGenerator.next, default, LubyGenerator.segment_height]
+      simp [trailing_zero]
+    have : n ≥ 1 → (LubyGenerator.zero.next n).segIx ≥ 2 := by
+      have sub : n ≥ 1 → (zero.next n).segIx ≥ (zero.next 1).segIx := by
+        exact fun a ↦ LubyGenerator.segIx_is_mono 1 n a
+      simp [base1] at sub
       exact sub
     have np : n ≥ 1 := by exact Nat.one_le_iff_ne_zero.mpr x
     simp [np] at this
@@ -153,13 +165,13 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 #eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
 
 -- @[simp]
-def segIdToIndex (n : Nat) : Nat := match n with
-  | 0     => 1
-  | m + 1 => trailing_zero' n + segIdToIndex m
+def segIdToLastIndex (n : Nat) : Nat := match n with
+  | 0     => 0
+  | m + 1 => trailing_zero n + 1  + segIdToLastIndex m
 
 def LubyGenerator.toNat (self : LubyGenerator) : Nat := match self.segIx with
   | 0 => 0
-  | n + 1 => segIdToIndex n + self.locIx
+  | n + 1 => segIdToLastIndex n + self.locIx
 
 #eval scanList (·.next) LubyGenerator.zero 24 |>.map (·.toNat)
 
@@ -167,36 +179,44 @@ theorem LubyGenerator.is_iso : ∀ n : Nat, (LubyGenerator.ofNat n).toNat = n :=
   intro n
   change (LubyGenerator.zero.next n).toNat = n
   induction' n with n hn
-  { simp [LubyGenerator.next, LubyGenerator.zero, LubyGenerator.toNat] }
+  { simp [LubyGenerator.next, LubyGenerator.zero, LubyGenerator.toNat, segIdToLastIndex, default] }
   {
     simp [LubyGenerator.toNat] at *
     split at hn
     {
       simp [←hn] at *
+      expose_names
+      have c := LubyGenerator.segId_ge_one 0
+      have c' : ¬(zero.next 0).segIx = 0 := by exact Nat.ne_zero_of_lt c
+      exact absurd heq c'
+/-
       split
-      { next hh ou => exact id (Eq.symm ou) }
+      { next hh ou => 
+        expose_names
+        have c := LubyGenerator.segId_ge_one 1
+        have c' : ¬(zero.next 1).segIx = 0 := by exact Nat.ne_zero_of_lt c
+        exact absurd ou c'
+      }
       { next nh nn k =>
+        export_names
+
+
         have c1 : LubyGenerator.zero.next.segIx = 1 := by exact rfl
         have s1 : LubyGenerator.zero.next.locIx = 0 := by exact rfl
         simp [c1] at k
-        simp [k, segIdToIndex, s1]
+        simp [k, segIdToLastIndex, s1]
       }
+    -/
     }
     {
       expose_names
       split
       {
         next a b =>
-        have : ∀ n' ≥ 1, (LubyGenerator.zero.next n').segIx ≥ (LubyGenerator.zero.next 1).segIx := by
-          exact fun n' a ↦ LubyGenerator.segIx_is_mono 1 n' a
-        rcases this (n + 1) with g
-        have : n + 1 ≥ 1 := by exact Nat.le_add_left 1 n
-        simp [this] at g
-        have : LubyGenerator.zero.next.segIx = 1 := by exact rfl
-        simp [this] at g
-        have : (LubyGenerator.zero.next (n + 1)).segIx ≠ 0 := by
-          (expose_names; exact Nat.ne_zero_of_lt (this_1 (n + 1) this_2))
-        exact absurd b this
+
+        have c := LubyGenerator.segId_ge_one (n + 1)
+        have c' : ¬(zero.next (n + 1)).segIx = 0 := by exact Nat.ne_zero_of_lt c
+        exact absurd b c'
       }
       {
         expose_names
@@ -223,12 +243,13 @@ theorem LubyGenerator.is_iso : ∀ n : Nat, (LubyGenerator.ofNat n).toNat = n :=
           expose_names
           simp [←ps] at h
           simp [←pc]
-          rw [segIdToIndex.eq_def]
+          rw [segIdToLastIndex.eq_def]
           cases cp : c with
           | zero =>
             simp [cp] at *
-            have n0 := LubyGenerator.segId0.mpr (Eq.symm pc)
-            exact n0
+            have c1 := LubyGenerator.segId_ge_one n
+            have c2 : ¬0 = (zero.next n).segIx := by exact Nat.ne_of_lt c1
+            exact absurd pc c2
           | succ m =>
             simp -- [cp]
             simp [cp] at hn
@@ -243,7 +264,7 @@ theorem LubyGenerator.is_iso : ∀ n : Nat, (LubyGenerator.ofNat n).toNat = n :=
 
 theorem LubyGenerator.next_is_succ :
     ∀ n : Nat, (LubyGenerator.ofNat n).next.toNat = n + 1 := by
-  intro n 
+  intro n
   calc
     (LubyGenerator.ofNat n).next.toNat = (LubyGenerator.zero.next n).next.toNat := by exact rfl
     _ = (LubyGenerator.zero.next (n + 1)).toNat := by exact rfl
@@ -253,4 +274,4 @@ theorem LubyGenerator.next_is_succ :
 
 
 instance : Coe Nat LubyGenerator where
-  coe n := LubyGenerator.ofNat (n + 3)
+  coe n := LubyGenerator.ofNat n
