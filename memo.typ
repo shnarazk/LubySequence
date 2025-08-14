@@ -22,6 +22,36 @@ appear to be rare.
 
 $1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16, 1, dots.h.c $
 
+#figure(caption: [An interpretation on natural number triangle], gap: 16pt)[
+#canvas({
+  import draw: *
+  let encircle(i) = {
+    std.box(baseline: 2pt, std.circle(stroke: .5pt, radius: .5em)[#move(dx: -0.36em, dy: -1.1em, $#i$)])
+  }
+
+  set-style(content: (padding: 0.4em))
+  tree.tree(
+    ([ $15 = "b1111"$ #encircle(8) ],
+      ([ $7 = "b111"$ #encircle(4) ],
+        ([ $3 = "b11"$ #encircle(2) ],
+          ([ $1 = "b1"$ #encircle(1) ]),
+          ([ $2 arrow_(- 2) 0$ ]), ),
+        ([ $6 arrow_(- 4) 2$ ],
+          ([ $4 arrow_(- 4) 0$ ]),
+          ([ $5 arrow_(- 4) 1$ ]), ),
+      ),
+      ([ $14 arrow_(- 8) 6$ ],
+        ([ $10 arrow_(- 8) 2$ ],
+          ([ $8 arrow_(- 8) 0$ ]),
+          ([ $9 arrow_(- 8) 1$ ]), ),
+        ([ $13 arrow_(- 8) 5$ ],
+          ([ $11 arrow_(- 8) 3$ ]),
+          ([ $12 arrow_(- 8) 4$ ]), ),
+      ),
+    ),
+   spread: 0.2)
+})]
+
 == Definition
 
 The sequence is defined as follows:
@@ -87,7 +117,7 @@ We define *segments* as a monotone increasing subsequence in Luby sequence. Here
 
 As you see, the Luby value is equal to two powered by a local index in a segment. So we can define Luby sequence in another form.
 
-#figure(caption: [local index and segment index], gap: 16pt)[
+#figure(caption: [local index and segment index on natural number triangle], gap: 16pt)[
 #canvas({
   import draw: *
   let encircle(i) = {
