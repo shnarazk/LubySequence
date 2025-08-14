@@ -15,10 +15,16 @@
 
 = Luby sequence
 
+The Luby sequence is a sequence of natural numbers defined recursively.
+It is used in randomized algorithms and has applications in computer science.
+However, outside of Boolean-satisfiability solvers, its applications
+appear to be rare.
+
 $1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16, 1, dots.h.c $
 
 == Definition
 
+The sequence is defined as follows:
 $
   L u b y_1(k >= 1) = cases(
     2^(i-1)\, & " if" k = 2^i - 1 " for some " i >= 1,
@@ -27,6 +33,7 @@ $
 $
 == An interpretation on binary trees
 
+#figure(caption: [Binary tree reprisenting `Nat`], gap: 16pt)[
 #canvas({
   import draw: *
   let encircle(i) = {
@@ -35,40 +42,31 @@ $
 
   set-style(content: (padding: 0.5em))
   tree.tree(
-    ([ 6 = b110 #encircle($1$)],
-      (
-        [ 2 = b010 #encircle($1$)],
-        ([ 0 = b000 #encircle($0$)]),
-        ([ 1 = b001 #encircle($1$)]),
+    ([ ?\*\* ],
+      ([ ?\* ],
+        (
+          [ ? ],
+          ([#encircle($0$)]),
+          ([#encircle($1$)]),
+        ),
+        (
+          [ ? ],
+          ([$2 arrow 0$]),
+          ([#encircle($3$)]),
+        ),
       ),
-      (
-        [ 5 = b101 #encircle($1$)],
-        ([ 3 = b011 #encircle($0$)]),
-        ([ 4 = b100 #encircle($1$)]),
-      ),
-    ))
-})
-
-#figure(caption: [Binary tree starting at one], gap: 16pt)[
-#canvas({
-  import draw: *
-  let encircle(i) = {
-    std.box(baseline: 2pt, std.circle(stroke: .5pt, radius: .5em)[#move(dx: -0.36em, dy: -1.1em, $#i$)])
-  }
-
-  set-style(content: (padding: 0.5em))
-  tree.tree(
-    ([ 7 = b111 #encircle($1$)],
-      (
-        [ 3 = b011 #encircle($1$)],
-        ([ 1 = b001 #encircle($1$)]),
-        ([ 2 = b010 #encircle($1$)]),
-      ),
-      (
-        [ 6 = b110 #encircle($1$)],
-        ([ 4 = b100 #encircle($0$)]),
-        ([ 5 = b101 #encircle($1$)]),
-      ),
+      ([ ?\* ],
+        (
+          [ ? ],
+          ([$4 arrow 0$]),
+          ([$5 arrow 1$]),
+        ),
+        (
+          [ ? ],
+          ([$6 arrow 2$]),
+          ([#encircle($7$)]),
+        ),
+      )
     ))
 })]
 
@@ -89,12 +87,35 @@ We define *segments* as a monotone increasing subsequence in Luby sequence. Here
 
 As you see, the Luby value is equal to two powered by a local index in a segment. So we can define Luby sequence in another form.
 
+#figure(caption: [local index and segment index], gap: 16pt)[
+#canvas({
+  import draw: *
+  let encircle(i) = {
+    std.box(baseline: 2pt, std.circle(stroke: .5pt, radius: .5em)[#move(dx: -0.36em, dy: -1.1em, $#i$)])
+  }
+
+  set-style(content: (padding: 0.5em))
+  tree.tree(
+    ([$4="b100"$ #encircle(2)],
+      (
+        [$2="b10"$ #encircle(1)],
+        ([$1="b1"$ #encircle($0$)]),
+        ([2 #encircle($0$)]),
+      ),
+      (
+        [4 #encircle($1$)],
+        ([$3=b"11"$ #encircle($0$)]),
+        ([4 #encircle($0$)]),
+      ),
+    ))
+})]
+
 === Luby state `S`
 #figure(caption: [The definition of Luby Status `S`])[
   #align(left)[
 ```lean
 structure S where
-  segIx : Nat  -- 単調増加部分数列(segment)の何番目か(0-based)
+  segIx : Nat  -- 単調増加部分数列(segment)の何番目か(1-based)
   locIx : Nat　-- 現在のsegment内で何番目(local index)か(0-based)
 
 def S.next (self : S) : S := ...
