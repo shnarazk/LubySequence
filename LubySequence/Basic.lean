@@ -122,6 +122,12 @@ decreasing_by
 
 #eval S₂ 0 -- 2 = 2 -- 0
 #eval luby 0 -- 2 = 2 -- 0
+
+/-
+theorem Luby_value_is_double_or_one : ∀ n : Nat, luby (n + 1) = 2 * luby n ∨ luby (n + 1) = 1 := by
+  sorry
+-/
+
 end Luby
 
 -- 🧪 Test output

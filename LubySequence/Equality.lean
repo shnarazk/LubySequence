@@ -337,6 +337,7 @@ theorem LubyGenerator_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyGenera
       -- rw [LubyTree.luby] at hn'
       simp [LubyTree.envelopeDepth]
       -- envelopeなら$n = 2 ^ i - 1$, またsegIxが式として表されるはず。
+      -- こんなことをする必要はない。envelopなのだから再帰せずに値が求まる
       have s1 : (LubyGenerator.ofNat n).is_envelope := by
         simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at h
         simp [LubyGenerator.is_envelope]
