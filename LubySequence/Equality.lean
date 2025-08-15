@@ -325,14 +325,40 @@ theorem LubyGenerator_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyGenera
   split
   { 
     expose_names
-    -- have hn' := hn 0
-    -- rw [LubyTree.luby] at hn'
-    simp [LubyTree.envelopeDepth]
-    -- envelopeなら$n = 2 ^ i - 1$, またsegIxが式として表されるはず。
-    have s1 : (LubyGenerator.ofNat n).is_envelope := by sorry
-    have s2 : (LubyGenerator.ofNat n).locIx = (n + 1).size - 1 := by sorry
-    have s3 : LubyGenerator.ofNat n = LubyGenerator.zero.next n := by exact rfl
-    simp [s3] at s2
-    simp [s2]
+    have tf : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+    rcases tf with t|f
+    {
+      simp [t] at *
+      simp [LubyTree.envelopeDepth]
+      simp [default, LubyGenerator.zero, LubyGenerator.next]
+    }
+    {
+      -- have hn' := hn 0
+      -- rw [LubyTree.luby] at hn'
+      simp [LubyTree.envelopeDepth]
+      -- envelopeなら$n = 2 ^ i - 1$, またsegIxが式として表されるはず。
+      have s1 : (LubyGenerator.ofNat n).is_envelope := by
+        simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at h
+        simp [LubyGenerator.is_envelope]
+        have : (n - 1) / 2 < n := by
+          have : n - 1 < 2 * n := by
+            have : n < 2 * n + 1 := by 
+              have : n < n + n + 1 := by 
+                have : 0 < n + 1 := by exact Nat.add_pos_left f 1
+                refine Nat.lt_add_right 1 ?_
+                exact Nat.lt_add_of_pos_right f
+              have t : 2 * n = n + n := by exact Nat.two_mul n
+              simp [←t] at this
+              exact this
+            exact Nat.sub_lt_right_of_lt_add f this
+          exact Nat.div_lt_of_lt_mul this
+        have hn' := hn ((n - 1) / 2) this
+        sorry
+
+      have s2 : (LubyGenerator.ofNat n).locIx = (n + 1).size - 1 := by sorry
+      have s3 : LubyGenerator.ofNat n = LubyGenerator.zero.next n := by exact rfl
+      simp [s3] at s2
+      simp [s2]
+    }
   }
   sorry
