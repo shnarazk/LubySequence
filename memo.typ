@@ -14,6 +14,22 @@
   if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]
 }
 
+// Luby implementation
+#let allone(n) = {
+  if n < 2 { n == 1 }
+  else if calc.even(n) { false }
+  else { allone(calc.quo(n, 2)) }
+}
+#let nat_size(n) = {
+  if n < 2 { 1 }
+  else { 1 + nat_size(calc.quo(n, 2)) }
+}
+#let Luby(n) = {
+  assert(n >= 0)
+  if allone(n) { calc.pow(2, nat_size(n) - 1) }
+  else { Luby(n + 1 - calc.pow(2, nat_size(n) - 1)) }
+}
+
 = Luby sequence
 
 The Luby sequence is a sequence of natural numbers defined recursively.
@@ -21,9 +37,10 @@ It is used in randomized algorithms and has applications in computer science.
 However, outside of Boolean-satisfiability solvers, its applications
 appear to be rare. It starts like this:
 
-$1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16, 1, dots.h.c $
-
-
+$
+#range(1, 32).map(Luby).map(str).join(", ")
+, dots.h.c
+$
 
 == Definition
 
