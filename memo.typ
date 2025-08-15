@@ -44,13 +44,16 @@ $
 
 == Definition
 
-In the paper @Luby1993, the sequence is defined as follows:
+In the paper @Luby1993, the sequence is defined as a recursive function:
+
 $
   L u b y_1(k >= 1) = cases(
     2^(i-1)\, & " if" k = 2^i - 1 " for some " i >= 1,
     L u b y_1(k - 2^(i-1) + 1)\, & " if " 2^(i-1) <= k < 2^i - 1
   )
 $
+
+And we can illustrate its recursion property as a transition on triangle by natural number.
 
 #figure(caption: [An interpretation on natural number triangle], gap: 16pt)[
 #canvas({
@@ -82,7 +85,10 @@ $
    spread: 0.2)
 })]
 
-== An interpretation on binary trees
+== Another interpretation on a binary tree
+
+Or you can map the function to a traverse on a binary graph.
+The function has a strong relation to an operation on the binary representation of natural number.
 
 #figure(caption: [Binary tree reprisenting `Nat`], gap: 16pt)[
 #canvas({
@@ -126,18 +132,22 @@ $
 
 = An efficient implementation
 
+Now we introduce a segmentation on Luby sequence.
+
 == segments
 
 We define *segments* as a monotone increasing subsequence in Luby sequence. Here are the first 16 segments. Each segment is alternately in red and blue.
 
 #let luby = (1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16)
 
+$
 #let even = true
 #luby.insert(0, luby.at(0) - 1)
 #for (p, n) in luby.windows(2) {
   even = if p < n { even } else { not even }
   text(fill: if even { red } else { blue }, str(n) + ", ")
 }
+$
 
 As you see, the Luby value is equal to two powered by a local index in a segment. So we can define Luby sequence in another form.
 
@@ -150,16 +160,16 @@ As you see, the Luby value is equal to two powered by a local index in a segment
 
   set-style(content: (padding: 0.5em))
   tree.tree(
-    ([$4="b100"$ #encircle(2)],
+    (text(fill: blue, [$4="b100"$ #encircle(2)]),
       (
-        [$2="b10"$ #encircle(1)],
-        ([$1="b1"$ #encircle($0$)]),
-        ([2 #encircle($0$)]),
+        text(fill: blue, [$2="b10"$ #encircle(1)]),
+        (text(fill: red, [$1="b1"$ #encircle($0$)])),
+        (text(fill: blue, [2 #encircle($0$)])),
       ),
       (
-        [4 #encircle($1$)],
-        ([$3=b"11"$ #encircle($0$)]),
-        ([4 #encircle($0$)]),
+        text(fill: blue, [4 #encircle($1$)]),
+        (text(fill: red, [$3="b11"$ #encircle($0$)])),
+        (text(fill: blue, [4 #encircle($0$)])),
       ),
     ))
 })]
@@ -172,7 +182,9 @@ structure S where
   segIx : Nat  -- 単調増加部分数列(segment)の何番目か(1-based)
   locIx : Nat　-- 現在のsegment内で何番目(local index)か(0-based)
 
+/-- O(1) -/
 def S.next (self : S) : S := ...
+/-- O(1) -/
 def S.luby (self : S) : Nat = 2 ^ self.locIx
 ```
 ]]<def_S>
@@ -180,18 +192,18 @@ def S.luby (self : S) : Nat = 2 ^ self.locIx
 #figure(caption: [Generating Luby state], gap: 16pt)[
 #diagram(cell-size: 12mm, {
   node((1, 0), $n$)
-  edge((1, 0), (1, 2),  $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight")
+  edge((1, 0), (1, 2),  $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight", stroke: red)
   edge((1, 0), (1, 1), "<-->")
   node((0, 1), $S_0$)
   edge((0, 1), (1, 1), "~>")
   node((2, 0), $n + 1$)
-  edge((2, 0), (2, 2), $O(log(n + 1))$, label-pos: 25%, bend: 30deg, "-straight")
+  edge((2, 0), (2, 2), $O(log(n + 1))$, label-pos: 25%, bend: 30deg, "-straight", stroke: red)
   edge((2, 0), (2, 1), "<-->")
   node((1, 1), $S_n$)
-  edge((1, 1), (2, 1), $O(1)$, "->")
-  edge((1, 1), (1, 2), $O(1)$, label-side: left, "-straight")
+  edge((1, 1), (2, 1), [ S.next ], "->", stroke: blue)
+  edge((1, 1), (1, 2), [ S.luby ], label-side: left, "-straight", stroke: blue)
   node((2, 1), $S_(n + 1)$)
-  edge((2, 1), (2, 2), $O(1)$, label-side: right, "-straight")
+  edge((2, 1), (2, 2), [ S.luby ], label-side: right, "-straight", stroke: blue)
 	node((1, 2), $L u b y(n)$)
 	node((2, 2), $L u b y(n + 1)$)
 })]
