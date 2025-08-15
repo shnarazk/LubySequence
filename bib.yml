@@ -1,0 +1,14 @@
+Luby1993:
+  type: article
+  title: Optimal speedup of Las Vegas algorithms
+  author:
+    - Michael Luby.
+    - Alistair Sinclair.
+    - David Zuckerman.
+  page-range: 128-133
+  serial-number:
+    doi: "10.1109/ISTCS.1993.253477"
+  parent:
+    type: proceedings
+    title: The 2nd Israel Symposium on Theory and Computing Systems
+    date: 1993

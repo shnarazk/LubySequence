@@ -44,7 +44,7 @@ $
 
 == Definition
 
-In the paper, the sequence is defined as follows:
+In the paper @Luby1993, the sequence is defined as follows:
 $
   L u b y_1(k >= 1) = cases(
     2^(i-1)\, & " if" k = 2^i - 1 " for some " i >= 1,
@@ -65,18 +65,18 @@ $
       ([ $7 = "b111"$ #encircle(4) ],
         ([ $3 = "b11"$ #encircle(2) ],
           ([ $1 = "b1"$ #encircle(1) ]),
-          ([ $2 arrow_(- 2) 0$ ]), ),
-        ([ $6 arrow_(- 4) 2$ ],
-          ([ $4 arrow_(- 4) 0$ ]),
-          ([ $5 arrow_(- 4) 1$ ]), ),
+          ([ $2 arrow_(- 1) 1$ ]), ),
+        ([ $6 arrow_(- 3) 3$ ],
+          ([ $4 arrow_(- 3) 1$ ]),
+          ([ $5 arrow_(- 3) 2$ ]), ),
       ),
-      ([ $14 arrow_(- 8) 6$ ],
-        ([ $10 arrow_(- 8) 2$ ],
-          ([ $8 arrow_(- 8) 0$ ]),
-          ([ $9 arrow_(- 8) 1$ ]), ),
-        ([ $13 arrow_(- 8) 5$ ],
-          ([ $11 arrow_(- 8) 3$ ]),
-          ([ $12 arrow_(- 8) 4$ ]), ),
+      ([ $14 arrow_(- 7) 7$ ],
+        ([ $10 arrow_(- 7) 3$ ],
+          ([ $8 arrow_(- 7) 1$ ]),
+          ([ $9 arrow_(- 7) 2$ ]), ),
+        ([ $13 arrow_(- 7) 6$ ],
+          ([ $11 arrow_(- 7) 4$ ]),
+          ([ $12 arrow_(- 7) 5$ ]), ),
       ),
     ),
    spread: 0.2)
@@ -206,3 +206,5 @@ theorem S_is_luby : ∀ n ≥ 1, (↑ n : S).luby = Luby n := by
     sorry
 ```
 ]]<t1>
+
+#bibliography("bib.yml")
