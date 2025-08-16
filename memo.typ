@@ -153,25 +153,63 @@ As you see, the Luby value is equal to two powered by a local index in a segment
 #figure(caption: [local index and segment index on natural number triangle], gap: 16pt)[
 #canvas({
   import draw: *
-  let encircle(i) = {
-    std.box(baseline: 2pt, std.circle(stroke: .5pt, radius: .5em)[#move(dx: -0.36em, dy: -1.1em, $#i$)])
-  }
 
-  set-style(content: (padding: 0.5em))
-  tree.tree(
-    (text(fill: blue, [$4="b100"$ #encircle(2)]),
+  set-style(content: (padding: 0.4em))
+  tree.tree(spread: 0.5,
+    (
+      text(fill: blue, [$(8, 3)$]),
       (
-        text(fill: blue, [$2="b10"$ #encircle(1)]),
-        (text(fill: red, [$1="b1"$ #encircle($0$)])),
-        (text(fill: blue, [2 #encircle($0$)])),
+        text(fill: blue, [$(4, 2)$]),
+        (
+          text(fill: blue, [$(2, 1)$]),
+          (text(fill: red, [$(1, 0) \#1$])),
+          (text(fill: blue, [$(2, 0) \#2$])),
+        ),
+        (
+          text(fill: blue, [$(4, 1)$]),
+          (text(fill: red, [$(3, 0) \#4$])),
+          (text(fill: blue, [$(4, 0) \#5$])),
+        ),
       ),
       (
-        text(fill: blue, [4 #encircle($1$)]),
-        (text(fill: red, [$3="b11"$ #encircle($0$)])),
-        (text(fill: blue, [4 #encircle($0$)])),
-      ),
-    ))
+        text(fill: blue, [$(8, 2)$]),
+        (
+          text(fill: blue, [$(6, 1)$]),
+          (text(fill: red, [$(5, 0) \#8$])),
+          (text(fill: blue, [$(6, 0) \#9$])),
+        ),
+        (
+          text(fill: blue, [$(8, 1)$]),
+          (text(fill: red, [$(7, 0) \#11$])),
+          (text(fill: blue, [$(8, 0) \#12$])),
+        ),
+      ))
+  )
 })]
+
+== Redefine Luby sequence as a linear recursive function
+
++ At the start of segment, Luby value is one
++ otherwise, Luby value is the double of previous value
+
+So we have the following equation.
+
+$
+  L u b y_1(k >= 1) = cases(
+    1\, & " if" k "is the beginning of a segment",
+    2 times L u b y_1(k - 1)\, & " otherwise"
+  )
+$
+
+And segments start at the following $k$:
+
+$
+  k & = 1 + sum_(i>= 0) a_i |"tree"_i| \
+    & = 1 + sum_(i>= 0) a_i (2^i - 1)
+$
+where $a_i$ is 0 or 1.
+
+This means any $2^i - 1 > 0$ are not the beginning of a segment.
 
 == Luby state
 #figure(caption: [The definition of Luby Status `S`])[
