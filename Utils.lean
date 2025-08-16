@@ -438,8 +438,7 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
   have tf : 1 = n ∨ 1 < n := by exact Nat.eq_or_lt_of_le h
   rcases tf with t|f
   { simp [←t] }
-  {
-    have n2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
+  { have n2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
     have h1 : 2 ≤ n := by exact f
     have h2 : 2 ≤ n.size := by
       have t1 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size f
@@ -450,18 +449,15 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
         have : (2 ^ (n.size - 1) - 1).size = n.size - 1 := by
           refine size_sub ?_ (by grind)  ?_
           { exact Nat.zero_lt_sub_of_lt h2 }
-          {
-            have : 0 ≤ n.size - 1 - 1 := by
+          { have : 0 ≤ n.size - 1 - 1 := by
               have t1 : (2 : Nat).size - 1 - 1 ≤ n.size - 1 - 1 := by
                 have : (2 : Nat).size - 1 ≤ n.size - 1 := by
                   refine Nat.sub_le_sub_right ?_ 1
                   { simp [n2] ; exact h2 }
                 exact Nat.sub_le_sub_right this 1
               simp 
-            exact Nat.one_le_two_pow
-          }
+            exact Nat.one_le_two_pow }
         simp [this]
         exact Nat.zero_lt_of_lt h2
       exact le_if_le_size this
-    exact Nat.le_of_pred_lt this
-  }
+    exact Nat.le_of_pred_lt this }

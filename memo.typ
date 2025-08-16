@@ -163,27 +163,21 @@ As you see, the Luby value is equal to two powered by a local index in a segment
         (
           text(fill: blue, [$(2, 1)$]),
           (text(fill: red, [$(1, 0) \#1$])),
-          (text(fill: blue, [$(2, 0) \#2$])),
-        ),
+          (text(fill: blue, [$(2, 0) \#2$])), ),
         (
           text(fill: blue, [$(4, 1)$]),
           (text(fill: red, [$(3, 0) \#4$])),
-          (text(fill: blue, [$(4, 0) \#5$])),
-        ),
-      ),
+          (text(fill: blue, [$(4, 0) \#5$])), ), ),
       (
         text(fill: blue, [$(8, 2)$]),
         (
           text(fill: blue, [$(6, 1)$]),
           (text(fill: red, [$(5, 0) \#8$])),
-          (text(fill: blue, [$(6, 0) \#9$])),
-        ),
+          (text(fill: blue, [$(6, 0) \#9$])), ),
         (
           text(fill: blue, [$(8, 1)$]),
           (text(fill: red, [$(7, 0) \#11$])),
-          (text(fill: blue, [$(8, 0) \#12$])),
-        ),
-      ))
+          (text(fill: blue, [$(8, 0) \#12$])), ), ))
   )
 })]
 
@@ -212,6 +206,7 @@ where $a_i$ is 0 or 1.
 This means any $2^i - 1 > 0$ are not the beginning of a segment.
 
 == Luby state
+
 #figure(caption: [The definition of Luby Status `S`])[
   #align(left)[
 ```lean
