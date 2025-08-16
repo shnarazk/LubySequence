@@ -2,16 +2,15 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #set page(paper: "a4", numbering: "1")
 #set par(justify: true)
-#set text(font: (
-  (name: "New Computer Modern", covers: "latin-in-cjk"),
-  "Hiragino Mincho Pro"
-  ),
-  size: 10.5pt)
-// #show raw: set text(font: "New Computer Modern Mono")
-#show raw: set text(font: "Monaspace Argon")
+#set text(
+  font: (
+    (name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
+  size: 10pt)
+#show raw: set text(font: "Monaspace Neon")
 #set heading(numbering: "1.")
 #show raw: it => {
-  if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]
+  if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ]
+  else [ #it ]
 }
 
 // Luby implementation
@@ -174,18 +173,18 @@ As you see, the Luby value is equal to two powered by a local index in a segment
     ))
 })]
 
-== Luby state `S`
+== Luby state
 #figure(caption: [The definition of Luby Status `S`])[
   #align(left)[
 ```lean
-structure S where
+structure State where
   segIx : Nat  -- 単調増加部分数列(segment)の何番目か(1-based)
   locIx : Nat　-- 現在のsegment内で何番目(local index)か(0-based)
 
 /-- O(1) -/
-def S.next (self : S) : S := ...
+def State.next (s: State) : S := ...
 /-- O(1) -/
-def S.luby (self : S) : Nat = 2 ^ self.locIx
+def State.luby (s : State) : Nat = 2 ^ s.locIx
 ```
 ]]<def_S>
 
@@ -195,26 +194,26 @@ def S.luby (self : S) : Nat = 2 ^ self.locIx
   edge((1, 0), (1, 2),  $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight", stroke: red)
   edge((1, 0), (1, 1), "<-->")
   node((0, 1), $S_0$)
-  edge((0, 1), (1, 1), "~>")
+  edge((0, 1), (1, 1), "~>", stroke: luma(150))
   node((2, 0), $n + 1$)
   edge((2, 0), (2, 2), $O(log(n + 1))$, label-pos: 25%, bend: 30deg, "-straight", stroke: red)
   edge((2, 0), (2, 1), "<-->")
   node((1, 1), $S_n$)
-  edge((1, 1), (2, 1), [ S.next ], "->", stroke: blue)
-  edge((1, 1), (1, 2), [ S.luby ], label-side: left, "-straight", stroke: blue)
+  edge((1, 1), (2, 1), [ .next ], "->", stroke: blue)
+  edge((1, 1), (1, 2), [ .luby ], label-side: left, "-straight", stroke: blue)
   node((2, 1), $S_(n + 1)$)
-  edge((2, 1), (2, 2), [ S.luby ], label-side: right, "-straight", stroke: blue)
+  edge((2, 1), (2, 2), [ .luby ], label-side: right, "-straight", stroke: blue)
 	node((1, 2), $L u b y(n)$)
 	node((2, 2), $L u b y(n + 1)$)
 })]
 
-= Equivalence of $L u b y$ and Luby state `S`
+= Equivalence of $L u b y$ and Luby state
 
 #figure(caption: "Main goal")[
 #align(left)[
 ```lean
 -- the main goal
-theorem S_is_luby : ∀ n ≥ 1, (↑ n : S).luby = Luby n := by
+theorem S_is_luby : ∀ n ≥ 1, (↑ n : State).luby = Luby n := by
     sorry
 ```
 ]]<t1>
