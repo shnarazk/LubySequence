@@ -95,13 +95,16 @@ theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
 #eval List.range 24 |>.map (fun k ↦ S₂ k == k)
 #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
+def is_envelope (n : Nat) : Bool := S₂ (n + 2) = n + 2
+
 -- Well-founded version of the Luby sequence
-def luby (n : ℕ) : Nat := if S₂ (n + 2) = n + 2 then S₂ n else luby (n + 1 - (S₂ n))
+def luby (n : ℕ) : Nat := if is_envelope n then S₂ n else luby (n + 1 - S₂ n)
 termination_by n
 decreasing_by
   rcases n with z | k
   {
     expose_names
+    simp [is_envelope] at h
     simp at *
     have : S₂ 2 = 2 := by simp [S₂, Nat.size, Nat.binaryRec]
     exact absurd this h
@@ -121,12 +124,55 @@ decreasing_by
   }
 
 #eval S₂ 0 -- 2 = 2 -- 0
-#eval luby 0 -- 2 = 2 -- 0
+#eval luby 2 -- 2 = 2 -- 0
 
 /-
 theorem Luby_value_is_double_or_one : ∀ n : Nat, luby (n + 1) = 2 * luby n ∨ luby (n + 1) = 1 := by
   sorry
 -/
+
+def is_segment_beg (n : Nat) : Bool := match h : n with 
+  | 0 => true
+  | 1 => true
+  | m + 1 + 1 => if is_envelope n then false else is_segment_beg (n + 1 - S₂ n)
+termination_by n
+decreasing_by
+  expose_names
+  have decreasing : n + 1 - S₂ n < n := by
+    simp [S₂]
+    have t1 : n = m + 2 := by exact h
+    have t2 : 0 ≤ m := by exact Nat.zero_le m
+    have t2' : 2 ≤ m + 2 := by exact Nat.le_add_of_sub_le t2
+    simp [←t1] at t2'
+    have goal : 1 < S₂ n := by
+      simp [S₂]
+      have s1 : (2 + 1).size ≤ (n + 1).size := by
+        refine Nat.size_le_size ?_
+        exact Nat.add_le_add_right t2' 1
+      have s2 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+      simp [s2] at s1
+      have s3 : 1 < (n + 1).size := by exact s1
+      have s5 : ¬(n + 1).size = 1 := by exact Nat.ne_of_lt' s1
+      exact Nat.sub_ne_zero_iff_lt.mpr s1
+    simp only [S₂] at goal
+    have : n.succ = n + 1 := by rfl
+    simp only [this] at goal
+    have goal1 : n + 1 < n + 2 ^ ((n + 1).size - 1) := by exact Nat.add_lt_add_left goal n
+    have goal2 : n + 1 - 2 ^ ((n + 1).size - 1) < n := by 
+      have (a b c : Nat) (h : a ≥ c) : a < b + c → a - c < b := by
+        exact Nat.sub_lt_right_of_lt_add h 
+      have c : n + 1 ≥ 2 ^ ((n + 1).size - 1) := by sorry
+      exact this (n + 1) n (2 ^ ((n + 1).size - 1)) c goal1
+    exact goal2
+  simp only [←h]
+  exact decreasing
+
+#eval! is_segment_beg 7 -- false
+#eval! is_envelope 2 -- false
+
+
+theorem luby_value_at_segment_beg {n : Nat} (h : is_segment_beg n) : luby n = 1 := by
+   sorry
 
 end Luby
 
