@@ -2,5 +2,5 @@
 -- Import modules here that should be built as part of the library.
 import LubySequence.Basic
 import LubySequence.Tree
-import LubySequence.Generator
-import LubySequence.Equality
+import LubySequence.State
+import LubySequence.Equivalence

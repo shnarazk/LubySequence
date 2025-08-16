@@ -1,7 +1,7 @@
 import Mathlib.Tactic
 import LubySequence.Basic
 import LubySequence.Tree
-import LubySequence.Generator
+import LubySequence.State
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
@@ -309,42 +309,70 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
     }
    }
 
-#eval List.range 30 |>.map (fun n ↦ ((LubyGenerator.ofNat n).luby, (LubyGenerator.ofNat n).segment_height, LubyTree.luby (n + 1)))
+#eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat n).luby, (LubyState.ofNat n).segment_height, LubyTree.luby (n + 1)))
 
 /- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth).
-theorem LubyGenerator_segIx_is_tree_depth : ∀ n : Nat, (LubyGenerator.ofNat n).segIx = LubyTree.envelopeDepth (n + 1) := by
+theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx = LubyTree.envelopeDepth (n + 1) := by
   -- sapply?
   sorry -/
 
-#eval List.range 30 |>.map (fun n ↦ (LubyGenerator.ofNat n).luby)
+#eval List.range 30 |>.map (fun n ↦ (LubyState.ofNat n).luby)
 
-theorem LubyGenerator_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyGenerator.ofNat n).luby := by
+theorem LubyState_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyState.ofNat n).luby := by
   intro n
   induction' n using Nat.strong_induction_on with n hn
-  rw [LubyTree.luby, LubyGenerator.ofNat, LubyGenerator.luby]
+  -- 先に場合分けをしてしまおう
+  have tree_cases : LubyTree.is_envelope (n + 1) = true ∨ LubyTree.is_envelope (n + 1) = false := by
+    exact Bool.eq_false_or_eq_true (LubyTree.is_envelope (n + 1))
+  have gen_cases : (LubyState.ofNat n).is_envelope ∨ ¬(LubyState.ofNat n).is_envelope := by
+    exact eq_or_ne (LubyState.ofNat n).is_envelope true
+  simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at tree_cases
+  -- simp [LubyState.is_envelope] at gen_cases
+  rcases tree_cases with tree_env|not_tree_env
+  {
+    rcases gen_cases with gen_env|not_gen_env
+    {
+      sorry
+    }
+    {
+      sorry
+    }
+  }
+  {
+    rcases gen_cases with gen_env|not_gen_env
+    {
+      sorry
+    }
+    {
+      sorry
+    }
+  }
+
+/-
   split
-  { 
+  {
     expose_names
+    rw [←LubyTree.luby, LubyState.ofNat, LubyState.luby]
     have tf : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
     rcases tf with t|f
     {
       simp [t] at *
       simp [LubyTree.envelopeDepth]
-      simp [default, LubyGenerator.zero, LubyGenerator.next]
+      simp [default, LubyState.zero, LubyState.next]
     }
     {
       -- have hn' := hn 0
       -- rw [LubyTree.luby] at hn'
-      simp [LubyTree.envelopeDepth]
+      simp only [LubyTree.envelopeDepth]
       -- envelopeなら$n = 2 ^ i - 1$, またsegIxが式として表されるはず。
       -- こんなことをする必要はない。envelopなのだから再帰せずに値が求まる
-      have s1 : (LubyGenerator.ofNat n).is_envelope := by
+      have s1 : (LubyState.ofNat n).is_envelope := by
         simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at h
-        simp [LubyGenerator.is_envelope]
+        simp [LubyState.is_envelope]
         have : (n - 1) / 2 < n := by
           have : n - 1 < 2 * n := by
-            have : n < 2 * n + 1 := by 
-              have : n < n + n + 1 := by 
+            have : n < 2 * n + 1 := by
+              have : n < n + n + 1 := by
                 have : 0 < n + 1 := by exact Nat.add_pos_left f 1
                 refine Nat.lt_add_right 1 ?_
                 exact Nat.lt_add_of_pos_right f
@@ -356,10 +384,15 @@ theorem LubyGenerator_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyGenera
         have hn' := hn ((n - 1) / 2) this
         sorry
 
-      have s2 : (LubyGenerator.ofNat n).locIx = (n + 1).size - 1 := by sorry
-      have s3 : LubyGenerator.ofNat n = LubyGenerator.zero.next n := by exact rfl
+      have s2 : (LubyState.ofNat n).locIx = (n + 1).size - 1 := by sorry
+      have s3 : LubyState.ofNat n = LubyState.zero.next n := by exact rfl
       simp [s3] at s2
       simp [s2]
     }
   }
   sorry
+  -/
+
+theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
+  intro n
+  induction' n using Nat.strong_induction_on with n hn
