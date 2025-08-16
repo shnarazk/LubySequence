@@ -67,6 +67,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
         exact congrArg (HPow.hPow 2) ap5
       clear ap5
       simp [ap2] at ap6
+      simp [Luby.is_envelope] at h_1
       exact absurd ap6 h_1
     }
   }
@@ -80,6 +81,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
       let a := (n + 2 + 1).size
       have ap : a = value_of% a := by exact rfl
       have ap2 : n = 2 ^ (a - 1) - 2 := by
+        simp [Luby.is_envelope, Luby.S₂] at h_2
         simp [←ap] at h_2
         exact Nat.eq_sub_of_add_eq (id (Eq.symm h_2))
       have ap3 : 2 ≤ a := by
@@ -318,8 +320,13 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
 
 #eval List.range 30 |>.map (fun n ↦ (LubyState.ofNat n).luby)
 
+-- 以下は破棄。segment ベースで証明しよう
+
 theorem LubyState_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyState.ofNat n).luby := by
   intro n
+  sorry
+
+/-
   induction' n using Nat.strong_induction_on with n hn
   -- 先に場合分けをしてしまおう
   have tree_cases : LubyTree.is_envelope (n + 1) = true ∨ LubyTree.is_envelope (n + 1) = false := by
@@ -348,7 +355,6 @@ theorem LubyState_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyState.ofNa
     }
   }
 
-/-
   split
   {
     expose_names
@@ -391,8 +397,19 @@ theorem LubyState_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyState.ofNa
     }
   }
   sorry
-  -/
 
 theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
   intro n
-  induction' n using Nat.strong_induction_on with n hn
+  induction' n /- using Nat.strong_induction_on -/ with n hn
+  {
+    simp [LubyState.ofNat, LubyState.zero, LubyState.luby, default, LubyState.next]
+    rw [Luby.luby, Luby.S₂]
+    simp [Nat.size, Nat.binaryRec, Luby.S₂]
+  }
+  {
+    -- simp [LubyState.ofNat, LubyState.zero]
+    have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
+    simp [this]
+    sorry
+ }
+-/
