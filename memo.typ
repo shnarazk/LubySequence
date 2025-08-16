@@ -1,6 +1,16 @@
 #import "@preview/cetz:0.4.1": canvas, draw, tree
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
-#set page(paper: "a4", numbering: "1")
+
+#let title = [An Online Algorithm for Luby Sequence]
+
+#set page(
+  header: align(
+    right + horizon,
+    title
+  ),
+  paper: "a4",
+  numbering: "1"
+)
 #set par(justify: true)
 #set text(
   font: (
@@ -29,6 +39,11 @@
   else { Luby(n + 1 - calc.pow(2, nat_size(n) - 1)) }
 }
 
+#align(center, text(17pt)[*#title*])
+
+#grid(columns: (1fr),align(center)[`shnarazk` and gen. AIs])
+#grid(columns: (1fr),align(center)[2025-0X-XX])
+
 = Luby sequence
 
 The Luby sequence is a sequence of natural numbers defined recursively.
@@ -45,12 +60,14 @@ $
 
 In the paper @Luby1993, the sequence is defined as a recursive function:
 
+#set math.equation(numbering: "(1)")
 $
   L u b y_1(k >= 1) = cases(
     2^(i-1)\, & " if" k = 2^i - 1 " for some " i >= 1,
     L u b y_1(k - 2^(i-1) + 1)\, & " if " 2^(i-1) <= k < 2^i - 1
   )
-$
+$<def_1>
+#set math.equation(numbering: none)
 
 And we can illustrate its recursion property as a transition on triangle by natural number.
 
@@ -188,12 +205,14 @@ As you see, the Luby value is equal to two powered by a local index in a segment
 
 So we have the following equation.
 
+#set math.equation(numbering: "(1)")
 $
   L u b y_1(k >= 1) = cases(
     1\, & " if" k "is the beginning of a segment",
     2 times L u b y_1(k - 1)\, & " otherwise"
   )
-$
+$<def_2>
+#set math.equation(numbering: none)
 
 And segments start at the following $k$:
 
