@@ -3,6 +3,7 @@ import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
+import Utils
 
 namespace Luby
 
@@ -151,8 +152,6 @@ decreasing_by
         exact Nat.add_le_add_right t2' 1
       have s2 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
       simp [s2] at s1
-      have s3 : 1 < (n + 1).size := by exact s1
-      have s5 : ¬(n + 1).size = 1 := by exact Nat.ne_of_lt' s1
       exact Nat.sub_ne_zero_iff_lt.mpr s1
     simp only [S₂] at goal
     have : n.succ = n + 1 := by rfl
@@ -161,7 +160,9 @@ decreasing_by
     have goal2 : n + 1 - 2 ^ ((n + 1).size - 1) < n := by 
       have (a b c : Nat) (h : a ≥ c) : a < b + c → a - c < b := by
         exact Nat.sub_lt_right_of_lt_add h 
-      have c : n + 1 ≥ 2 ^ ((n + 1).size - 1) := by sorry
+      have c : n + 1 ≥ 2 ^ ((n + 1).size - 1) := by
+        refine n_ge_subenvelope ?_
+        exact Nat.le_add_left 1 n
       exact this (n + 1) n (2 ^ ((n + 1).size - 1)) c goal1
     exact goal2
   simp only [←h]
@@ -169,7 +170,6 @@ decreasing_by
 
 #eval! is_segment_beg 7 -- false
 #eval! is_envelope 2 -- false
-
 
 theorem luby_value_at_segment_beg {n : Nat} (h : is_segment_beg n) : luby n = 1 := by
    sorry
