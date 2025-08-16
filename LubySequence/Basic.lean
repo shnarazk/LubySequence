@@ -169,10 +169,60 @@ decreasing_by
   exact decreasing
 
 #eval! is_segment_beg 7 -- false
-#eval! is_envelope 2 -- false
+#eval! is_envelope 0 -- false
 
-theorem luby_value_at_segment_beg {n : Nat} (h : is_segment_beg n) : luby n = 1 := by
-   sorry
+theorem luby_value_at_segment_beg (n : Nat) : is_segment_beg n → luby n = 1 := by
+  have luby0 : luby 0 = 1 := by
+    rw [luby]
+    simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+  have luby1 : luby 1 = 1 := by
+    rw [luby]
+    simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+    exact luby0
+  induction' n using Nat.strong_induction_on with n nh
+  { expose_names
+    intro h
+    rw [is_segment_beg.eq_def] at h
+    split at h
+    { expose_names ; exact luby0 }
+    { expose_names ; simp [luby1] }
+    { expose_names
+      split at h
+      { contradiction }
+      { expose_names
+        rw [luby]
+        split
+        { expose_names ; exact absurd h_2 h_1 }
+        { expose_names
+          simp at *
+          let n := m + 1 + 1
+          have np : n = value_of% n := by exact rfl
+          simp [←np] at *
+          simp [S₂]
+          have r : n + 1 - 2 ^ ((n + 1).size - 1) < n := by 
+            have (a b c : Nat) (h : a ≥ c) : a < b + c → a - c < b := by
+              exact Nat.sub_lt_right_of_lt_add h 
+            have c : n + 1 ≥ 2 ^ ((n + 1).size - 1) := by
+              refine n_ge_subenvelope ?_
+              exact Nat.le_add_left 1 n
+            refine this (n + 1) n (2 ^ ((n + 1).size - 1)) c ?_
+            have : 1 < 2 ^ ((n + 1).size - 1) := by
+              have n2 : n ≥ 2 := by exact Nat.le_add_left 2 m
+              have t1 : (2 + 1).size ≤ (n + 1).size := by
+                refine Nat.size_le_size ?_
+                exact Nat.add_le_add_right n2 1
+              have t2 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+              simp [t2] at t1
+              have t3 : 1 ≤ (n + 1).size - 1 := by exact Nat.le_sub_one_of_lt t1
+              have t4 : 2 ≤ 2 ^ ((n + 1).size - 1) := by exact Nat.le_pow t3
+              exact t4
+            exact Nat.add_lt_add_left this n
+          have goal := nh (n + 1 - S₂ n) r h
+          exact goal
+        } 
+      }
+    }
+  }
 
 end Luby
 
