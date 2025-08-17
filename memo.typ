@@ -63,13 +63,22 @@ In the paper @Luby1993, the sequence is defined as a recursive function:
 #set math.equation(numbering: "(1)")
 $
   L u b y_1(k >= 1) = cases(
-    2^(i-1)\, & " if" k = 2^i - 1 " for some " i >= 1,
-    L u b y_1(k - 2^(i-1) + 1)\, & " if " 2^(i-1) <= k < 2^i - 1
+    2^(i-1) & " if" k = 2^i - 1 " for some " i >= 1,
+    L u b y_1(k - 2^(i-1) + 1) & " if " 2^(i-1) <= k < 2^i - 1
   )
 $<def_1>
 #set math.equation(numbering: none)
+By introducing `Nat.size` operator which returns the length of bit vector representing a natural number `Nat`, we can elimanate $i$ and rewrite the definition as
+#set math.equation(numbering: "(1)")
+$
+  L u b y_1(k >= 1) = cases(
+    2^(k".size" - 1) & " if" k = 2^(k".size") - 1,
+    L u b y_1(k - (2^(k".size"-1) - 1)). & " otherwise"
+  )
+$<def_2>
+#set math.equation(numbering: none)
 
-And we can illustrate its recursion property as a transition on triangle by natural number.
+we can illustrate its recursion property as a transition on triangle by natural numbers larger than zero.
 
 #figure(caption: [An interpretation on natural number triangle], gap: 16pt)[
 #canvas({
@@ -80,6 +89,7 @@ And we can illustrate its recursion property as a transition on triangle by natu
 
   set-style(content: (padding: 0.4em))
   tree.tree(
+    spread: 0.4,
     ([ $15 = "b1111"$ #encircle(8) ],
       ([ $7 = "b111"$ #encircle(4) ],
         ([ $3 = "b11"$ #encircle(2) ],
@@ -97,16 +107,27 @@ And we can illustrate its recursion property as a transition on triangle by natu
           ([ $11 arrow_(- 7) 4$ ]),
           ([ $12 arrow_(- 7) 5$ ]), ),
       ),
-    ),
-   spread: 0.2)
+    ),)
 })]
+
+Here are some samples.
+
+$
+  L u b y_1(14) & arrow L u b y_1(7) = 4 \
+  L u b y_1(13) & arrow L u b y_1(6) arrow L u b y_1(3) = 2 \
+  L u b y_1(9) & arrow L u b y_1(2) arrow L u b y_1(1) = 1
+$
+
+- At the top of a tree or *envelope* which contains the target number as a node, the recursion stops.
+- Otherwise, the right tree is folded to the left tree. By a simple calculation, we find that any number is placed to the top of a tree or in the right sub tree.
+- The worst recursion depth of $L u b y (N)$ would be $O(log(N))$.
 
 == Another interpretation on a binary tree
 
 Or you can map the function to a traverse on a binary graph.
 The function has a strong relation to an operation on the binary representation of natural number.
 
-#figure(caption: [Binary tree reprisenting `Nat`], gap: 16pt)[
+#figure(caption: [Binary tree reprisenting $"Nat" > 0$], gap: 16pt)[
 #canvas({
   import draw: *
   let encircle(i) = {
@@ -114,30 +135,37 @@ The function has a strong relation to an operation on the binary representation 
   }
 
   set-style(content: (padding: 0.5em))
-  line((8, -4), (6, -4), mark: (end: "stealth"), stroke: 6pt + blue)
+  line((1, -5), (5.7, -5),
+    stroke: 18pt + rgb(240, 240, 255))
+  line((6.5, -5), (11.5, -5),
+    stroke: 18pt + rgb(240, 240, 255))
+  bezier((9.5, -4.6), (2.5, -4.6), (8.5, -3), (3.5, -3),
+    mark: (end: ">"),
+    stroke: 4pt + rgb(250, 200, 200))
   tree.tree(
+    spread: 0.6,
     ([ [01]\*\* ],
       ([ 0[01]\* ],
         (
           [ 00[01] ],
-          ([#encircle($0$)]),
+          ([out of domain]),
           ([#encircle($1$)]),
         ),
         (
           [ 01[01] ],
-          ([$2 arrow 0$]),
+          ([$2 arrow_(-1) 1$]),
           ([#encircle($3$)]),
         ),
       ),
       ([ 1[01]\* ],
         (
           [ 10[01] ],
-          ([$4 arrow 0$]),
-          ([$5 arrow 1$]),
+          ([$4 arrow_(-3) 1$]),
+          ([$5 arrow_(-3) 1$]),
         ),
         (
           [ 11[01] ],
-          ([$6 arrow 2$]),
+          ([$6 arrow_(-3) 3$]),
           ([#encircle($7$)]),
         ),
       )
