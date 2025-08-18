@@ -240,13 +240,10 @@ theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
           exact Nat.le_add_left (0 + 2) n
         have t2 : 2 ^ ((0 + 2).size - 1) = 2 := by simp [Nat.size, Nat.binaryRec]
         simp [t2] at t1
-        exact t1
-      }
+        exact t1 }
     simp [t1]
-    simp [←n2]
-  }
-  {
-    intro n2
+    simp [←n2] }
+  { intro n2
     simp [is_envelope, S₂] at n2
     nth_rw 1 [←n2]
     have sub1 (a b : Nat) : a = b → 2 ^ a = 2 ^ b := by exact fun a_1 ↦ congrArg (HPow.hPow 2) a_1
@@ -258,8 +255,7 @@ theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
       refine size_limit (by grind)
     rcases cands with e|g
     { simp [e] }
-    {
-      have t1 : (2 ^ ((n + 2 + 1).size - 1)).size = (n + 2).size := by exact congrArg Nat.size n2
+    { have t1 : (2 ^ ((n + 2 + 1).size - 1)).size = (n + 2).size := by exact congrArg Nat.size n2
       have t2 : (2 ^ ((n + 2 + 1).size - 1)).size = (n + 2 + 1).size - 1 + 1 := by
         exact Nat.size_pow
       simp [t2] at t1
@@ -272,14 +268,13 @@ theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
         simp [u2] at u1
         exact Nat.one_le_of_lt u1
       simp [t3] at t1
-      exact t1
-    }
-  }
+      exact t1 } }
 
 theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
   constructor
-  {
-    intro h
+  { intro h
+    refine (envelope_prop1 n).mp ?_
+    /-
     simp [is_envelope, S₂]
     have t1 : 2 ^ ((n + 2 + 1).size - 1) = (n + 2 + 1).size - 1 + 1 := by
       apply?
@@ -287,9 +282,7 @@ theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
     have t1 : (n + 2).size - 1 = (n + 1).size := by 
       exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm h)))
     clear h
-
-
-
+    -/
     sorry
   }
   sorry
@@ -318,11 +311,9 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
     { expose_names;
       have tf : is_envelope n ∨ ¬is_envelope n := by exact eq_or_ne (is_envelope n) true
       rcases tf with t|f
-      {
-        rw [luby]
+      { rw [luby]
         split
-        {
-          expose_names
+        { expose_names
           simp [S₂]
           have t1 : 2 * 2 ^ ((n + 1).size - 1) = 2 ^ (n + 1).size := by
             refine mul_pow_sub_one ?_ 2
@@ -342,25 +333,23 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
             exact Nat.size_pow
           simp [g2] at goal
 
-
-
           sorry -- have : ().size = ().size := by 
         }
         sorry
-
-
       }
-      simp [is_envelope] at h_1
-      rw [luby]
+      {
+        simp [is_envelope] at h_1
+        rw [luby]
       
-      exact absurd h_1 h
+        sorry -- exact absurd h_1 h
+      }
     }
     { expose_names
       nth_rw 1 [luby]
       nth_rw 2 [luby]
-
+      sorry
     }
-
+  }
 
 end Luby
 
