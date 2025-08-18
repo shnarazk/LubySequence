@@ -224,6 +224,106 @@ theorem luby_value_at_segment_beg (n : Nat) : is_segment_beg n → luby n = 1 :=
     }
   }
 
+#eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
+
+-- これは 2 ^ n - (2 ^ n - 1) = 1 以外の元を取ると距離が1を超えてしまうことから背理法で言える
+theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
+  constructor
+  { intro h
+    simp [is_envelope, S₂]
+    nth_rw 2 [h]
+    have (a b : Nat) : a = b → 2 ^ a = 2 ^ b := by exact fun a_1 ↦ congrArg (HPow.hPow 2) a_1
+    apply this
+    
+    sorry
+  }
+
+theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
+  constructor
+  {
+    intro h
+    simp [is_envelope, S₂]
+    have t1 : 2 ^ ((n + 2 + 1).size - 1) = (n + 2 + 1).size - 1 + 1 := by
+      apply?
+
+    have t1 : (n + 2).size - 1 = (n + 1).size := by 
+      exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm h)))
+    clear h
+
+
+
+    sorry
+  }
+  sorry
+
+theorem luby_value_not_at_segment_beg (n : Nat) :
+    ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
+  intro h
+  have luby0 : luby 0 = 1 := by
+    rw [luby]
+    simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+  have luby1 : luby 1 = 1 := by
+    rw [luby]
+    simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+    exact luby0
+  have nsize1 : 1 ≤ (n + 1).size := by
+    have t1 : (0 + 1).size ≤ (n + 1).size := by 
+      refine Nat.size_le_size ?_
+      exact Nat.le_add_left (0 + 1) n
+    have t2 : (0 + 1).size = 1 := by simp [Nat.size, Nat.binaryRec]
+    simp [t2] at t1
+    exact t1
+  induction' n using Nat.strong_induction_on with n nh
+  {
+    nth_rw 1 [luby]
+    split
+    { expose_names;
+      have tf : is_envelope n ∨ ¬is_envelope n := by exact eq_or_ne (is_envelope n) true
+      rcases tf with t|f
+      {
+        rw [luby]
+        split
+        {
+          expose_names
+          simp [S₂]
+          have t1 : 2 * 2 ^ ((n + 1).size - 1) = 2 ^ (n + 1).size := by
+            refine mul_pow_sub_one ?_ 2
+            exact Nat.ne_zero_of_lt nsize1
+          simp [t1]
+          simp [is_envelope, S₂] at *
+          have : n + 1 + 2 = n + 2 + 1 := by exact rfl
+          simp only [this] at h_1
+          rw [←h_1] at t
+          have goal : (2 ^ ((2 ^ ((n + 2 + 1 + 1).size - 1)).size - 1)).size = (n + 2).size := by
+            exact congrArg Nat.size t
+          have g1 : (2 ^ ((2 ^ ((n + 2 + 1 + 1).size - 1)).size - 1)).size = 
+              (2 ^ ((n + 2 + 1 + 1).size - 1)).size - 1 + 1 := by
+            exact Nat.size_pow
+          simp [g1] at goal
+          have g2 : (2 ^ ((n + 2 + 1 + 1).size - 1)).size = (n + 2 + 1 + 1).size - 1 + 1 := by
+            exact Nat.size_pow
+          simp [g2] at goal
+
+
+
+          sorry -- have : ().size = ().size := by 
+        }
+        sorry
+
+
+      }
+      simp [is_envelope] at h_1
+      rw [luby]
+      
+      exact absurd h_1 h
+    }
+    { expose_names
+      nth_rw 1 [luby]
+      nth_rw 2 [luby]
+
+    }
+
+
 end Luby
 
 -- 🧪 Test output
