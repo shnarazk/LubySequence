@@ -226,16 +226,54 @@ theorem luby_value_at_segment_beg (n : Nat) : is_segment_beg n → luby n = 1 :=
 
 #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
 
--- これは 2 ^ n - (2 ^ n - 1) = 1 以外の元を取ると距離が1を超えてしまうことから背理法で言える
 theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
   constructor
-  { intro h
+  { intro n2
     simp [is_envelope, S₂]
-    nth_rw 2 [h]
-    have (a b : Nat) : a = b → 2 ^ a = 2 ^ b := by exact fun a_1 ↦ congrArg (HPow.hPow 2) a_1
-    apply this
-    
-    sorry
+    nth_rw 1 [n2]
+    have t1 : (2 ^ ((n + 2).size - 1) + 1).size = ((n + 2).size - 1) + 1 := by
+      refine size_add (by grind) ?_ 
+      { have t1 : 2 ^ ((0 + 2).size - 1) ≤ 2 ^ ((n + 2).size - 1) := by
+          refine pow2_le_pow2 ((0 + 2).size - 1) ((n + 2).size - 1) ?_
+          refine Nat.sub_le_sub_right ?_ 1
+          refine Nat.size_le_size ?_
+          exact Nat.le_add_left (0 + 2) n
+        have t2 : 2 ^ ((0 + 2).size - 1) = 2 := by simp [Nat.size, Nat.binaryRec]
+        simp [t2] at t1
+        exact t1
+      }
+    simp [t1]
+    simp [←n2]
+  }
+  {
+    intro n2
+    simp [is_envelope, S₂] at n2
+    nth_rw 1 [←n2]
+    have sub1 (a b : Nat) : a = b → 2 ^ a = 2 ^ b := by exact fun a_1 ↦ congrArg (HPow.hPow 2) a_1
+    apply sub1
+    have sub2 (a b c : Nat) : a = b → a - c = b - c := by
+      exact fun a_1 ↦ congrFun (congrArg HSub.hSub a_1) c
+    apply sub2 
+    have cands : (n + 2 + 1).size = (n + 2).size ∨ (n + 2 + 1).size = (n + 2).size + 1 := by
+      refine size_limit (by grind)
+    rcases cands with e|g
+    { simp [e] }
+    {
+      have t1 : (2 ^ ((n + 2 + 1).size - 1)).size = (n + 2).size := by exact congrArg Nat.size n2
+      have t2 : (2 ^ ((n + 2 + 1).size - 1)).size = (n + 2 + 1).size - 1 + 1 := by
+        exact Nat.size_pow
+      simp [t2] at t1
+      have t3 : (n + 2 + 1).size - 1 + 1 = (n + 2 + 1).size := by
+        refine Nat.sub_add_cancel ?_
+        have u1 : (0 + 2 + 1).size ≤ (n + 2 + 1).size := by
+          refine Nat.size_le_size ?_
+          exact Nat.le_add_left (0 + 2 + 1) n
+        have u2 : (0 + 2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+        simp [u2] at u1
+        exact Nat.one_le_of_lt u1
+      simp [t3] at t1
+      exact t1
+    }
   }
 
 theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
