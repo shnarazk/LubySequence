@@ -68,7 +68,7 @@ $
   )
 $<def_1>
 #set math.equation(numbering: none)
-By introducing `Nat.size` operator which returns the length of bit vector representing a natural number `Nat`, we can elimanate $i$ and rewrite the definition as
+By introducing `Nat.size` operator which returns the length of bit vector representing a natural number `Nat`, we can eliminate $i$ and rewrite the definition as
 #set math.equation(numbering: "(1)")
 $
   L u b y_1(k >= 1) = cases(
@@ -78,9 +78,9 @@ $
 $<def_2>
 #set math.equation(numbering: none)
 
-we can illustrate its recursion property as a transition on triangle by natural numbers larger than zero.
+We can illustrate its recursive property as transitions on a triangle of natural numbers greater than zero.
 
-#figure(caption: [An interpretation on natural number triangle], gap: 16pt)[
+#figure(caption: [An interpretation of the natural number triangle], gap: 16pt)[
 #canvas({
   import draw: *
   let encircle(i) = {
@@ -119,15 +119,15 @@ $
 $
 
 - At the top of a tree or *envelope* which contains the target number as a node, the recursion stops.
-- Otherwise, the right tree is folded to the left tree. By a simple calculation, we find that any number is placed to the top of a tree or in the right sub tree.
+- Otherwise, the right tree is folded to the left tree. By a simple calculation, we find that any number is placed to the top of a tree or in the right subtree.
 - The worst recursion depth of $L u b y (N)$ would be $O(log(N))$.
 
-== Another interpretation on a binary tree
+== Another interpretation using a binary tree
 
-Or you can map the function to a traverse on a binary graph.
-The function has a strong relation to an operation on the binary representation of natural number.
+Or you can map the function to a traversal on a binary graph.
+The function has a strong relation to an operation on the binary representation of a natural number.
 
-#figure(caption: [Binary tree reprisenting $"Nat" > 0$], gap: 16pt)[
+#figure(caption: [A binary tree representing $"Nat" > 0$], gap: 16pt)[
 #canvas({
   import draw: *
   let encircle(i) = {
@@ -176,11 +176,11 @@ The function has a strong relation to an operation on the binary representation 
 
 = An efficient implementation
 
-Now we introduce a segmentation on Luby sequence.
+Now we introduce a segmentation on the Luby sequence.
 
-== segments
+== Segments
 
-We define *segments* as a monotone increasing subsequence in Luby sequence. Here are the first 16 segments. Each segment is alternately in red and blue.
+We define *segments* as a monotone increasing subsequence in the Luby sequence. Here are the first 16 segments. Each segment is alternately in red and blue.
 
 #let luby = (1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16)
 
@@ -193,9 +193,9 @@ $
 }
 $
 
-As you see, the Luby value is equal to two powered by a local index in a segment. So we can define Luby sequence in another form.
+As you see, the Luby value is equal to two raised to the power of the local index in a segment. So we can define the Luby sequence in another form.
 
-#figure(caption: [local index and segment index on natural number triangle], gap: 16pt)[
+#figure(caption: [Local index and segment index on the natural number triangle], gap: 16pt)[
 #canvas({
   import draw: *
 
@@ -226,10 +226,10 @@ As you see, the Luby value is equal to two powered by a local index in a segment
   )
 })]
 
-== Redefine Luby sequence as a linear recursive function
+== Redefine the Luby sequence as a linear recursive function
 
-+ At the start of segment, Luby value is one
-+ otherwise, Luby value is the double of previous value
++ At the start of a segment, the Luby value is one
++ Otherwise, the Luby value is twice the previous value
 
 So we have the following equation.
 
@@ -250,11 +250,11 @@ $
 $
 where $a_i$ is 0 or 1.
 
-This means any $2^i - 1 > 0$ are not the beginning of a segment.
+This means any $2^i - 1 > 0$ is not the beginning of a segment.
 
 == Luby state
 
-#figure(caption: [The definition of Luby Status `S`])[
+#figure(caption: [The definition of Luby State])[
   #align(left)[
 ```lean
 structure State where
@@ -262,13 +262,13 @@ structure State where
   locIx : Nat　-- 現在のsegment内で何番目(local index)か(0-based)
 
 /-- O(1) -/
-def State.next (s: State) : S := ...
+def State.next (s: State) : State := ...
 /-- O(1) -/
-def State.luby (s : State) : Nat = 2 ^ s.locIx
+def State.luby (s : State) : Nat := 2 ^ s.locIx
 ```
 ]]<def_S>
 
-#figure(caption: [Generating Luby state], gap: 16pt)[
+#figure(caption: [Generating the Luby state], gap: 16pt)[
 #diagram(cell-size: 12mm, {
   node((1, 0), $n$)
   edge((1, 0), (1, 2),  $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight", stroke: red)
