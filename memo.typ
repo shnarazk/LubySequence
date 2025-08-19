@@ -17,6 +17,7 @@
 #show raw: it => {
   if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]
 }
+#show math.equation: set text(font: "Euler Math")
 
 // Luby implementation
 #let allone(n) = {
@@ -105,7 +106,7 @@ $
   L u b y_1(9) & arrow L u b y_1(2) arrow L u b y_1(1) = 1
 $
 
-- At the top of a tree or *envelope* which contains the target number as a node, the recursion stops.
+- At the top of a tree or *_envelope_* which contains the target number as a node, the recursion stops.
 - Otherwise, the right tree is folded to the left tree. By a simple calculation, we find that any number is placed to the top of a tree or in the right subtree.
 - The worst recursion depth of $L u b y (N)$ would be $O(log(N))$.
 
@@ -210,7 +211,7 @@ $<def_2>
 And segments start at the following $k$:
 
 $
-  k & = 1 + sum_(i>= 0) a_i |"tree"_i| \
+  k & = 1 + sum_(i>= 0) a_i |"envelope"_i| \
     & = 1 + sum_(i>= 0) a_i (2^i - 1)
 $
 where $a_i$ is 0 or 1.
