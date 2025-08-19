@@ -273,7 +273,14 @@ theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
 theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
   constructor
   { intro h
-    refine (envelope_prop1 n).mp ?_
+    have : n + 2 = 2 ^ ((n + 2).size - 1) := by
+      have h' : (n + 2).size - 1 = (n + 1).size := by
+        exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm h)))
+      simp [h']
+
+      sorry
+    have : is_envelope n := by exact (envelope_prop1 n).mp this
+    exact this
     /-
     simp [is_envelope, S₂]
     have t1 : 2 ^ ((n + 2 + 1).size - 1) = (n + 2 + 1).size - 1 + 1 := by
@@ -283,9 +290,23 @@ theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
       exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm h)))
     clear h
     -/
-    sorry
   }
-  sorry
+  {
+    intro h
+    have : n + 2 = 2 ^ ((n + 2).size - 1) := by exact (envelope_prop1 n).mpr h
+    simp [is_envelope, S₂] at h
+    have : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by sorry
+    simp [this]
+    have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by
+      refine size_sub ?_ (by grind) ?_
+      sorry -- have : 2 ^ ((n + 2).size - 1) ≥ 1 := by
+      sorry
+    simp [this]
+    have : (n + 2).size - 1 + 1 = (n + 2).size := by
+      refine Nat.sub_add_cancel ?_
+      sorry
+    simp [this]
+  }
 
 theorem luby_value_not_at_segment_beg (n : Nat) :
     ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
