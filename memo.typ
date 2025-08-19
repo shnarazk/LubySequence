@@ -4,23 +4,18 @@
 #let title = [An Online Algorithm for Luby Sequence]
 
 #set page(
-  header: align(
-    right + horizon,
-    title
-  ),
+  header: align(right + horizon, title),
   paper: "a4",
   numbering: "1"
 )
 #set par(justify: true)
 #set text(
-  font: (
-    (name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
+  font: ((name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
   size: 10pt)
 #show raw: set text(font: "Monaspace Neon")
 #set heading(numbering: "1.")
 #show raw: it => {
-  if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ]
-  else [ #it ]
+  if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]
 }
 
 // Luby implementation
@@ -29,10 +24,7 @@
   else if calc.even(n) { false }
   else { allone(calc.quo(n, 2)) }
 }
-#let nat_size(n) = {
-  if n < 2 { 1 }
-  else { 1 + nat_size(calc.quo(n, 2)) }
-}
+#let nat_size(n) = { if n < 2 { 1 } else { 1 + nat_size(calc.quo(n, 2)) } }
 #let Luby(n) = {
   assert(n >= 0)
   if allone(n) { calc.pow(2, nat_size(n) - 1) }
@@ -51,10 +43,7 @@ It is used in randomized algorithms and has applications in computer science.
 However, outside of Boolean-satisfiability solvers, its applications
 appear to be rare. It starts like this:
 
-$
-#range(1, 32).map(Luby).map(str).join(", ")
-, dots.h.c
-$
+$ #range(1, 32).map(Luby).map(str).join(", ") , dots.h.c $
 
 == Definition
 
@@ -68,6 +57,7 @@ $
   )
 $<def_1>
 #set math.equation(numbering: none)
+
 By introducing `Nat.size` operator which returns the length of bit vector representing a natural number `Nat`, we can eliminate $i$ and rewrite the definition as
 #set math.equation(numbering: "(1)")
 $
@@ -97,20 +87,17 @@ We can illustrate its recursive property as transitions on a triangle of natural
           ([ $2 arrow_(- 1) 1$ ]), ),
         ([ $6 arrow_(- 3) 3$ ],
           ([ $4 arrow_(- 3) 1$ ]),
-          ([ $5 arrow_(- 3) 2$ ]), ),
-      ),
+          ([ $5 arrow_(- 3) 2$ ]), ), ),
       ([ $14 arrow_(- 7) 7$ ],
         ([ $10 arrow_(- 7) 3$ ],
           ([ $8 arrow_(- 7) 1$ ]),
           ([ $9 arrow_(- 7) 2$ ]), ),
         ([ $13 arrow_(- 7) 6$ ],
           ([ $11 arrow_(- 7) 4$ ]),
-          ([ $12 arrow_(- 7) 5$ ]), ),
-      ),
-    ),)
+          ([ $12 arrow_(- 7) 5$ ]), ), ), ),)
 })]
 
-Here are some samples.
+Here are some examples.
 
 $
   L u b y_1(14) & arrow L u b y_1(7) = 4 \
@@ -146,32 +133,19 @@ The function has a strong relation to an operation on the binary representation 
     spread: 0.6,
     ([ [01]\*\* ],
       ([ 0[01]\* ],
-        (
-          [ 00[01] ],
+        ( [ 00[01] ],
           ([out of domain]),
-          ([#encircle($1$)]),
-        ),
-        (
+          ([#encircle($1$)]), ), (
           [ 01[01] ],
           ([$2 arrow_(-1) 1$]),
-          ([#encircle($3$)]),
-        ),
-      ),
+          ([#encircle($3$)]), ), ),
       ([ 1[01]\* ],
-        (
-          [ 10[01] ],
+        ( [ 10[01] ],
           ([$4 arrow_(-3) 1$]),
-          ([$5 arrow_(-3) 1$]),
-        ),
-        (
-          [ 11[01] ],
+          ([$5 arrow_(-3) 1$]), ),
+        ( [ 11[01] ],
           ([$6 arrow_(-3) 3$]),
-          ([#encircle($7$)]),
-        ),
-      )
-    ))
-  // line((-0.5, 0), (4, 0))
-  // line((0, -0.5), (0, 1))
+          ([#encircle($7$)]), ), ) ))
 })]
 
 = An efficient implementation
@@ -182,7 +156,7 @@ Now we introduce a segmentation on the Luby sequence.
 
 We define *segments* as a monotone increasing subsequence in the Luby sequence. Here are the first 16 segments. Each segment is alternately in red and blue.
 
-#let luby = (1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 16)
+#let luby = range(1, 32).map(Luby)
 
 $
 #let even = true
@@ -201,29 +175,21 @@ As you see, the Luby value is equal to two raised to the power of the local inde
 
   set-style(content: (padding: 0.4em))
   tree.tree(spread: 0.5,
-    (
-      text(fill: blue, [$(8, 3)$]),
-      (
-        text(fill: blue, [$(4, 2)$]),
-        (
-          text(fill: blue, [$(2, 1)$]),
+    ( text(fill: blue, [$(8, 3)$]),
+      ( text(fill: blue, [$(4, 2)$]),
+        ( text(fill: blue, [$(2, 1)$]),
           (text(fill: red, [$(1, 0) \#1$])),
           (text(fill: blue, [$(2, 0) \#2$])), ),
-        (
-          text(fill: blue, [$(4, 1)$]),
+        ( text(fill: blue, [$(4, 1)$]),
           (text(fill: red, [$(3, 0) \#4$])),
           (text(fill: blue, [$(4, 0) \#5$])), ), ),
-      (
-        text(fill: blue, [$(8, 2)$]),
-        (
-          text(fill: blue, [$(6, 1)$]),
+      ( text(fill: blue, [$(8, 2)$]),
+        ( text(fill: blue, [$(6, 1)$]),
           (text(fill: red, [$(5, 0) \#8$])),
           (text(fill: blue, [$(6, 0) \#9$])), ),
-        (
-          text(fill: blue, [$(8, 1)$]),
+        ( text(fill: blue, [$(8, 1)$]),
           (text(fill: red, [$(7, 0) \#11$])),
-          (text(fill: blue, [$(8, 0) \#12$])), ), ))
-  )
+          (text(fill: blue, [$(8, 0) \#12$])), ), )) )
 })]
 
 == Redefine the Luby sequence as a linear recursive function
@@ -237,8 +203,7 @@ So we have the following equation.
 $
   L u b y_1(k >= 1) = cases(
     1\, & " if" k "is the beginning of a segment",
-    2 times L u b y_1(k - 1)\, & " otherwise"
-  )
+    2 times L u b y_1(k - 1)\, & " otherwise" )
 $<def_2>
 #set math.equation(numbering: none)
 
@@ -262,7 +227,7 @@ structure State where
   locIx : Nat　-- 現在のsegment内で何番目(local index)か(0-based)
 
 /-- O(1) -/
-def State.next (s: State) : State := ...
+def State.next (s : State) : State := ...
 /-- O(1) -/
 def State.luby (s : State) : Nat := 2 ^ s.locIx
 ```
