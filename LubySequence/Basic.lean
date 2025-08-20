@@ -271,7 +271,6 @@ theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
       exact t1 } }
 
 theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
-  -- have (a b c : Nat) (h1 : b + c = a) : a ≥ b := by exact Nat.le.intro h1
   have (a b c : Nat) (h : b + c = a) (hb : 0 < b) (hc : 0 < c) : a > b := by grind
   have size2_eq_2 : (0 + 2).size = 2 := by simp [Nat.size, Nat.binaryRec]
   have n2size : 2 ≤ (n + 2).size := by
@@ -282,16 +281,23 @@ theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
   constructor
   { intro h
     have size_succ : (n + 2).size > (n + 1).size := by grind 
-    -- やはりここでn + 2が2 ^ * であり、最小元であることをいうべき
-    have : n + 2 = 2 ^ (n + 1).size := by
-      by_contra hc
-      have : n + 2 ≥ 2 ^ (n + 1).size := by exact Nat.lt_size.mp size_succ
-
-       
-      sorry
-      
-    simp [is_envelope, S₂]
-    sorry
+    have range1 : n + 2 ≥ 2 ^ (n + 1).size := by exact Nat.lt_size.mp size_succ
+    have range2 : n + 2 ≤ 2 ^ (n + 1).size := by
+      have s1 : n + 1 ≤ 2 ^ (n + 1).size - 1 := by
+        have : n + 1 < 2 ^ (n + 1).size := by
+          exact Nat.lt_size_self (n + 1)
+        exact Nat.le_sub_one_of_lt this
+      have s2 : n + 1 + 1 ≤ 2 ^ (n + 1).size - 1 + 1 := by exact Nat.add_le_add_right s1 1
+      have s3 : n + 1 + 1 = n + 2 := by grind
+      have s4 : 2 ^ (n + 1).size - 1 + 1 = 2 ^ (n + 1).size := by
+        refine Nat.sub_add_cancel ?_
+        exact Nat.one_le_two_pow
+      simp [s3, s4] at s2
+      exact s2
+    have : n + 2 = 2 ^ (n + 1).size := by exact Nat.le_antisymm range2 range1
+    refine (envelope_prop1 n).mp ?_
+    simp [h]
+    exact this
   }
   { intro h
     have : n + 2 = 2 ^ ((n + 2).size - 1) := by exact (envelope_prop1 n).mpr h
