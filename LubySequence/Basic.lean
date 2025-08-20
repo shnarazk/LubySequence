@@ -271,42 +271,43 @@ theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
       exact t1 } }
 
 theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
+  -- have (a b c : Nat) (h1 : b + c = a) : a ≥ b := by exact Nat.le.intro h1
+  have (a b c : Nat) (h : b + c = a) (hb : 0 < b) (hc : 0 < c) : a > b := by grind
+  have size2_eq_2 : (0 + 2).size = 2 := by simp [Nat.size, Nat.binaryRec]
+  have n2size : 2 ≤ (n + 2).size := by
+    have t1 : (0 + 2).size ≤ (n + 2).size := by
+      refine Nat.size_le_size ?_
+      exact Nat.le_add_left (0 + 2) n
+    exact le_of_eq_of_le (id (Eq.symm size2_eq_2)) t1
   constructor
   { intro h
-    have : n + 2 = 2 ^ ((n + 2).size - 1) := by
-      have h' : (n + 2).size - 1 = (n + 1).size := by
-        exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm h)))
-      simp [h']
+    have size_succ : (n + 2).size > (n + 1).size := by grind 
+    -- やはりここでn + 2が2 ^ * であり、最小元であることをいうべき
+    have : n + 2 = 2 ^ (n + 1).size := by
+      by_contra hc
+      have : n + 2 ≥ 2 ^ (n + 1).size := by exact Nat.lt_size.mp size_succ
 
+       
       sorry
-    have : is_envelope n := by exact (envelope_prop1 n).mp this
-    exact this
-    /-
+      
     simp [is_envelope, S₂]
-    have t1 : 2 ^ ((n + 2 + 1).size - 1) = (n + 2 + 1).size - 1 + 1 := by
-      apply?
-
-    have t1 : (n + 2).size - 1 = (n + 1).size := by 
-      exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm h)))
-    clear h
-    -/
+    sorry
   }
-  {
-    intro h
+  { intro h
     have : n + 2 = 2 ^ ((n + 2).size - 1) := by exact (envelope_prop1 n).mpr h
     simp [is_envelope, S₂] at h
-    have : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by sorry
+    have : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+      exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm this)))
     simp [this]
     have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by
       refine size_sub ?_ (by grind) ?_
-      sorry -- have : 2 ^ ((n + 2).size - 1) ≥ 1 := by
-      sorry
+      { exact Nat.zero_lt_sub_of_lt n2size }
+      { exact Nat.one_le_two_pow }
     simp [this]
     have : (n + 2).size - 1 + 1 = (n + 2).size := by
       refine Nat.sub_add_cancel ?_
-      sorry
-    simp [this]
-  }
+      exact Nat.one_le_of_lt n2size
+    simp [this] }
 
 theorem luby_value_not_at_segment_beg (n : Nat) :
     ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
