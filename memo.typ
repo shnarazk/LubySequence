@@ -259,7 +259,7 @@ def State.luby (s : State) : Nat := 2 ^ s.locIx
 #align(left)[
 ```lean
 -- the main goal
-theorem S_is_luby : ∀ n ≥ 1, (↑ n : State).luby = Luby n := by
+theorem State_is_luby : ∀ n ≥ 1, (↑ n : State).luby = Luby n := by
     sorry
 ```
 ]]<t1>
