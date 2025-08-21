@@ -313,6 +313,34 @@ theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
       exact Nat.one_le_of_lt n2size
     simp [this] }
 
+theorem envelope_prop1' (n : Nat) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
+  have n2size : 2 ≤ (n + 2).size := by
+    have t1 : (0 + 2).size ≤ (n + 2).size := by
+      refine Nat.size_le_size ?_
+      grind
+    have t2 : (0 + 2).size = 2 := by simp [Nat.size, Nat.binaryRec]
+    exact le_of_eq_of_le (id (Eq.symm t2)) t1
+  constructor
+  { intro h
+    have t1 : (n + 2).size = (2 ^ (n + 1).size).size := by exact congrArg Nat.size h
+    have t2 : (2 ^ (n + 1).size).size = (n + 1).size + 1 := by exact Nat.size_pow
+    simp [t2] at t1
+    exact (envelope_prop2 n).mp t1 }
+  { intro h
+    -- have t1 : 
+    have t1 : (n + 2).size = (n + 1).size + 1 := by exact (envelope_prop2 n).mpr h
+    have env1 : n + 2 = 2 ^ ((n + 2).size - 1) := by
+      exact (envelope_prop1 n).mpr h
+    simp [is_envelope, S₂] at h
+    nth_rw 1 [env1] at h
+    have : (2 ^ ((n + 2).size - 1) + 1).size = (n + 2).size - 1 + 1 := by
+      refine size_add (by grind) ?_
+      refine Nat.one_lt_pow ?_ (by grind)
+      exact Nat.sub_ne_zero_iff_lt.mpr n2size
+    simp [this] at h
+    nth_rw 1 [t1] at h
+    exact id (Eq.symm h) }
+
 theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).size = n.size := by
   have n1size : 2 ≤ (n + 1).size := by
     have t1 : (1 + 1).size ≤ (n + 1).size := by
@@ -324,11 +352,9 @@ theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
   have e2 : (n + 2).size = (n + 1).size + 1 := by exact (envelope_prop2 n).mpr env
   have t1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
     exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm e1)))
-  have t2 : n = 2 ^ ((n + 2).size - 1) - 2 := by
-    exact Nat.eq_sub_of_add_eq e1
+  have t2 : n = 2 ^ ((n + 2).size - 1) - 2 := by exact Nat.eq_sub_of_add_eq e1
   simp [e2] at t2
-  have t3 : n.size = (2 ^ (n + 1).size - 2).size := by
-    exact congrArg Nat.size t2
+  have t3 : n.size = (2 ^ (n + 1).size - 2).size := by exact congrArg Nat.size t2
   have t4 : (2 ^ (n + 1).size - 2).size = (n + 1).size := by
     refine size_sub ?_ (by grind) ?_
     { exact Nat.zero_lt_of_lt n1size }
@@ -355,8 +381,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
     simp [t2] at t1
     exact t1
   induction' n using Nat.strong_induction_on with n nh
-  {
-    nth_rw 1 [luby]
+  { nth_rw 1 [luby]
     split
     { expose_names;
       have tf : is_envelope n ∨ ¬is_envelope n := by exact eq_or_ne (is_envelope n) true
@@ -375,14 +400,10 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
           have : 2 * 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1 + 1) := by
             exact Eq.symm Nat.pow_succ'
           simp [this]
-          exact Eq.symm (Nat.sub_add_cancel nsize1)
-        }
+          exact Eq.symm (Nat.sub_add_cancel nsize1) }
         { expose_names
-          exact absurd t h_2
-        }
-      }
-      {
-        simp [S₂]
+          exact absurd t h_2 } }
+      { simp [S₂]
         -- simp [is_envelope] at h_1
         rw [luby]
         split
@@ -390,8 +411,28 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
         { expose_names
           simp [S₂]
           -- 右辺のnはenvelopeになるので展開できる。計算できるはず。
+          have by_h_1 : (n + 1 + 1).size = (n + 1).size := by
+            refine envelope_prop3 ?_ h_1
+            exact Nat.zero_lt_succ n
+          simp [by_h_1]
+          have env2 : is_envelope (n + 1 - 2 ^ ((n + 1).size - 1)) := by sorry
+          rw [luby]
+          split
+          { expose_names
+            simp [S₂] 
+            have : 2 * 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1) = 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1 + 1) := by
+              exact Eq.symm Nat.pow_succ'
+            simp [this]
+            have : n + 1 + 2 = 2 ^ ((n + 1 + 2).size - 1) := by
+              exact (envelope_prop1 (n + 1)).mpr h_1
 
-          sorry
+            simp [is_envelope, S₂] at h_1
+
+            -- have 
+            sorry
+          }
+          { expose_names
+            exact absurd env2 h_3 }
         }
       }
     }
