@@ -507,7 +507,19 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
             have f : ¬is_segment_beg 0 = true := by exact ne_true_of_eq_false h
             exact absurd t f } } }
       { expose_names
-        sorry }
+        have goal : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
+          sorry
+        simp [goal]
+        have sub1 : n + 1 - S₂ n < n := by
+          sorry 
+        have sub2 : 0 < n + 1 - S₂ n := by
+          sorry 
+        have sub3 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
+          sorry 
+        have sub4 : 2 ≤ (n + 1 - S₂ n + 1).size := by
+          sorry
+        exact nh (n + 1 - S₂ n) sub1 sub2 sub3 sub4
+      }
     }
   }
 
