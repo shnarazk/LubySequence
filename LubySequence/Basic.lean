@@ -363,6 +363,8 @@ theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
   simp [t4] at t3
   exact id (Eq.symm t3)
 
+#eval is_segment_beg 0
+
 theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
     ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
   intro h
@@ -405,18 +407,45 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
         { expose_names
           exact absurd t h_2 } }
       { simp [S₂]
-        -- simp [is_envelope] at h_1
         rw [luby]
         split
         { expose_names ; exact absurd h_2 f }
         { expose_names
           simp [S₂]
           -- 右辺のnはenvelopeになるので展開できる。計算できるはず。
-          have by_h_1 : (n + 1 + 1).size = (n + 1).size := by
+          have env1_by_h_1 : n + 1 + 2 = 2 ^ (n + 1 + 1).size := by
+            refine (envelope_prop1' (n + 1)).mpr h_1
+          have env3_by_h_1 : (n + 1 + 1).size = (n + 1).size := by
             refine envelope_prop3 ?_ h_1
             exact Nat.zero_lt_succ n
-          simp [by_h_1]
-          have env2 : is_envelope (n + 1 - 2 ^ ((n + 1).size - 1)) := by sorry
+          simp [env3_by_h_1]
+          have env2 : is_envelope (n + 1 - 2 ^ ((n + 1).size - 1)) := by
+            have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
+            have t1' : n + 1 = 2 ^ (n + 1).size - 2 := by grind
+            nth_rw 1 [t1']
+            have t4 : 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1) := by
+              refine Nat.two_pow_sub_two_pow_pred ?_
+              exact Nat.zero_lt_of_lt nsize1
+            have t5 : 2 ^ (n + 1).size - 2 - 2 ^ ((n + 1).size - 1) = 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) - 2 := by
+              exact Nat.sub_right_comm (2 ^ (n + 1).size) 2 (2 ^ ((n + 1).size - 1))
+            simp [t5, t4]
+            clear t5 t4 
+            simp [is_envelope, S₂]
+            have left1 : 2 ^ ((n + 1).size - 1) - 2 + 2 + 1 = 2 ^ ((n + 1).size - 1) + 1 := by
+              refine Nat.add_right_cancel_iff.mpr ?_
+              refine Nat.sub_add_cancel ?_
+              refine Nat.le_self_pow ?_ 2
+              exact Nat.sub_ne_zero_iff_lt.mpr nsize1
+            simp [left1]
+            have right : 2 ^ ((n + 1).size - 1) - 2 + 2 = 2 ^ ((n + 1).size - 1) := by grind
+            rw [right]
+            refine (Nat.pow_right_inj ?_).mpr ?_ 
+            grind
+            have : (2 ^ ((n + 1).size - 1) + 1).size = (n + 1).size - 1 + 1 := by
+              refine size_add (by grind) ?_
+              refine Nat.one_lt_two_pow ?_
+              exact Nat.sub_ne_zero_iff_lt.mpr nsize1
+            simp [this]
           rw [luby]
           split
           { expose_names
@@ -428,7 +457,7 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
             have t2 : n + 1 + 2 = 2 ^ (n + 1 + 1).size := by
               exact (envelope_prop1' (n + 1)).mpr h_1
             simp [is_envelope, S₂] at h_1
-            simp [by_h_1] at t2
+            simp [env3_by_h_1] at t2
             have t3 : n + 1 = 2 ^ (n + 1).size - 2 := by
               exact Eq.symm (Nat.sub_eq_of_eq_add (id (Eq.symm t2)))
             nth_rw 2 [t3]
@@ -446,18 +475,39 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
               { exact Nat.zero_lt_sub_of_lt nsize1 }
               { exact Nat.one_le_two_pow }
             simp [t7]
-            exact (Nat.sub_eq_iff_eq_add nsize1).mp rfl
-          }
+            exact (Nat.sub_eq_iff_eq_add nsize1).mp rfl }
           { expose_names
-            exact absurd env2 h_3 }
-        }
-      }
-    }
+            exact absurd env2 h_3 } } } }
     { expose_names
       -- 右辺のlubyだけ展開して、帰納法に持ち込みたい
-      nth_rw 1 [luby]
       nth_rw 2 [luby]
-      sorry
+      split
+      { expose_names
+        simp at h
+        rw [is_segment_beg.eq_def] at h
+        split at h
+        { expose_names ; contradiction }
+        { expose_names
+          have z : n = 0 := by exact Eq.symm ((fun {a b} ↦ Nat.succ_inj.mp) (id (Eq.symm heq)))
+          have nz : ¬n = 0 := by exact Nat.ne_zero_of_lt h0
+          exact absurd z nz }
+        { expose_names
+          split at h
+          { expose_names ; exact absurd h_3 h_1 }
+          { expose_names
+            have t : is_segment_beg 0 := by simp [is_segment_beg.eq_def]
+            have f1 : n + 1 + 1 - S₂ (n + 1) = 0 := by
+              simp [S₂]
+              have t1 : n + 1 + 1 = n + 2 := by grind
+              simp [t1]
+              have t2 : n + 2 = 2 ^ ((n + 2).size - 1) := by exact (envelope_prop1 n).mpr h_2
+              nth_rw 1 [t2]
+              simp
+            simp [f1] at h
+            have f : ¬is_segment_beg 0 = true := by exact ne_true_of_eq_false h
+            exact absurd t f } } }
+      { expose_names
+        sorry }
     }
   }
 
