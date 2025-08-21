@@ -363,7 +363,7 @@ theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
   simp [t4] at t3
   exact id (Eq.symm t3)
 
-theorem luby_value_not_at_segment_beg (n : Nat) :
+theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
     ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
   intro h
   have luby0 : luby 0 = 1 := by
@@ -373,11 +373,11 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
     rw [luby]
     simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
     exact luby0
-  have nsize1 : 1 ≤ (n + 1).size := by
-    have t1 : (0 + 1).size ≤ (n + 1).size := by 
+  have nsize1 : 2 ≤ (n + 1).size := by
+    have t1 : (1 + 1).size ≤ (n + 1).size := by 
       refine Nat.size_le_size ?_
-      exact Nat.le_add_left (0 + 1) n
-    have t2 : (0 + 1).size = 1 := by simp
+      exact Nat.add_le_add_right h0 1
+    have t2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
     simp [t2] at t1
     exact t1
   induction' n using Nat.strong_induction_on with n nh
@@ -400,7 +400,8 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
           have : 2 * 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1 + 1) := by
             exact Eq.symm Nat.pow_succ'
           simp [this]
-          exact Eq.symm (Nat.sub_add_cancel nsize1) }
+          refine Eq.symm (Nat.sub_add_cancel ?_)
+          exact Nat.one_le_of_lt nsize1 }
         { expose_names
           exact absurd t h_2 } }
       { simp [S₂]
@@ -420,16 +421,32 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
           split
           { expose_names
             simp [S₂] 
-            have : 2 * 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1) = 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1 + 1) := by
+            have t1 : 2 * 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1) = 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1 + 1) := by
               exact Eq.symm Nat.pow_succ'
-            simp [this]
-            have : n + 1 + 2 = 2 ^ ((n + 1 + 2).size - 1) := by
-              exact (envelope_prop1 (n + 1)).mpr h_1
-
+            simp [t1]
+            clear t1
+            have t2 : n + 1 + 2 = 2 ^ (n + 1 + 1).size := by
+              exact (envelope_prop1' (n + 1)).mpr h_1
             simp [is_envelope, S₂] at h_1
-
-            -- have 
-            sorry
+            simp [by_h_1] at t2
+            have t3 : n + 1 = 2 ^ (n + 1).size - 2 := by
+              exact Eq.symm (Nat.sub_eq_of_eq_add (id (Eq.symm t2)))
+            nth_rw 2 [t3]
+            have t4 : 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1) := by
+              refine Nat.two_pow_sub_two_pow_pred ?_
+              exact Nat.zero_lt_of_lt nsize1
+            have t5 : 2 ^ (n + 1).size - 2 - 2 ^ ((n + 1).size - 1) = 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) - 2 := by
+              exact Nat.sub_right_comm (2 ^ (n + 1).size) 2 (2 ^ ((n + 1).size - 1))
+            simp [t5, t4]
+            have t6 : 2 ^ ((n + 1).size - 1) - 2 + 1 = 2 ^ ((n + 1).size - 1) - 1 := by grind
+            simp [t6]
+            clear t6 t5 t4 t3 t2
+            have t7 : (2 ^ ((n + 1).size - 1) - 1).size = (n + 1).size - 1 := by
+              refine size_sub ?_ (by grind) ?_
+              { exact Nat.zero_lt_sub_of_lt nsize1 }
+              { exact Nat.one_le_two_pow }
+            simp [t7]
+            exact (Nat.sub_eq_iff_eq_add nsize1).mp rfl
           }
           { expose_names
             exact absurd env2 h_3 }
