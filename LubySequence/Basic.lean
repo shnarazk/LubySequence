@@ -271,7 +271,6 @@ theorem envelope_prop1 (n : Nat) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
       exact t1 } }
 
 theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
-  have (a b c : Nat) (h : b + c = a) (hb : 0 < b) (hc : 0 < c) : a > b := by grind
   have size2_eq_2 : (0 + 2).size = 2 := by simp [Nat.size, Nat.binaryRec]
   have n2size : 2 ≤ (n + 2).size := by
     have t1 : (0 + 2).size ≤ (n + 2).size := by
@@ -313,6 +312,30 @@ theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
       refine Nat.sub_add_cancel ?_
       exact Nat.one_le_of_lt n2size
     simp [this] }
+
+theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).size = n.size := by
+  have n1size : 2 ≤ (n + 1).size := by
+    have t1 : (1 + 1).size ≤ (n + 1).size := by
+      refine Nat.size_le_size ?_
+      exact Nat.add_le_add_right h 1
+    have t2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+    exact le_of_eq_of_le (id (Eq.symm t2)) t1
+  have e1 : n + 2 = 2 ^ ((n + 2).size - 1) := by exact (envelope_prop1 n).mpr env
+  have e2 : (n + 2).size = (n + 1).size + 1 := by exact (envelope_prop2 n).mpr env
+  have t1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+    exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm e1)))
+  have t2 : n = 2 ^ ((n + 2).size - 1) - 2 := by
+    exact Nat.eq_sub_of_add_eq e1
+  simp [e2] at t2
+  have t3 : n.size = (2 ^ (n + 1).size - 2).size := by
+    exact congrArg Nat.size t2
+  have t4 : (2 ^ (n + 1).size - 2).size = (n + 1).size := by
+    refine size_sub ?_ (by grind) ?_
+    { exact Nat.zero_lt_of_lt n1size }
+    { have : 1 ≤ ((n + 1).size - 1) := by exact Nat.le_sub_one_of_lt n1size
+      exact Nat.le_pow this }
+  simp [t4] at t3
+  exact id (Eq.symm t3)
 
 theorem luby_value_not_at_segment_beg (n : Nat) :
     ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
@@ -359,13 +382,21 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
         }
       }
       {
-        simp [is_envelope] at h_1
+        simp [S₂]
+        -- simp [is_envelope] at h_1
         rw [luby]
-      
-        sorry -- exact absurd h_1 h
+        split
+        { expose_names ; exact absurd h_2 f }
+        { expose_names
+          simp [S₂]
+          -- 右辺のnはenvelopeになるので展開できる。計算できるはず。
+
+          sorry
+        }
       }
     }
     { expose_names
+      -- 右辺のlubyだけ展開して、帰納法に持ち込みたい
       nth_rw 1 [luby]
       nth_rw 2 [luby]
       sorry
