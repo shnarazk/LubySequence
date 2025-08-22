@@ -1,4 +1,4 @@
-#import "@preview/cetz:0.4.1": canvas, draw, tree
+#import "@preview/cetz:0.4.1" as cetz: canvas, draw, tree
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/touying:0.6.1": *
 #import themes.simple: *
@@ -27,6 +27,7 @@
   if allone(n) { calc.pow(2, nat_size(n) - 1) }
   else { Luby(n + 1 - calc.pow(2, nat_size(n) - 1)) }
 }
+#let cetz-canvas = touying-reducer.with(reduce: cetz.canvas, cover: cetz.draw.hide.with(bounds: true))
 
 #let title = [An Online Algorithm for Luby Sequence]
 
@@ -75,7 +76,7 @@ $ // <def_2>
   std.box(baseline: 2pt, fill: yellow, inset: 5pt)[ $#i$ ]
 }
 
-#canvas(
+#cetz-canvas(
   length: 13pt,
   {
   import draw: *
@@ -98,7 +99,14 @@ $ // <def_2>
         ([ $13 arrow_(- 7) 6$ ],
           ([ $11 arrow_(- 7) 4$ ]),
           ([ $12 arrow_(- 7) 5$ ]), ), ), ),)
+  (pause, )
+  bezier((38, -8), (15, -8), (24, 1),
+    stroke: 1pt + red, mark: (end: ">"))
+  (pause, )
+  bezier((14, -8), (0, -8), (8, -3),
+    stroke: 1pt + red, mark: (end: ">"))
 })
+
 
 // Here are some examples.
 
@@ -116,10 +124,10 @@ $
 // Or you can map the function to a traversal on a binary graph.
 // The function has a strong relation to an operation on the binary representation of a natural number.
 
-#canvas({
+#cetz-canvas({
   import draw: *
-
   set-style(content: (padding: 0.5em))
+  /*
   line((1, -5), (5.7, -5),
     stroke: 18pt + rgb(240, 240, 255))
   line((6.5, -5), (11.5, -5),
@@ -127,6 +135,7 @@ $
   bezier((9.5, -4.6), (2.5, -4.6), (8.5, -3), (3.5, -3),
     mark: (end: ">"),
     stroke: 4pt + rgb(250, 200, 200))
+    */
   tree.tree(
     spread: 0.6,
     ([ [01]\*\* ],
@@ -165,6 +174,8 @@ $
 }
 $
 
+#pause
+
 $
   L u b y_1(k >= 1) = cases(
     1\, & " if" k "is the beginning of a segment",
@@ -197,6 +208,7 @@ $
 })
 
 // And segments start at the following $k$:
+#pause
 
 $
   k & = 1 + sum_(i>= 0) [ "use envelop"_i ] |"envelope"_i| \
@@ -218,7 +230,7 @@ def State.next (s : State) : State := ...
 def State.luby (s : State) : Nat := 2 ^ s.locIx
 ```
 
-== Goal
+== Archievement
 
 #align(center)[
 #diagram(cell-size: 12mm, {
@@ -238,8 +250,10 @@ def State.luby (s : State) : Nat := 2 ^ s.locIx
 	node((1, 2), $L u b y(n)$)
 	node((2, 2), $L u b y(n + 1)$)
 })]
+#pause
+only if ...
 
-= Equivalence of $L u b y$ and Luby state
+= Equivalence of Luby and Luby state
 
 == The goal in Lean4
 
