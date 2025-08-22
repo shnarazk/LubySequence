@@ -388,7 +388,9 @@ theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
   simp [t4] at t3
   exact id (Eq.symm t3)
 
-theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
+#eval is_segment_beg 0 -- true
+
+theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
     ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
   intro h
   have luby0 : luby 0 = 1 := by
@@ -512,8 +514,7 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
         { expose_names ; contradiction }
         { expose_names
           have z : n = 0 := by exact Eq.symm ((fun {a b} ↦ Nat.succ_inj.mp) (id (Eq.symm heq)))
-          have nz : ¬n = 0 := by exact Nat.ne_zero_of_lt h0
-          exact absurd z nz }
+          simp [z] at * }
         { expose_names
           split at h
           { expose_names ; exact absurd h_3 h_1 }
@@ -535,12 +536,34 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
         have common3 : S₂ n < n + 2 := by
           have : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
           exact Nat.lt_add_one_of_le this
+        /-
         have common4 : 1 < S₂ n := by
           have : 2 ≤ S₂ n := by exact S₂_ge_two n h0
           exact this
+        -/
         -- #eval List.range 30 |>.map (fun n ↦ (is_envelope (n - 1), is_segment_beg n, S₂ n, n + 1))
-        have common5 : ¬is_envelope (n - 1) := by sorry
-        have common6 : S₂ n ≤ n := by
+        /- have common5 : ¬is_envelope (n - 1) := by
+          by_contra hx
+          have : is_segment_beg n = true := by
+            rw [is_segment_beg.eq_def]
+            split
+            { have z : 0 - 1 = 0 := by exact rfl
+              simp [z] at * }
+            { sorry }
+            { expose_names
+              split
+              { expose_names
+                exact absurd h_3 h_1 }
+              { expose_names
+                simp [is_envelope] at hx
+                --
+
+              
+          sorry -/
+        have common5 : S₂ n ≤ n := by
+          rw [is_segment_beg.eq_def] at * -- h_2
+          simp [is_envelope] at * -- h_2
+          simp [S₂] at *
           have t1 : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
           have : ¬S₂ n = n + 1 := by
             by_contra hx
@@ -548,6 +571,7 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
             sorry
           refine Nat.le_of_lt_succ ?_
           exact Nat.lt_of_le_of_ne t1 this
+          
         have goal : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
           simp [S₂, common1, common2]
           refine Nat.succ_sub ?_
@@ -555,15 +579,20 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
           exact Nat.le_add_right_of_le h0
         simp [goal]
         have sub1 : n + 1 - S₂ n < n := by
-          have t2 : n + 1 < n + S₂ n := by exact Nat.add_lt_add_left common4 n
+          have t2 : n + 1 < n + S₂ n := by -- exact Nat.add_lt_add_left common4 n
+            -- apply?
+            sorry
           refine Nat.sub_lt_left_of_lt_add ?_ ?_
           exact S₂_upper_bound n
           nth_rw 2 [add_comm]
           exact t2
-        have sub2 : 0 < n + 1 - S₂ n := by
+        have sub2 : 1 ≤ n + 1 - S₂ n := by
+          sorry
+          -- refine Nat.sub_pos_of_lt ?_
+          -- simp [S₂]
           -- nの条件から等号が省けるはず
-          have : S₂ n < n + 1 := by sorry
-          exact Nat.zero_lt_sub_of_lt this
+          -- have : S₂ n < n + 1 := by sorry
+          -- exact this
         have sub3 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
           -- envelope sumになってないものからan envelop引いてもenvelop sumにはならない
           sorry 
@@ -572,12 +601,12 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
             refine Nat.add_left_inj.mpr ?_
             refine Nat.sub_add_comm ?_
             --
-
+            sorry
           have t1 : 2 ≤ (2 + 0 : Nat).size := by simp [Nat.size, Nat.binaryRec]
           have t2 : (2 + 0 : Nat).size = (2 + (n - S₂ n)).size := by
             refine Eq.symm (size_add' ?_ ?_)
             { refine Nat.zero_lt_sub_of_lt ?_
-              
+              sorry 
             }
             sorry
           sorry
