@@ -64,7 +64,7 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
   apply Nat.le_sub_of_add_le
   simp
   have : 2 ≤ (k + 1).size := by
-    have h1 : k = 1 ∨ k > 1 := by exact LE.le.eq_or_gt h
+    have h1 : k = 1 ∨ k > 1 := by exact LE.le.eq_or_lt' h
     rcases h1 with h1|h2
     { simp [h1, Nat.size, Nat.binaryRec] }
     {
