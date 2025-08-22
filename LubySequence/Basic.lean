@@ -78,11 +78,20 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
     }
   exact this
 
+#eval List.range 50 |>.map (fun n ↦ (if n + 2 > S₂ n then 1 else 0))
+
+theorem S₂_upper_bound : ∀ n : Nat, S₂ n < n + 2 := by
+  intro n
+  simp [S₂]
+  have goal : 2 ^ (n + 1).size < 2 * (n + 2) := by
+    sorry
+  sorry
+
 theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
   induction' n with k h
   { simp }
   {
-    have h2 : 2 ^(k + 1) = 2^k * 2 := by omega
+    have h2 : 2 ^ (k + 1) = 2 ^ k * 2 := by omega
     rw [h2]
     have t1 : k + 1 + 1 ≤ 2 ^ k + 1 := by omega
     have t2 : 2 ^ k + 1 ≤ 2 ^ k + 2 ^ k := by
@@ -313,6 +322,23 @@ theorem envelope_prop2 (n : Nat) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
       exact Nat.one_le_of_lt n2size
     simp [this] }
 
+theorem envelope_prop2' (n : Nat) : (n + 2).size = (n + 1).size ↔ ¬is_envelope n := by
+  constructor
+  { intro h
+    by_contra h1
+    have t1 : (n + 2).size = (n + 1).size + 1 := by exact (envelope_prop2 n).mpr h1
+    have t2 : ¬(n + 2).size = (n + 1).size := by grind
+    exact absurd h t2 }
+  { intro h
+    by_contra hx
+    have ep : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
+      refine size_limit ?_
+      exact Nat.zero_lt_succ n
+    rcases ep with e|p
+    { exact absurd e hx }
+    { have : is_envelope n := by exact (envelope_prop2 n).mp p 
+      exact absurd this h } }
+
 theorem envelope_prop1' (n : Nat) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
   have n2size : 2 ≤ (n + 2).size := by
     have t1 : (0 + 2).size ≤ (n + 2).size := by
@@ -362,8 +388,6 @@ theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
       exact Nat.le_pow this }
   simp [t4] at t3
   exact id (Eq.symm t3)
-
-#eval is_segment_beg 0
 
 theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
     ¬is_segment_beg (n + 1) → luby (n + 1) = 2 * luby n := by
@@ -507,10 +531,35 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 0 < n) :
             have f : ¬is_segment_beg 0 = true := by exact ne_true_of_eq_false h
             exact absurd t f } } }
       { expose_names
-        have goal : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
+        have common1 : n + 1 + 1 = n + 2 := by grind
+        have common2 : (n + 2).size = (n + 1).size := by exact (envelope_prop2' n).mpr h_2 
+        have common3 : S₂ n < n + 2 := by
+          simp [S₂]
+          have : (2 ^ ((n + 1).size - 1)).size ≤ (n + 2).size := by
+            have : (2 ^ ((n + 1).size - 1)).size = (n + 1).size - 1 + 1 := by
+              exact Nat.size_pow
+            simp [this]
+            sorry
           sorry
+        have goal : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
+          simp [S₂, common1, common2]
+          refine Nat.succ_sub ?_
+          refine n_ge_subenvelope ?_
+          exact Nat.le_add_right_of_le h0
         simp [goal]
         have sub1 : n + 1 - S₂ n < n := by
+          have t1 : 1 < S₂ n := by
+            simp only [S₂]
+            have : 2 ^ ((0 : Nat).succ.size - 1) ≤ 2 ^ (n.succ.size - 1) := by
+              refine pow2_le_pow2 ((Nat.succ 0).size - 1) (n.succ.size - 1) ?_
+              simp
+            refine Nat.one_lt_two_pow ?_
+            exact Nat.sub_ne_zero_iff_lt.mpr nsize1
+          have t2 : n + 1 < n + S₂ n := by exact Nat.add_lt_add_left t1 n
+          have t3 : n + 1 - S₂ n < n := by
+            refine Nat.sub_lt_left_of_lt_add ?_ ?_
+            sorry
+            sorry
           sorry 
         have sub2 : 0 < n + 1 - S₂ n := by
           sorry 
