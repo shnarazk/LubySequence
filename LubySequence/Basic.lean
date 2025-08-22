@@ -536,30 +536,7 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
         have common3 : S₂ n < n + 2 := by
           have : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
           exact Nat.lt_add_one_of_le this
-        /-
-        have common4 : 1 < S₂ n := by
-          have : 2 ≤ S₂ n := by exact S₂_ge_two n h0
-          exact this
-        -/
-        -- #eval List.range 30 |>.map (fun n ↦ (is_envelope (n - 1), is_segment_beg n, S₂ n, n + 1))
-        /- have common5 : ¬is_envelope (n - 1) := by
-          by_contra hx
-          have : is_segment_beg n = true := by
-            rw [is_segment_beg.eq_def]
-            split
-            { have z : 0 - 1 = 0 := by exact rfl
-              simp [z] at * }
-            { sorry }
-            { expose_names
-              split
-              { expose_names
-                exact absurd h_3 h_1 }
-              { expose_names
-                simp [is_envelope] at hx
-                --
-
-              
-          sorry -/
+        -- TODO: this is the boss!
         have common5 : S₂ n ≤ n := by
           rw [is_segment_beg.eq_def] at * -- h_2
           simp [is_envelope] at * -- h_2
@@ -580,36 +557,25 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
         simp [goal]
         have sub1 : n + 1 - S₂ n < n := by
           have t2 : n + 1 < n + S₂ n := by -- exact Nat.add_lt_add_left common4 n
-            -- apply?
-            sorry
+            simp [S₂]
+            exact Nat.sub_ne_zero_iff_lt.mpr nsize1
           refine Nat.sub_lt_left_of_lt_add ?_ ?_
           exact S₂_upper_bound n
           nth_rw 2 [add_comm]
           exact t2
         have sub2 : 1 ≤ n + 1 - S₂ n := by
-          sorry
-          -- refine Nat.sub_pos_of_lt ?_
-          -- simp [S₂]
-          -- nの条件から等号が省けるはず
-          -- have : S₂ n < n + 1 := by sorry
-          -- exact this
+          rw [add_comm]
+          refine Nat.le_sub_of_add_le ?_
+          exact Nat.add_le_add_iff_left.mpr common5
         have sub3 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
           -- envelope sumになってないものからan envelop引いてもenvelop sumにはならない
           sorry 
         have sub4 : 2 ≤ (n + 1 - S₂ n + 1).size := by
-          have t1 : n + 1 - S₂ n + 1 = n - S₂ n + 1 + 1 := by
-            refine Nat.add_left_inj.mpr ?_
-            refine Nat.sub_add_comm ?_
-            --
-            sorry
-          have t1 : 2 ≤ (2 + 0 : Nat).size := by simp [Nat.size, Nat.binaryRec]
-          have t2 : (2 + 0 : Nat).size = (2 + (n - S₂ n)).size := by
-            refine Eq.symm (size_add' ?_ ?_)
-            { refine Nat.zero_lt_sub_of_lt ?_
-              sorry 
-            }
-            sorry
-          sorry
+          have t1 : 1 + 1 ≤ n + 1 - S₂ n + 1 := by exact Nat.add_le_add_right sub2 1
+          have t2 : (1 + 1).size ≤ (n + 1 - S₂ n + 1).size := by exact Nat.size_le_size t1
+          have t3 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+          simp [t3] at t2
+          exact t2
         exact nh (n + 1 - S₂ n) sub1 sub2 sub3 sub4
       }
     }
