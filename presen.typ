@@ -199,8 +199,8 @@ $
 // And segments start at the following $k$:
 
 $
-  k & = 1 + sum_(i>= 0) a_i |"envelope"_i| \
-    & = 1 + sum_(i>= 0) a_i (2^i - 1), "     where" a_i in {0, 1}.
+  k & = 1 + sum_(i>= 0) [ "use envelop"_i ] |"envelope"_i| \
+    & = 1 + sum_(i>= 0) [ "use envelope"_i ] (2^i - 1),
 $
 
 // This means any $2^i - 1 > 0$ is not the beginning of a segment.
@@ -241,13 +241,27 @@ def State.luby (s : State) : Nat := 2 ^ s.locIx
 
 = Equivalence of $L u b y$ and Luby state
 
-== goal
+== The goal in Lean4
+
 #align(left)[
 ```lean
 -- the main goal
-theorem State_is_luby : ∀ n ≥ 1, (↑ n : State).luby = Luby n := by
-    sorry
+theorem State_is_luby :
+    ∀ n ≥ 1, (↑ n : State).luby = Luby n := by
+  sorry
 ```
 ]
+
+```lean
+theorem luby_value_at_segment_beg (n : Nat) :
+    is_segment_beg n → luby n = 1 := by
+  sorry
+```
+
+```lean
+theorem luby_value (n : Nat) :
+    is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
+  sorry
+```
 
 // #bibliography("bib.yml")
