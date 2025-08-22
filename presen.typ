@@ -38,24 +38,16 @@
 
 = Luby sequence
 
-//The Luby sequence is a sequence of natural numbers defined recursively.
-//It is used in randomized algorithms and has applications in computer science.
-//However, outside of Boolean-satisfiability solvers, its applications appear to be rare. It starts like this:
-
 $ #range(1, 32).map(Luby).map(str).join(", ") , dots.h.c $
 
 // == Definition
 
-// In the paper `Luby1993`, the sequence is defined as a recursive function:
-
-// #set math.equation(numbering: "(1)")
 $
   L u b y_1(k >= 1) = cases(
     2^(i-1) & " if" k = 2^i - 1 " for "exists i >= 1,
     L u b y_1(k - 2^(i-1) + 1) & " if " 2^(i-1) <= k < 2^i - 1
   )
-$// <def_1>
-// #set math.equation(numbering: none)
+$
 
 // == Definition 2
 
@@ -66,8 +58,13 @@ $
     2^(k".size" - 1) & " if" k = 2^(k".size") - 1,
     L u b y_1(k - (2^(k".size"-1) - 1)). & " otherwise"
   )
-$ // <def_2>
-// #set math.equation(numbering: none)
+$
+
+#pause
+
+Luby, M. et al., Optimal Speedup of Las Vegas Algorithms,
+In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
+
 
 == on the natural number triangle
 // We can illustrate its recursive property as transitions on a triangle of natural numbers greater than zero.
