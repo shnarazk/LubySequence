@@ -210,13 +210,13 @@ $
 
 ```lean
 structure State where
-  segIx : Nat  -- 単調増加部分数列(segment)の何番目か(1-based)
-  locIx : Nat　-- 現在のsegment内で何番目(local index)か(0-based)
+  segIx : ℕ  -- 単調増加部分数列(segment)の何番目か(1-based)
+  locIx : ℕ　-- 現在のsegment内で何番目(local index)か(0-based)
 
 /-- O(1) -/
 def State.next (s : State) : State := ...
 /-- O(1) -/
-def State.luby (s : State) : Nat := 2 ^ s.locIx
+def State.luby (s : State) : ℕ := 2 ^ s.locIx
 ```
 
 == Archievement
@@ -244,25 +244,31 @@ only if ...
 
 = Equivalence of Luby and Luby state
 
-== The goal in Lean4
+== Outline in Lean4
 
 #align(left)[
 ```lean
--- the main goal
 theorem State_is_luby :
-    ∀ n ≥ 1, (↑ n : State).luby = Luby n := by
-  sorry
+    ∀ n : ℕ, (↑ n : State).luby = Luby n := by ...
 ```
 ]
 
 ```lean
-theorem luby_value_at_segment_beg (n : Nat) :
-    is_segment_beg n → luby n = 1 := by
-  sorry
+theorem luby_value_at_segment_beg :
+    ∀ n : ℕ, n.is_segment_beg → luby n = 1 := by ...
+
+theorem luby_value_at_segment_beg' :
+    ∀ n : ℕ, n.is_segment_beg → (↑ n : State).luby = 1 := by ...
 ```
 
 ```lean
-theorem luby_value (n : Nat) :
-    is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
-  sorry
+theorem luby_value :
+    ∀ n : ℕ, (n + 1).is_segment_beg ∨ luby (n + 1) = 2 * luby n := by ...
+```
+
+=== ctnd.
+
+```lean
+theorem luby_state_is_additive :
+    ∀ n : ℕ, (↑ n + 1 : State) = (↑ n : State).next := by ...
 ```
