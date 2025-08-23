@@ -1,0 +1,110 @@
+digraph TheoremDependencies {
+  rankdir=TB;
+  compound=true;
+  node [shape=box, style=filled, fillcolor=lightblue, fontname="Arial"];
+  edge [color=blue, arrowhead=vee];
+
+  subgraph cluster_Basic {
+    label="Basic.lean";
+    style=filled;
+    fillcolor=lightcyan;
+    fontname="Arial Bold";
+    fontsize=12;
+    "S" [label="S"];
+    "envelope_prop1" [label="envelope_prop1"];
+    "envelope_prop1'" [label="envelope_prop1'"];
+    "envelope_prop2" [label="envelope_prop2"];
+    "envelope_prop2'" [label="envelope_prop2'"];
+    "envelope_prop3" [label="envelope_prop3"];
+    "luby_sequence_prop" [label="luby_sequence_prop"];
+    "luby_value_at_segment_beg" [label="luby_value_at_segment_beg"];
+    "luby_value_not_at_segment_beg" [label="luby_value_not_at_segment_beg"];
+    "pow2_le_pow2" [label="pow2_le_pow2"];
+    "power2_ge_linear" [label="power2_ge_linear"];
+  }
+
+  subgraph cluster_State {
+    label="State.lean";
+    style=filled;
+    fillcolor=lightpink;
+    fontname="Arial Bold";
+    fontsize=12;
+    "LubyState_congr" [label="LubyState.congr"];
+    "LubyState_is_divergent" [label="LubyState.is_divergent"];
+    "LubyState_is_iso" [label="LubyState.is_iso"];
+    "LubyState_next0" [label="LubyState.next0"];
+    "LubyState_next_assoc" [label="LubyState.next_assoc"];
+    "LubyState_next_is_succ" [label="LubyState.next_is_succ"];
+    "LubyState_segId0" [label="LubyState.segId0"];
+    "LubyState_segId_ge_one" [label="LubyState.segId_ge_one"];
+    "LubyState_segIx_is_increasing" [label="LubyState.segIx_is_increasing"];
+    "LubyState_segIx_is_mono" [label="LubyState.segIx_is_mono"];
+  }
+
+  subgraph cluster_Tree {
+    label="Tree.lean";
+    style=filled;
+    fillcolor=lightgreen;
+    fontname="Arial Bold";
+    fontsize=12;
+    "LubyTree_bit_patterns_of_top" [label="LubyTree.bit_patterns_of_top"];
+    "LubyTree_depth_gt_one" [label="LubyTree.depth_gt_one"];
+    "LubyTree_envelop_of_quotient_is_decreasing" [label="LubyTree.envelop_of_quotient_is_decreasing"];
+    "LubyTree_envelop_of_quotient_is_decreasing'" [label="LubyTree.envelop_of_quotient_is_decreasing'"];
+    "LubyTree_is_symmetry" [label="LubyTree.is_symmetry"];
+    "LubyTree_mk_of_depth_eq_self" [label="LubyTree.mk_of_depth_eq_self"];
+    "LubyTree_mk_self_eq_depth_add_one" [label="LubyTree.mk_self_eq_depth_add_one"];
+    "LubyTree_mk_unique" [label="LubyTree.mk_unique"];
+    "LubyTree_mk_zero_is_leaf" [label="LubyTree.mk_zero_is_leaf"];
+    "LubyTree_size_ge_one" [label="LubyTree.size_ge_one"];
+    "LubyTree_unwrap_wrap_self_eq_self" [label="LubyTree.unwrap_wrap_self_eq_self"];
+    "LubyTree_wrap_is_congruent" [label="LubyTree.wrap_is_congruent"];
+    "LubyTree_wrap_n_eq_n_add_one" [label="LubyTree.wrap_n_eq_n_add_one"];
+    "depth_and_size" [label="depth_and_size"];
+    "level_to_size" [label="level_to_size"];
+    "size_is_two_sub_sizes_add_one" [label="size_is_two_sub_sizes_add_one"];
+    "size_is_two_sub_sizes_add_one'" [label="size_is_two_sub_sizes_add_one'"];
+  }
+
+  subgraph cluster_Equivalence {
+    label="Equivalence.lean";
+    style=filled;
+    fillcolor=lightyellow;
+    fontname="Arial Bold";
+    fontsize=12;
+    "LubyState_is_Luby" [label="LubyState_is_Luby"];
+    "LubyTree_is_Luby" [label="LubyTree_is_Luby"];
+  }
+
+  "envelope_prop1" -> "pow2_le_pow2";
+  "envelope_prop2" -> "envelope_prop1";
+  "envelope_prop2'" -> "envelope_prop2";
+  "envelope_prop1'" -> "envelope_prop2";
+  "envelope_prop1'" -> "envelope_prop1";
+  "envelope_prop3" -> "envelope_prop1";
+  "envelope_prop3" -> "envelope_prop2";
+  "luby_value_not_at_segment_beg" -> "envelope_prop1";
+  "luby_value_not_at_segment_beg" -> "envelope_prop2";
+  "luby_value_not_at_segment_beg" -> "envelope_prop3";
+  "luby_sequence_prop" -> "luby_value_at_segment_beg";
+  "luby_sequence_prop" -> "luby_value_not_at_segment_beg";
+  "LubyState_segIx_is_mono" -> "LubyState_segIx_is_increasing";
+  "LubyState_segId_ge_one" -> "LubyState_segIx_is_mono";
+  "LubyState_segId0" -> "LubyState_segIx_is_mono";
+  "LubyState_next_assoc" -> "LubyState_next0";
+  "LubyState_is_iso" -> "LubyState_segId_ge_one";
+  "LubyState_next_is_succ" -> "LubyState_is_iso";
+  "LubyTree_mk_of_depth_eq_self" -> "LubyTree_depth_gt_one";
+  "LubyTree_mk_unique" -> "LubyTree_mk_zero_is_leaf";
+  "LubyTree_mk_unique" -> "LubyTree_wrap_n_eq_n_add_one";
+  "size_is_two_sub_sizes_add_one'" -> "size_is_two_sub_sizes_add_one";
+  "level_to_size" -> "size_is_two_sub_sizes_add_one";
+  "LubyTree_bit_patterns_of_top" -> "LubyTree_mk_of_depth_eq_self";
+  "LubyTree_bit_patterns_of_top" -> "size_is_two_sub_sizes_add_one";
+  "LubyTree_is_symmetry" -> "size_is_two_sub_sizes_add_one";
+  "LubyTree_is_Luby" -> "pow2_le_pow2";
+  "LubyTree_is_Luby" -> "S";
+  "LubyState_is_Luby" -> "S";
+  "LubyState_is_Luby" -> "luby_value_at_segment_beg";
+  "LubyState_is_Luby" -> "luby_value_not_at_segment_beg";
+}
