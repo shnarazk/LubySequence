@@ -405,10 +405,10 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
       rw [luby]
       simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
       exact luby0
-    have nsize1 : 2 ≤ (n + 1).size := by
-      have t1 : (1 + 1).size ≤ (n + 1).size := by 
+    have nsize1 : 1 ≤ (n + 1).size := by
+      have t1 : (0 + 1).size ≤ (n + 1).size := by 
         refine Nat.size_le_size ?_
-        sorry --exact Nat.add_le_add_right h0 1
+        exact Nat.le_add_left (0 + 1) n
       have t2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
       simp [t2] at t1
       exact t1
@@ -452,35 +452,68 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
               exact Nat.zero_lt_succ n
             simp [env3_by_h_1]
             have env2 : is_envelope (n + 1 - 2 ^ ((n + 1).size - 1)) := by
-              have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
-              have t1' : n + 1 = 2 ^ (n + 1).size - 2 := by grind
-              nth_rw 1 [t1']
-              have t4 : 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1) := by
-                refine Nat.two_pow_sub_two_pow_pred ?_
-                exact Nat.zero_lt_of_lt nsize1
-              have t5 : 2 ^ (n + 1).size - 2 - 2 ^ ((n + 1).size - 1) = 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) - 2 := by
-                exact Nat.sub_right_comm (2 ^ (n + 1).size) 2 (2 ^ ((n + 1).size - 1))
-              simp [t5, t4]
-              clear t5 t4 
-              simp [is_envelope, S₂]
-              have left1 : 2 ^ ((n + 1).size - 1) - 2 + 2 + 1 = 2 ^ ((n + 1).size - 1) + 1 := by
-                refine Nat.add_right_cancel_iff.mpr ?_
-                refine Nat.sub_add_cancel ?_
-                refine Nat.le_self_pow ?_ 2
-                exact Nat.sub_ne_zero_iff_lt.mpr nsize1
-              simp [left1]
-              have right : 2 ^ ((n + 1).size - 1) - 2 + 2 = 2 ^ ((n + 1).size - 1) := by grind
-              rw [right]
-              refine (Nat.pow_right_inj ?_).mpr ?_ 
-              grind
-              have : (2 ^ ((n + 1).size - 1) + 1).size = (n + 1).size - 1 + 1 := by
-                refine size_add (by grind) ?_
-                refine Nat.one_lt_two_pow ?_
-                exact Nat.sub_ne_zero_iff_lt.mpr nsize1
-              simp [this]
+              have cases : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+              rcases cases with z|p
+              { simp [z] ; simp [is_envelope, S₂] ; simp [Nat.size, Nat.binaryRec] }
+              {
+                have cases1 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' p
+                rcases cases1 with n1|nt
+                { sorry }
+                {
+                  have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
+                  have t1' : n + 1 = 2 ^ (n + 1).size - 2 := by grind
+                  nth_rw 1 [t1']
+                  have t4 : 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1) := by
+                    refine Nat.two_pow_sub_two_pow_pred ?_
+                    exact Nat.zero_lt_of_lt nsize1
+                  have t5 : 2 ^ (n + 1).size - 2 - 2 ^ ((n + 1).size - 1) = 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) - 2 := by
+                    exact Nat.sub_right_comm (2 ^ (n + 1).size) 2 (2 ^ ((n + 1).size - 1))
+                  simp [t5, t4]
+                  clear t5 t4 
+                  simp [is_envelope, S₂]
+                  have left1 : 2 ^ ((n + 1).size - 1) - 2 + 2 + 1 = 2 ^ ((n + 1).size - 1) + 1 := by
+                    refine Nat.add_right_cancel_iff.mpr ?_
+                    refine Nat.sub_add_cancel ?_
+                    refine Nat.le_self_pow ?_ 2
+                    refine Nat.sub_ne_zero_iff_lt.mpr ?_
+                    have u1 : (2 + 1).size ≤ (n + 1).size := by
+                      refine Nat.size_le_size ?_
+                      exact Nat.add_le_add_right nt 1
+                    have u2 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+                    simp [u2] at u1
+                    exact u1
+                  simp [left1]
+                  have right : 2 ^ ((n + 1).size - 1) - 2 + 2 = 2 ^ ((n + 1).size - 1) := by grind
+                  rw [right]
+                  refine (Nat.pow_right_inj ?_).mpr ?_ 
+                  grind
+                  have : (2 ^ ((n + 1).size - 1) + 1).size = (n + 1).size - 1 + 1 := by
+                    refine size_add (by grind) ?_
+                    refine Nat.one_lt_two_pow ?_
+                    refine Nat.sub_ne_zero_iff_lt.mpr ?_
+                    have : n ≥ 2 := by exact nt
+                    have u1 : (2 + 1).size ≤ (n + 1).size := by
+                      refine Nat.size_le_size ?_
+                      exact Nat.add_le_add_right nt 1
+                    have u2 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+                    simp [u2] at u1
+                    exact u1
+                  simp [this]
+                }
+              }
             rw [luby]
             split
             { expose_names
+              have cases : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+              rcases cases with n0|np
+              { simp [n0, is_segment_beg] }
+              have n1size : 2 ≤ (n + 1).size := by
+                have t1 : (1 + 1).size ≤ (n + 1).size := by
+                  refine Nat.size_le_size ?_
+                  exact Nat.add_le_add_right np 1
+                have t2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+                simp [t2] at t1
+                exact t1
               right
               simp [S₂] 
               have t1 : 2 * 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1) = 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1 + 1) := by
@@ -505,10 +538,12 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
               clear t6 t5 t4 t3 t2
               have t7 : (2 ^ ((n + 1).size - 1) - 1).size = (n + 1).size - 1 := by
                 refine size_sub ?_ (by grind) ?_
-                { exact Nat.zero_lt_sub_of_lt nsize1 }
+                { exact Nat.zero_lt_sub_of_lt n1size }
                 { exact Nat.one_le_two_pow }
               simp [t7]
-              exact (Nat.sub_eq_iff_eq_add nsize1).mp rfl }
+              refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
+              refine (Nat.two_le_iff (n + 1).size).mpr ?_
+              exact Nat.one_lt_iff_ne_zero_and_ne_one.mp n1size }
             { expose_names
               exact absurd env2 h_3 } } } }
       { expose_names
@@ -539,6 +574,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
               have f : ¬is_segment_beg 0 = true := by exact ne_true_of_eq_false h
               exact absurd t f } } }
         { expose_names
+          -- n = 0 or otherwise
           right
           have common1 : n + 1 + 1 = n + 2 := by grind
           have common2 : (n + 2).size = (n + 1).size := by exact (envelope_prop2' n).mpr h_2 
