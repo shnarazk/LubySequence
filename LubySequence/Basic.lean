@@ -392,8 +392,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
     exact eq_or_ne (is_segment_beg (n + 1)) true
   rcases cases with beg|h
   { left ; exact beg }
-  {
-    have luby0 : luby 0 = 1 := by
+  { have luby0 : luby 0 = 1 := by
       rw [luby]
       simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
     have luby1 : luby 1 = 1 := by
@@ -407,8 +406,6 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
       have t2 : (0 + 1).size = 1 := by simp
       simp [t2] at t1
       exact t1
-    -- induction' n using Nat.strong_induction_on with n nh
-
     { nth_rw 1 [luby]
       split
       { expose_names;
@@ -638,6 +635,25 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
           { have goal1 := nh (n + 1 - S₂ n) sub1
             have : luby (n + 1 - S₂ n + 1) = 2 * luby (n + 1 - S₂ n) := by grind
             exact this } } } } }
+
+theorem luby_sequence_prop (n : Nat) :
+    luby 0 = 1 ∧ (luby (n + 1) = 1 ∨ luby (n + 1) = 2 * luby n) := by
+  constructor
+  { rw [luby] ; simp [is_envelope, S₂, Nat.size, Nat.binaryRec] }
+  { have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+    rcases zp with z|p
+    { simp [z]
+      left
+      have : luby 1 = 1 := by
+        rw [luby]
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+        rw [luby]
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+      exact this }
+    { have t1 : is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
+        exact luby_value_not_at_segment_beg n
+      have t2 := luby_value_at_segment_beg (n + 1)
+      exact Or.symm (Or.imp_right t2 (id (Or.symm t1))) } }
 
 end Luby
 
