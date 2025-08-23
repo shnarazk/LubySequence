@@ -248,27 +248,20 @@ only if ...
 
 #align(left)[
 ```lean
-theorem State_is_luby :
-    ∀ n : ℕ, (↑ n : State).luby = luby n := by ...
+theorem LubyState_eq_Luby : ∀ n : ℕ,
+    (↑ n : State).luby = luby n := by ...
 ```
 ]
 
 ```lean
-theorem luby_value_at_segment_beg :
-    ∀ n : ℕ, n.is_segment_beg → luby n = 1 := by ...
+theorem Luby_values : ∀ n : ℕ,
+    luby n = if n.is_segment_beg then 1 else 2 * Luby (n - 1) := by ...
 
-theorem luby_value_at_segment_beg' :
-    ∀ n : ℕ, n.is_segment_beg → (↑ n : State).luby = 1 := by ...
+theorem LubyState_values : ∀ n : ℕ,
+    (↑ n : State).luby = if n.is_segment_beg then 1 else 2 * (↑ n - 1 : State).luby := by ...
 ```
 
 ```lean
-theorem luby_value :
-    ∀ n : ℕ, (n + 1).is_segment_beg ∨ luby (n + 1) = 2 * Luby n := by ...
-```
-
-=== ctnd.
-
-```lean
-theorem luby_state_is_additive :
-    ∀ n : ℕ, (↑ n + 1 : State) = (↑ n : State).next := by ...
+theorem LubyState_is_additive : ∀ n : ℕ,
+    (↑ n + 1 : State) = (↑ n : State).next := by ...
 ```
