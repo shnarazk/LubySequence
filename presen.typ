@@ -73,12 +73,8 @@ In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
   std.box(baseline: 2pt, fill: yellow, inset: 5pt)[ $#i$ ]
 }
 
-#cetz-canvas(
-  length: 13pt,
-  {
-  import draw: *
-
-  set-style(content: (padding: 0.4em))
+#cetz-canvas(length: 13pt, {
+  draw.set-style(content: (padding: 0.4em))
   tree.tree(
     spread: 0.45,
     ([ $15 = "b1111"$ #encircle(8) ],
@@ -104,12 +100,8 @@ In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
     stroke: 1pt + red, mark: (end: ">"))
 })
 
-
-// Here are some examples.
-
 $
-  L u b y_1(13) & arrow L u b y_1(6) arrow L u b y_1(3) = 2, "   "
-  L u b y_1(9) & arrow L u b y_1(2) arrow L u b y_1(1) = 1
+  L u b y_1(13) & arrow L u b y_1(13-(2^3-1)=6) arrow L u b y_1(6-(2^2-1) = 3) = 2
 $
 
 // - At the top of a tree or *_envelope_* which contains the target number as a node, the recursion stops.
@@ -118,11 +110,7 @@ $
 
 == Another interpretation using a binary tree
 
-// Or you can map the function to a traversal on a binary graph.
-// The function has a strong relation to an operation on the binary representation of a natural number.
-
-#cetz-canvas({
-  import draw: *
+#cetz-canvas(length: 16pt, {
   set-style(content: (padding: 0.5em))
   /*
   line((1, -5), (5.7, -5),
@@ -152,6 +140,9 @@ $
           ([#encircle($7$)]), ), ) ))
 })
 
+#pause
+Remove the highest non-zero bits until...
+
 = An online algorithm
 
 Segmentation on the Luby sequence
@@ -178,13 +169,10 @@ $
     1\, & " if" k "is the beginning of a segment",
     2 times L u b y_1(k - 1)\, & " otherwise" )
 $
-// As you see, the Luby value is equal to two raised to the power of the local index in a segment. So we can define the Luby sequence in another form.
 
 == indices on the natural number triangle
 
 #canvas(length: 10pt, {
-  import draw: *
-
   set-style(content: (padding: 0.4em))
   tree.tree(spread: 0.5,
     ( text(fill: blue, [$(8, 3)$]),
@@ -274,5 +262,3 @@ theorem luby_value (n : Nat) :
     is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
   sorry
 ```
-
-// #bibliography("bib.yml")
