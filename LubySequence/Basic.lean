@@ -637,16 +637,16 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
             exact this } } } } }
 
 theorem luby_sequence_prop (n : Nat) :
-    luby n = if n = 0 then 1 else if is_segment_beg n then 1 else 2 * luby (n - 1) := by
-  split
+    luby n = if is_segment_beg n then 1 else 2 * luby (n - 1) := by
+  have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+  rcases zp with z|p
   { expose_names
-    simp [h]
+    simp [z] at *
     rw [luby]
-    simp [is_envelope, S₂, Nat.size, Nat.binaryRec] }
+    simp [is_segment_beg, is_envelope, S₂, Nat.size, Nat.binaryRec] }
   { expose_names
-    have h' : n > 0 := by exact Nat.zero_lt_of_ne_zero h
-    have op : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' h'
-    rcases op with o|p
+    have op' : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' p
+    rcases op' with o|p'
     { expose_names
       simp [o] at *
       have : is_segment_beg 1 = true := by simp [is_segment_beg]
@@ -664,13 +664,13 @@ theorem luby_sequence_prop (n : Nat) :
       rcases tf with t|f
       { split
         { expose_names ; exact luby_value_at_segment_beg n t }
-        { expose_names ; exact absurd t h_1 } }
+        { expose_names ; exact absurd t h } }
       { split
-        { expose_names ; exact absurd h_1 f }
+        { expose_names ; exact absurd h f }
         { expose_names
           have t1 : is_segment_beg (n - 1 + 1) ∨ luby (n - 1 + 1) = 2 * luby (n - 1) := by
             exact luby_value_not_at_segment_beg (n - 1)
-          have t2 : n - 1 + 1 = n := by exact Nat.sub_add_cancel h'
+          have t2 : n - 1 + 1 = n := by exact Nat.sub_add_cancel p
           simp [t2] at t1
           have t3 : luby n = 2 * luby (n - 1) := by grind
           exact t3 } } } }
