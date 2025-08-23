@@ -637,23 +637,43 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
             exact this } } } } }
 
 theorem luby_sequence_prop (n : Nat) :
-    luby 0 = 1 ∧ (luby (n + 1) = 1 ∨ luby (n + 1) = 2 * luby n) := by
-  constructor
-  { rw [luby] ; simp [is_envelope, S₂, Nat.size, Nat.binaryRec] }
-  { have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
-    rcases zp with z|p
-    { simp [z]
-      left
-      have : luby 1 = 1 := by
+    luby n = if n = 0 then 1 else if is_segment_beg n then 1 else 2 * luby (n - 1) := by
+  split
+  { expose_names
+    simp [h]
+    rw [luby]
+    simp [is_envelope, S₂, Nat.size, Nat.binaryRec] }
+  { expose_names
+    have h' : n > 0 := by exact Nat.zero_lt_of_ne_zero h
+    have op : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' h'
+    rcases op with o|p
+    { expose_names
+      simp [o] at *
+      have : is_segment_beg 1 = true := by simp [is_segment_beg]
+      split
+      { rw [luby]
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec] 
         rw [luby]
-        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]  }
+      { rw [luby]
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec] 
         rw [luby]
-        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
-      exact this }
-    { have t1 : is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
-        exact luby_value_not_at_segment_beg n
-      have t2 := luby_value_at_segment_beg (n + 1)
-      exact Or.symm (Or.imp_right t2 (id (Or.symm t1))) } }
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec] } }
+    { have tf : is_segment_beg n = true ∨ ¬is_segment_beg n = true := by
+        exact eq_or_ne (is_segment_beg n) true
+      rcases tf with t|f
+      { split
+        { expose_names ; exact luby_value_at_segment_beg n t }
+        { expose_names ; exact absurd t h_1 } }
+      { split
+        { expose_names ; exact absurd h_1 f }
+        { expose_names
+          have t1 : is_segment_beg (n - 1 + 1) ∨ luby (n - 1 + 1) = 2 * luby (n - 1) := by
+            exact luby_value_not_at_segment_beg (n - 1)
+          have t2 : n - 1 + 1 = n := by exact Nat.sub_add_cancel h'
+          simp [t2] at t1
+          have t3 : luby n = 2 * luby (n - 1) := by grind
+          exact t3 } } } }
 
 end Luby
 
