@@ -135,11 +135,6 @@ decreasing_by
 #eval S₂ 0 -- 2 = 2 -- 0
 #eval luby 2 -- 2 = 2 -- 0
 
-/-
-theorem Luby_value_is_double_or_one : ∀ n : Nat, luby (n + 1) = 2 * luby n ∨ luby (n + 1) = 1 := by
-  sorry
--/
-
 def is_segment_beg (n : Nat) : Bool := match h : n with 
   | 0 => true
   | 1 => true
@@ -409,7 +404,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
       have t1 : (0 + 1).size ≤ (n + 1).size := by 
         refine Nat.size_le_size ?_
         exact Nat.le_add_left (0 + 1) n
-      have t2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+      have t2 : (0 + 1).size = 1 := by simp
       simp [t2] at t1
       exact t1
     -- induction' n using Nat.strong_induction_on with n nh
@@ -458,7 +453,12 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
               {
                 have cases1 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' p
                 rcases cases1 with n1|nt
-                { sorry }
+                { simp [n1] at *
+                  simp [Nat.size, Nat.binaryRec]
+                  have t1 : is_envelope 0 = true := by
+                    simp [is_envelope, S₂]
+                    simp [Nat.size, Nat.binaryRec]
+                  exact t1 }
                 {
                   have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
                   have t1' : n + 1 = 2 ^ (n + 1).size - 2 := by grind
@@ -575,6 +575,20 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
               exact absurd t f } } }
         { expose_names
           -- n = 0 or otherwise
+          have : ¬n = 0 := by
+            by_contra n0
+            simp [n0] at *
+            have c : is_envelope 0 := by simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+            have h_2' : ¬is_envelope 0 = true := by exact ne_true_of_eq_false h_2
+            exact absurd c h_2'
+          have n1 : n ≥ 1 := by exact Nat.one_le_iff_ne_zero.mpr this
+          have n1size' : 2 ≤ (n + 1).size := by
+            have t1 : (1 + 1).size ≤ (n + 1).size := by
+              refine Nat.size_le_size ?_
+              exact Nat.add_le_add_right n1 1
+            have t2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
+            simp [t2] at t1
+            exact t1
           right
           have common1 : n + 1 + 1 = n + 2 := by grind
           have common2 : (n + 2).size = (n + 1).size := by exact (envelope_prop2' n).mpr h_2 
@@ -584,10 +598,11 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
           -- TODO: this is the boss!
           have common5 : S₂ n ≤ n := by
             rw [is_segment_beg.eq_def] at * -- h_2
-            simp [is_envelope] at * -- h_2
-            simp [S₂] at *
+            simp [is_envelope, S₂] at h_2
+            -- simp [S₂] at *
             have t1 : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
             have : ¬S₂ n = n + 1 := by
+              simp [S₂] -- at *
               by_contra hx
               -- 
               sorry
@@ -603,7 +618,8 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
           have sub1 : n + 1 - S₂ n < n := by
             have t2 : n + 1 < n + S₂ n := by -- exact Nat.add_lt_add_left common4 n
               simp [S₂]
-              exact Nat.sub_ne_zero_iff_lt.mpr nsize1
+              refine Nat.sub_ne_zero_iff_lt.mpr ?_
+              exact n1size'
             refine Nat.sub_lt_left_of_lt_add ?_ ?_
             exact S₂_upper_bound n
             nth_rw 2 [add_comm]
