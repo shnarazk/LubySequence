@@ -582,6 +582,14 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
             have h_2' : ¬is_envelope 0 = true := by exact ne_true_of_eq_false h_2
             exact absurd c h_2'
           have n1 : n ≥ 1 := by exact Nat.one_le_iff_ne_zero.mpr this
+          -- #eval is_envelope (1 + 1)
+          have n2 : n ≥ 2 := by
+            by_contra n2
+            have t1 : n = 1 := by grind
+            have t2 : is_envelope (1 + 1) = true := by
+              simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
+            nth_rw 1 [←t1] at t2
+            exact absurd t2 h_1
           have n1size' : 2 ≤ (n + 1).size := by
             have t1 : (1 + 1).size ≤ (n + 1).size := by
               refine Nat.size_le_size ?_
@@ -596,7 +604,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
             have : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
             exact Nat.lt_add_one_of_le this
           have goal1 : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
-            simp [S₂, common1, common2]
+            simp [S₂, common1,common2]
             refine Nat.succ_sub ?_
             refine n_ge_subenvelope ?_
             exact Nat.le_add_left 1 n
@@ -610,23 +618,26 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
             exact S₂_upper_bound n
             nth_rw 2 [add_comm]
             exact t2
-          have sub3 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
+          have sub2 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
             -- envelope sumになってないものからan envelop引いてもenvelop sumにはならない
             -- これは言えるはず。折りたたみはis_segment_begを保存する。
-            sorry 
+            rw [is_segment_beg.eq_def] at h
+            split at h
+            { expose_names ; contradiction }
+            { expose_names ; contradiction }
+            { expose_names
+              split at h
+              { expose_names ; exact absurd h_3 h_1 }
+              { expose_names
+                simp [goal1] at h
+                exact ne_true_of_eq_false h } }
           have cases : is_segment_beg (n + 1 - S₂ n + 1) ∨  ¬is_segment_beg (n + 1 - S₂ n + 1) := by
             exact eq_or_ne (is_segment_beg (n + 1 - S₂ n + 1)) true
           rcases cases with term|recur
-          { exact absurd term sub3 }
-          {
-            have goal1 := nh (n + 1 - S₂ n) sub1
+          { exact absurd term sub2 }
+          { have goal1 := nh (n + 1 - S₂ n) sub1
             have : luby (n + 1 - S₂ n + 1) = 2 * luby (n + 1 - S₂ n) := by grind
-            exact this
-          }
-        }
-      }
-    }
-  }
+            exact this } } } } }
 
 end Luby
 
