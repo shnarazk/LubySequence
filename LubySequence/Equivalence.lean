@@ -318,13 +318,30 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
   -- sapply?
   sorry -/
 
-#eval List.range 30 |>.map (fun n ↦ (LubyState.ofNat n).luby)
+#eval List.range 30 |>.map (fun n ↦ (Luby.luby n, (LubyState.ofNat n).luby))
 
--- 以下は破棄。segment ベースで証明しよう
-
-theorem LubyState_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = (LubyState.ofNat n).luby := by
+theorem LubyState_is_Luby : ∀ n : Nat, Luby.luby n = (LubyState.ofNat n).luby := by
   intro n
-  sorry
+  have cases : Luby.is_segment_beg n = true ∨ ¬ Luby.is_segment_beg n = true := by
+    exact eq_or_ne (Luby.is_segment_beg n) true
+  rcases cases with seg|not
+  { have target : Luby.luby n = 1 := by exact Luby.luby_value_at_segment_beg n seg
+    have state : (LubyState.ofNat n).luby = 1 := by sorry
+    simp [target, state] }
+  { induction' n with n1 hn
+    { sorry }
+    { expose_names
+      simp [←h]
+      have : Luby.is_segment_beg n ∨ Luby.luby n = 2 * Luby.luby (n - 1) := by
+        have t1 := Luby.luby_value_not_at_segment_beg (n - 1)
+        have t2 : n - 1 + 1 = n := by 
+          refine Nat.sub_add_cancel ?_
+
+
+      have : Luby.is_segment_beg (n + 1) ∨ Luby.luby (n + 1) = 2 * Luby.luby n := by
+        sorry
+    
+  }
 
 /-
   induction' n using Nat.strong_induction_on with n hn
