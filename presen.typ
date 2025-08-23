@@ -2,6 +2,7 @@
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/touying:0.6.1": *
 #import themes.simple: *
+#import "@preview/pinit:0.2.2": *
 #set par(justify: true)
 #set text(
   font: (
@@ -93,10 +94,10 @@ In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
           ([ $11 arrow_(- 7) 4$ ]),
           ([ $12 arrow_(- 7) 5$ ]), ), ), ),)
   (pause, )
-  bezier((38, -8), (15, -8), (24, 1),
+  draw.bezier((38, -8), (15, -8), (24, 1),
     stroke: 1pt + red, mark: (end: ">"))
   (pause, )
-  bezier((14, -8), (0, -8), (8, -3),
+  draw.bezier((14, -8), (0, -8), (8, -3),
     stroke: 1pt + red, mark: (end: ">"))
 })
 
@@ -111,7 +112,7 @@ $
 == Another interpretation using a binary tree
 
 #cetz-canvas(length: 16pt, {
-  set-style(content: (padding: 0.5em))
+  draw.set-style(content: (padding: 0.5em))
   /*
   line((1, -5), (5.7, -5),
     stroke: 18pt + rgb(240, 240, 255))
@@ -173,7 +174,7 @@ $
 == indices on the natural number triangle
 
 #canvas(length: 10pt, {
-  set-style(content: (padding: 0.4em))
+  draw.set-style(content: (padding: 0.4em))
   tree.tree(spread: 0.5,
     ( text(fill: blue, [$(8, 3)$]),
       ( text(fill: blue, [$(4, 2)$]),
@@ -196,11 +197,14 @@ $
 #pause
 
 $
-  k & = 1 + sum_(i>= 0) [ "use envelop"_i ] |"envelope"_i| \
-    & = 1 + sum_(i>= 0) [ "use envelope"_i ] (2^i - 1),
+  "segment_beg"_i & = 1 + sum_(i>= 0) #pin(1) [ "use envelope"_i ]#pin(2) |"envelope"_i| \
+    & = 1 + sum_(i>= 0)" " [ "use envelope"_i ] " " (2^i - 1),
 $
+#pinit-highlight(1, 2)
 
-// This means any $2^i - 1 > 0$ is not the beginning of a segment.
+#pinit-point-from(2, offset-dx: 70pt, offset-dy: 20pt)[
+  #text(size: 16pt, [Iverson's notation])
+]
 
 == Luby state
 
