@@ -390,8 +390,9 @@ theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
 
 #eval is_segment_beg 0 -- true
 
-theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
+theorem luby_value_not_at_segment_beg (n : Nat) :
     is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
+  induction' n using Nat.strong_induction_on with n nh
   have cases : is_segment_beg (n + 1) ∨ ¬is_segment_beg (n + 1) := by
     exact eq_or_ne (is_segment_beg (n + 1)) true
   rcases cases with beg|h
@@ -407,11 +408,12 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
     have nsize1 : 2 ≤ (n + 1).size := by
       have t1 : (1 + 1).size ≤ (n + 1).size := by 
         refine Nat.size_le_size ?_
-        exact Nat.add_le_add_right h0 1
+        sorry --exact Nat.add_le_add_right h0 1
       have t2 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
       simp [t2] at t1
       exact t1
-    induction' n using Nat.strong_induction_on with n nh
+    -- induction' n using Nat.strong_induction_on with n nh
+
     { nth_rw 1 [luby]
       split
       { expose_names;
@@ -511,7 +513,6 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
               exact absurd env2 h_3 } } } }
       { expose_names
         -- 右辺のlubyだけ展開して、帰納法に持ち込みたい
-        -- FIXME: なぜ右辺だけ展開する？
         nth_rw 2 [luby]
         split
         { expose_names
@@ -557,12 +558,12 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
             refine Nat.le_of_lt_succ ?_
             exact Nat.lt_of_le_of_ne t1 this
             
-          have goal : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
+          have goal1 : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
             simp [S₂, common1, common2]
             refine Nat.succ_sub ?_
             refine n_ge_subenvelope ?_
-            exact Nat.le_add_right_of_le h0
-          simp [goal]
+            exact Nat.le_add_left 1 n
+          simp [goal1]
           have sub1 : n + 1 - S₂ n < n := by
             have t2 : n + 1 < n + S₂ n := by -- exact Nat.add_lt_add_left common4 n
               simp [S₂]
@@ -577,6 +578,7 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
             exact Nat.add_le_add_iff_left.mpr common5
           have sub3 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
             -- envelope sumになってないものからan envelop引いてもenvelop sumにはならない
+            -- これは言えるはず。折りたたみはis_segment_begを保存する。
             sorry 
           have sub4 : 2 ≤ (n + 1 - S₂ n + 1).size := by
             have t1 : 1 + 1 ≤ n + 1 - S₂ n + 1 := by exact Nat.add_le_add_right sub2 1
@@ -584,9 +586,15 @@ theorem luby_value_not_at_segment_beg {n : Nat} (h0 : 1 ≤ n) :
             have t3 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
             simp [t3] at t2
             exact t2
-          have goal1 := nh (n + 1 - S₂ n) sub1 sub2 sub3 sub4
-          have : luby (n + 1 - S₂ n + 1) = 2 * luby (n + 1 - S₂ n) := by grind
-          exact this
+          have cases : is_segment_beg (n + 1 - S₂ n + 1) ∨  ¬is_segment_beg (n + 1 - S₂ n + 1) := by
+            exact eq_or_ne (is_segment_beg (n + 1 - S₂ n + 1)) true
+          rcases cases with term|recur
+          { exact absurd term sub3 }
+          {
+            have goal1 := nh (n + 1 - S₂ n) sub1 -- sub2 recur sub4
+            have : luby (n + 1 - S₂ n + 1) = 2 * luby (n + 1 - S₂ n) := by grind
+            exact this
+          }
         }
       }
     }
