@@ -595,20 +595,6 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
           have common3 : S₂ n < n + 2 := by
             have : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
             exact Nat.lt_add_one_of_le this
-          -- TODO: this is the boss!
-          have common5 : S₂ n ≤ n := by
-            rw [is_segment_beg.eq_def] at * -- h_2
-            simp [is_envelope, S₂] at h_2
-            -- simp [S₂] at *
-            have t1 : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
-            have : ¬S₂ n = n + 1 := by
-              simp [S₂] -- at *
-              by_contra hx
-              -- 
-              sorry
-            refine Nat.le_of_lt_succ ?_
-            exact Nat.lt_of_le_of_ne t1 this
-            
           have goal1 : n + 1 + 1 - S₂ (n + 1) = n + 1 - S₂ n + 1 := by
             simp [S₂, common1, common2]
             refine Nat.succ_sub ?_
@@ -624,26 +610,16 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
             exact S₂_upper_bound n
             nth_rw 2 [add_comm]
             exact t2
-          have sub2 : 1 ≤ n + 1 - S₂ n := by
-            rw [add_comm]
-            refine Nat.le_sub_of_add_le ?_
-            exact Nat.add_le_add_iff_left.mpr common5
           have sub3 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
             -- envelope sumになってないものからan envelop引いてもenvelop sumにはならない
             -- これは言えるはず。折りたたみはis_segment_begを保存する。
             sorry 
-          have sub4 : 2 ≤ (n + 1 - S₂ n + 1).size := by
-            have t1 : 1 + 1 ≤ n + 1 - S₂ n + 1 := by exact Nat.add_le_add_right sub2 1
-            have t2 : (1 + 1).size ≤ (n + 1 - S₂ n + 1).size := by exact Nat.size_le_size t1
-            have t3 : (1 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
-            simp [t3] at t2
-            exact t2
           have cases : is_segment_beg (n + 1 - S₂ n + 1) ∨  ¬is_segment_beg (n + 1 - S₂ n + 1) := by
             exact eq_or_ne (is_segment_beg (n + 1 - S₂ n + 1)) true
           rcases cases with term|recur
           { exact absurd term sub3 }
           {
-            have goal1 := nh (n + 1 - S₂ n) sub1 -- sub2 recur sub4
+            have goal1 := nh (n + 1 - S₂ n) sub1
             have : luby (n + 1 - S₂ n + 1) = 2 * luby (n + 1 - S₂ n) := by grind
             exact this
           }
