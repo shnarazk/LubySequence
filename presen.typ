@@ -249,7 +249,7 @@ only if ...
 #align(left)[
 ```lean
 theorem State_is_luby :
-    ∀ n : ℕ, (↑ n : State).luby = Luby n := by ...
+    ∀ n : ℕ, (↑ n : State).luby = luby n := by ...
 ```
 ]
 
@@ -263,7 +263,7 @@ theorem luby_value_at_segment_beg' :
 
 ```lean
 theorem luby_value :
-    ∀ n : ℕ, (n + 1).is_segment_beg ∨ luby (n + 1) = 2 * luby n := by ...
+    ∀ n : ℕ, (n + 1).is_segment_beg ∨ luby (n + 1) = 2 * Luby n := by ...
 ```
 
 === ctnd.
