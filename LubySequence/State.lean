@@ -296,10 +296,11 @@ theorem LubyState.LubyState_segment_prop1 {n : Nat}
     exact this }
   { expose_names; exact absurd h h_1 }
 
-theorem LubyState.LubyState_segment_prop2 {n : Nat} (h : Luby.is_segment_beg n) :
+theorem LubyState.LubyState_segment_prop2 {n : Nat} (h : LubyState.is_segment_beg n) :
     (LubyState.ofNat n).luby = 1 := by
-
-  sorry
+  simp [LubyState.is_segment_beg] at h
+  simp [LubyState.luby]
+  exact h
 
 theorem LubyState.LubyState_prop (n : Nat) :
     (LubyState.ofNat n).luby = if Luby.is_segment_beg n then 1 else 2 * (LubyState.ofNat (n - 1)).luby := by
