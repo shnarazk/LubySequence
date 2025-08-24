@@ -282,3 +282,50 @@ theorem LubyState.next_is_succ :
 
 instance : Coe Nat LubyState where
   coe n := LubyState.ofNat n
+
+theorem LubyState.LubyState_prop (n : Nat) :
+    (LubyState.ofNat n).luby = if Luby.is_segment_beg n then 1 else 2 * (LubyState.ofNat (n - 1)).luby := by
+  have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
+  have segbeg1 : Luby.is_segment_beg 1 := by simp [Luby.is_segment_beg.eq_def]
+  have defaultenv : (default : LubyState).is_envelope =true := by
+    simp [LubyState.is_envelope, default, LubyState.segment_height, trailing_zero]
+  induction' n with n hn
+  { split
+    { expose_names ; simp [ofNat, zero, default, LubyState.next, LubyState.luby] }
+    { expose_names
+      exact absurd segbeg0 h } }
+  { split
+    { expose_names
+      have zn : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+      rcases zn with z|n
+      { simp [z] at *
+        simp [ofNat, zero, LubyState.next, LubyState.luby]
+        split
+        { expose_names ; simp }
+        { expose_names ; exact absurd defaultenv h_1 } }
+      { sorry }
+    }
+    { expose_names
+      simp [LubyState.luby]
+      have : 2 * 2 ^ (LubyState.ofNat n).locIx = 2 ^ ((LubyState.ofNat n).locIx + 1) := by
+        exact Eq.symm Nat.pow_succ'
+      simp [this]
+      have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
+      simp [this, LubyState.next]
+      split
+      { expose_names
+        have : Luby.is_segment_beg (n + 1) = true := by
+          rw [Luby.is_segment_beg.eq_def]
+          split
+          { expose_names ; contradiction }
+          { expose_names ; exact rfl }
+          { expose_names
+            have c : Luby.is_segment_beg (n + 1) = true := by
+              rw [Luby.is_segment_beg.eq_def]
+              sorry
+            sorry
+          }
+        exact absurd this h }
+      { simp }
+    }
+  }
