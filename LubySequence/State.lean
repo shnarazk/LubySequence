@@ -283,6 +283,27 @@ theorem LubyState.next_is_succ :
 instance : Coe Nat LubyState where
   coe n := LubyState.ofNat n
 
+theorem LubyState.LubyState_segment_prop1 {n : Nat}
+    (h : (LubyState.ofNat n).is_segment_end = true) :
+    Luby.is_segment_beg (n + 1) = true := by
+  rw [Luby.is_segment_beg.eq_def]
+  split
+  { rfl }
+  { rfl }
+  { expose_names
+    have : ¬Luby.is_envelope (n + 1) = true := by sorry
+    split
+    { expose_names; exact absurd h_1 this }
+    { expose_names
+      have : n + 1 + 1 - Luby.S₂ (n + 1) = 1 := by sorry
+      simp [this]
+      simp [Luby.is_segment_beg.eq_def] } }
+
+theorem LubyState.LubyState_segment_prop2 {n : Nat} (h : Luby.is_segment_beg n) :
+    (LubyState.ofNat n).luby = 1 := by
+
+  sorry
+
 theorem LubyState.LubyState_prop (n : Nat) :
     (LubyState.ofNat n).luby = if Luby.is_segment_beg n then 1 else 2 * (LubyState.ofNat (n - 1)).luby := by
   have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
@@ -292,19 +313,9 @@ theorem LubyState.LubyState_prop (n : Nat) :
   induction' n with n hn
   { split
     { expose_names ; simp [ofNat, zero, default, LubyState.next, LubyState.luby] }
-    { expose_names
-      exact absurd segbeg0 h } }
+    { expose_names ; exact absurd segbeg0 h } }
   { split
-    { expose_names
-      have zn : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
-      rcases zn with z|n
-      { simp [z] at *
-        simp [ofNat, zero, LubyState.next, LubyState.luby]
-        split
-        { expose_names ; simp }
-        { expose_names ; exact absurd defaultenv h_1 } }
-      { sorry }
-    }
+    { expose_names ; exact LubyState_segment_prop2 h }
     { expose_names
       simp [LubyState.luby]
       have : 2 * 2 ^ (LubyState.ofNat n).locIx = 2 ^ ((LubyState.ofNat n).locIx + 1) := by
