@@ -28,7 +28,7 @@ def LubyState.segment_height (self : LubyState) : Nat := trailing_zero self.segI
 
 -- #eval LubyState.zero
 
-def LubyState.is_envelope (self : LubyState) : Bool :=
+def LubyState.is_segment_end (self : LubyState) : Bool :=
   self.locIx.succ = self.segment_height
 
 def LubyState.next (self : LubyState) (repeating : Nat := 1) : LubyState :=
@@ -36,7 +36,7 @@ def LubyState.next (self : LubyState) (repeating : Nat := 1) : LubyState :=
   | 0     => self
   | r + 1 =>
     let li := self.next r
-    if li.is_envelope -- li.locIx.succ = li.segment_height
+    if li.is_segment_end -- li.locIx.succ = li.segment_height
     then LubyState.mk li.segIx.succ 0
     else LubyState.mk li.segIx li.locIx.succ
 
@@ -52,13 +52,13 @@ theorem LubyState.is_divergent (li : LubyState) : ¬(li.next = li) := by
     exact eq_or_ne (li.locIx + 1) li.segment_height
   rcases tf with t|f
   {
-    simp [LubyState.is_envelope, t]
+    simp [LubyState.is_segment_end, t]
     have (a : LubyState) (h : ¬a.segIx = li.segIx) : ¬a = li := by
       exact fun a_1 ↦ t₀ (h (congrArg segIx a_1))
     simp [this]
   }
   {
-    simp [LubyState.is_envelope, f]
+    simp [LubyState.is_segment_end, f]
     have (a : LubyState) (h : ¬a.locIx = li.locIx) : ¬a = li := by
       exact fun a_1 ↦ t₀ (h (congrArg locIx a_1))
     simp [this]
@@ -66,7 +66,7 @@ theorem LubyState.is_divergent (li : LubyState) : ¬(li.next = li) := by
 
 theorem LubyState.segIx_is_increasing : ∀ li : LubyState, li.next.segIx ≥ li.segIx := by
   intro li
-  simp [LubyState.is_envelope, LubyState.next]
+  simp [LubyState.is_segment_end, LubyState.next]
   have : li.locIx + 1 = li.segment_height ∨ ¬(li.locIx + 1 = li.segment_height) := by
     exact eq_or_ne _ _
   rcases this with t|f
@@ -111,7 +111,7 @@ theorem LubyState.segId0 {n : Nat} : n = 0 ↔ (LubyState.zero.next n).segIx = 1
     intro h
     by_contra x
     have base1 : (LubyState.zero.next 1).segIx = 2 := by
-      simp [LubyState.zero, LubyState.next, LubyState.is_envelope]
+      simp [LubyState.zero, LubyState.next, LubyState.is_segment_end]
       simp [default, LubyState.segment_height, trailing_zero]
     have : n ≥ 1 → (LubyState.zero.next n).segIx ≥ 2 := by
       have sub : n ≥ 1 → (zero.next n).segIx ≥ (zero.next 1).segIx := by
@@ -134,24 +134,24 @@ theorem LubyState.next_assoc (li : LubyState) : ∀ n : Nat, (li.next n).next = 
       exact eq_or_ne _ _
     rcases tf with t|f
     {
-      simp [LubyState.is_envelope]
+      simp [LubyState.is_segment_end]
       have : (li.next (n + 1)).locIx.succ = (li.next (n + 1)).locIx + 1 := by exact rfl
       rw [this] at t
       simp only [t]
       simp
       have : (li.next (n + 1)).next = LubyState.mk ((li.next (n + 1)).segIx + 1) 0 := by
         nth_rw 1 [LubyState.next]
-        simp [LubyState.is_envelope]
+        simp [LubyState.is_segment_end]
         simp [LubyState.next0]
         exact t
       simp only [this]
     }
     {
-      simp [LubyState.is_envelope, f]
+      simp [LubyState.is_segment_end, f]
       have : (li.next (n + 1)).next = LubyState.mk ((li.next (n + 1)).segIx) ((li.next (n + 1)).locIx + 1) := by
         nth_rw 1 [LubyState.next]
         simp [LubyState.next0]
-        simp [LubyState.is_envelope]
+        simp [LubyState.is_segment_end]
         exact f
       simp only [this]
     }
@@ -249,7 +249,7 @@ theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
         split
         {
           expose_names
-          simp [LubyState.is_envelope, ←ps] at h
+          simp [LubyState.is_segment_end, ←ps] at h
           simp [←pc]
           rw [segIdToLastIndex.eq_def]
           cases cp : c with
@@ -287,8 +287,8 @@ theorem LubyState.LubyState_prop (n : Nat) :
     (LubyState.ofNat n).luby = if Luby.is_segment_beg n then 1 else 2 * (LubyState.ofNat (n - 1)).luby := by
   have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
   have segbeg1 : Luby.is_segment_beg 1 := by simp [Luby.is_segment_beg.eq_def]
-  have defaultenv : (default : LubyState).is_envelope =true := by
-    simp [LubyState.is_envelope, default, LubyState.segment_height, trailing_zero]
+  have defaultenv : (default : LubyState).is_segment_end =true := by
+    simp [LubyState.is_segment_end, default, LubyState.segment_height, trailing_zero]
   induction' n with n hn
   { split
     { expose_names ; simp [ofNat, zero, default, LubyState.next, LubyState.luby] }
@@ -310,22 +310,17 @@ theorem LubyState.LubyState_prop (n : Nat) :
       have : 2 * 2 ^ (LubyState.ofNat n).locIx = 2 ^ ((LubyState.ofNat n).locIx + 1) := by
         exact Eq.symm Nat.pow_succ'
       simp [this]
+      clear this
       have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
       simp [this, LubyState.next]
+      clear this
+      have c : ¬(LubyState.ofNat n).is_segment_end = true := by
+        simp [LubyState.is_segment_end]
+        simp [LubyState.segment_height]
+        sorry
       split
       { expose_names
-        have : Luby.is_segment_beg (n + 1) = true := by
-          rw [Luby.is_segment_beg.eq_def]
-          split
-          { expose_names ; contradiction }
-          { expose_names ; exact rfl }
-          { expose_names
-            have c : Luby.is_segment_beg (n + 1) = true := by
-              rw [Luby.is_segment_beg.eq_def]
-              sorry
-            sorry
-          }
-        exact absurd this h }
+        exact absurd h_1 c }
       { simp }
     }
   }
