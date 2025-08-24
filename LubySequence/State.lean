@@ -283,6 +283,7 @@ theorem LubyState.next_is_succ :
 instance : Coe Nat LubyState where
   coe n := LubyState.ofNat n
 
+-- まずはLubyState.{is_segment_beg, is_segment_end}で話を進めるべき
 theorem LubyState.LubyState_segment_prop1 {n : Nat}
     (h : (LubyState.ofNat n).is_segment_end = true) :
     Luby.is_segment_beg (n + 1) = true := by
@@ -291,6 +292,7 @@ theorem LubyState.LubyState_segment_prop1 {n : Nat}
   { rfl }
   { rfl }
   { expose_names
+    simp [LubyState.ofNat, zero, default, next] at h
     have : ¬Luby.is_envelope (n + 1) = true := by sorry
     split
     { expose_names; exact absurd h_1 this }
