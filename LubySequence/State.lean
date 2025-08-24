@@ -26,7 +26,8 @@ def trailing_zero' (n : Nat) : Nat := match n with
 
 def LubyState.segment_height (self : LubyState) : Nat := trailing_zero self.segIx + 1
 
--- #eval LubyState.zero
+def LubyState.is_segment_beg (self : LubyState) : Bool :=
+  self.locIx = 0
 
 def LubyState.is_segment_end (self : LubyState) : Bool :=
   self.locIx.succ = self.segment_height
@@ -283,23 +284,17 @@ theorem LubyState.next_is_succ :
 instance : Coe Nat LubyState where
   coe n := LubyState.ofNat n
 
--- まずはLubyState.{is_segment_beg, is_segment_end}で話を進めるべき
 theorem LubyState.LubyState_segment_prop1 {n : Nat}
     (h : (LubyState.ofNat n).is_segment_end = true) :
-    Luby.is_segment_beg (n + 1) = true := by
-  rw [Luby.is_segment_beg.eq_def]
-  split
-  { rfl }
-  { rfl }
-  { expose_names
-    simp [LubyState.ofNat, zero, default, next] at h
-    have : ¬Luby.is_envelope (n + 1) = true := by sorry
-    split
-    { expose_names; exact absurd h_1 this }
-    { expose_names
-      have : n + 1 + 1 - Luby.S₂ (n + 1) = 1 := by sorry
-      simp [this]
-      simp [Luby.is_segment_beg.eq_def] } }
+    (LubyState.ofNat (n + 1)).is_segment_beg = true := by
+  rw [LubyState.is_segment_beg]
+  have p1 : ofNat (n + 1) = (ofNat n).next := by exact rfl
+  simp [LubyState.next] at p1
+  split at p1
+  { simp at *
+    have : (ofNat (n + 1)).locIx = 0 := by grind
+    exact this }
+  { expose_names; exact absurd h h_1 }
 
 theorem LubyState.LubyState_segment_prop2 {n : Nat} (h : Luby.is_segment_beg n) :
     (LubyState.ofNat n).luby = 1 := by
