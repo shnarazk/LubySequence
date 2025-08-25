@@ -41,7 +41,7 @@
 
 $ #range(1, 32).map(Luby).map(str).join(", ") , dots.h.c $
 
-// == Definition
+#pause
 
 $
   L u b y_1(k >= 1) = cases(
@@ -50,10 +50,8 @@ $
   )
 $
 
-// == Definition 2
+#pause
 
-// By introducing `Nat.size` operator which returns the length of bit vector representing a natural number `Nat`, we can eliminate $i$ and rewrite the definition as
-//#set math.equation(numbering: "(1)")
 $
   L u b y_1(k >= 1) = cases(
     2^(k".size" - 1) & " if" k = 2^(k".size") - 1,
@@ -142,11 +140,11 @@ $
 })
 
 #pause
-Remove the highest non-zero bits until...
+Remove the highest non-zero bits until . . .
 
 = An online algorithm
 
-Segmentation on the Luby sequence
+Segmentation of the Luby sequence
 
 == Segments
 
@@ -214,7 +212,7 @@ structure State where
   locIx : ℕ　-- 現在のsegment内で何番目(local index)か(0-based)
 
 /-- O(1) -/
-def State.next (s : State) : State := ...
+def State.next (s : State) : State := . . .
 /-- O(1) -/
 def State.luby (s : State) : ℕ := 2 ^ s.locIx
 ```
@@ -243,24 +241,34 @@ def State.luby (s : State) : ℕ := 2 ^ s.locIx
 only if ...
 
 = Equivalence of Luby and Luby state
+_*Prove it in Lean4*_
 
 == Outline in Lean4
 
-#align(left)[
+
+```lean
+theorem Luby_values : ∀ n : ℕ,
+    luby n = if n.is_segment_beg
+      then 1
+      else 2 * Luby (n - 1) := by ...
+
+theorem LubyState_values : ∀ n : ℕ,
+    (↑ n : State).luby = if (↑ n : State).is_segment_beg
+      then 1
+      else 2 * (↑ n - 1 : State).luby := by ...
+```
+
+```lean
+theorem segments_are_equivalent : ∀ n : ℕ,
+    (↑ n : State).is_segment_beg = n.is_segment_beg := by ...
+```
+
+== contd.
+
 ```lean
 theorem LubyState_eq_Luby : ∀ n : ℕ,
     (↑ n : State).luby = luby n := by ...
 ```
-]
-
-```lean
-theorem Luby_values : ∀ n : ℕ,
-    luby n = if n.is_segment_beg then 1 else 2 * Luby (n - 1) := by ...
-
-theorem LubyState_values : ∀ n : ℕ,
-    (↑ n : State).luby = if n.is_segment_beg then 1 else 2 * (↑ n - 1 : State).luby := by ...
-```
-
 ```lean
 theorem LubyState_is_additive : ∀ n : ℕ,
     (↑ n + 1 : State) = (↑ n : State).next := by ...
