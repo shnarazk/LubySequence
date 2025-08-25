@@ -303,33 +303,31 @@ theorem LubyState.LubyState_segment_prop2 {n : Nat} (h : LubyState.is_segment_be
   exact h
 
 theorem LubyState.LubyState_prop (n : Nat) :
-    (LubyState.ofNat n).luby = if Luby.is_segment_beg n then 1 else 2 * (LubyState.ofNat (n - 1)).luby := by
+    (LubyState.ofNat n).luby = if LubyState.is_segment_beg n then 1 else 2 * (LubyState.ofNat (n - 1)).luby := by
   have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
   have segbeg1 : Luby.is_segment_beg 1 := by simp [Luby.is_segment_beg.eq_def]
   have defaultenv : (default : LubyState).is_segment_end =true := by
     simp [LubyState.is_segment_end, default, LubyState.segment_height, trailing_zero]
-  induction' n with n hn
-  { split
-    { expose_names ; simp [ofNat, zero, default, LubyState.next, LubyState.luby] }
-    { expose_names ; exact absurd segbeg0 h } }
-  { split
-    { expose_names ; exact LubyState_segment_prop2 h }
-    { expose_names
-      simp [LubyState.luby]
-      have : 2 * 2 ^ (LubyState.ofNat n).locIx = 2 ^ ((LubyState.ofNat n).locIx + 1) := by
-        exact Eq.symm Nat.pow_succ'
-      simp [this]
-      clear this
-      have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
-      simp [this, LubyState.next]
-      clear this
-      have c : ¬(LubyState.ofNat n).is_segment_end = true := by
-        simp [LubyState.is_segment_end]
-        simp [LubyState.segment_height]
-        sorry
-      split
-      { expose_names
-        exact absurd h_1 c }
-      { simp }
-    }
-  }
+  split
+  { expose_names ; exact LubyState_segment_prop2 h }
+  { expose_names
+    have n0 : n > 0 := by
+      by_contra x
+      have n0 : n = 0 := by exact Nat.eq_zero_of_not_pos x
+      have c : (ofNat n).is_segment_beg = true := by
+        simp [n0, ofNat, zero, default, LubyState.next, LubyState.is_segment_beg]
+      exact absurd c h
+    have t1 : ofNat (n - 1 + 1) = (ofNat (n - 1)).next := by exact rfl
+    have t2 : n - 1 + 1 = n := by exact Nat.sub_add_cancel n0
+    simp [t2] at t1
+    simp [t1, LubyState.next]
+    have t3 : ¬(ofNat (n - 1)).is_segment_end = true := by
+      by_contra x
+      have c : (ofNat (n - 1 + 1)).is_segment_beg  := by exact LubyState_segment_prop1 x
+      have t1 : n - 1 + 1 = n := by grind
+      simp [t1] at c
+      exact absurd c h
+    split
+    { expose_names ; exact absurd h_1 t3 }
+    { expose_names ; simp [LubyState.luby] ; exact Nat.pow_succ' } }
+
