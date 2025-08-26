@@ -5,9 +5,7 @@
 #import "@preview/pinit:0.2.2": *
 #set par(justify: true)
 #set text(
-  font: (
-  (name: "New Computer Modern", covers: "latin-in-cjk"),
-  "Hiragino Mincho Pro"),
+  font: ((name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
   size: 12pt)
 #show raw: set text(font: "Monaspace Neon", size: 16pt)
 #set heading(numbering: "1.")
@@ -31,9 +29,7 @@
 #let cetz-canvas = touying-reducer.with(reduce: cetz.canvas, cover: cetz.draw.hide.with(bounds: true))
 
 #let title = [An Online Algorithm for Luby Sequence]
-
 #align(center, text(32pt)[*#title*])
-
 #grid(columns: (1fr),align(center)[`shnarazk`])
 #grid(columns: (1fr),align(center)[2025-0X-XX])
 
@@ -63,7 +59,6 @@ $
 
 Luby, M. et al., Optimal Speedup of Las Vegas Algorithms,
 In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
-
 
 == on the natural number triangle
 // We can illustrate its recursive property as transitions on a triangle of natural numbers greater than zero.
@@ -103,8 +98,6 @@ $
   L u b y_1(13) & arrow L u b y_1(13-(2^3-1)=6) arrow L u b y_1(6-(2^2-1) = 3) = 2
 $
 
-// - At the top of a tree or *_envelope_* which contains the target number as a node, the recursion stops.
-// - Otherwise, the right tree is folded to the left tree. By a simple calculation, we find that any number is placed to the top of a tree or in the right subtree.
 //- The worst recursion depth of $L u b y (N)$ would be $O(log(N))$.
 
 == Another interpretation using a binary tree
@@ -191,7 +184,6 @@ $
           (text(fill: blue, [$(8, 0) \#12$])), ), )) )
 })
 
-// And segments start at the following $k$:
 #pause
 
 $
@@ -245,7 +237,6 @@ _*Prove it in Lean4*_
 
 == Outline in Lean4
 
-
 ```lean
 theorem Luby_values : ∀ n : ℕ,
     luby n = if n.is_segment_beg
@@ -273,3 +264,14 @@ theorem LubyState_eq_Luby : ∀ n : ℕ,
 theorem LubyState_is_additive : ∀ n : ℕ,
     (↑ n + 1 : State) = (↑ n : State).next := by ...
 ```
+
+== Process of proof
+
+- rg "luby" Mathlib4
+- rg "bandid" Mathlib4
+- rg "bits" Mathlib4 -> Data.Nat.Bits
+
+Add many aux. theorems
+
+- modulo
+- `2 ^ n.size`
