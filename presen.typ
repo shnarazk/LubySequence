@@ -294,9 +294,9 @@ theorem LubyState_is_additive : ∀ n : ℕ,
 
 == Process of proof
 
-- rg "luby" Mathlib4
-- rg "bandid" Mathlib4
-- rg "bits" Mathlib4 -> Data.Nat.Bits
+- `rg "luby" Mathlib4`
+- `rg "bandid" Mathlib4`
+- `rg "bits" Mathlib4` -> Data.Nat.Bits
 
 Add many aux. theorems
 
