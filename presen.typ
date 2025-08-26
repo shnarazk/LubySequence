@@ -165,23 +165,23 @@ $
 == indices on the natural number triangle
 
 #canvas(length: 10pt, {
-  draw.set-style(content: (padding: 0.4em))
-  tree.tree(spread: 0.5,
-    ( text(fill: blue, [$(8, 3)$]),
-      ( text(fill: blue, [$(4, 2)$]),
-        ( text(fill: blue, [$(2, 1)$]),
-          (text(fill: red, [$(1, 0) \#1$])),
-          (text(fill: blue, [$(2, 0) \#2$])), ),
-        ( text(fill: blue, [$(4, 1)$]),
-          (text(fill: red, [$(3, 0) \#4$])),
-          (text(fill: blue, [$(4, 0) \#5$])), ), ),
-      ( text(fill: blue, [$(8, 2)$]),
-        ( text(fill: blue, [$(6, 1)$]),
-          (text(fill: red, [$(5, 0) \#8$])),
-          (text(fill: blue, [$(6, 0) \#9$])), ),
-        ( text(fill: blue, [$(8, 1)$]),
-          (text(fill: red, [$(7, 0) \#11$])),
-          (text(fill: blue, [$(8, 0) \#12$])), ), )) )
+  draw.set-style(content: (padding: (0.4em, 0.04em)))
+  tree.tree(spread: 0.4,
+    ( text(fill: blue, [$(\#8, 3)$]),
+      ( text(fill: blue, [$(\#4, 2)$]),
+        ( text(fill: blue, [$(\#2, 1)$]),
+          (text(fill: red, [$1 = (\#1, 0)$])),
+          (text(fill: blue, [$2 = (\#2, 0)$])), ),
+        ( text(fill: blue, [$(\#4, 1)$]),
+          (text(fill: red, [$4 = (\#3, 0)$])),
+          (text(fill: blue, [$5 = (\#4, 0)$])), ), ),
+      ( text(fill: blue, [$(\#8, 2)$]),
+        ( text(fill: blue, [$(\#6, 1)$]),
+          (text(fill: red, [$8 = (\#5, 0)$])),
+          (text(fill: blue, [$9 = (\#6, 0)$])), ),
+        ( text(fill: blue, [$(\#8, 1)$]),
+          (text(fill: red, [$11 = (\#7, 0)$])),
+          (text(fill: blue, [$12 = (\#8, 0)$])), ), )) )
 })
 
 #pause
@@ -195,6 +195,33 @@ $
 #pinit-point-from(2, offset-dx: 70pt, offset-dy: 20pt)[
   #text(size: 16pt, [Iverson's notation])
 ]
+== From segment index to segment length
+
+#canvas(length: 10pt, {
+  draw.set-style(content: (padding: 0.1em))
+  tree.tree(spread: 0.3,
+    ( text(fill: blue, [$4$]),
+      ( text(fill: blue, [$3$]),
+        ( text(fill: blue, [$2$]),
+          (text(fill: red, [$\#1 = "b1"$])),
+          (text(fill: blue, [$\#2 = "b10"$])), ),
+        ( text(fill: blue, [$(\#4, 1)$]),
+          (text(fill: red, [$\#3 = "b11"$])),
+          (text(fill: blue, [$\#4 = "b100"$])), ), ),
+      ( text(fill: blue, [$(\#8, 2)$]),
+        ( text(fill: blue, [$2$]),
+          (text(fill: red, [$\#5 = "b101"$])),
+          (text(fill: blue, [$\#6 = "b110"$])), ),
+        ( text(fill: blue, [$(\#8, 1)$]),
+          (text(fill: red, [$\#7 = "b111"$])),
+          (text(fill: blue, [$\#8 = "b1000"$])), ), )) )
+})
+
+$
+  "segment_beg"_n =& 1 + sum_(i = 0)^n i."trailing_zero" + 1 \
+#pause
+  "segment_beg"_(2^k) =& 2^k
+$
 
 == Luby state
 
