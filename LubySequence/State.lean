@@ -189,11 +189,9 @@ theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
   change (LubyState.zero.next n).toNat = n
   induction' n with n hn
   { simp [LubyState.next, LubyState.zero, LubyState.toNat, segIdToLastIndex, default] }
-  {
-    simp [LubyState.toNat] at *
+  { simp [LubyState.toNat] at *
     split at hn
-    {
-      simp [←hn] at *
+    { simp [←hn] at *
       expose_names
       have c := LubyState.segId_ge_one 0
       have c' : ¬(zero.next 0).segIx = 0 := by exact Nat.ne_zero_of_lt c
@@ -204,31 +202,22 @@ theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
         expose_names
         have c := LubyState.segId_ge_one 1
         have c' : ¬(zero.next 1).segIx = 0 := by exact Nat.ne_zero_of_lt c
-        exact absurd ou c'
-      }
+        exact absurd ou c' }
       { next nh nn k =>
         export_names
-
-
         have c1 : LubyState.zero.next.segIx = 1 := by exact rfl
         have s1 : LubyState.zero.next.locIx = 0 := by exact rfl
         simp [c1] at k
-        simp [k, segIdToLastIndex, s1]
-      }
+        simp [k, segIdToLastIndex, s1] }
     -/
     }
-    {
-      expose_names
+    { expose_names
       split
-      {
-        next a b =>
-
+      { next a b =>
         have c := LubyState.segId_ge_one (n + 1)
         have c' : ¬(zero.next (n + 1)).segIx = 0 := by exact Nat.ne_zero_of_lt c
-        exact absurd b c'
-      }
-      {
-        expose_names
+        exact absurd b c' }
+      { expose_names
         have : (LubyState.zero.next n).segIx - 1 = n_2 := by
           exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq)))
         simp only [←this] at *
@@ -248,8 +237,7 @@ theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
         simp [←pc, ←ps] at hn
         simp [LubyState.next]
         split
-        {
-          expose_names
+        { expose_names
           simp [LubyState.is_segment_end, ←ps] at h
           simp [←pc]
           rw [segIdToLastIndex.eq_def]
@@ -264,8 +252,7 @@ theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
             simp [cp] at hn
             have h' := Eq.symm h
             simp [LubyState.segment_height] at h'
-            grind
-        }
+            grind }
         { grind }
       }
     }
@@ -330,4 +317,19 @@ theorem LubyState.LubyState_prop (n : Nat) :
     split
     { expose_names ; exact absurd h_1 t3 }
     { expose_names ; simp [LubyState.luby] ; exact Nat.pow_succ' } }
+
+def LubyState.toSegIx (n segIx sum : Nat) : Nat :=
+  let h := LubyState.segment_height segIx
+  have decreasing : n - h < n := by sorry
+  if n <= sum + h then segIx else LubyState.toSegIx (n - h) (segIx + 1) (sum + h)
+
+def LubyState.sumOfSegmentHeights : Nat → Nat
+  | 0     => 0
+  | n + 1 => trailing_zero (n + 1) + LubyState.sumOfSegmentHeights n
+
+def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
+
+theorem LubyState.define_recursively : ∀ n : Nat,
+    LubyState.zero.next n = LubyState.mk (LubyState.toSegIx n 0 0) (LubyState.toLocIx n) := by
+  sorry
 
