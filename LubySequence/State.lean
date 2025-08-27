@@ -345,7 +345,26 @@ def LubyState.move_in_segment (s : LubyState) (d : Nat) (_ : s.locIx + d < s.seg
 
 theorem LubyState.move_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) : 
     LubyState.move_in_segment s d h = s.next d := by
-  sorry
+  induction' d with d hd
+  { simp [LubyState.move_in_segment, LubyState.next] }
+  { have t1 : s.next (d + 1) = (s.next d).next 1 := by exact rfl
+    simp [t1]
+    have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
+    have t2 : s.move_in_segment (d + 1) h = (s.move_in_segment d h').move_in_segment 1 h := by sorry
+    simp [t2]
+    nth_rw 1 [LubyState.move_in_segment]
+    have hd' := hd h'
+    simp [hd']
+    nth_rw 1 [LubyState.next]
+    have t3 : (s.next d).next 0 = s.next d := by exact rfl
+    simp [t3]
+    have : ¬(s.next d).is_segment_end = true := by
+      simp [LubyState.is_segment_end]
+      have u1 : (s.next d).segment_height = s.segment_height := by sorry
+      simp [u1]
+      sorry
+    exact eq_false_of_ne_true this
+  }
 
 theorem LubyState.define_recursively1 : ∀ n : Nat,
   (LubyState.ofNat n).is_segment_beg = true → (LubyState.ofNat (n + (LubyState.ofNat n).segment_height)).is_segment_beg := by
