@@ -340,17 +340,20 @@ def LubyState.sumOfSegmentHeights : Nat → Nat
 def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
 
 -- TODO: segment内ではsegment_height step分直接遷移可能でnextと等価な`move_in_segment`の定義と証明が必要
-def LubyState.move_in_segment (s : LubyState) (d : Nat) (_ : s.locIx + d < s.segment_height) : LubyState :=
-  LubyState.mk s.segIx (s.locIx + d)
+def LubyState.move_in_segment (s : LubyState) (d : Nat) : LubyState := LubyState.mk s.segIx (s.locIx + d)
+
+theorem LubyState.move_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) : 
+    ∀ d' < d, s.move_in_segment d' = (s.move_in_segment (d' - 1)).move_in_segment 1 := by
+  sorry
 
 theorem LubyState.move_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) : 
-    LubyState.move_in_segment s d h = s.next d := by
+    LubyState.move_in_segment s d = s.next d := by
   induction' d with d hd
   { simp [LubyState.move_in_segment, LubyState.next] }
   { have t1 : s.next (d + 1) = (s.next d).next 1 := by exact rfl
     simp [t1]
     have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
-    have t2 : s.move_in_segment (d + 1) h = (s.move_in_segment d h').move_in_segment 1 h := by sorry
+    have t2 : s.move_in_segment (d + 1) = (s.move_in_segment d).move_in_segment 1 := by exact rfl
     simp [t2]
     nth_rw 1 [LubyState.move_in_segment]
     have hd' := hd h'
@@ -360,9 +363,14 @@ theorem LubyState.move_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx
     simp [t3]
     have : ¬(s.next d).is_segment_end = true := by
       simp [LubyState.is_segment_end]
-      have u1 : (s.next d).segment_height = s.segment_height := by sorry
+      have u1 : (s.next d).segment_height = s.segment_height := by
+        -- TODO: as is
+        sorry
       simp [u1]
-      sorry
+      have u1 : (s.next d).locIx + 1 < s.segment_height := by
+        -- TODO: s.next.locIx = s.locIx + 1
+        sorry
+      exact Nat.ne_of_lt u1
     exact eq_false_of_ne_true this
   }
 
