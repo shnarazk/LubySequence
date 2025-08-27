@@ -12,3 +12,20 @@ Luby1993:
     type: proceedings
     title: The 2nd Israel Symposium on Theory and Computing Systems
     date: 1993
+
+Luby1993-IPL:
+  type: article
+  title: Optimal Speedup of Las Vegas Algorithms
+  author:
+    - Michael Luby
+    - Alistair Sinclair
+    - David Zuckerman
+  page-range: 173-180
+  serial-number:
+    doi: "10.1016/0020-0190(93)90029-9"
+  parent:
+    type: Periodical
+    title: Information Processing Letters
+    volume: 47
+    number: 4
+    date: 1993
