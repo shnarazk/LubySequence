@@ -15,7 +15,7 @@ structure LubyState where
 instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
 def LubyState.zero := (default : LubyState)
 
-#check LubyState.zero
+-- #check LubyState.zero
 
 def LubyState.luby (self : LubyState) : Nat := 2 ^ self.locIx
 
@@ -319,9 +319,19 @@ theorem LubyState.LubyState_prop (n : Nat) :
     { expose_names ; simp [LubyState.luby] ; exact Nat.pow_succ' } }
 
 def LubyState.toSegIx (n segIx sum : Nat) : Nat :=
-  let h := LubyState.segment_height segIx
-  have decreasing : n - h < n := by sorry
-  if n <= sum + h then segIx else LubyState.toSegIx (n - h) (segIx + 1) (sum + h)
+  let len := trailing_zero segIx + 1
+  if hn : n <= len
+  then segIx
+  else
+    have len1 : 1 ≤ len := by exact Nat.le_add_left 1 (trailing_zero segIx)
+    have n0 : 0 < n := by
+      have : len < n := by exact Nat.gt_of_not_le hn 
+      exact Nat.zero_lt_of_lt this
+    have n_is_decreasing : n - len < n := by
+      have t1 : 0 < len := by exact Nat.zero_lt_succ (trailing_zero segIx)
+      have t2 : len < n := by exact Nat.gt_of_not_le hn
+      exact Nat.sub_lt n0 t1
+    LubyState.toSegIx (n - len) (segIx + 1) (sum + len) 
 
 def LubyState.sumOfSegmentHeights : Nat → Nat
   | 0     => 0
@@ -329,7 +339,27 @@ def LubyState.sumOfSegmentHeights : Nat → Nat
 
 def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
 
-theorem LubyState.define_recursively : ∀ n : Nat,
-    LubyState.zero.next n = LubyState.mk (LubyState.toSegIx n 0 0) (LubyState.toLocIx n) := by
+-- TODO: segment内ではsegment_height step分直接遷移可能でnextと等価な`move_in_segment`の定義と証明が必要
+def LubyState.move_in_segment (s : LubyState) (d : Nat) (_ : s.locIx + d < s.segment_height) : LubyState :=
+  LubyState.mk s.segIx (s.locIx + d)
+
+theorem LubyState.move_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) : 
+    LubyState.move_in_segment s d h = s.next d := by
   sorry
 
+theorem LubyState.define_recursively1 : ∀ n : Nat,
+  (LubyState.ofNat n).is_segment_beg = true → (LubyState.ofNat (n + (LubyState.ofNat n).segment_height)).is_segment_beg := by
+    intro n hz
+    let n' := LubyState.ofNat n
+    have nn : n' = value_of% n' := by exact rfl
+    have z : n'.locIx = 0 := by
+      simp [LubyState.is_segment_beg, ←nn] at hz
+      exact hz
+    let se := n'.next (n'.segment_height)
+    let pse : se = value_of% se := by exact rfl
+    -- その証明を使って次のsegment_begがどうあるべきかを示せばそれがゴール
+    sorry
+
+theorem LubyState.define_recursively2 : ∀ n : Nat,
+    LubyState.zero.next n = LubyState.mk (LubyState.toSegIx n 0 0) (LubyState.toLocIx n) := by
+  sorry
