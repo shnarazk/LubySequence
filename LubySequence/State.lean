@@ -422,9 +422,10 @@ theorem LubyState.define_recursively1 : ∀ n : Nat,
       simp [LubyState.segment_height]
     simp [t4]
     simp [←nn]
-    have t5 : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.segment_height - 1 := by
-      sorry
+    have t5 : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.locIx + n'.segment_height - 1 := by
+      exact rfl
     rw [LubyState.next]
+    simp [z] at t5
     split
     { expose_names ; simp [LubyState.is_segment_beg] }
     { expose_names ; 
