@@ -343,8 +343,11 @@ def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
 def LubyState.move_in_segment (s : LubyState) (d : Nat) : LubyState := LubyState.mk s.segIx (s.locIx + d)
 
 theorem LubyState.move_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) : 
-    ∀ d' < d, s.move_in_segment d' = (s.move_in_segment (d' - 1)).move_in_segment 1 := by
-  sorry
+    ∀ d' < d, 0 < d' → s.move_in_segment d' = (s.move_in_segment (d' - 1)).move_in_segment 1 := by
+  intro n hn hd
+  simp [LubyState.move_in_segment]
+  simp [add_assoc]
+  exact (Nat.sub_eq_iff_eq_add hd).mp rfl
 
 theorem LubyState.move_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) : 
     LubyState.move_in_segment s d = s.next d := by
@@ -364,6 +367,7 @@ theorem LubyState.move_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx
     have : ¬(s.next d).is_segment_end = true := by
       simp [LubyState.is_segment_end]
       have u1 : (s.next d).segment_height = s.segment_height := by
+        simp [←hd']
         -- TODO: as is
         sorry
       simp [u1]
