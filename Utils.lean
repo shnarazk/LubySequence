@@ -14,15 +14,6 @@ def trailing_ones (n : Nat) : Nat :=
   then n
   else if n % 2 = 1 then 1 + trailing_ones (n / 2) else 0
 
-#eval List.range 9 |>.map trailing_zeros
-
-def trailing_one (n : Nat) : Nat :=
-  if h : n < 2
-  then n
-  else if n % 2 = 0 then 0 else 1 + trailing_one (n / 2)
-
-#eval List.range 9 |>.map trailing_one
-
 def scanList {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool := true) : List α :=
   match n with
   | 0      => []
