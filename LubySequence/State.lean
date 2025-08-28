@@ -167,6 +167,17 @@ theorem LubyState.next_assoc (li : LubyState) : ∀ n : Nat, (li.next n).next = 
 
 def LubyState.ofNat (n : Nat) : LubyState := LubyState.zero.next n
 
+theorem LubyState.ofNat_dist (a b : Nat) : LubyState.ofNat (a + b) = (LubyState.ofNat a).next b := by
+  induction' b with b hb
+  { simp [LubyState.next] }
+  {
+    have t1 : a + (b + 1) = a + b + 1 := by grind
+    simp [t1]
+    have t2 : ofNat (a + b + 1) = (ofNat (a + b)).next := by exact rfl
+    simp [t2, hb]
+    exact rfl
+  }
+
 def S₁ (n: Nat) : Nat := n.succ.size.pred
 
 #eval List.range 24 |>.map (fun k ↦ S₁ k)
@@ -399,17 +410,32 @@ theorem LubyState.define_recursively1 : ∀ n : Nat,
     have t2 : (ofNat (n + n'.segment_height - 1 + 1)) = (ofNat (n + n'.segment_height - 1)).next 1 := by
       exact rfl
     simp [t2]
-    have t3 : ofNat (n + n'.segment_height - 1) = (ofNat n).next (n'.segment_height - 1) := by
-      sorry
+    have t3 : n + n'.segment_height - 1 = n + (n'.segment_height - 1) := by exact rfl
     simp [t3]
+    have t4 : ofNat (n + (n'.segment_height - 1)) = (ofNat n).next (n'.segment_height - 1) := by
+      exact ofNat_dist n (n'.segment_height - 1)
+    simp [t4]
     have t4 :
         (ofNat n).next (n'.segment_height - 1) = (ofNat n).next_in_segment (n'.segment_height - 1) := by
       refine Eq.symm (next_in_segment_is_next (ofNat n) (n'.segment_height - 1) ?_)
       simp [←nn, z]
       simp [LubyState.segment_height]
     simp [t4]
-    -- FIXME !
-    sorry
+    simp [←nn]
+    have t5 : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.segment_height - 1 := by
+      sorry
+    rw [LubyState.next]
+    split
+    { expose_names ; simp [LubyState.is_segment_beg] }
+    { expose_names ; 
+      simp [LubyState.is_segment_end] at h
+      rw [LubyState.next, t5] at h
+      have t6 : (n'.next_in_segment (n'.segment_height - 1)).segment_height = n'.segment_height := by
+        exact rfl
+      simp [t6] at h
+      have t7 : n'.segment_height - 1 + 1 = n'.segment_height := by exact t6
+      exact absurd t7 h
+    }
 
 theorem LubyState.define_recursively2 : ∀ n : Nat,
     LubyState.zero.next n = LubyState.mk (LubyState.toSegIx n 0 0) (LubyState.toLocIx n) := by
