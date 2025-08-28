@@ -4,17 +4,17 @@ import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 
-def trailing_zero (n : Nat) : Nat :=
+def trailing_zeros (n : Nat) : Nat :=
   if h : n < 2
   then (1 - n)
-  else if n % 2 = 0 then 1 + trailing_zero (n / 2) else 0
+  else if n % 2 = 0 then 1 + trailing_zeros (n / 2) else 0
 
 def trailing_ones (n : Nat) : Nat :=
   if h : n < 2
   then n
   else if n % 2 = 1 then 1 + trailing_ones (n / 2) else 0
 
-#eval List.range 9 |>.map trailing_zero
+#eval List.range 9 |>.map trailing_zeros
 
 def trailing_one (n : Nat) : Nat :=
   if h : n < 2
@@ -419,13 +419,13 @@ theorem size_limit {n : Nat} (h : 0 < n) :
   rcases h' with ⟨a, b⟩
   have c1 : n.size < (n + 1).size := by
     exact Nat.lt_of_le_of_ne s1 (id (Ne.symm a))
-  have c2 : (n + 1).size < n.size + 1 := by 
+  have c2 : (n + 1).size < n.size + 1 := by
     exact Nat.lt_of_le_of_ne s2 b
   have c2' : (n + 1).size ≤ n.size  := by exact Nat.le_of_lt_succ c2
   have c2'' : ¬(n + 1).size > n.size := by exact Nat.not_lt.mpr c2'
   exact absurd c1 c2''
 
-theorem pow2_is_minimum (k : Nat) : ∀ n < 2 ^ k, n.size ≤ k := by 
+theorem pow2_is_minimum (k : Nat) : ∀ n < 2 ^ k, n.size ≤ k := by
   intro n hn
   have t1 : n.size ≤ (2 ^ k).size := by
     refine Nat.size_le_size ?_
@@ -455,7 +455,7 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
                   refine Nat.sub_le_sub_right ?_ 1
                   { simp [n2] ; exact h2 }
                 exact Nat.sub_le_sub_right this 1
-              simp 
+              simp
             exact Nat.one_le_two_pow }
         simp [this]
         exact Nat.zero_lt_of_lt h2

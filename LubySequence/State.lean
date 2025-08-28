@@ -22,9 +22,9 @@ def LubyState.luby (self : LubyState) : Nat := 2 ^ self.locIx
 @[simp]
 def trailing_zero' (n : Nat) : Nat := match n with
   | 0     => 1
-  | n + 1 => (trailing_zero n).succ
+  | n + 1 => (trailing_zeros n).succ
 
-def LubyState.segment_height (self : LubyState) : Nat := trailing_zero self.segIx + 1
+def LubyState.segment_height (self : LubyState) : Nat := trailing_zeros self.segIx + 1
 
 def LubyState.is_segment_beg (self : LubyState) : Bool :=
   self.locIx = 0
@@ -113,7 +113,7 @@ theorem LubyState.segId0 {n : Nat} : n = 0 ↔ (LubyState.zero.next n).segIx = 1
     by_contra x
     have base1 : (LubyState.zero.next 1).segIx = 2 := by
       simp [LubyState.zero, LubyState.next, LubyState.is_segment_end]
-      simp [default, LubyState.segment_height, trailing_zero]
+      simp [default, LubyState.segment_height, trailing_zeros]
     have : n ≥ 1 → (LubyState.zero.next n).segIx ≥ 2 := by
       have sub : n ≥ 1 → (zero.next n).segIx ≥ (zero.next 1).segIx := by
         exact fun a ↦ LubyState.segIx_is_mono 1 n a
@@ -187,7 +187,7 @@ def S₁ (n: Nat) : Nat := n.succ.size.pred
 -- @[simp]
 def segIdToLastIndex (n : Nat) : Nat := match n with
   | 0     => 0
-  | m + 1 => trailing_zero n + 1  + segIdToLastIndex m
+  | m + 1 => trailing_zeros n + 1  + segIdToLastIndex m
 
 def LubyState.toNat (self : LubyState) : Nat := match self.segIx with
   | 0 => 0
@@ -305,7 +305,7 @@ theorem LubyState.LubyState_prop (n : Nat) :
   have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
   have segbeg1 : Luby.is_segment_beg 1 := by simp [Luby.is_segment_beg.eq_def]
   have defaultenv : (default : LubyState).is_segment_end =true := by
-    simp [LubyState.is_segment_end, default, LubyState.segment_height, trailing_zero]
+    simp [LubyState.is_segment_end, default, LubyState.segment_height, trailing_zeros]
   split
   { expose_names ; exact LubyState_segment_prop2 h }
   { expose_names
@@ -330,30 +330,30 @@ theorem LubyState.LubyState_prop (n : Nat) :
     { expose_names ; simp [LubyState.luby] ; exact Nat.pow_succ' } }
 
 def LubyState.toSegIx (n segIx sum : Nat) : Nat :=
-  let len := trailing_zero segIx + 1
+  let len := trailing_zeros segIx + 1
   if hn : n <= len
   then segIx
   else
-    have len1 : 1 ≤ len := by exact Nat.le_add_left 1 (trailing_zero segIx)
+    have len1 : 1 ≤ len := by exact Nat.le_add_left 1 (trailing_zeros segIx)
     have n0 : 0 < n := by
-      have : len < n := by exact Nat.gt_of_not_le hn 
+      have : len < n := by exact Nat.gt_of_not_le hn
       exact Nat.zero_lt_of_lt this
     have n_is_decreasing : n - len < n := by
-      have t1 : 0 < len := by exact Nat.zero_lt_succ (trailing_zero segIx)
+      have t1 : 0 < len := by exact Nat.zero_lt_succ (trailing_zeros segIx)
       have t2 : len < n := by exact Nat.gt_of_not_le hn
       exact Nat.sub_lt n0 t1
-    LubyState.toSegIx (n - len) (segIx + 1) (sum + len) 
+    LubyState.toSegIx (n - len) (segIx + 1) (sum + len)
 
 def LubyState.sumOfSegmentHeights : Nat → Nat
   | 0     => 0
-  | n + 1 => trailing_zero (n + 1) + LubyState.sumOfSegmentHeights n
+  | n + 1 => trailing_zeros (n + 1) + LubyState.sumOfSegmentHeights n
 
 def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
 
 -- TODO: segment内ではsegment_height step分直接遷移可能でnextと等価な`move_in_segment`の定義と証明が必要
 def LubyState.next_in_segment (s : LubyState) (d : Nat) : LubyState := LubyState.mk s.segIx (s.locIx + d)
 
-theorem LubyState.move_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) : 
+theorem LubyState.move_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) :
     ∀ d' < d, 0 < d' → s.next_in_segment d' = (s.next_in_segment (d' - 1)).next_in_segment 1 := by
   intro n hn hd
   simp [LubyState.next_in_segment]
@@ -373,7 +373,7 @@ theorem LubyState.move_in_segment_increments_locIx (s : LubyState) (d : Nat) (h 
     exact rfl
   }
 
-theorem LubyState.next_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) : 
+theorem LubyState.next_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) :
     LubyState.next_in_segment s d = s.next d := by
   induction' d with d hd
   { simp [LubyState.next_in_segment, LubyState.next] }
@@ -396,7 +396,7 @@ theorem LubyState.next_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx
     exact Nat.ne_of_lt h
   }
 
-theorem LubyState.define_recursively1 : ∀ n : Nat,
+theorem LubyState.segment_beg_transition' : ∀ n : Nat,
   (LubyState.ofNat n).is_segment_beg = true → (LubyState.ofNat (n + (LubyState.ofNat n).segment_height)).is_segment_beg := by
     intro n hz
     let n' := LubyState.ofNat n
@@ -428,7 +428,7 @@ theorem LubyState.define_recursively1 : ∀ n : Nat,
     simp [z] at t5
     split
     { expose_names ; simp [LubyState.is_segment_beg] }
-    { expose_names ; 
+    { expose_names ;
       simp [LubyState.is_segment_end] at h
       rw [LubyState.next, t5] at h
       have t6 : (n'.next_in_segment (n'.segment_height - 1)).segment_height = n'.segment_height := by
@@ -437,6 +437,16 @@ theorem LubyState.define_recursively1 : ∀ n : Nat,
       have t7 : n'.segment_height - 1 + 1 = n'.segment_height := by exact t6
       exact absurd t7 h
     }
+
+def LubyState.segment_height_sum (b : Nat) : Nat := match b with
+  | 0     => 0
+  | a + 1 => trailing_zeros b + 1 + LubyState.segment_height_sum a
+
+#eval List.range 5 |>.map (fun k ↦ (2 ^ k, LubyState.segment_height_sum (2 ^ k), 2 ^ (k + 1) - 1))
+
+theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
+  LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
+    sorry
 
 theorem LubyState.define_recursively2 : ∀ n : Nat,
     LubyState.zero.next n = LubyState.mk (LubyState.toSegIx n 0 0) (LubyState.toLocIx n) := by
