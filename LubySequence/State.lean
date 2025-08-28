@@ -390,12 +390,25 @@ theorem LubyState.define_recursively1 : ∀ n : Nat,
     intro n hz
     let n' := LubyState.ofNat n
     have nn : n' = value_of% n' := by exact rfl
+    simp [←nn]
     have z : n'.locIx = 0 := by
       simp [LubyState.is_segment_beg, ←nn] at hz
       exact hz
-    let se := n'.next (n'.segment_height)
-    let pse : se = value_of% se := by exact rfl
-    -- その証明を使って次のsegment_begがどうあるべきかを示せばそれがゴール
+    have t1 : n + n'.segment_height = (n + n'.segment_height - 1) + 1 := by exact rfl
+    rw [t1]
+    have t2 : (ofNat (n + n'.segment_height - 1 + 1)) = (ofNat (n + n'.segment_height - 1)).next 1 := by
+      exact rfl
+    simp [t2]
+    have t3 : ofNat (n + n'.segment_height - 1) = (ofNat n).next (n'.segment_height - 1) := by
+      sorry
+    simp [t3]
+    have t4 :
+        (ofNat n).next (n'.segment_height - 1) = (ofNat n).next_in_segment (n'.segment_height - 1) := by
+      refine Eq.symm (next_in_segment_is_next (ofNat n) (n'.segment_height - 1) ?_)
+      simp [←nn, z]
+      simp [LubyState.segment_height]
+    simp [t4]
+    -- FIXME !
     sorry
 
 theorem LubyState.define_recursively2 : ∀ n : Nat,
