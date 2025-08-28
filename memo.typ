@@ -110,6 +110,7 @@ $
 - Otherwise, the right tree is folded to the left tree. By a simple calculation, we find that any number is placed to the top of a tree or in the right subtree.
 - The worst recursion depth of $L u b y (N)$ would be $O(log(N))$.
 
+/*
 == Another interpretation using a binary tree
 
 Or you can map the function to a traversal on a binary graph.
@@ -148,6 +149,7 @@ The function has a strong relation to an operation on the binary representation 
           ([$6 arrow_(-3) 3$]),
           ([#encircle($7$)]), ), ) ))
 })]
+*/
 
 = An efficient implementation
 

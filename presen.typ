@@ -100,7 +100,7 @@ $
 
 //- The worst recursion depth of $L u b y (N)$ would be $O(log(N))$.
 
-== Another interpretation using a binary tree
+/* == Another interpretation using a binary tree
 
 #cetz-canvas(length: 16pt, {
   draw.set-style(content: (padding: 0.5em))
@@ -134,6 +134,7 @@ $
 
 #pause
 Remove the highest non-zero bits until . . .
+*/
 
 = An online algorithm
 
@@ -186,6 +187,8 @@ $
 
 #pause
 
+Segments start at 1, 2, 4, 5, 8, 9, 11, 12 ...
+/*
 $
   "segment_beg"_i & = 1 + sum_(i>= 0) #pin(1) [ "use envelope"_i ]#pin(2) |"envelope"_i| \
     & = 1 + sum_(i>= 0)" " [ "use envelope"_i ] " " (2^i - 1),
@@ -195,6 +198,8 @@ $
 #pinit-point-from(2, offset-dx: 70pt, offset-dy: 20pt)[
   #text(size: 16pt, [Iverson's notation])
 ]
+*/
+
 == From segment index to segment length
 
 #canvas(length: 10pt, {
@@ -217,11 +222,17 @@ $
           (text(fill: blue, [$\#8 = "b1000"$])), ), )) )
 })
 
-$
-  "segment_beg"_n =& 1 + sum_(i = 0)^n i."trailing_zero" + 1 \
+$ "segment_beg"_n = 1 + sum_(i = 0)^n #pin(1)i."trailing_zero"#pin(2) + 1  $
+
+#pinit-highlight(1, 2)
+
+#pinit-point-from(2)[
+  #text(size: 16pt, [$8."trailing_zero" = 3$])
+]
+
 #pause
-  "segment_beg"_(2^k) =& 2^k
-$
+
+$ "segment_beg"_(2^k) = 2^k $
 
 == Luby state
 
