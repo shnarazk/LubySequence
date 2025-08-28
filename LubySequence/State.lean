@@ -340,42 +340,49 @@ def LubyState.sumOfSegmentHeights : Nat → Nat
 def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
 
 -- TODO: segment内ではsegment_height step分直接遷移可能でnextと等価な`move_in_segment`の定義と証明が必要
-def LubyState.move_in_segment (s : LubyState) (d : Nat) : LubyState := LubyState.mk s.segIx (s.locIx + d)
+def LubyState.next_in_segment (s : LubyState) (d : Nat) : LubyState := LubyState.mk s.segIx (s.locIx + d)
 
 theorem LubyState.move_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) : 
-    ∀ d' < d, 0 < d' → s.move_in_segment d' = (s.move_in_segment (d' - 1)).move_in_segment 1 := by
+    ∀ d' < d, 0 < d' → s.next_in_segment d' = (s.next_in_segment (d' - 1)).next_in_segment 1 := by
   intro n hn hd
-  simp [LubyState.move_in_segment]
+  simp [LubyState.next_in_segment]
   simp [add_assoc]
   exact (Nat.sub_eq_iff_eq_add hd).mp rfl
 
-theorem LubyState.move_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) : 
-    LubyState.move_in_segment s d = s.next d := by
+theorem LubyState.move_in_segment_increments_locIx (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) :
+    (s.next_in_segment d).locIx = s.locIx + d := by
   induction' d with d hd
-  { simp [LubyState.move_in_segment, LubyState.next] }
+  { simp [LubyState.next_in_segment] }
+  { have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
+    have t1 : s.next_in_segment (d + 1) = (s.next_in_segment d).next_in_segment 1 := by exact rfl
+    simp [t1]
+    nth_rw 1 [LubyState.next_in_segment]
+    have hd' := hd h'
+    simp [hd']
+    exact rfl
+  }
+
+theorem LubyState.next_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) : 
+    LubyState.next_in_segment s d = s.next d := by
+  induction' d with d hd
+  { simp [LubyState.next_in_segment, LubyState.next] }
   { have t1 : s.next (d + 1) = (s.next d).next 1 := by exact rfl
     simp [t1]
     have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
-    have t2 : s.move_in_segment (d + 1) = (s.move_in_segment d).move_in_segment 1 := by exact rfl
+    have t2 : s.next_in_segment (d + 1) = (s.next_in_segment d).next_in_segment 1 := by exact rfl
     simp [t2]
-    nth_rw 1 [LubyState.move_in_segment]
+    nth_rw 1 [LubyState.next_in_segment]
     have hd' := hd h'
     simp [hd']
     nth_rw 1 [LubyState.next]
     have t3 : (s.next d).next 0 = s.next d := by exact rfl
     simp [t3]
-    have : ¬(s.next d).is_segment_end = true := by
-      simp [LubyState.is_segment_end]
-      have u1 : (s.next d).segment_height = s.segment_height := by
-        simp [←hd']
-        -- TODO: as is
-        sorry
-      simp [u1]
-      have u1 : (s.next d).locIx + 1 < s.segment_height := by
-        -- TODO: s.next.locIx = s.locIx + 1
-        sorry
-      exact Nat.ne_of_lt u1
-    exact eq_false_of_ne_true this
+    simp [←hd']
+    simp [LubyState.is_segment_end]
+    have t1 : (s.next_in_segment d).locIx = s.locIx + d := by exact rfl
+    simp [t1]
+    have h' : s.locIx + d + 1 < s.segment_height := by exact h
+    exact Nat.ne_of_lt h
   }
 
 theorem LubyState.define_recursively1 : ∀ n : Nat,
