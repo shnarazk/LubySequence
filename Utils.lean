@@ -4,9 +4,14 @@ import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 
+/--
+Returns the number of zeros at the end of bit representation of Nat `n`.
+Note: `trailing_zeros 0 = 0`
+It differs from the Rust implementation which returns 64 if n = 0_u64.
+--/
 def trailing_zeros (n : Nat) : Nat :=
   if h : n < 2
-  then (1 - n)
+  then 0
   else if n % 2 = 0 then 1 + trailing_zeros (n / 2) else 0
 
 def trailing_ones (n : Nat) : Nat :=
