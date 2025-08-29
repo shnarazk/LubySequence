@@ -9,10 +9,21 @@ Returns the number of zeros at the end of bit representation of Nat `n`.
 Note: `trailing_zeros 0 = 0`
 It differs from the Rust implementation which returns 64 if n = 0_u64.
 --/
-def trailing_zeros (n : Nat) : Nat :=
-  if h : n < 2
-  then 0
-  else if n % 2 = 0 then 1 + trailing_zeros (n / 2) else 0
+def trailing_zeros (n : Nat) : Nat := match h : n with
+  | 0      => n
+  | n' + 1 =>
+    if n = 2 ^ (n.size - 1)
+    then n.size - 1
+    else
+      have decreasing : n - 2 ^ (n.size - 1) < n := by
+        expose_names
+        have n1 : n > 0 := by exact Nat.lt_of_sub_eq_succ h
+        have t1 : 0 < 2 ^ (n.size - 1) := by exact Nat.two_pow_pos (n.size - 1)
+        exact Nat.sub_lt n1 t1
+      trailing_zeros (n - 2 ^ (n.size - 1))
+  -- | _ => if n < 2 then 0 else if n % 2 = 0 then 1 + trailing_zeros (n / 2) else 0
+
+#eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
 
 def trailing_ones (n : Nat) : Nat :=
   if h : n < 2
@@ -457,3 +468,18 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
         exact Nat.zero_lt_of_lt h2
       exact le_if_le_size this
     exact Nat.le_of_pred_lt this }
+
+theorem trailing_zeros_prop1 :
+    ∀ n > 0, n ≠ 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
+  intro n hn1 hn2
+  induction' n using Nat.strong_induction_on with n ih
+  { rw [trailing_zeros.eq_def]
+    nth_rw 2 [trailing_zeros.eq_def]
+    have ot : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' hn1
+    rcases ot with o|t
+    { simp [o] at * }
+    {
+      
+      sorry
+   }
+  }
