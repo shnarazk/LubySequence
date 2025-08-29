@@ -479,7 +479,43 @@ theorem trailing_zeros_prop1 :
     rcases ot with o|t
     { simp [o] at * }
     {
-      
-      sorry
-   }
+      split
+      { contradiction }
+      { expose_names
+        split
+        { expose_names ; exact absurd h hn2 }
+        { expose_names
+          split
+          { expose_names
+            have t1 : 2 ^ (n'.succ.size - 1) + (n'.succ - 2 ^ (n'.succ.size - 1)) = 2 ^ (n'.succ.size - 1) + 0 := by
+              exact congrArg (HAdd.hAdd (2 ^ (n'.succ.size - 1))) heq
+            simp at h
+            have t2 : 2 ^ (n'.succ.size - 1) + (n'.succ - 2 ^ (n'.succ.size - 1)) = 2 ^ (n'.succ.size - 1) + n'.succ - 2 ^ (n'.succ.size - 1) := by 
+              refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (n'.succ.size - 1)))
+              exact n_ge_subenvelope hn1
+            simp [t2] at t1
+            exact absurd t1 h }
+          { expose_names
+            simp only [heq]
+            have t1 : ¬n'_1.succ = 2 ^ (n'_1.succ.size - 1) := by
+              sorry
+            simp [t1]
+            have sub1 : n'_1.succ < n'.succ := by
+              have : n'_1 < n' := by
+                have s1 : n'.succ - 2 ^ (n'.succ.size - 1) ≤ n'.succ := by
+                  exact Nat.sub_le n'.succ (2 ^ (n'.succ.size - 1))
+                have s2 : 0 < 2 ^ (n'.succ.size - 1) := by exact Nat.two_pow_pos (n'.succ.size - 1)
+                have s1' : n'.succ - 2 ^ (n'.succ.size - 1) < n'.succ := by
+                  exact Nat.sub_lt hn1 s2
+                simp [heq] at s1'
+                exact s1'
+              exact Nat.succ_lt_succ this 
+            have sub2 : n'_1.succ > 0 := by grind
+            have sub3 : n'_1.succ ≠ 2 ^ (n'_1.succ.size - 1) := by
+              sorry
+            exact ih (n'_1 + 1) sub1 sub2 t1
+          }
+        }
+      }
+    }
   }
