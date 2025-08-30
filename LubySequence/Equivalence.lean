@@ -189,8 +189,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
             exact Nat.lt_of_le_of_ne t1 (id (Ne.symm n_upper))
           exact t2
         -- have high : n ≤ 2 ^ ((n + 1).size - 1 - 1) / 2 := by
-        have mod {a b : Nat} (h : 0 < a) (h1 : a ≤ b) (h2 : b < a * 2) :
-            b % a = b - a := by
+        have mod {a b : Nat} (h : 0 < a) (h1 : a ≤ b) (h2 : b < a * 2) : b % a = b - a := by
           let d := b - a
           have dp : d = value_of% d := by exact rfl
           have ap1 : d < a := by
@@ -320,38 +319,21 @@ theorem LubyState_is_Luby : ∀ n : Nat, Luby.luby n = (LubyState.ofNat n).luby 
   simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at tree_cases
   -- simp [LubyState.is_envelope] at gen_cases
   rcases tree_cases with tree_env|not_tree_env
-  {
-    rcases gen_cases with gen_env|not_gen_env
-    {
-      sorry
-    }
-    {
-      sorry
-    }
-  }
-  {
-    rcases gen_cases with gen_env|not_gen_env
-    {
-      sorry
-    }
-    {
-      sorry
-    }
-  }
-
+  { rcases gen_cases with gen_env|not_gen_env
+    { sorry }
+    { sorry } }
+  { rcases gen_cases with gen_env|not_gen_env
+    { sorry }
+    { sorry } }
   split
-  {
-    expose_names
+  { expose_names
     rw [←LubyTree.luby, LubyState.ofNat, LubyState.luby]
     have tf : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
     rcases tf with t|f
-    {
-      simp [t] at *
+    { simp [t] at *
       simp [LubyTree.envelopeDepth]
-      simp [default, LubyState.zero, LubyState.next]
-    }
-    {
-      -- have hn' := hn 0
+      simp [default, LubyState.zero, LubyState.next] }
+    { -- have hn' := hn 0
       -- rw [LubyTree.luby] at hn'
       simp only [LubyTree.envelopeDepth]
       -- envelopeなら$n = 2 ^ i - 1$, またsegIxが式として表されるはず。
@@ -373,27 +355,20 @@ theorem LubyState_is_Luby : ∀ n : Nat, Luby.luby n = (LubyState.ofNat n).luby 
           exact Nat.div_lt_of_lt_mul this
         have hn' := hn ((n - 1) / 2) this
         sorry
-
       have s2 : (LubyState.ofNat n).locIx = (n + 1).size - 1 := by sorry
       have s3 : LubyState.ofNat n = LubyState.zero.next n := by exact rfl
       simp [s3] at s2
-      simp [s2]
-    }
-  }
+      simp [s2] } }
   sorry
 
 theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
   intro n
   induction' n /- using Nat.strong_induction_on -/ with n hn
-  {
-    simp [LubyState.ofNat, LubyState.zero, LubyState.luby, default, LubyState.next]
+  { simp [LubyState.ofNat, LubyState.zero, LubyState.luby, default, LubyState.next]
     rw [Luby.luby, Luby.S₂]
-    simp [Nat.size, Nat.binaryRec, Luby.S₂]
-  }
-  {
-    -- simp [LubyState.ofNat, LubyState.zero]
+    simp [Nat.size, Nat.binaryRec, Luby.S₂] }
+  { -- simp [LubyState.ofNat, LubyState.zero]
     have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
     simp [this]
-    sorry
- }
+    sorry }
 -/
