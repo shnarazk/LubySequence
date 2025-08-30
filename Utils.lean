@@ -469,7 +469,21 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
       exact le_if_le_size this
     exact Nat.le_of_pred_lt this }
 
-theorem trailing_zeros_prop1 :
+theorem trailing_zeros_prop1 : ∀ n > 0,
+    ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
+  intro n hn
+  induction' n using Nat.strong_induction_on with n ih
+  intro n_ne_envenlop
+  rw [trailing_zeros.eq_def]
+  split
+  { contradiction }
+  { expose_names
+    split
+    { expose_names; exact absurd h n_ne_envenlop }
+    { exact rfl }
+  }
+
+theorem trailing_zeros_prop2 :
     ∀ n > 0, n ≠ 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn1 hn2
   induction' n using Nat.strong_induction_on with n ih
@@ -478,8 +492,7 @@ theorem trailing_zeros_prop1 :
     have ot : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' hn1
     rcases ot with o|t
     { simp [o] at * }
-    {
-      split
+    { split
       { contradiction }
       { expose_names
         split
@@ -498,6 +511,10 @@ theorem trailing_zeros_prop1 :
           { expose_names
             simp only [heq]
             have t1 : ¬n'_1.succ = 2 ^ (n'_1.succ.size - 1) := by
+              by_contra t
+              simp only [←heq] at t
+              -- Boss is comming.
+              -- have : n'.succ - 2 ^ (n'.succ.size - 1) = 2 ^ ((n'.succ - 2 ^ (n'.succ.size - 1)).size - 1) 
               sorry
             simp [t1]
             have sub1 : n'_1.succ < n'.succ := by
@@ -511,11 +528,4 @@ theorem trailing_zeros_prop1 :
                 exact s1'
               exact Nat.succ_lt_succ this 
             have sub2 : n'_1.succ > 0 := by grind
-            have sub3 : n'_1.succ ≠ 2 ^ (n'_1.succ.size - 1) := by
-              sorry
-            exact ih (n'_1 + 1) sub1 sub2 t1
-          }
-        }
-      }
-    }
-  }
+            exact ih (n'_1 + 1) sub1 sub2 t1 } } } } }
