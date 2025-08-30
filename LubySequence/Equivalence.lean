@@ -292,22 +292,36 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
 
 #eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat n).luby, (LubyState.ofNat n).segment_height, LubyTree.luby (n + 1)))
 
-/- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth).
-theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx = LubyTree.envelopeDepth (n + 1) := by
-  -- sapply?
-  sorry -/
-
 #eval List.range 30 |>.map (fun n ↦ (Luby.luby n, (LubyState.ofNat n).luby))
+#eval List.range 22 |>.map (fun n ↦ ((LubyState.ofNat n).is_segment_beg, Luby.is_segment_beg n))
 
 theorem LubyStateSegment_is_LubySegment : 
     ∀ n : Nat, (LubyState.ofNat n).is_segment_beg = Luby.is_segment_beg n := by
+  have defaultSegIx : (default : LubyState).segIx = 1 := by exact rfl
+  have defaultLocIx : (default : LubyState).locIx = 0 := by exact rfl
   intro n
-  --
-  sorry
+  induction' n using Nat.strong_induction_on with n hn
+  { rw [LubyState.is_segment_beg, Luby.is_segment_beg.eq_def]
+    split
+    { simp [LubyState.ofNat, LubyState.zero, LubyState.next, default] }
+    { simp [LubyState.ofNat, LubyState.next]
+      have : LubyState.zero.is_segment_end = true := by
+        simp [LubyState.is_segment_end]
+        simp [LubyState.segment_height, LubyState.zero]
+        rw [trailing_zeros.eq_def]
+        simp [defaultSegIx, defaultLocIx]
+      simp [this] }
+    { expose_names
+      sorry } }
 
 theorem LubyState_is_Luby : ∀ n : Nat, Luby.luby n = (LubyState.ofNat n).luby := by
   intro n
   sorry
+
+/- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth).
+theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx = LubyTree.envelopeDepth (n + 1) := by
+  -- sapply?
+  sorry -/
 
 /-
   induction' n using Nat.strong_induction_on with n hn
