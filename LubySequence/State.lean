@@ -444,6 +444,10 @@ def LubyState.segment_height_sum (b : Nat) : Nat := match b with
 
 #eval List.range 5 |>.map (fun k ↦ (2 ^ k, LubyState.segment_height_sum (2 ^ k), 2 ^ (k + 1) - 1))
 
+theorem LubyState.segment_beg_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+    (LubyState.ofNat n).is_segment_beg = (LubyState.ofNat (n - 2 ^ (n.size - 1))).is_segment_beg := by
+  sorry -- FIXME: todo
+
 theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
   LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
     sorry
