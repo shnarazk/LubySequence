@@ -510,22 +510,16 @@ theorem trailing_zeros_prop2 :
             exact absurd t1 h }
           { expose_names
             simp only [heq]
-            have t1 : ¬n'_1.succ = 2 ^ (n'_1.succ.size - 1) := by
-              by_contra t
-              simp only [←heq] at t
-              -- Boss is comming.
-              -- have : n'.succ - 2 ^ (n'.succ.size - 1) = 2 ^ ((n'.succ - 2 ^ (n'.succ.size - 1)).size - 1) 
-              sorry
-            simp [t1]
-            have sub1 : n'_1.succ < n'.succ := by
-              have : n'_1 < n' := by
-                have s1 : n'.succ - 2 ^ (n'.succ.size - 1) ≤ n'.succ := by
-                  exact Nat.sub_le n'.succ (2 ^ (n'.succ.size - 1))
-                have s2 : 0 < 2 ^ (n'.succ.size - 1) := by exact Nat.two_pow_pos (n'.succ.size - 1)
-                have s1' : n'.succ - 2 ^ (n'.succ.size - 1) < n'.succ := by
-                  exact Nat.sub_lt hn1 s2
-                simp [heq] at s1'
-                exact s1'
-              exact Nat.succ_lt_succ this 
-            have sub2 : n'_1.succ > 0 := by grind
-            exact ih (n'_1 + 1) sub1 sub2 t1 } } } } }
+            split
+            { expose_names
+              rw [trailing_zeros.eq_def]
+              split
+              { expose_names ; contradiction }
+              { expose_names
+                split
+                { expose_names ; exact rfl }
+                { expose_names ; exact rfl } } }
+            { expose_names
+              have sub1 : n'_1.succ > 0 := by grind
+              have recursion := trailing_zeros_prop1 n'_1.succ sub1 h_1
+              exact recursion } } } } } }
