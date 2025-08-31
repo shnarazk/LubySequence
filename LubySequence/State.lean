@@ -435,7 +435,6 @@ theorem LubyState.segment_beg_transition' : ∀ n : Nat,
       exact absurd t7 h
     }
 
-
 -- def LubyState.segment_height_sum' (b : Nat) : Nat := match b with
 --   | 0     => 0
 --   | a + 1 => trailing_zeros b + 1 + LubyState.segment_height_sum' a

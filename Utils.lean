@@ -469,6 +469,23 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
       exact le_if_le_size this
     exact Nat.le_of_pred_lt this }
 
+theorem trailing_zeros_of_envelope : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
+  intro n
+  induction' n with n hn'
+  { simp [trailing_zeros.eq_def] } 
+  { rw [trailing_zeros.eq_def]
+    split
+    { expose_names ;
+      have c : ¬2 ^ (n + 1) = 0 := by exact NeZero.ne (2 ^ (n + 1))
+      exact absurd heq c }
+    { expose_names
+      have n2 : (2 ^ (n + 1)).size = n + 2 := by exact size_of_pow2_eq_self_add_one (n + 1)
+      split
+      { expose_names
+        simp [n2] }
+      { expose_names
+        simp [n2] at h } } }
+
 theorem trailing_zeros_prop1 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn
@@ -483,6 +500,7 @@ theorem trailing_zeros_prop1 : ∀ n > 0,
     { exact rfl }
   }
 
+@[simp]
 theorem trailing_zeros_prop2 :
     ∀ n > 0, n ≠ 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn1 hn2
@@ -523,3 +541,27 @@ theorem trailing_zeros_prop2 :
               have sub1 : n'_1.succ > 0 := by grind
               have recursion := trailing_zeros_prop1 n'_1.succ sub1 h_1
               exact recursion } } } } } }
+
+
+@[simp]
+theorem trailing_zeros_prop3 :
+    ∀ n > 0, n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 2)) + 1 := by
+  intro n hn1 hn2
+  induction' n using Nat.strong_induction_on with n ih
+  { rw [trailing_zeros.eq_def]
+    split
+    { contradiction }
+    { split
+      { expose_names
+        have : n'.succ - 2 ^ (n'.succ.size - 2) = 2 ^ (n'.succ.size - 2) := by
+          nth_rw 1 [h]
+          have : 2 ^ (n'.succ.size - 1) = 2 * 2 ^ (n'.succ.size - 2) := by
+            sorry
+          simp [this]
+          grind
+        simp only [this]
+
+        
+        sorry }
+      { expose_names ; exact absurd hn2 h } } }
+    
