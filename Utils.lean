@@ -500,6 +500,7 @@ theorem trailing_zeros_prop1 : ∀ n > 0,
     { exact rfl }
   }
 
+/-
 @[simp]
 theorem trailing_zeros_prop2 :
     ∀ n > 0, n ≠ 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
@@ -541,27 +542,28 @@ theorem trailing_zeros_prop2 :
               have sub1 : n'_1.succ > 0 := by grind
               have recursion := trailing_zeros_prop1 n'_1.succ sub1 h_1
               exact recursion } } } } } }
-
+-/
 
 @[simp]
-theorem trailing_zeros_prop3 :
-    ∀ n > 0, n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 2)) + 1 := by
+theorem trailing_zeros_prop2 :
+    ∀ n > 1, n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 2)) + 1 := by
   intro n hn1 hn2
-  induction' n using Nat.strong_induction_on with n ih
-  { rw [trailing_zeros.eq_def]
-    split
-    { contradiction }
-    { split
-      { expose_names
-        have : n'.succ - 2 ^ (n'.succ.size - 2) = 2 ^ (n'.succ.size - 2) := by
-          nth_rw 1 [h]
-          have : 2 ^ (n'.succ.size - 1) = 2 * 2 ^ (n'.succ.size - 2) := by
-            sorry
-          simp [this]
-          grind
-        simp only [this]
+  have n2 : 2 ≤ n.size := by
+    have t1 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size hn1
+    have t2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
+    exact le_of_eq_of_le (id (Eq.symm t2)) t1
+  have t1 : trailing_zeros n = n.size - 1 := by
+    nth_rw 1 [hn2]
+    exact trailing_zeros_of_envelope (n.size - 1)
+  have t2 : n - 2 ^ (n.size - 2) = 2 ^ (n.size - 2) := by
+    nth_rw 1 [hn2]
+    refine Nat.sub_eq_of_eq_add ?_
+    rw [←mul_two]
+    have : 2 ^ (n.size - 2) * 2 = 2 ^ (n.size - 2 + 1) := by exact rfl
+    simp [this]
+    exact (Nat.sub_eq_iff_eq_add n2).mp rfl
+  simp [t1, t2]
+  have : trailing_zeros (2 ^ (n.size - 2)) = n.size - 2 := by exact trailing_zeros_of_envelope (n.size - 2)
+  simp [this]
+  exact (Nat.sub_eq_iff_eq_add n2).mp rfl
 
-        
-        sorry }
-      { expose_names ; exact absurd hn2 h } } }
-    
