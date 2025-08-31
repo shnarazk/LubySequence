@@ -3,8 +3,10 @@ import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
+import Mathlib.Data.Finset.Basic
 import LubySequence.Basic
 import Utils
+open BigOperators
 
 structure LubyState where
   -- segment index (0-based)
@@ -18,11 +20,6 @@ def LubyState.zero := (default : LubyState)
 -- #check LubyState.zero
 
 def LubyState.luby (self : LubyState) : Nat := 2 ^ self.locIx
-
-@[simp]
-def trailing_zero' (n : Nat) : Nat := match n with
-  | 0     => 1
-  | n + 1 => (trailing_zeros n).succ
 
 def LubyState.segment_height (self : LubyState) : Nat := trailing_zeros self.segIx + 1
 
@@ -438,19 +435,50 @@ theorem LubyState.segment_beg_transition' : ∀ n : Nat,
       exact absurd t7 h
     }
 
-def LubyState.segment_height_sum (b : Nat) : Nat := match b with
-  | 0     => 0
-  | a + 1 => trailing_zeros b + 1 + LubyState.segment_height_sum a
 
+-- def LubyState.segment_height_sum' (b : Nat) : Nat := match b with
+--   | 0     => 0
+--   | a + 1 => trailing_zeros b + 1 + LubyState.segment_height_sum' a
+
+def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (trailing_zeros (i + 1) + 1)
+
+-- #eval List.range 12 |>.map (fun n ↦ (LubyState.segment_height_sum n, LubyState.segment_height_sum' n))
 #eval List.range 5 |>.map (fun k ↦ (2 ^ k, LubyState.segment_height_sum (2 ^ k), 2 ^ (k + 1) - 1))
+
+-- Finset.sum_range_add 📋 Mathlib.Algebra.BigOperators.Group.Finset.Basic
+-- {M : Type u_4} [AddCommMonoid M] (f : ℕ → M) (n m : ℕ) :
+--    ∑ x ∈ Finset.range (n + m), f x = ∑ x ∈ Finset.range n, f x + ∑ x ∈ Finset.range m, f (n + x)
+
+theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
+    LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
+  intro k
+  induction' k with k hk
+  { simp [segment_height_sum] ; simp [trailing_zeros] }
+  { simp [segment_height_sum]
+    have : Finset.range (2 ^ (k + 1)) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k)) := by 
+      have : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
+      simp [←this]
+    simp [this]
+    simp [Finset.sum_range_add]
+    simp [segment_height_sum] at hk
+    simp [hk]
+    -- FIXME: variable trabsfornation
+    sorry }
+
+-- これはsegment単位でしか説明できない
+theorem LubyState.segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+    (LubyState.ofNat n).segment_height = (LubyState.ofNat (n - 2 ^ (n.size - 1))).segment_height := by
+  intro n hn1 hn2
+  simp [LubyState.segment_height]
+  have : trailing_zeros (ofNat n).segIx = trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by apply?
+  sorry
+  --
 
 theorem LubyState.segment_beg_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
     (LubyState.ofNat n).is_segment_beg = (LubyState.ofNat (n - 2 ^ (n.size - 1))).is_segment_beg := by
-  sorry -- FIXME: todo
+  simp [LubyState.is_segment_beg, LubyState.ofNat]
 
-theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
-  LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
-    sorry
+  sorry -- FIXME: todo
 
 theorem LubyState.define_recursively2 : ∀ n : Nat,
     LubyState.zero.next n = LubyState.mk (LubyState.toSegIx n 0 0) (LubyState.toLocIx n) := by
