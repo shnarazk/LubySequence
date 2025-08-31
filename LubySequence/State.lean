@@ -461,7 +461,21 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     simp [Finset.sum_range_add]
     simp [segment_height_sum] at hk
     simp [hk]
-    -- FIXME: variable trabsfornation
+    -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to 
+    -- FIXME: 最後のsegmentは左に持って行けない。1違う。
+    have t1 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
+      have : 2 ^ (k + 1) = 2 * 2 ^ k := by exact Nat.pow_succ'
+      simp [this]
+      grind
+    simp [t1] at *
+    have t2 (x : Nat) : trailing_zeros (2 ^ k + x + 1) = trailing_zeros (x + 1) := by
+      sorry
+    simp only [t2]
+    simp only [hk]
+
+
+    
+
     sorry }
 
 -- これはsegment単位でしか説明できない
