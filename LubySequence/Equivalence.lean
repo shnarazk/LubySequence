@@ -301,7 +301,8 @@ theorem LubyStateSegment_is_LubySegment :
   have defaultLocIx : (default : LubyState).locIx = 0 := by exact rfl
   intro n
   induction' n using Nat.strong_induction_on with n hn
-  { rw [LubyState.is_segment_beg, Luby.is_segment_beg.eq_def]
+  { simp [LubyState.is_segment_beg]
+    rw [Luby.is_segment_beg.eq_def]
     split
     { simp [LubyState.ofNat, LubyState.zero, LubyState.next, default] }
     { simp [LubyState.ofNat, LubyState.next]
@@ -312,7 +313,11 @@ theorem LubyStateSegment_is_LubySegment :
         simp [defaultSegIx, defaultLocIx]
       simp [this] }
     { expose_names
-      sorry } }
+      split
+      { expose_names
+        sorry }
+      { expose_names
+        sorry } } }
 
 theorem LubyState_is_Luby : ∀ n : Nat, Luby.luby n = (LubyState.ofNat n).luby := by
   intro n
