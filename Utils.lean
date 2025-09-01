@@ -563,10 +563,10 @@ theorem trailing_zeros_prop2 :
     simp [this]
     exact (Nat.sub_eq_iff_eq_add n2).mp rfl
   simp [t1, t2]
-  have : trailing_zeros (2 ^ (n.size - 2)) = n.size - 2 := by exact trailing_zeros_of_envelope (n.size - 2)
+  have : trailing_zeros (2 ^ (n.size - 2)) = n.size - 2 := by
+    exact trailing_zeros_of_envelope (n.size - 2)
   simp [this]
   exact (Nat.sub_eq_iff_eq_add n2).mp rfl
-
 
 theorem trailing_zeros_prop3 : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
   intro n
@@ -589,8 +589,51 @@ theorem trailing_zeros_prop3 : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
       simp [t1] at h } }
 
 theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
-  sorry
+  intro n
+  induction' n with n hn
+  { simp [trailing_zeros.eq_def] }
+  { rw [trailing_zeros.eq_def]
+    split
+    { expose_names ; exact heq }
+    { expose_names
+      split
+      { expose_names
+        have t1 : (2 ^ (n + 1) - 1).size = n + 1 := by
+          refine size_sub ?_ ?_ ?_
+          { exact Nat.zero_lt_succ n }
+          { exact Nat.one_pos }
+          { exact Nat.one_le_two_pow }
+        simp [t1] at h
+        have zp : n = 0 ∨ ¬n = 0 := by exact Or.symm (ne_or_eq n 0)
+        rcases zp with z|p
+        { simp [z] at * }
+        { have even : 2 ∣ 2 ^ n := by 
+            refine Dvd.dvd.pow ?_ ?_
+            { grind }
+            { exact p } 
+          have odd : ¬2 ∣ 2 ^ (n + 1) := by
+            simp [←h] at even
+            refine Nat.two_dvd_ne_zero.mpr ?_
+            have h' : 2 ^ (n + 1) = 2 ^ n + 1 := by grind
+            simp [h']
+            grind
+          have even' : 2 ∣ 2 ^ (n + 1) := by exact Dvd.intro_left (Nat.pow 2 n) rfl
+          exact absurd even' odd } }
+      { expose_names
+        simp
+        have : 2 ^ (n + 1) - 1 - 2 ^ ((2 ^ (n + 1) - 1).size - 1) = 2 ^ n - 1 := by
+          have t1 : (2 ^ (n + 1) - 1).size = n + 1 := by
+            refine size_sub ?_ ?_ ?_
+            { grind }
+            { grind }
+            { grind }
+          simp [t1]
+          have t2 : 2 ^ (n + 1) = 2 ^ n + 2 ^ n := by grind
+          simp [t2]
+          grind
+        simp [this]
+        exact hn } } }
 
-theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ n + 1) = 1 := by
+theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ n + 1) = 0 := by
   sorry
 
