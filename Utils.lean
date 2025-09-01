@@ -567,3 +567,30 @@ theorem trailing_zeros_prop2 :
   simp [this]
   exact (Nat.sub_eq_iff_eq_add n2).mp rfl
 
+
+theorem trailing_zeros_prop3 : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
+  intro n
+  rw [trailing_zeros.eq_def]
+  split
+  { expose_names
+    have : ¬2 ^ n = 0 := by exact NeZero.ne (2 ^ n)
+    exact absurd heq this }
+  { expose_names
+    split
+    { expose_names
+      rw [h]
+      have t1 : (2 ^ ((2 ^ n).size - 1)).size = (2 ^ n).size - 1 + 1 := by
+        exact size_of_pow2_eq_self_add_one ((2 ^ n).size - 1)
+      simp [t1]
+      have t2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
+      exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm t2))) }
+    { expose_names
+      have t1 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
+      simp [t1] at h } }
+
+theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
+  sorry
+
+theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ n + 1) = 1 := by
+  sorry
+
