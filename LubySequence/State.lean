@@ -350,14 +350,14 @@ def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
 -- TODO: segment内ではsegment_height step分直接遷移可能でnextと等価な`move_in_segment`の定義と証明が必要
 def LubyState.next_in_segment (s : LubyState) (d : Nat) : LubyState := LubyState.mk s.segIx (s.locIx + d)
 
-theorem LubyState.move_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) :
+theorem LubyState.next_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) :
     ∀ d' < d, 0 < d' → s.next_in_segment d' = (s.next_in_segment (d' - 1)).next_in_segment 1 := by
   intro n hn hd
   simp [LubyState.next_in_segment]
   simp [add_assoc]
   exact (Nat.sub_eq_iff_eq_add hd).mp rfl
 
-theorem LubyState.move_in_segment_increments_locIx (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) :
+theorem LubyState.next_in_segment_increments_locIx (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) :
     (s.next_in_segment d).locIx = s.locIx + d := by
   induction' d with d hd
   { simp [LubyState.next_in_segment] }
@@ -447,6 +447,7 @@ def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (t
 -- Finset.sum_range_add 📋 Mathlib.Algebra.BigOperators.Group.Finset.Basic
 -- {M : Type u_4} [AddCommMonoid M] (f : ℕ → M) (n m : ℕ) :
 --    ∑ x ∈ Finset.range (n + m), f x = ∑ x ∈ Finset.range n, f x + ∑ x ∈ Finset.range m, f (n + x)
+#eval Finset.range 3
 
 theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
@@ -454,6 +455,23 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
   induction' k with k hk
   { simp [segment_height_sum] ; simp [trailing_zeros] }
   { simp [segment_height_sum]
+
+    have : ∑ i ∈ Finset.range (k - 1 + 1), trailing_zeros i =
+           (∑ i ∈ Finset.range (k - 1), trailing_zeros i) + 
+           (∑ i ∈ Finset.range 1, (trailing_zeros (k - 1 + i)))  := by
+      exact Finset.sum_range_add trailing_zeros (k - 1) 1
+    
+    have t1 : ∑ i ∈ Finset.range (2 ^ (k + 1) - 2 + 2), (trailing_zeros (i + 1) + 1) =
+      ∑ i ∈ Finset.range (2 ^ (k + 1) - 2), (trailing_zeros (i + 1) + 1)
+      + ∑ i ∈ Finset.range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) := by
+      exact Finset.sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) (2 ^ (k + 1) - 2) 2
+    have t2 : 2 ^ (k + 1) - 2 + 2 = 2 ^ (k + 1) := by
+      refine Nat.sub_add_cancel ?_
+      refine Nat.le_self_pow ?_ 2
+      exact Ne.symm (Nat.zero_ne_add_one k)
+    simp [t2] at t1
+    simp [t1]
+    have t3 : trailing_zeros (2 ^ k + 1) = 1 := by sorry -- TODO: define me
     have : Finset.range (2 ^ (k + 1)) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k)) := by 
       have : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
       simp [←this]
@@ -472,10 +490,6 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       sorry
     simp only [t2]
     simp only [hk]
-
-
-    
-
     sorry }
 
 -- これはsegment単位でしか説明できない
