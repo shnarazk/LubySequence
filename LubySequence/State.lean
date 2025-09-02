@@ -440,12 +440,6 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
   induction' k with k hk
   { simp [segment_height_sum] ; simp [trailing_zeros] }
   { simp [segment_height_sum]
-
-    have : ∑ i ∈ Finset.range (k - 1 + 1), trailing_zeros i =
-           (∑ i ∈ Finset.range (k - 1), trailing_zeros i) + 
-           (∑ i ∈ Finset.range 1, (trailing_zeros (k - 1 + i)))  := by
-      exact Finset.sum_range_add trailing_zeros (k - 1) 1
-    
     have t1 : ∑ i ∈ Finset.range (2 ^ (k + 1) - 2 + 2), (trailing_zeros (i + 1) + 1) =
       ∑ i ∈ Finset.range (2 ^ (k + 1) - 2), (trailing_zeros (i + 1) + 1)
       + ∑ i ∈ Finset.range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) := by
@@ -456,40 +450,81 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       exact Ne.symm (Nat.zero_ne_add_one k)
     simp [t2] at t1
     simp [t1]
-    have t3 : trailing_zeros (2 ^ k + 1) = 1 := by sorry -- TODO: define me
-    have : Finset.range (2 ^ (k + 1)) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k)) := by 
-      have : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
-      simp [←this]
-    simp [this]
-    simp [Finset.sum_range_add]
-    simp [segment_height_sum] at hk
-    simp [hk]
-    -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to 
-    -- FIXME: 最後のsegmentは左に持って行けない。1違う。
-    have t1 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
-      have : 2 ^ (k + 1) = 2 * 2 ^ k := by exact Nat.pow_succ'
+    -- 間違えた。{2 ^ (k + 1)} = {2 ^ (k +1) - 1} + 1 = {2 ^ k} + {2 ^ k - 1} + 1
+    -- 前者はenvelope, 後者は超限帰納法
+    have t3 : ∑ i ∈ Finset.range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) =
+        (trailing_zeros (2 ^ (k + 1) - 2 + 0 + 1) + 1)
+        + (trailing_zeros (2 ^ (k + 1) - 2 + 1 + 1) + 1)
+        := by
+      exact rfl
+    simp [t3]
+    have t4 : 2 ^ (k + 1) - 2 + 1 = 2 ^ (k + 1) - 1 := by
+      exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm t2)))
+    simp [t4]
+    have t5 : 2 ^ (k + 1) - 1 + 1 = 2 ^ (k + 1) := by
+      refine Nat.sub_add_cancel ?_
+      exact Nat.one_le_two_pow
+    simp [t5]
+    have t6 : trailing_zeros (2 ^ (k + 1)) = k + 1 := by exact trailing_zeros_prop3 (k + 1)
+    simp [t6]
+    have t7 : trailing_zeros (2 ^ (k + 1) - 1) = 0 := by exact trailing_zeros_prop4 (k + 1)
+    simp [t7]
+    -- ここでk + 1 > 0 が必要
+    have zp : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
+    rcases zp with z|p
+    { simp [z] at * }
+    {
+      have : Finset.range (2 ^ (k + 1) - 2) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by 
+        have t1 : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
+        have t2 : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) - 2 := by grind
+        have t2' : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2) := by
+          refine Nat.sub_eq_of_eq_add ?_
+          have : 2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2) + 2 = 2 ^ k + 2 ^ (k + 1) - 2 ^ k - 2 + 2 := by
+            have : 2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2) = 2 ^ k + 2 ^ (k + 1) - 2 ^ k - 2 := by
+              have : 2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2) = 2 ^ k + 2 ^ (k + 1) - 2 ^ k - 2 := by
+                have : 2 ^ (k + 1) = 2 ^ k + 2 ^ k := by exact Nat.two_pow_succ k
+                simp [this]
+                have : 2 ^ k + (2 ^ k - 2) = 2 ^ k + 2 ^ k - 2 := by
+                  refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ k))
+                  exact Nat.le_pow p
+                simp [this]
+              simp [this]
+            refine Nat.add_left_inj.mpr ?_
+            exact this
+          simp [this]
+          grind
+        rw [←t2']
       simp [this]
-      grind
-    simp [t1] at *
-    have t2 (x : Nat) : trailing_zeros (2 ^ k + x + 1) = trailing_zeros (x + 1) := by
-      sorry
-    simp only [t2]
-    simp only [hk]
-    sorry }
+      simp [Finset.sum_range_add]
+      simp [segment_height_sum] at hk
+      simp [hk]
+      -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to 
+      -- FIXME: 最後のsegmentは左に持って行けない。1違う。
+      have t1 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
+        have : 2 ^ (k + 1) = 2 * 2 ^ k := by exact Nat.pow_succ'
+        simp [this]
+        grind
+      simp [t1] at *
+      have t2 (x : Nat) : trailing_zeros (2 ^ k + x + 1) = trailing_zeros (x + 1) := by
+        sorry
+      simp only [t2]
+      -- simp only [hk]
+      sorry }
+      }
 
 -- これはsegment単位でしか説明できない
 theorem LubyState.segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
     (LubyState.ofNat n).segment_height = (LubyState.ofNat (n - 2 ^ (n.size - 1))).segment_height := by
   intro n hn1 hn2
   simp [LubyState.segment_height]
-  have : trailing_zeros (ofNat n).segIx = trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by apply?
+  have : trailing_zeros (ofNat n).segIx = trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by
+    sorry -- apply?
   sorry
   --
 
 theorem LubyState.segment_beg_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
     (LubyState.ofNat n).is_segment_beg = (LubyState.ofNat (n - 2 ^ (n.size - 1))).is_segment_beg := by
   simp [LubyState.is_segment_beg, LubyState.ofNat]
-
   sorry -- FIXME: todo
 
 theorem LubyState.define_recursively2 : ∀ n : Nat,
