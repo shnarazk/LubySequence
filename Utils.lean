@@ -634,6 +634,59 @@ theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
         simp [this]
         exact hn } } }
 
-theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ n + 1) = 0 := by
-  sorry
+theorem parity_unmatch {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
+  have two_pow_a_is_even : 2 ∣ 2 ^ a := by
+    refine dvd_pow_self 2 ?_
+    exact Nat.ne_zero_of_lt ha
+  have even : 2 ∣ 2 ^ a + 1 := by
+    simp [h]
+    refine dvd_pow ?_ ?_
+    { grind }
+    { exact Nat.ne_zero_of_lt hb }
+  have odd : ¬2 ∣ 2 ^ a + 1 := by
+    refine Odd.not_two_dvd_nat ?_
+    refine Even.add_one ?_
+    exact (even_iff_exists_two_nsmul (2 ^ a)).mpr two_pow_a_is_even
+  exact absurd even odd
+
+-- TODO: no need to induction
+theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
+  intro n
+  induction' n with n hn
+  { simp
+    rw [trailing_zeros]
+    simp [Nat.size, Nat.binaryRec]
+    rw [trailing_zeros]
+    simp [Nat.size] }
+  { rw [trailing_zeros] 
+    split
+    { expose_names
+      simp at h
+      have sub1 : 0 < n + 1 + 1 := by grind  
+      have sub2 : 0 < (2 ^ (n + 1 + 1) + 1).size - 1 := by
+        have t1 : 2 ≤ n + 1 + 1 := by grind
+        have t2 : 2 ^ 2 ≤ 2 ^ (n + 1 + 1) := by
+          refine Nat.pow_le_pow_right ?_ t1
+          grind
+        have t3 : 2 ^ 2 = 4 := by grind
+        simp [t3] at t2
+        have t4 : 4 + 1 ≤ 2 ^ (n + 1 + 1) + 1 := by exact Nat.add_le_add_right t2 1
+        have t5 : (4 + 1).size ≤ (2 ^ (n + 1 + 1) + 1).size := by exact Nat.size_le_size t4
+        simp at t5
+        nth_rw 1 [Nat.size] at t5
+        simp [Nat.binaryRec] at t5
+        have t6 : 2 ≤ (2 ^ (n + 1 + 1) + 1).size - 1 := by exact Nat.le_sub_one_of_lt t5
+        exact Nat.zero_lt_of_lt t6
+      have c := parity_unmatch sub1 sub2 h
+      simp at c
+    }
+    { simp 
+      have t1 : (2 ^ (n + 1 + 1) + 1).size = n + 1 + 1 + 1 := by
+        refine size_add (by grind) ?_
+        { have s1 : 2 ≤ n + 1 + 1 := by exact Nat.le_add_left 2 n
+          have s2 : 2 ^ 2 ≤ 2 ^ (n + 1 + 1) := by exact Nat.pow_le_pow_right (by grind) s1
+          simp at s2
+          exact Nat.one_lt_two_pow' (n + 1) }
+      simp [t1]
+      simp [trailing_zeros] } }
 
