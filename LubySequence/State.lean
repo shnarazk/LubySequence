@@ -203,22 +203,7 @@ theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
       expose_names
       have c := LubyState.segId_ge_one 0
       have c' : ¬(zero.next 0).segIx = 0 := by exact Nat.ne_zero_of_lt c
-      exact absurd heq c'
-/-
-      split
-      { next hh ou =>
-        expose_names
-        have c := LubyState.segId_ge_one 1
-        have c' : ¬(zero.next 1).segIx = 0 := by exact Nat.ne_zero_of_lt c
-        exact absurd ou c' }
-      { next nh nn k =>
-        export_names
-        have c1 : LubyState.zero.next.segIx = 1 := by exact rfl
-        have s1 : LubyState.zero.next.locIx = 0 := by exact rfl
-        simp [c1] at k
-        simp [k, segIdToLastIndex, s1] }
-    -/
-    }
+      exact absurd heq c' }
     { expose_names
       split
       { next a b =>
@@ -226,11 +211,11 @@ theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
         have c' : ¬(zero.next (n + 1)).segIx = 0 := by exact Nat.ne_zero_of_lt c
         exact absurd b c' }
       { expose_names
-        have : (LubyState.zero.next n).segIx - 1 = n_2 := by
+        have : (LubyState.zero.next n).segIx - 1 = m := by
           exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq)))
         simp only [←this] at *
         clear this
-        have : (LubyState.zero.next (n + 1)).segIx - 1 = n_4 := by
+        have : (LubyState.zero.next (n + 1)).segIx - 1 = m_1 := by
           exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq_1)))
         simp only [←this] at *
         clear this
