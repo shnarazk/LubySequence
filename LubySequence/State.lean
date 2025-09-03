@@ -434,6 +434,7 @@ def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (t
 --    ∑ x ∈ Finset.range (n + m), f x = ∑ x ∈ Finset.range n, f x + ∑ x ∈ Finset.range m, f (n + x)
 #eval Finset.range 3
 
+-- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
 theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
@@ -500,6 +501,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       simp [hk]
       -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to 
       -- FIXME: 最後のsegmentは左に持って行けない。1違う。
+      -- ので1を取り出した上でenvelopeに戻してやるべし
       have t1 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
         have : 2 ^ (k + 1) = 2 * 2 ^ k := by exact Nat.pow_succ'
         simp [this]

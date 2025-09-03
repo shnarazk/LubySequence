@@ -701,5 +701,3 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
     { split
       { expose_names ; exact absurd h hn' }
       { expose_names ; simp } } }
-        
-    
