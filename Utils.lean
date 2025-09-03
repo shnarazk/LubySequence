@@ -690,3 +690,16 @@ theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0
       simp [t1]
       simp [trailing_zeros] } }
 
+theorem trailing_zeros_prop6 : ∀ n > 0,
+    ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
+  intro n hn
+  induction' n using Nat.strong_induction_on with n ih
+  { intro hn'
+    rw [trailing_zeros.eq_def]
+    split
+    { contradiction }
+    { split
+      { expose_names ; exact absurd h hn' }
+      { expose_names ; simp } } }
+        
+    
