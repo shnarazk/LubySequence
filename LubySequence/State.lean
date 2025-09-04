@@ -434,7 +434,63 @@ def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (t
 --    ∑ x ∈ Finset.range (n + m), f x = ∑ x ∈ Finset.range n, f x + ∑ x ∈ Finset.range m, f (n + x)
 #eval Finset.range 3
 
+#eval List.range 30 |>.map (fun n ↦ ((∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1), (LubyState.ofNat n).segIx))
+
+#eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx, (LubyState.ofNat n).segIx))
+
+theorem t20250904_1 : ∀ n : Nat, n = 2 ^ (n.size - 1) → 
+    ∑ i ∈ Finset.range n, (trailing_zeros i + 1) = 2 ^ n.size - 1 := by
+  intro n
+  induction' n using Nat.strong_induction_on with n ih
+  { intro h
+    have cases : n < 2 ∨ 2 ≤ n := by exact Nat.lt_or_ge n 2
+    rcases cases with case1|case2
+    { have cases' : n = 0 ∨ n = 1 := by
+        refine Nat.le_one_iff_eq_zero_or_eq_one.mp ?_
+        exact Nat.le_of_lt_succ case1
+      rcases cases' with n0|n1
+      { simp [n0] at * }
+      { simp [n1] at * ; simp [trailing_zeros] } }
+    { 
+      have t1 : Finset.range n = Finset.range (2 ^ (n.size - 1)) := by
+        exact congrArg Finset.range h 
+      simp [t1]
+      have t2 : 2 ^ (n.size - 1) = 2 * 2 ^ (n.size - 1 - 1) := by
+        refine Eq.symm (mul_pow_sub_one ?_ 2)
+        refine Nat.sub_ne_zero_of_lt ?_
+        exact Nat.lt_size.mpr case2
+      simp [t2]
+      rw [two_mul]
+      rw [Finset.sum_range_add]
+      have sub1 : 2 ^ (n.size - 1 - 1) < n := by
+        sorry
+      have sub2 : 2 ^ (n.size - 1 - 1) = 2 ^ ((2 ^ (n.size - 1 - 1)).size - 1) := by
+        sorry
+      have ih' := ih (2 ^ (n.size - 1 - 1)) sub1 sub2
+      simp [ih']
+      have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by 
+        have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 -1 + 1 := by 
+          exact Nat.size_pow
+        simp [ this]
+        grind
+      simp [this]
+      -- ここまでOK
+      --
+      sorry
+   }
+ }
+
+theorem t20250904 : ∀ n : Nat,
+    (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx
+    = (LubyState.ofNat n).segIx := by
+  intro n
+
+  sorry
+
+
 -- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
+-- あるいは segment_beg な (ofNat n).segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = n 的な
+-- ことからsegIxを剥ぎ取ってnに持ち込める。
 theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
