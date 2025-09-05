@@ -443,6 +443,12 @@ def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (t
 
 #eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx, (LubyState.ofNat n).segIx))
 
+#eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx, (LubyState.ofNat n).segIx))
+
+#eval List.range 20 |>.map (fun n ↦ (
+  (∑ i ∈ Finset.range       n, (trailing_zeros       i + 1)),
+  (∑ i ∈ Finset.range (n - 1), (trailing_zeros (i + 1) + 1) + 1)))
+
 theorem t20250904_1 : ∀ n : Nat, n = 2 ^ (n.size - 1) → 
     ∑ i ∈ Finset.range n, (trailing_zeros i + 1) = 2 ^ n.size - 1 := by
   intro n
@@ -499,11 +505,18 @@ theorem t20250904_1 : ∀ n : Nat, n = 2 ^ (n.size - 1) →
       -- ここまでOK
       have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros (2 ^ (n.size - 1 - 1) + x) + 1) = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros x + 1) := by
         have t1 (x : Nat) : trailing_zeros (2 ^ (n.size - 1 - 1) + x) = trailing_zeros x := by
-          have : trailing_zeros (2 ^ n.size + x) = trailing_zeros x := by
-            sorry -- apply?
-          sorry
-        sorry
+          have s1 : trailing_zeros (x + 2 ^ (n.size - 1 - 1)) = trailing_zeros x := by
+            refine trailing_zeros_prop7 (n.size - 1 - 1) (by grind) x ?_ ?_
+            { sorry }
+            { sorry }
+          have s2 : x + 2 ^ (n.size - 1 - 1) = 2 ^ (n.size - 1 - 1) + x := by
+            exact Nat.add_comm x (2 ^ (n.size - 1 - 1))
+          simp [s2] at s1
+          simp [s1]
+        simp [t1]
       --
+      simp [this]
+      simp [ih']
       sorry
    }
  }
