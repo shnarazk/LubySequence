@@ -469,6 +469,9 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
       exact le_if_le_size this
     exact Nat.le_of_pred_lt this }
 
+theorem pow2size_has_upper_bound : ∀ n > 0, 2 ^ n.size ≤ 2 * n := by
+  exact fun n a ↦ pow_two_of_size_le_self a
+
 theorem trailing_zeros_of_envelope : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
   intro n
   induction' n with n hn'
