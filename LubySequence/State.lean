@@ -15,9 +15,13 @@ structure LubyState where
   locIx : Nat
 
 instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
+instance LubyState.repl : ToRep LubyState where
+  reprPrec s _ := "LubyState(" ++ toString s.segIx ++ ", " ++ toString s.locIx ++ ")"
+
 def LubyState.zero := (default : LubyState)
 
 -- #check LubyState.zero
+-- #eval LubyState.zero
 
 def LubyState.luby (self : LubyState) : Nat := 2 ^ self.locIx
 
@@ -38,6 +42,7 @@ def LubyState.next (self : LubyState) (repeating : Nat := 1) : LubyState :=
     then LubyState.mk li.segIx.succ 0
     else LubyState.mk li.segIx li.locIx.succ
 
+#eval LubyState.zero.next 2
 #eval scanList (·.next) LubyState.zero 24 |>.drop 3 |>.map (·.luby)
 #eval scanList (·.next) LubyState.zero 36 |>.drop 3 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
 #eval LubyState.zero.next 24 |>.luby
