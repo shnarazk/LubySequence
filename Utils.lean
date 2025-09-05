@@ -707,12 +707,12 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
 
 theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros (k) := by
-  intro n hn
+  intro n k
   induction' n using Nat.strong_induction_on with n ih
-  { intro k
+  { intro k'
     intro h1
     rw [trailing_zeros.eq_def]
-    intro k0
+    -- intro k0
     split
     { expose_names
       have c : ¬k + 2 ^ n = 0 := by
@@ -722,10 +722,10 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
     { have zp : n = 0 ∨ 0 < n := by exact Nat.eq_zero_or_pos n
       rcases zp with z|p
       { simp [z] at *
-        exact absurd h1 k0 }
+        exact absurd k' h1}
       {
         have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
-        have s1 : 2 ^ n + k < 2 ^ n + 2 ^ (n - 1) := by exact Nat.add_lt_add_left h1 (2 ^ n)
+        have s1 : 2 ^ n + k < 2 ^ n + 2 ^ (n - 1) := by exact Nat.add_lt_add_left k' (2 ^ n)
         have s2 : 2 ^ n + 2 ^ (n - 1) < 2 ^ n + 2 ^ n := by
           have : 2 ^ (n - 1) < 2 ^ n := by exact Nat.pow_pred_lt_pow (by grind) (by grind)
           exact Nat.add_lt_add_left this (2 ^ n)
@@ -749,7 +749,7 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
           -- h が成立しないことを言うべき
           have t1 : 2 ^ n < k + 2 ^ n := by
             refine Nat.lt_add_of_pos_left ?_
-            exact Nat.zero_lt_of_ne_zero k0
+            exact Nat.zero_lt_of_ne_zero h1
           have t2 : 2 ^ n = 2 ^ ((2 ^ n).size - 1) := by
             have : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
             simp [this]

@@ -522,7 +522,7 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + x + 1) + 1) = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) + 1 := by
         have t1 (x : Nat) : trailing_zeros (2 ^ (n.size - 1 - 1) + x) = trailing_zeros x := by
           have s1 : trailing_zeros (x + 2 ^ (n.size - 1 - 1)) = trailing_zeros x := by
-            refine trailing_zeros_prop7 (n.size - 1 - 1) (by grind) x ?_ ?_
+            refine trailing_zeros_prop7 (n.size - 1 - 1) x ?_ ?_
             { sorry }
             { sorry }
           have s2 : x + 2 ^ (n.size - 1 - 1) = 2 ^ (n.size - 1 - 1) + x := by
