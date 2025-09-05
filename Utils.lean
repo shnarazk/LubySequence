@@ -705,7 +705,7 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
       { expose_names ; exact absurd h hn' }
       { expose_names ; simp } } }
 
-theorem trailing_zeros_prop7 : ∀ n > 1, ∀ k < 2 ^ (n - 1),
+theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros (k) := by
   intro n hn
   induction' n using Nat.strong_induction_on with n ih
@@ -719,50 +719,54 @@ theorem trailing_zeros_prop7 : ∀ n > 1, ∀ k < 2 ^ (n - 1),
         have : 0 < 2 ^ n := by exact Nat.two_pow_pos n
         exact NeZero.ne (k + 2 ^ n)
       exact absurd heq c }
-    {
-      have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
-      have s1 : 2 ^ n + k < 2 ^ n + 2 ^ (n - 1) := by exact Nat.add_lt_add_left h1 (2 ^ n)
-      have s2 : 2 ^ n + 2 ^ (n - 1) < 2 ^ n + 2 ^ n := by
-        have : 2 ^ (n - 1) < 2 ^ n := by exact Nat.pow_pred_lt_pow (by grind) (by grind)
-        exact Nat.add_lt_add_left this (2 ^ n)
-      have s3 : 2 ^ n + k < 2 ^ n + 2 ^ n := by exact Nat.lt_trans s1 s2
-      rw [←mul_two] at s3
-      have so : (2 ^ n + k).size = n + 1 := by
-        have left : n + 1 ≤ (2 ^ n + k).size := by
-          have : (2 ^ n).size ≤ (2 ^ n + k).size := by
-            refine Nat.size_le_size ?_
-            exact Nat.le_add_right (2 ^ n) k
-          exact le_of_eq_of_le (id (Eq.symm n2)) this
-        have right : (2 ^ n + k).size ≤ n + 1 := by
-          exact pow2_is_minimum (n + 1) (2 ^ n + k) s3
-        exact Eq.symm (Nat.le_antisymm left right)
-      have eq_size : (2 ^ n + k).size = (2 ^ n).size := by
-        refine size_add' (by grind) ?_
-        { have s4 : (2 ^ n + k).size = (2 ^ n).size := by simp [so, n2]
-          simp [s4] } 
-      split
-      { expose_names
-        -- h が成立しないことを言うべき
-        have t1 : 2 ^ n < k + 2 ^ n := by
-          refine Nat.lt_add_of_pos_left ?_
-          exact Nat.zero_lt_of_ne_zero k0
-        have t2 : 2 ^ n = 2 ^ ((2 ^ n).size - 1) := by
-          have : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
-          simp [this]
-        nth_rw 1 [t2] at t1
-        clear t2
-        simp [←eq_size] at t1
-        nth_rw 1 [add_comm] at t1
-        have c : ¬k + 2 ^ n = 2 ^ ((k + 2 ^ n).size - 1) := by exact Nat.ne_of_lt' t1
-        exact absurd h c }
-      { expose_names
-        simp
-        have : k + 2 ^ n - 2 ^ ((k + 2 ^ n).size - 1) = k := by
-          have t1 : (k + 2 ^ n).size = n + 1 := by
-            have : (k + 2 ^ n).size = (2 ^ n).size := by
-              rw [add_comm]
-              exact eq_size
-            simp only [this, n2]
-          simp [t1]
-        exact congrArg trailing_zeros this } } }
+    { have zp : n = 0 ∨ 0 < n := by exact Nat.eq_zero_or_pos n
+      rcases zp with z|p
+      { simp [z] at *
+        exact absurd h1 k0 }
+      {
+        have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
+        have s1 : 2 ^ n + k < 2 ^ n + 2 ^ (n - 1) := by exact Nat.add_lt_add_left h1 (2 ^ n)
+        have s2 : 2 ^ n + 2 ^ (n - 1) < 2 ^ n + 2 ^ n := by
+          have : 2 ^ (n - 1) < 2 ^ n := by exact Nat.pow_pred_lt_pow (by grind) (by grind)
+          exact Nat.add_lt_add_left this (2 ^ n)
+        have s3 : 2 ^ n + k < 2 ^ n + 2 ^ n := by exact Nat.lt_trans s1 s2
+        rw [←mul_two] at s3
+        have so : (2 ^ n + k).size = n + 1 := by
+          have left : n + 1 ≤ (2 ^ n + k).size := by
+            have : (2 ^ n).size ≤ (2 ^ n + k).size := by
+              refine Nat.size_le_size ?_
+              exact Nat.le_add_right (2 ^ n) k
+            exact le_of_eq_of_le (id (Eq.symm n2)) this
+          have right : (2 ^ n + k).size ≤ n + 1 := by
+            exact pow2_is_minimum (n + 1) (2 ^ n + k) s3
+          exact Eq.symm (Nat.le_antisymm left right)
+        have eq_size : (2 ^ n + k).size = (2 ^ n).size := by
+          refine size_add' (by grind) ?_
+          { have s4 : (2 ^ n + k).size = (2 ^ n).size := by simp [so, n2]
+            simp [s4] } 
+        split
+        { expose_names
+          -- h が成立しないことを言うべき
+          have t1 : 2 ^ n < k + 2 ^ n := by
+            refine Nat.lt_add_of_pos_left ?_
+            exact Nat.zero_lt_of_ne_zero k0
+          have t2 : 2 ^ n = 2 ^ ((2 ^ n).size - 1) := by
+            have : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
+            simp [this]
+          nth_rw 1 [t2] at t1
+          clear t2
+          simp [←eq_size] at t1
+          nth_rw 1 [add_comm] at t1
+          have c : ¬k + 2 ^ n = 2 ^ ((k + 2 ^ n).size - 1) := by exact Nat.ne_of_lt' t1
+          exact absurd h c }
+        { expose_names
+          simp
+          have : k + 2 ^ n - 2 ^ ((k + 2 ^ n).size - 1) = k := by
+            have t1 : (k + 2 ^ n).size = n + 1 := by
+              have : (k + 2 ^ n).size = (2 ^ n).size := by
+                rw [add_comm]
+                exact eq_size
+              simp only [this, n2]
+            simp [t1]
+          exact congrArg trailing_zeros this } } } }
 
