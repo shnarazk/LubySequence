@@ -475,6 +475,12 @@ theorem t20250904_1 : ∀ n : Nat, n = 2 ^ (n.size - 1) →
         grind
       simp [this]
       -- ここまでOK
+      have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros (2 ^ (n.size - 1 - 1) + x) + 1) = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros x + 1) := by
+        have t1 (x : Nat) : trailing_zeros (2 ^ (n.size - 1 - 1) + x) = trailing_zeros x := by
+          have : trailing_zeros (2 ^ n.size + x) = trailing_zeros x := by
+            sorry -- apply?
+          sorry
+        sorry
       --
       sorry
    }
