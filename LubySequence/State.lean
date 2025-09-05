@@ -15,7 +15,7 @@ structure LubyState where
   locIx : Nat
 
 instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
-instance LubyState.repl : ToRep LubyState where
+instance LubyState.repl : Repr LubyState where
   reprPrec s _ := "LubyState(" ++ toString s.segIx ++ ", " ++ toString s.locIx ++ ")"
 
 def LubyState.zero := (default : LubyState)
