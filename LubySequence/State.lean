@@ -483,7 +483,11 @@ theorem t20250904_1 : ∀ n : Nat, n = 2 ^ (n.size - 1) →
           exact Nat.two_pow_pred_lt_two_pow (by grind) 
         exact Nat.lt_of_lt_of_le t5 t2
       have sub2 : 2 ^ (n.size - 1 - 1) = 2 ^ ((2 ^ (n.size - 1 - 1)).size - 1) := by
-        sorry
+        have : n.size - 1 - 1 = (2 ^ (n.size - 1 - 1)).size - 1 := by
+          have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by
+            exact Nat.size_pow
+          simp [this]
+        nth_rw 1 [this]
       have ih' := ih (2 ^ (n.size - 1 - 1)) sub1 sub2
       simp [ih']
       have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by 
