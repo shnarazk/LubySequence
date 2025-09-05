@@ -468,7 +468,20 @@ theorem t20250904_1 : ∀ n : Nat, n = 2 ^ (n.size - 1) →
       rw [two_mul]
       rw [Finset.sum_range_add]
       have sub1 : 2 ^ (n.size - 1 - 1) < n := by
-        sorry
+        have t1 : 2 ^ n.size ≤ 2 * n := by exact pow2size_has_upper_bound n (by grind)
+        have t2 : 2 ^ n.size / 2 ≤ 2 * n / 2 := by exact Nat.div_le_div_right t1
+        have t3 : 2 * n / 2 = n := by grind
+        simp [t3] at t2
+        clear t3
+        have t4 : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
+          refine Nat.div_eq_of_eq_mul_right (by grind) ?_
+          { have : 2 = 2 ^ 1 := by exact rfl
+            nth_rw 2 [this]
+            exact Eq.symm (mul_pow_sub_one (by grind) (2 ^ 1)) }
+        simp [t4] at t2
+        have t5 : 2 ^ (n.size - 1 - 1) < 2 ^ (n.size - 1) := by
+          exact Nat.two_pow_pred_lt_two_pow (by grind) 
+        exact Nat.lt_of_lt_of_le t5 t2
       have sub2 : 2 ^ (n.size - 1 - 1) = 2 ^ ((2 ^ (n.size - 1 - 1)).size - 1) := by
         sorry
       have ih' := ih (2 ^ (n.size - 1 - 1)) sub1 sub2
