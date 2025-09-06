@@ -770,3 +770,26 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
             simp [t1]
           exact congrArg trailing_zeros this } } } }
 
+#eval List.range 6 |>.map (fun n' ↦
+    let o := n'
+    let n := n' + 2
+    ((∑ i ∈ Finset.range (o - 1), (trailing_zeros (2 ^ n + i + 1) + 1) + 1),
+     (∑ i ∈ Finset.range (o - 1), (trailing_zeros (        i + 1) + 1) + 1)))
+
+theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n, 
+    ∑ i ∈ Finset.range (k - 1), (trailing_zeros (2 ^ n + i) + 1)
+      = ∑ i ∈ Finset.range (k - 1), (trailing_zeros (i + 1) + 1) := by
+  intro n
+  simp [add_comm (2 ^ n) ]
+  -- practice
+  have : (fun i ↦ trailing_zeros (i + 2 ^ n))
+      = (fun i ↦ if h : i == 0 then n else trailing_zeros (i + 2 ^ n)) := by
+    ext x
+    split
+    { expose_names
+      simp at h
+      simp [h]
+      exact trailing_zeros_prop3 n }
+    { exact rfl } 
+  -- end of practice
+  sorry

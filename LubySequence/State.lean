@@ -519,8 +519,16 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       simp [this]
       clear this
       -- ここまでOK
-      have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + x + 1) + 1)
-          = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) + 1 + 1 := by
+      have (k : Nat) : ∑ x ∈ Finset.range (2 ^ k),
+            (trailing_zeros (2 ^ k + x) + 1)
+          = ∑ x ∈ Finset.range (2 ^ k - 1), 
+            (trailing_zeros (x + 1) + 1) + 1 + 1 := by
+
+        -- x = 0 は定数1に置き換えること
+      have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)),
+            (trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + x + 1) + 1)
+          = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1), 
+            (trailing_zeros (x + 1) + 1) + 1 + 1 := by
         -- x = 0 は定数1に置き換えること
         have t1 {x : Nat} (h : x + 1 < 2 ^ (n.size - 1 - 1 - 1)) :
             trailing_zeros (x + 1 + 2 ^ (n.size - 1 - 1)) = trailing_zeros (x + 1) := by
