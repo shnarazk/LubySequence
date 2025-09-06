@@ -445,7 +445,7 @@ def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (t
 
 #eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx, (LubyState.ofNat n).segIx))
 
-#eval List.range 20 |>.map (fun n ↦ (
+#eval List.range 20 |>.map (· + 1) |>.map (fun n ↦ (
   (∑ i ∈ Finset.range       n, (trailing_zeros       i + 1)),
   (∑ i ∈ Finset.range (n - 1), (trailing_zeros (i + 1) + 1) + 1)))
 
@@ -519,7 +519,8 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       simp [this]
       clear this
       -- ここまでOK
-      have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + x + 1) + 1) = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) + 1 := by
+      have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)), (trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + x + 1) + 1)
+          = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) + 1 + 1 := by
         -- x = 0 は定数1に置き換えること
         have t1 {x : Nat} (h : x + 1 < 2 ^ (n.size - 1 - 1 - 1)) :
             trailing_zeros (x + 1 + 2 ^ (n.size - 1 - 1)) = trailing_zeros (x + 1) := by
@@ -536,7 +537,20 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       simp [t3]
       have t4 : n.size - 1 - 1 + 1 = n.size - 1 := by grind
       simp [t4]
-      sorry
+      have t5 : 2 ^ (n.size - 1) - 1 + (2 ^ (n.size - 1) - 1 + 1)
+         = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 + 1 - 1 := by grind
+      have t5' : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 + 1 - 1
+         = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 := by grind
+      simp [t5'] at t5
+      simp [t5]
+      clear t3 t4 t5 t5'
+      have t6 : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ (n.size - 1 + 1) := by
+        exact Eq.symm (Nat.two_pow_succ (n.size - 1))
+      simp [t6]
+      have t7 : n.size - 1 + 1 = n.size := by
+        refine Nat.sub_add_cancel ?_
+        exact Nat.one_le_of_lt nsize2
+      simp [t7] 
    }
  }
 
