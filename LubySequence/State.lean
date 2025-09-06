@@ -523,6 +523,7 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
             (trailing_zeros (2 ^ k + x) + 1)
           = ∑ x ∈ Finset.range (2 ^ k - 1), 
             (trailing_zeros (x + 1) + 1) + 1 + 1 := by
+        sorry
 
         -- x = 0 は定数1に置き換えること
       have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)),
@@ -533,7 +534,8 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         have t1 {x : Nat} (h : x + 1 < 2 ^ (n.size - 1 - 1 - 1)) :
             trailing_zeros (x + 1 + 2 ^ (n.size - 1 - 1)) = trailing_zeros (x + 1) := by
           exact trailing_zeros_prop7 (n.size - 1 - 1) (x + 1) h (by grind)
-        have t2 (x : Nat) : 2 ^ (n.size - 1 - 1) - 1 + x + 1 = x + 2 ^ (n.size - 1 - 1) := by grind
+        have t2 (x : Nat) : 2 ^ (n.size - 1 - 1) - 1 + x + 1 = x + 2 ^ (n.size - 1 - 1) := by
+          sorry -- grind
         simp [t2]
         -- simp [t1 sub1 sub2]
         sorry
@@ -543,10 +545,12 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       simp [ih']
       have t3 : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by exact Nat.size_pow
       simp [t3]
-      have t4 : n.size - 1 - 1 + 1 = n.size - 1 := by grind
+      have t4 : n.size - 1 - 1 + 1 = n.size - 1 := by
+        sorry -- grind
       simp [t4]
       have t5 : 2 ^ (n.size - 1) - 1 + (2 ^ (n.size - 1) - 1 + 1)
-         = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 + 1 - 1 := by grind
+         = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 + 1 - 1 := by
+        sorry -- grind
       have t5' : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 + 1 - 1
          = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 := by grind
       simp [t5'] at t5

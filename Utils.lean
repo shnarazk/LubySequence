@@ -792,4 +792,28 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
       exact trailing_zeros_prop3 n }
     { exact rfl } 
   -- end of practice
+  have f1 : (fun i ↦ if h : i < 2 ^ (n - 1) then trailing_zeros (i + 2 ^ n) else 0)
+      = (fun i ↦ if h : i < 2 ^ (n - 1) then if h' : i == 0 then trailing_zeros (2 ^ n) else trailing_zeros i else 0) := by
+    ext x
+    split
+    { expose_names
+      split
+      { expose_names
+        simp at h_1
+        simp [h_1] }
+      { expose_names
+        simp at h_1
+        refine trailing_zeros_prop7 n x h h_1 } }
+    { expose_names
+      simp at h
+      exact rfl }
+    -- { expose_names refine trailing_zeros_prop7 n x ?_ (by grind) }
+    --
+  intro k hk
+  have t1 : 
+     (∑ x ∈ Finset.range (k - 1), (trailing_zeros (x + 2 ^ n) + 1)) =
+     (∑ x ∈ Finset.range (k - 1), ((fun i ↦ trailing_zeros (i + 2 ^ n)) x + 1)) := by
+    exact rfl 
+  simp [t1]
   sorry
+
