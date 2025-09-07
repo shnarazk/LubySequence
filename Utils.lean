@@ -775,10 +775,11 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
      (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1)))
 
 theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n, 
-    ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i) + 1)
-      = ∑ i ∈ range (k - 1), (trailing_zeros (i + 1) + 1) := by
+    ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
+    = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
   intro n
-  simp [add_comm (2 ^ n) ]
+  -- simp [add_comm (2 ^ n) ]
+  intro k hk
   let f1 := (fun i ↦ if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) else 0)
   have f1_def : f1 = value_of% f1 := by exact rfl
   have f1eq : f1 = (fun i ↦
@@ -793,21 +794,24 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
       { expose_names ; simp [h_1] }
       { expose_names ; refine trailing_zeros_prop7 n x h h_1 } }
     { expose_names ; simp at h ; exact rfl }
-  intro k hk
 
   have t1 : 
-     (∑ x ∈ range (k - 1), (trailing_zeros (x + 2 ^ n) + 1)) =
-     (∑ x ∈ range (k - 1), (f1 x + 1)) := by
+     (∑ x ∈ range (k - 1), (trailing_zeros (2 ^ n + x + 1) + 1)) =
+     (∑ x ∈ range (k - 1), (f1             (        x + 1) + 1)) := by
     simp [f1_def]
     refine sum_congr rfl ?_
     { intro y hy
       split
-      { exact rfl }
+      { expose_names
+        have : 2 ^ n + y + 1 = y + 1 + 2 ^ n := by grind
+        simp [this] }
       { expose_names 
         have t1 : y     < k - 1 := by exact List.mem_range.mp hy
-        have t2 : k - 1 < 2 ^ n := by exact Nat.sub_lt_of_lt hk
-        have t3 : y     < 2 ^ n := by exact Nat.lt_trans t1 t2
-        exact absurd t3 h } }
+        have t2 : y + 1 < k     := by exact Nat.add_lt_of_lt_sub t1
+        have t3 : k - 1 < 2 ^ n := by exact Nat.sub_lt_of_lt hk
+        have t4 : k     ≤ 2 ^ n := by exact Nat.le_of_succ_le hk
+        have t4 : y + 1 < 2 ^ n := by exact Nat.lt_of_le_of_lt t1 t3
+        exact absurd t4 h } }
   simp [t1]
 
   have t1' : 
