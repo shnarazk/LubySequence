@@ -533,7 +533,9 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         -- x = 0 は定数1に置き換えること
         have t1 {x : Nat} (h : x + 1 < 2 ^ (n.size - 1 - 1 - 1)) :
             trailing_zeros (x + 1 + 2 ^ (n.size - 1 - 1)) = trailing_zeros (x + 1) := by
-          exact trailing_zeros_prop7 (n.size - 1 - 1) (x + 1) h (by grind)
+          refine trailing_zeros_prop7 (n.size - 1 - 1) (x + 1) ?_ ?_
+          { sorry }
+          { exact Nat.add_one_ne_zero x }
         have t2 (x : Nat) : 2 ^ (n.size - 1 - 1) - 1 + x + 1 = x + 2 ^ (n.size - 1 - 1) := by
           sorry -- grind
         simp [t2]
