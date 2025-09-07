@@ -778,7 +778,6 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
     ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
     = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
   intro n
-  -- simp [add_comm (2 ^ n) ]
   intro k hk
   let f1 := (fun i ↦ if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) else 0)
   have f1_def : f1 = value_of% f1 := by exact rfl
@@ -794,7 +793,6 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
       { expose_names ; simp [h_1] }
       { expose_names ; refine trailing_zeros_prop7 n x h h_1 } }
     { expose_names ; simp at h ; exact rfl }
-
   have t1 : 
      (∑ x ∈ range (k - 1), (trailing_zeros (2 ^ n + x + 1) + 1)) =
      (∑ x ∈ range (k - 1), (f1             (        x + 1) + 1)) := by
@@ -830,7 +828,6 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
     { expose_names ; refine trailing_zeros_prop7 n (i + 1) h (by grind) }
     { exact rfl }
   simp [f2eqf3]
-  --
   have t3 : 
      (∑ i ∈ range (k - 1), (trailing_zeros (i + 1) + 1)) =
      (∑ i ∈ range (k - 1), (f3              i + 1)) := by
