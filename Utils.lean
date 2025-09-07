@@ -779,36 +779,38 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
       = ∑ i ∈ range (k - 1), (trailing_zeros (i + 1) + 1) := by
   intro n
   simp [add_comm (2 ^ n) ]
-  -- practice
-  have : (fun i ↦ trailing_zeros (i + 2 ^ n))
-      = (fun i ↦ if h : i == 0 then n else trailing_zeros (i + 2 ^ n)) := by
-    ext x
-    split
-    { expose_names
-      simp at h
-      simp [h]
-      exact trailing_zeros_prop3 n }
-    { exact rfl } 
-  -- end of practice
-  have f1 : (fun i ↦ if h : i < 2 ^ (n - 1) then trailing_zeros (i + 2 ^ n) else 0)
-      = (fun i ↦ if h : i < 2 ^ (n - 1) then if h' : i == 0 then trailing_zeros (2 ^ n) else trailing_zeros i else 0) := by
+  let f1 := (fun i ↦ if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) else 0)
+  have f1_def : f1 = value_of% f1 := by exact rfl
+  have f1eq : f1 = (fun i ↦
+      if h : i < 2 ^ n
+      then if h' : i == 0 then trailing_zeros (2 ^ n) else trailing_zeros i
+      else 0) := by
+    simp [f1_def]
     ext x
     split
     { expose_names
       split
-      { expose_names
-        simp at h_1
-        simp [h_1] }
-      { expose_names
-        simp at h_1
-        refine trailing_zeros_prop7 n x h h_1 } }
-    { expose_names
-      simp at h
-      exact rfl }
-    -- { expose_names refine trailing_zeros_prop7 n x ?_ (by grind) }
-    --
+      { expose_names ; simp [h_1] }
+      { expose_names ; refine trailing_zeros_prop7 n x h h_1 } }
+    { expose_names ; simp at h ; exact rfl }
   intro k hk
+
   have t1 : 
+     (∑ x ∈ range (k - 1), (trailing_zeros (x + 2 ^ n) + 1)) =
+     (∑ x ∈ range (k - 1), (f1 x + 1)) := by
+    simp [f1_def]
+    refine sum_congr rfl ?_
+    intro y hy
+    split
+    { exact rfl }
+    { expose_names 
+      have t1 : y < k - 1 := by exact List.mem_range.mp hy
+      have t2 : k - 1 < 2 ^ n := by exact Nat.sub_lt_of_lt hk
+      have t3 : y < 2 ^ n := by exact Nat.lt_trans t1 t2
+      exact absurd t3 h }
+  simp [t1]
+
+  have t1' : 
      (∑ x ∈ range (k - 1), (trailing_zeros (x + 2 ^ n) + 1)) =
      (∑ x ∈ range (k - 1), ((fun i ↦
         if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) + 1 else 0) x)) := by
@@ -817,7 +819,7 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
       have s1 : x < k - 1 := by exact List.mem_range.mp hx
       have s1' : x < k := by exact Nat.lt_of_lt_pred s1 
       exact Nat.lt_trans s1' hk }
-  simp [t1]
+  -- simp [t1]
   --
   sorry
 
