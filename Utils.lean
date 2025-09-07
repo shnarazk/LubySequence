@@ -813,29 +813,24 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
         have t4 : y + 1 < 2 ^ n := by exact Nat.lt_of_le_of_lt t1 t3
         exact absurd t4 h } }
   simp [t1]
-
-  have t1' : 
-      (∑ x ∈ range (k - 1), (trailing_zeros (x + 2 ^ n) + 1)) =
-      (∑ x ∈ range (k - 1), ((fun i ↦
-        if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) + 1 else 0) x)) := by
-    refine Eq.symm (sum_ite_of_true ?_ (fun x ↦ trailing_zeros (x + 2 ^ n) + 1) fun x ↦ 0)
-    { intro x hx
-      have s1 : x < k - 1 := by exact List.mem_range.mp hx
-      have s1' : x < k := by exact Nat.lt_of_lt_pred s1 
-      exact Nat.lt_trans s1' hk }
-  -- simp [t1]
-
-  let f2 := (fun i ↦ if h : i < 2 ^ n then trailing_zeros i else 0)
+  clear t1
+  let f2 := (fun i ↦ if h : (i + 1) < 2 ^ n then trailing_zeros ((i + 1) + 2 ^ n) else 0)
   have f2_def : f2 = value_of% f2 := by exact rfl
-  have f1eqf2 : f1 = f2 := by
-    simp [f1_def, f2_def]
-    ext x
+  have t2 : 
+      (∑ i ∈ range (k - 1), (f1 (i + 1) + 1)) =
+      (∑ i ∈ range (k - 1), (f2  i      + 1)) := by
+    exact rfl
+  simp [t2]
+  let f3 := (fun i ↦ if h : i +1 < 2 ^ n then trailing_zeros (i + 1) else 0)
+  have f3_def : f3 = value_of% f3 := by exact rfl
+  have f2eqf3 : f2 = f3 := by
+    simp [f2_def, f3_def]
+    ext i
     split
     { expose_names
-      refine trailing_zeros_prop7 n x h ?_
-      -- x ≠ 0 が必要
-      { sorry } }
+      refine trailing_zeros_prop7 n (i + 1) h (by grind) }
     { exact rfl }
+  simp [f2eqf3]
   --
   sorry
 
