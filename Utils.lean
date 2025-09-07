@@ -4,6 +4,8 @@ import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 
+open Finset
+
 /--
 Returns the number of zeros at the end of bit representation of Nat `n`.
 Note: `trailing_zeros 0 = 0`
@@ -773,12 +775,12 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
 #eval List.range 6 |>.map (fun n' ↦
     let o := n'
     let n := n' + 2
-    ((∑ i ∈ Finset.range (o - 1), (trailing_zeros (2 ^ n + i + 1) + 1) + 1),
-     (∑ i ∈ Finset.range (o - 1), (trailing_zeros (        i + 1) + 1) + 1)))
+    ((∑ i ∈ range (o - 1), (trailing_zeros (2 ^ n + i + 1) + 1) + 1),
+     (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1)))
 
 theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n, 
-    ∑ i ∈ Finset.range (k - 1), (trailing_zeros (2 ^ n + i) + 1)
-      = ∑ i ∈ Finset.range (k - 1), (trailing_zeros (i + 1) + 1) := by
+    ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i) + 1)
+      = ∑ i ∈ range (k - 1), (trailing_zeros (i + 1) + 1) := by
   intro n
   simp [add_comm (2 ^ n) ]
   -- practice
@@ -811,9 +813,15 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
     --
   intro k hk
   have t1 : 
-     (∑ x ∈ Finset.range (k - 1), (trailing_zeros (x + 2 ^ n) + 1)) =
-     (∑ x ∈ Finset.range (k - 1), ((fun i ↦ trailing_zeros (i + 2 ^ n)) x + 1)) := by
-    exact rfl 
+     (∑ x ∈ range (k - 1), (trailing_zeros (x + 2 ^ n) + 1)) =
+     (∑ x ∈ range (k - 1), ((fun i ↦
+        if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) + 1 else 0) x)) := by
+    refine Eq.symm (sum_ite_of_true ?_ (fun x ↦ trailing_zeros (x + 2 ^ n) + 1) fun x ↦ 0)
+    { intro x hx
+      have s1 : x < k - 1 := by exact List.mem_range.mp hx
+      have s1' : x < k := by exact Nat.lt_of_lt_pred s1 
+      exact Nat.lt_trans s1' hk }
   simp [t1]
+  --
   sorry
 
