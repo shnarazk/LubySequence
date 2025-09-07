@@ -707,7 +707,7 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
       { expose_names ; exact absurd h hn' }
       { expose_names ; simp } } }
 
-theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
+theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros (k) := by
   intro n k
   induction' n using Nat.strong_induction_on with n ih
@@ -727,12 +727,8 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
         exact absurd k' h1}
       {
         have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
-        have s1 : 2 ^ n + k < 2 ^ n + 2 ^ (n - 1) := by exact Nat.add_lt_add_left k' (2 ^ n)
-        have s2 : 2 ^ n + 2 ^ (n - 1) < 2 ^ n + 2 ^ n := by
-          have : 2 ^ (n - 1) < 2 ^ n := by exact Nat.pow_pred_lt_pow (by grind) (by grind)
-          exact Nat.add_lt_add_left this (2 ^ n)
-        have s3 : 2 ^ n + k < 2 ^ n + 2 ^ n := by exact Nat.lt_trans s1 s2
-        rw [←mul_two] at s3
+        have s1 : 2 ^ n + k < 2 ^ n + 2 ^ n := by exact Nat.add_lt_add_left k' (2 ^ n)
+        rw [←mul_two] at s1
         have so : (2 ^ n + k).size = n + 1 := by
           have left : n + 1 ≤ (2 ^ n + k).size := by
             have : (2 ^ n).size ≤ (2 ^ n + k).size := by
@@ -740,7 +736,7 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ (n - 1),
               exact Nat.le_add_right (2 ^ n) k
             exact le_of_eq_of_le (id (Eq.symm n2)) this
           have right : (2 ^ n + k).size ≤ n + 1 := by
-            exact pow2_is_minimum (n + 1) (2 ^ n + k) s3
+            exact pow2_is_minimum (n + 1) (2 ^ n + k) s1
           exact Eq.symm (Nat.le_antisymm left right)
         have eq_size : (2 ^ n + k).size = (2 ^ n).size := by
           refine size_add' (by grind) ?_
