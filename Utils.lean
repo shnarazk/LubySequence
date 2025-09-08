@@ -771,7 +771,7 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
     ((∑ i ∈ range (o - 1), (trailing_zeros (2 ^ n + i + 1) + 1) + 1),
      (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1)))
 
-theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n, 
+theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k ≤ 2 ^ n, 
     ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
     = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
   intro n
@@ -803,10 +803,8 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
       { expose_names 
         have t1 : y     < k - 1 := by exact List.mem_range.mp hy
         have t2 : y + 1 < k     := by exact Nat.add_lt_of_lt_sub t1
-        have t3 : k - 1 < 2 ^ n := by exact Nat.sub_lt_of_lt hk
-        have t4 : k     ≤ 2 ^ n := by exact Nat.le_of_succ_le hk
-        have t4 : y + 1 < 2 ^ n := by exact Nat.lt_of_le_of_lt t1 t3
-        exact absurd t4 h } }
+        have t3 : y + 1 < 2 ^ n := by exact Nat.lt_of_lt_of_le t2 hk
+        exact absurd t3 h } }
   simp [t1]
   clear t1
   let f2 := (fun i ↦ if h : (i + 1) < 2 ^ n then trailing_zeros ((i + 1) + 2 ^ n) else 0)
@@ -836,9 +834,7 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n,
       { expose_names 
         have t1 : y     < k - 1 := by exact List.mem_range.mp hy
         have t2 : y + 1 < k     := by exact Nat.add_lt_of_lt_sub t1
-        have t3 : k - 1 < 2 ^ n := by exact Nat.sub_lt_of_lt hk
-        have t4 : k     ≤ 2 ^ n := by exact Nat.le_of_succ_le hk
-        have t4 : y + 1 < 2 ^ n := by exact Nat.lt_of_le_of_lt t1 t3
-        exact absurd t4 h } }
+        have t3 : y + 1 < 2 ^ n := by exact Nat.lt_of_lt_of_le t2 hk
+        exact absurd t3 h } }
   simp [t3]
 
