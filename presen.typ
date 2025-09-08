@@ -1,4 +1,4 @@
-#import "@preview/cetz:0.4.1" as cetz: canvas, draw, tree
+#import "@preview/cetz:0.4.2" as cetz: canvas, draw, tree
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/touying:0.6.1": *
 #import themes.simple: *

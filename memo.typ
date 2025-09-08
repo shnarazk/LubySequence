@@ -1,4 +1,4 @@
-#import "@preview/cetz:0.4.1": canvas, draw, tree
+#import "@preview/cetz:0.4.2": canvas, draw, tree
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 
 #let title = [An Online Algorithm for Luby Sequence]
