@@ -683,8 +683,7 @@ theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0
         have t6 : 2 ≤ (2 ^ (n + 1 + 1) + 1).size - 1 := by exact Nat.le_sub_one_of_lt t5
         exact Nat.zero_lt_of_lt t6
       have c := parity_unmatch sub1 sub2 h
-      simp at c
-    }
+      simp at c }
     { simp 
       have t1 : (2 ^ (n + 1 + 1) + 1).size = n + 1 + 1 + 1 := by
         refine size_add (by grind) ?_
@@ -714,7 +713,6 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
   { intro k'
     intro h1
     rw [trailing_zeros.eq_def]
-    -- intro k0
     split
     { expose_names
       have c : ¬k + 2 ^ n = 0 := by
@@ -725,8 +723,7 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
       rcases zp with z|p
       { simp [z] at *
         exact absurd k' h1}
-      {
-        have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
+      { have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
         have s1 : 2 ^ n + k < 2 ^ n + 2 ^ n := by exact Nat.add_lt_add_left k' (2 ^ n)
         rw [←mul_two] at s1
         have so : (2 ^ n + k).size = n + 1 := by
