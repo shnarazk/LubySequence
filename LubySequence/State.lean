@@ -526,6 +526,17 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
             (fun x ↦ trailing_zeros (2 ^ (n.size - 1 - 1) + x) + 1)
             (2 ^ (n.size - 1 - 1) - 1) ]
       simp [t3]
+      have t4 : trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 = n.size - 1 := by
+        have : trailing_zeros (2 ^ (n.size - 1 - 1)) = n.size - 1 - 1 := by
+          exact trailing_zeros_prop3 (n.size - 1 - 1)
+        simp [this]
+        grind
+      simp [t4]
+      have t5 : ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + (x + 1)) + 1) =
+          ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) := by
+        refine trailing_zeros_prop8 (n.size - 1 - 1) (2 ^ (n.size - 1 - 1)) ?_
+        exact Nat.le_refl (2 ^ (n.size - 1 - 1))
+      simp [t5]
       -- ここまでOK
 
 
