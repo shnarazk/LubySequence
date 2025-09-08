@@ -47,15 +47,13 @@ theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   intro i n0
   induction' i with a h
   { simp [S₂, Nat.size, Nat.binaryRec] }
-  {
-    simp at h
+  { simp at h
     dsimp [S₂, Nat.size]
     apply pow2_le_pow2
     rw [←Nat.size]
     apply fun x ↦ Nat.sub_le_sub_right x 1
     apply Nat.size_le_size
-    grind
-  }
+    grind }
 
 theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
   simp [S₂]
@@ -67,15 +65,13 @@ theorem S₂_ge_two (k : Nat) (h : k > 0) : S₂ k ≥ 2 := by
     have h1 : k = 1 ∨ k > 1 := by exact LE.le.eq_or_lt' h
     rcases h1 with h1|h2
     { simp [h1, Nat.size, Nat.binaryRec] }
-    {
-      have h1 : 1 = (1 : Nat).size := by exact Eq.symm Nat.size_one
+    { have h1 : 1 = (1 : Nat).size := by exact Eq.symm Nat.size_one
       have h2 : 2 ≤ (2 : Nat).size := by simp [Nat.size, Nat.binaryRec]
       have h3 : 2 ≤ 1 + k := by grind
       have h4 : Nat.size 2 ≤ Nat.size (k + 1) := by
         simp only [Nat.add_comm k 1]
         exact Nat.size_le_size h3
-      exact Nat.le_trans h2 h4
-    }
+      exact Nat.le_trans h2 h4 }
   exact this
 
 #eval List.range 50 |>.map (fun n ↦ (if n + 1 ≥ S₂ n then 1 else 0))
@@ -89,8 +85,7 @@ theorem S₂_upper_bound : ∀ n : Nat, S₂ n ≤ n + 1 := by
 theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
   induction' n with k h
   { simp }
-  {
-    have h2 : 2 ^ (k + 1) = 2 ^ k * 2 := by omega
+  { have h2 : 2 ^ (k + 1) = 2 ^ k * 2 := by omega
     rw [h2]
     have t1 : k + 1 + 1 ≤ 2 ^ k + 1 := by omega
     have t2 : 2 ^ k + 1 ≤ 2 ^ k + 2 ^ k := by
@@ -98,8 +93,7 @@ theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
       exact Nat.add_le_add_iff_left.mpr this
     have (k : Nat) : k + k = k * 2 := by exact Eq.symm (Nat.mul_two k)
     rw [this] at t2
-    exact Nat.le_trans t1 t2
-  }
+    exact Nat.le_trans t1 t2 }
 
 #eval List.range 24 |>.map (fun k ↦ S₂ k == k)
 #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
@@ -111,15 +105,12 @@ def luby (n : ℕ) : Nat := if is_envelope n then S₂ n else luby (n + 1 - S₂
 termination_by n
 decreasing_by
   rcases n with z | k
-  {
-    expose_names
+  { expose_names
     simp [is_envelope] at h
     simp at *
     have : S₂ 2 = 2 := by simp [S₂, Nat.size, Nat.binaryRec]
-    exact absurd this h
-  }
-  {
-    expose_names
+    exact absurd this h }
+  { expose_names
     ring_nf at *
     simp at *
     have : 2 - S₂ (1 + k) < 1 → 2 + k - S₂ (1 + k) < 1 + k := by omega
@@ -129,8 +120,7 @@ decreasing_by
       have : S₂ (1 + k) ≥ 2 := by exact S₂_ge_two (1 + k) (by grind)
       grind
     apply this
-    apply S₂_ge_two (1 + k) (by grind)
-  }
+    apply S₂_ge_two (1 + k) (by grind) }
 
 #eval S₂ 0 -- 2 = 2 -- 0
 #eval luby 2 -- 2 = 2 -- 0
@@ -221,11 +211,7 @@ theorem luby_value_at_segment_beg (n : Nat) : is_segment_beg n → luby n = 1 :=
               exact t4
             exact Nat.add_lt_add_left this n
           have goal := nh (n + 1 - S₂ n) r h
-          exact goal
-        } 
-      }
-    }
-  }
+          exact goal } } } }
 
 #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
 
@@ -447,8 +433,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
               have cases : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
               rcases cases with z|p
               { simp [z] ; simp [is_envelope, S₂] ; simp [Nat.size, Nat.binaryRec] }
-              {
-                have cases1 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' p
+              { have cases1 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' p
                 rcases cases1 with n1|nt
                 { simp [n1] at *
                   simp [Nat.size, Nat.binaryRec]
@@ -456,8 +441,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
                     simp [is_envelope, S₂]
                     simp [Nat.size, Nat.binaryRec]
                   exact t1 }
-                {
-                  have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
+                { have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
                   have t1' : n + 1 = 2 ^ (n + 1).size - 2 := by grind
                   nth_rw 1 [t1']
                   have t4 : 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1) := by
@@ -495,9 +479,7 @@ theorem luby_value_not_at_segment_beg (n : Nat) :
                     have u2 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
                     simp [u2] at u1
                     exact u1
-                  simp [this]
-                }
-              }
+                  simp [this] } }
             rw [luby]
             split
             { expose_names
