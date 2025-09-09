@@ -562,18 +562,46 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
           ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), 
             (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 + 1) =
           ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), 
-            (trailing_zeros (x + 1) + 1) + trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 + 1 := by
+            (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1) + 1 := by
         exact rfl
-      simp [t5]
+      simp only [t5]
       have t6 : (2 ^ (n.size - 1 - 1) - 1 + 1) = (2 ^ (n.size - 1 - 1)) := by
         grind
       nth_rw 2 [←t6]
+      clear t5 t4 t3 t1
+      have t7 :
+        (∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) +
+          trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + 1) + 1 + 1) =
+        (∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) +
+          trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + 1) + 1) + 1 := by
+        exact rfl
+      -- simp [t7]
       -- ここまでOK
       rw [←Finset.sum_range_succ (fun n ↦ trailing_zeros (n + 1) + 1) (2 ^ (n.size - 1 - 1) - 1)]
-
-      sorry }
-    }
-
+      simp [t6]
+      simp [ih']
+      have t8 : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by
+        have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by
+          exact Nat.size_pow
+        simp [this]
+        grind
+      simp [t8]
+      have t9 : 2 ^ (n.size - 1) - 1 + 1 = 2 ^ (n.size - 1) := by grind
+      simp [t9]
+      have t10: 2 ^ (n.size - 1) - 1 + 2 ^ (n.size - 1) = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 := by
+        refine Eq.symm (Nat.sub_add_comm ?_)
+        exact Nat.one_le_two_pow
+      simp [t10]
+      have t11 : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ n.size := by
+        have : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 * 2 ^ (n.size - 1) := by 
+          exact Eq.symm (Nat.two_mul (2 ^ (n.size - 1)))
+        simp [this]
+        have : 2 * 2 ^ (n.size - 1) = 2 ^ (n.size - 1 + 1) := by
+          exact Eq.symm Nat.pow_succ'
+        simp [this]
+        refine Nat.sub_add_cancel ?_
+        exact Nat.one_le_of_lt nsize2
+      simp [t11] } }
 
 /-
         -- x = 0 は定数1に置き換えること
