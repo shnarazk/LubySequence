@@ -319,7 +319,7 @@ def LubyState.toLocIx (n : Nat) : Nat := n - LubyState.sumOfSegmentHeights n
 -- TODO: segment内ではsegment_height step分直接遷移可能でnextと等価な`move_in_segment`の定義と証明が必要
 def LubyState.next_in_segment (s : LubyState) (d : Nat) : LubyState := LubyState.mk s.segIx (s.locIx + d)
 
-theorem LubyState.next_in_segment_is_additive {s : LubyState} {d : Nat} (h : s.locIx + d < s.segment_height) :
+theorem LubyState.next_in_segment_is_additive {s : LubyState} {d : Nat} :
     ∀ d' < d, 0 < d' → s.next_in_segment d' = (s.next_in_segment (d' - 1)).next_in_segment 1 := by
   intro n hn hd
   simp [LubyState.next_in_segment]
