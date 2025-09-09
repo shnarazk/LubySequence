@@ -492,34 +492,6 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         exact Nat.le_sub_one_of_lt nsize2
       simp [this]
       clear this
-      -- ここまでOK
-    -- theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k < 2 ^ n, 
-    -- ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
-    -- = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
--- #eval List.range 7 |>.map (fun k ↦ (
---    (∑ x ∈ Finset.range (2 ^ k), (trailing_zeros (2 ^ k + x) + 1)),
---    (∑ x ∈ Finset.range (2 ^ k - 1), (trailing_zeros (2 ^ k + x + 1) + 1) + k + 1)))
-      /- have t1 : 2 ^ (n.size - 1 - 1) = 2 ^ (n.size - 1 - 1) - 1 + 1 := by
-        refine Eq.symm (Nat.sub_add_cancel ?_)
-        exact Nat.one_le_two_pow
-      -- nth_rw 1 [t1]
-      -/
-      /- have t2 : 
-       ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1 + 1), (trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + x + 1) + 1)
-     = ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1 + 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + x) + 1) := by
-         refine sum_congr rfl ?_
-         { intro x hx
-           have t1 : 2 ^ (n.size - 1 - 1) - 1 + x + 1 = 2 ^ (n.size - 1 - 1) + x := by grind
-           simp [t1] }
-      simp [t2] -/
-      /- have t3 : 
-       ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1 + 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + x) + 1)
-     = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + (x + 1)) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1) := by
-        simp [
-          sum_range_succ'
-            (fun x ↦ trailing_zeros (2 ^ (n.size - 1 - 1) + x) + 1)
-            (2 ^ (n.size - 1 - 1) - 1) ]
-      simp [t3] -/
       -- 最後の1個を一旦外す
       have t1 : 2 ^ (n.size - 1 - 1) = 2 ^ (n.size - 1 - 1) - 1 + 1 := by
         refine Eq.symm (Nat.sub_add_cancel ?_)
@@ -569,14 +541,6 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         grind
       nth_rw 2 [←t6]
       clear t5 t4 t3 t1
-      have t7 :
-        (∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) +
-          trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + 1) + 1 + 1) =
-        (∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) +
-          trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + 1) + 1) + 1 := by
-        exact rfl
-      -- simp [t7]
-      -- ここまでOK
       rw [←Finset.sum_range_succ (fun n ↦ trailing_zeros (n + 1) + 1) (2 ^ (n.size - 1 - 1) - 1)]
       simp [t6]
       simp [ih']
@@ -602,50 +566,6 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         refine Nat.sub_add_cancel ?_
         exact Nat.one_le_of_lt nsize2
       simp [t11] } }
-
-/-
-        -- x = 0 は定数1に置き換えること
-      have : ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1)),
-            (trailing_zeros (2 ^ (n.size - 1 - 1) - 1 + x + 1) + 1)
-          = ∑ x ∈ Finset.range (2 ^ (n.size - 1 - 1) - 1), 
-            (trailing_zeros (x + 1) + 1) + 1 + 1 := by
-        -- x = 0 は定数1に置き換えること
-        have t1 {x : Nat} (h : x + 1 < 2 ^ (n.size - 1 - 1 - 1)) :
-            trailing_zeros (x + 1 + 2 ^ (n.size - 1 - 1)) = trailing_zeros (x + 1) := by
-          refine trailing_zeros_prop7 (n.size - 1 - 1) (x + 1) ?_ ?_
-          { sorry }
-          { exact Nat.add_one_ne_zero x }
-        have t2 (x : Nat) : 2 ^ (n.size - 1 - 1) - 1 + x + 1 = x + 2 ^ (n.size - 1 - 1) := by
-          sorry -- grind
-        simp [t2]
-        -- simp [t1 sub1 sub2]
-        sorry
-      --
-      simp [this]
-      clear this
-      simp [ih']
-      have t3 : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by exact Nat.size_pow
-      simp [t3]
-      have t4 : n.size - 1 - 1 + 1 = n.size - 1 := by
-        sorry -- grind
-      simp [t4]
-      have t5 : 2 ^ (n.size - 1) - 1 + (2 ^ (n.size - 1) - 1 + 1)
-         = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 + 1 - 1 := by
-        sorry -- grind
-      have t5' : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 + 1 - 1
-         = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 := by grind
-      simp [t5'] at t5
-      simp [t5]
-      clear t3 t4 t5 t5'
-      have t6 : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ (n.size - 1 + 1) := by
-        exact Eq.symm (Nat.two_pow_succ (n.size - 1))
-      simp [t6]
-      have t7 : n.size - 1 + 1 = n.size := by
-        refine Nat.sub_add_cancel ?_
-        exact Nat.one_le_of_lt nsize2
-      simp [t7] 
-   }
- } -/
 
 theorem t20250904 : ∀ n : Nat,
     (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx
