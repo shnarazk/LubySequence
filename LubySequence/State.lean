@@ -430,7 +430,7 @@ def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (t
   let n := 2 ^ k
   (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1), 2 ^ n.size - 1))
 
-theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) → 
+theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
     ∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1) = 2 ^ n.size - 1 := by
   intro n
   induction' n using Nat.strong_induction_on with n ih
@@ -438,7 +438,7 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
     have cases : n = 1 ∨ 1 < n := by exact LE.le.eq_or_lt' h
     rcases cases with case1|case2
     { simp [case1] at * ; simp [trailing_zeros] }
-    { intro h2 
+    { intro h2
       have nsize2 : 2 ≤ n.size := by
         have u1 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size case2
         have u2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
@@ -484,8 +484,8 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       clear sub1 sub2 sub3
       simp [ih']
       -- clear ih'
-      have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by 
-        have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by 
+      have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by
+        have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by
           exact Nat.size_pow
         simp [this]
         refine Nat.sub_add_cancel ?_
@@ -506,7 +506,7 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       simp [t2]
       clear t2
       have t3 : 2 ^ (n.size - 1 - 1) + (2 ^ (n.size - 1 - 1) - 1) + 1 = 2 ^ (n.size - 1) := by
-        have : 2 ^ (n.size - 1 - 1) + (2 ^ (n.size - 1 - 1) - 1) + 1 = 
+        have : 2 ^ (n.size - 1 - 1) + (2 ^ (n.size - 1 - 1) - 1) + 1 =
             2 ^ (n.size - 1 - 1) + 2 ^ (n.size - 1 - 1) - 1 + 1 := by
           refine Nat.add_right_cancel_iff.mpr ?_
           refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (n.size - 1 - 1)))
@@ -530,10 +530,10 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         simp [s1, s2]
         grind
       simp [t4]
-      have t5 : 
-          ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), 
+      have t5 :
+          ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1),
             (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 + 1) =
-          ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), 
+          ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1),
             (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1) + 1 := by
         exact rfl
       simp only [t5]
@@ -557,7 +557,7 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         exact Nat.one_le_two_pow
       simp [t10]
       have t11 : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ n.size := by
-        have : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 * 2 ^ (n.size - 1) := by 
+        have : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 * 2 ^ (n.size - 1) := by
           exact Eq.symm (Nat.two_mul (2 ^ (n.size - 1)))
         simp [this]
         have : 2 * 2 ^ (n.size - 1) = 2 ^ (n.size - 1 + 1) := by
@@ -618,7 +618,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     rcases zp with z|p
     { simp [z] at * }
     {
-      have : Finset.range (2 ^ (k + 1) - 2) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by 
+      have : Finset.range (2 ^ (k + 1) - 2) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by
         have t1 : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
         have t2 : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) - 2 := by grind
         have t2' : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2) := by
@@ -642,7 +642,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       simp [Finset.sum_range_add]
       simp [segment_height_sum] at hk
       simp [hk]
-      -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to 
+      -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to
       -- FIXME: 最後のsegmentは左に持って行けない。1違う。
       -- ので1を取り出した上でenvelopeに戻してやるべし
       have t1 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
