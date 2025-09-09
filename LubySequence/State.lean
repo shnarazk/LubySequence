@@ -558,10 +558,22 @@ theorem t20250904_1 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         simp [s1, s2]
         grind
       simp [t4]
+      have t5 : 
+          ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), 
+            (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 + 1) =
+          ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), 
+            (trailing_zeros (x + 1) + 1) + trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 + 1 := by
+        exact rfl
+      simp [t5]
+      have t6 : (2 ^ (n.size - 1 - 1) - 1 + 1) = (2 ^ (n.size - 1 - 1)) := by
+        grind
+      nth_rw 2 [←t6]
+      -- ここまでOK
+      rw [←Finset.sum_range_succ (fun n ↦ trailing_zeros (n + 1) + 1) (2 ^ (n.size - 1 - 1) - 1)]
+
       sorry }
     }
 
-      -- ここまでOK
 
 /-
         -- x = 0 は定数1に置き換えること
