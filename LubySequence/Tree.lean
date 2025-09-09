@@ -33,16 +33,8 @@ def t4 := LubyTree.mk 4
 
 theorem LubyTree.wrap_is_congruent (t1 t2 : LubyTree) : t1.wrap = t2.wrap ↔ t1 = t2 := by
   constructor
-  {
-    intro h
-    simp at h
-    exact h
-  }
-  {
-    intro h
-    simp
-    exact h
-  }
+  { intro h ; simp at h ; exact h }
+  { intro h ; simp ; exact h }
 
 def LubyTree.depth (self : LubyTree) : Nat := match self with
   | .leaf => 1
@@ -60,18 +52,14 @@ theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) 
     simp [LubyTree.depth]
     rw [LubyTree.mk.eq_def]
     split
-    {
-      expose_names
+    { expose_names
       have this := LubyTree.depth_gt_one sub
       have : ¬sub.depth = 0 := by exact Nat.ne_zero_of_lt this
-      exact absurd heq this
-    }
-    {
-      expose_names
+      exact absurd heq this }
+    { expose_names
       have : sub.depth - 1 = l.succ - 1 := by exact congrFun (congrArg HSub.hSub heq) 1
       have : sub.depth - 1 = l := by exact this
-      simp [←this, tree_ih]
-    }
+      simp [←this, tree_ih] }
 
 #eval LubyTree.mk 0
 #eval LubyTree.leaf.depth
@@ -88,15 +76,8 @@ theorem LubyTree.mk_self_eq_depth_add_one (n: Nat) : (LubyTree.mk n).depth = n +
 
 theorem LubyTree.mk_zero_is_leaf {n : Nat} : LubyTree.mk n = LubyTree.leaf → n = 0 := by
   induction' n with n hn
-  {
-    intro h
-    simp [mk] at h
-    exact rfl
-  }
-  {
-    intro h
-    simp [mk] at h
-  }
+  { intro h ; simp [mk] at h ; exact rfl }
+  { intro h ; simp [mk] at h }
 
 theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
   induction n with
@@ -105,18 +86,14 @@ theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) =
     simp [←ih]
     nth_rw 2 [LubyTree.mk.eq_def]
     split
-    {
-      expose_names
+    { expose_names
       have (n : Nat) : n + 1 ≠ 0 := by exact Ne.symm (Nat.zero_ne_add_one n)
       have hne := this (n + 1)
-      exact absurd heq hne
-    }
-    {
-      expose_names
+      exact absurd heq hne }
+    { expose_names
       have : n + 1 = l := by exact Nat.succ_inj.mp heq
       rw [←this]
-      simp [ih]
-    }
+      simp [ih] }
 
 theorem LubyTree.mk_unique (m n : Nat) : LubyTree.mk m = LubyTree.mk n → m = n := by
   induction m generalizing n with
@@ -131,30 +108,20 @@ theorem LubyTree.mk_unique (m n : Nat) : LubyTree.mk m = LubyTree.mk n → m = n
     have tf : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
     rcases tf with t|f
     { simp [t,mk] at h }
-    {
-      have : n = (n - 1) + 1 := by exact Eq.symm (Nat.succ_pred_eq_of_ne_zero f)
+    { have : n = (n - 1) + 1 := by exact Eq.symm (Nat.succ_pred_eq_of_ne_zero f)
       rw [this] at h
       rw [←LubyTree.wrap_n_eq_n_add_one] at h
       rw [←LubyTree.wrap_n_eq_n_add_one] at h
       have : mk m = mk (n - 1) := by
         exact (wrap_is_congruent (mk m) (mk (n - 1))).mp h
       have h' := hm (n - 1) this
-      grind
-   }
+      grind }
 
 theorem LubyTree.unwrap_wrap_self_eq_self (d : Nat) (t : LubyTree) :
     LubyTree.mk (d + 1) = t.wrap ↔ LubyTree.mk d = t := by
   constructor
-  {
-    intro h
-    simp [LubyTree.mk] at h
-    exact h
-  }
-  {
-    intro h
-    simp [LubyTree.mk]
-    exact h
-  }
+  { intro h ; simp [LubyTree.mk] at h ; exact h }
+  { intro h ; simp [LubyTree.mk] ; exact h }
 
 def LubyTree.size (self : LubyTree) : Nat := match self with
   | .leaf => 1
@@ -180,13 +147,11 @@ theorem size_is_two_sub_sizes_add_one' (n : Nat) :
 theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
   induction tree
   { simp [LubyTree.depth, LubyTree.size] }
-  {
-    expose_names
+  { expose_names
     simp [LubyTree.depth]
     simp [LubyTree.size]
     simp [tree_ih]
-    simp [←bitslength_eq_size, Nat.mul_comm tree.size 2]
-  }
+    simp [←bitslength_eq_size, Nat.mul_comm tree.size 2] }
 
 /-
  - The envelope is the smallest tree containing `s` elements.
@@ -337,7 +302,6 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
         _ = 2 := by exact rfl
     simp [step2] at step1
     exact step1
-
   simp [envelopeSize, envelopeDepth]
   have s1 : 2 ^ (quotient n).size < 2 ^ n.size → 2 ^ (quotient n).size - 1 < 2 ^ n.size - 1 := by
     have (a b : Nat) (h : 1 ≤ a) : a < b → a - 1 < b - 1 := by
@@ -373,8 +337,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
       have vp : v = value_of% v := by exact rfl
       have tf : x % 2 = 0 ∨ ¬ x % 2 = 0 := by exact eq_or_ne _ _
       rcases tf with t|f
-      {
-        have s1 : Even x := by refine Nat.even_iff.mpr t
+      { have s1 : Even x := by refine Nat.even_iff.mpr t
         have s2 : x = 2 * (x / 2) := by refine Eq.symm (Nat.two_mul_div_two_of_even s1)
         have s3 : x.bits = (2 * (x / 2)).bits := by exact congrArg Nat.bits s2
         have s4 : (2 * (x / 2)).bits = false :: (x / 2).bits := by
@@ -388,10 +351,8 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
         have s4' : x.bits.tail = (false :: (x / 2).bits).tail := by exact congrArg List.tail s4
         have s5 : (false :: (x / 2).bits).tail = (x /2).bits := by exact vp
         simp [←s4'] at s5
-        exact id (Eq.symm s4')
-      }
-      {
-        have : x % 2 = 1 := by exact Nat.mod_two_ne_zero.mp f
+        exact id (Eq.symm s4') }
+      { have : x % 2 = 1 := by exact Nat.mod_two_ne_zero.mp f
         have s1 : ¬ Even x := by exact Nat.not_even_iff.mpr this
         have s1' : Odd x := by exact Nat.odd_iff.mpr this
         have s2 : x = 2 * (x / 2) + 1 := by exact Eq.symm (Nat.two_mul_div_two_add_one_of_odd s1')
@@ -399,8 +360,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
         have s4 : (2 * (x / 2) + 1).bits = true :: (x / 2).bits := by exact Nat.bit1_bits (x / 2)
         simp [←s2] at s4
         have s4' : x.bits.tail = (true :: (x / 2).bits).tail := by exact congrArg List.tail s4
-        exact id (Eq.symm s4')
-      }
+        exact id (Eq.symm s4') }
     have t2 : 2 ≤ 2 ^ n.bits.length - 1 - 1 := by grind
     have t1' := t1 t2
     clear t1 t2
@@ -422,12 +382,10 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
         exact Nat.zero_lt_of_lt this
       have : 0 < (2 ^ n.bits.length - 1 - 1) / 2 := by
         refine Nat.div_pos ?_ (by grind)
-        {
-          have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p' 1
+        { have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p' 1
           have : 4 - 1 - 1 ≤ 2 ^ n.bits.length - 1 - 1 := by exact Nat.sub_le_sub_right this 1
           simp at this
-          exact this
-        }
+          exact this }
       exact this
     exact tmp
   have s2' : ((n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1).bits.length ≤ ((2 ^ n.bits.length - 1 - 1) / 2).bits.length := by
@@ -436,15 +394,13 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
 
   have r1 : (n - 1) % ((2 ^ n.bits.length - 1 - 1) / 2) + 1 ≤ (2 ^ n.bits.length - 1 - 1) / 2 := by
     refine mod_gt_right'' n ?_
-    {
-      have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p' 1
+    { have : 4 - 1 ≤ 2 ^ n.bits.length - 1 := by exact Nat.sub_le_sub_right le2p' 1
       simp at this
       have : 3 - 1 ≤ 2 ^ n.bits.length - 1 - 1 := by exact Nat.sub_le_sub_right this 1
       simp at this
       have : 2 / 2 ≤ (2 ^ n.bits.length - 1 - 1) / 2 := by exact Nat.div_le_div_right this
       simp at this
-      exact this
-    }
+      exact this }
   have r2 : (2 ^ n.bits.length - 1 - 1) / 2 < n := by
     have : (2 ^ n.bits.length - 1 - 1) / 2 = 2 ^ n.bits.length / 2 - 1 := by
       calc
@@ -513,8 +469,7 @@ theorem level_to_size (n : Nat) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
 theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true) := by
   induction t
   { simp [LubyTree.size] }
-  {
-    expose_names
+  { expose_names
     let n := tree.depth
     have hn : n = value_of% n := by rfl
     have : LubyTree.mk (n - 1) = tree := by
@@ -528,25 +483,20 @@ theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true
       exact fun a_1 a_2 ↦ List.not_mem_cons_of_ne_of_not_mem a_1 a_2
     apply notin_cons
     { simp }
-    { simp [this] ; exact tree_ih }
-  }
+    { simp [this] ; exact tree_ih } }
 
 theorem LubyTree.is_symmetry (d : Nat) :
     ∀ n ≤ ((LubyTree.mk d).size - 1) / 2,
       n > 0 → (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2)  := by
   intro n hn nz
   induction' d with d dh
-  {
-    simp [LubyTree.mk]
-    simp [LubyTree.size]
-  }
-  {
-    rw [LubyTree.valueAtSize.eq_def]
+  { simp [LubyTree.mk]
+    simp [LubyTree.size] }
+  { rw [LubyTree.valueAtSize.eq_def]
     rw [LubyTree.valueAtSize.eq_def]
     split
     { rfl } -- case: leaf
-    {
-      -- case: wrap sub
+    { -- case: wrap sub
       expose_names
       have d_tree : mk d = tree := by exact (unwrap_wrap_self_eq_self d tree).mp heq
       simp [←d_tree] at *
@@ -554,20 +504,14 @@ theorem LubyTree.is_symmetry (d : Nat) :
       have d_eq : (mk (d + 1)).depth = (mk d).depth + 1 := by exact rfl
       simp only [d_eq] at *
       split
-      {
-        split
+      { split
         { expose_names ; exact rfl }
-        {
-          expose_names
+        { expose_names
           have : ¬(mk (d + 1)).size ≤ n := by grind
-          exact absurd h this
-        }
-      }
-      {
-        split
+          exact absurd h this } }
+      { split
         { expose_names ; grind }
-        {
-          expose_names
+        { expose_names
           have : (n - 1) % (mk d).size = (n + ((mk (d + 1)).size - 1) / 2 - 1) % (mk d).size := by
             have : (mk (d + 1)).size = 2 * (mk d).size + 1 := by exact size_is_two_sub_sizes_add_one d
             simp [this]
@@ -577,10 +521,6 @@ theorem LubyTree.is_symmetry (d : Nat) :
             have : (mk d).size + (n - 1) = (mk d).size + n - 1 := by
               exact Eq.symm (Nat.add_sub_assoc nz (mk d).size)
             rw [this]
-          simp [this]
-       }
-     }
-   }
- }
+          simp [this] } } } }
 
 end Tree
