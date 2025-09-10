@@ -706,8 +706,29 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
       { expose_names ; exact absurd h hn' }
       { expose_names ; simp } } }
 
+/- theorem trailing_zeros_prop7' : ∀ n > 0, ∀ k < 2 ^ n, 
+    ¬k = 0 → trailing_zeros (2 ^ n + k) = trailing_zeros k := by
+  intro n hn k hk k0
+  induction' n with n ih
+  { contradiction }
+  { rw [trailing_zeros.eq_def]
+    split
+    { expose_names
+      have c : ¬2 ^ (n + 1) + k = 0 := by
+        have : 0 < 2 ^ (n + 1) := by exact Nat.two_pow_pos (n + 1)
+        exact NeZero.ne (2 ^ (n + 1) + k)
+      exact absurd heq c }
+    { expose_names
+      have t1 : (2 ^ (n + 1) + k).size = n + 1 + 1 := by
+        refine size_add ?_ hk
+        { refine Nat.pos_of_ne_zero k0 }
+      split
+      { expose_names ; simp [t1] at h ; exact absurd h k0 }
+      { expose_names ; simp [t1] } } }
+-/
+
 theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
-    ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros (k) := by
+    ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros k := by
   intro n k
   induction' n using Nat.strong_induction_on with n ih
   { intro k'

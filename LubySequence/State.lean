@@ -571,15 +571,23 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
 #eval List.range 6 |>.map (· + 1) |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (LubyState.ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 
 theorem t20250910 : ∀ n : Nat, n = 2 ^ (n.size - 1) - 1 → (LubyState.ofNat (n - 1)).segIx = 2 ^ (n.size - 1) := by
-  sorry
+  intro n hn
+  induction' n using Nat.strong_induction_on with n ih
+  { have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+    rcases zp with z|p
+    { simp [z] at *
+      simp [LubyState.ofNat, LubyState.zero, LubyState.next]
+      exact rfl }
+    {
+      sorry
+    } }
 
 theorem t20250904 : ∀ n : Nat,
     (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx
     = (LubyState.ofNat n).segIx := by
   intro n
   induction' n using Nat.strong_induction_on with n ih
-  {
-    have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by exact eq_or_ne n (2 ^ (n.size - 1))
+  { have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by exact eq_or_ne n (2 ^ (n.size - 1))
     rcases p2_not with p2|not
     { sorry }
     { sorry } }
@@ -590,10 +598,10 @@ theorem t20250904 : ∀ n : Nat,
 theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
-  induction' k with k hk
-  { simp [segment_height_sum] ; simp [trailing_zeros] }
-  { simp [segment_height_sum]
-    have t1 : ∑ i ∈ Finset.range (2 ^ (k + 1) - 2 + 2), (trailing_zeros (i + 1) + 1) =
+  simp [segment_height_sum]
+  induction' k with k ih
+  { simp [trailing_zeros] }
+  { have t1 : ∑ i ∈ Finset.range (2 ^ (k + 1) - 2 + 2), (trailing_zeros (i + 1) + 1) =
       ∑ i ∈ Finset.range (2 ^ (k + 1) - 2), (trailing_zeros (i + 1) + 1)
       + ∑ i ∈ Finset.range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) := by
       exact Finset.sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) (2 ^ (k + 1) - 2) 2
@@ -649,8 +657,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
         rw [←t2']
       simp [this]
       simp [Finset.sum_range_add]
-      simp [segment_height_sum] at hk
-      simp [hk]
+      simp [ih]
       -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to
       -- FIXME: 最後のsegmentは左に持って行けない。1違う。
       -- ので1を取り出した上でenvelopeに戻してやるべし
@@ -659,9 +666,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
         simp [this]
         grind
       simp [t1] at *
-      have t2 (x : Nat) : trailing_zeros (2 ^ k + x + 1) = trailing_zeros (x + 1) := by
-        sorry
-      simp only [t2]
+      
       -- simp only [hk]
       sorry }
       }
