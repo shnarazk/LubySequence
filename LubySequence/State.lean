@@ -567,13 +567,22 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         exact Nat.one_le_of_lt nsize2
       simp [t11] } }
 
+#eval List.range 6 |>.map (2 ^ ·.succ - 1) |>.map (fun n ↦ (n, (LubyState.ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+#eval List.range 6 |>.map (· + 1) |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (LubyState.ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+
+theorem t20250910 : ∀ n : Nat, n = 2 ^ (n.size - 1) - 1 → (LubyState.ofNat (n - 1)).segIx = 2 ^ (n.size - 1) := by
+  sorry
+
 theorem t20250904 : ∀ n : Nat,
     (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx
     = (LubyState.ofNat n).segIx := by
   intro n
-  --
-  sorry
-
+  induction' n using Nat.strong_induction_on with n ih
+  {
+    have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by exact eq_or_ne n (2 ^ (n.size - 1))
+    rcases p2_not with p2|not
+    { sorry }
+    { sorry } }
 
 -- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
 -- あるいは segment_beg な (ofNat n).segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = n 的な
