@@ -728,11 +728,38 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       simp [t4]
       let x := 1 + (k + 1) + 1
       have hx : x = value_of% x := by exact rfl
+      have base1 : (k + 1) + 2 ≤ 2 ^ (k + 1) := by
+        let x := k - 1
+        have hx : x = value_of% x := by exact rfl
+        have hx' : x + 1 = k := by exact Nat.sub_add_cancel p
+        simp [←hx']
+        induction' x with x hx
+        { simp }
+        { have s1 : x + 1 + 1 + 1 + 2 = 1 + (x + 1 + 1 + 2) := by grind
+          simp [s1]
+          have s2 : 1 < 2 ^ (x + 1 + 1) := by exact Nat.lt_of_add_left_lt hx
+          have s3 : 2 ^ (x + 1 + 1 + 1) = 2 ^ (x + 1 + 1) + 2 ^ (x + 1 + 1) := by
+            exact Nat.two_pow_succ (x + 2)
+          simp [s3]
+          refine Nat.add_le_add ?_ hx
+          exact Nat.one_le_two_pow }
       have t5 : 2 ^ (k + 1) - 1 - (k + 1) - 1 = 2 ^ (k + 1) - x := by
         simp [hx]
         refine (Nat.sub_eq_iff_eq_add ?_).mpr ?_
         { sorry }
-        { sorry }
+        { have : 2 ^ (k + 1) - (1 + (k + 1) + 1) + 1 = 2 ^ (k + 1) - (k + 1) - 1 := by
+            have : 2 ^ (k + 1) - (1 + (k + 1) + 1) + 1 = 2 ^ (k + 1) + 1 - (1 + (k + 1) + 1) := by
+              refine Eq.symm (Nat.sub_add_comm ?_)
+              refine Nat.add_le_of_le_sub ?_ ?_
+              { exact Nat.one_le_two_pow }
+              { have s1 : (k + 1) + 1 + 1 ≤ 2 ^ (k + 1) := by exact base1
+                have s2 : 1 + (k + 1) + 1 = k + 1 + 1 + 1 := by exact Eq.symm (Nat.add_comm (k + 1 + 1) 1)
+                simp [←s2] at s1
+                exact Nat.le_sub_one_of_lt s1 }
+            simp [this]
+            exact Nat.Simproc.sub_add_eq_comm (2 ^ (k + 1)) 1 (k + 1)
+          simp [this]
+          exact Nat.sub_right_comm (2 ^ (k + 1)) 1 (k + 1) }
       simp [t5]
       have t6 : 2 ^ (k + 1) + (2 ^ (k + 1) - x) = 2 ^ (k + 1) + 2 ^ (k + 1) - x := by
         refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (k + 1)))
