@@ -661,15 +661,122 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to
       -- FIXME: 最後のsegmentは左に持って行けない。1違う。
       -- ので1を取り出した上でenvelopeに戻してやるべし
-      have t1 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
-        have : 2 ^ (k + 1) = 2 * 2 ^ k := by exact Nat.pow_succ'
+      -- theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k ≤ 2 ^ n, 
+      -- ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
+      -- = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
+      have t8 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
+        refine Nat.sub_eq_of_eq_add ?_
+        rw [←mul_two]
+        exact rfl
+      simp [t8]
+      have t9 : ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (2 ^ k + i + 1) + 1)
+          = ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (      i + 1) + 1) := by
+        refine trailing_zeros_prop8 k (2 ^ k - 1) ?_
+        { exact Nat.sub_le (2 ^ k) 1 }
+      simp [t9]
+      have t10 : ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) =
+          ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (i + 1) + 1) + (trailing_zeros (2 ^ k - 2 + 1) + 1) := by
+        have s1 : 2 ^ k - 1 = 2 ^ k - 1 - 1 + 1 := by
+          refine Eq.symm (Nat.sub_add_cancel ?_)
+          { refine Nat.le_sub_one_of_lt ?_
+            { refine Nat.one_lt_two_pow ?_
+              { exact Nat.ne_zero_of_lt p } } }
+        nth_rw 1 [s1]
+        have s2 : 2 ^ k - 1 - 1 = 2 ^ k - 2 := by exact rfl
+        nth_rw 1 [s2]
+        rw [sum_range_succ]
+      have t10' : ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (i + 1) + 1) =
+          ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) - (trailing_zeros (2 ^ k - 2 + 1) + 1) := by
+        exact Nat.eq_sub_of_add_eq (id (Eq.symm t10))
+      simp [t10']
+      clear t10' t10 t9 t8 t7 t6 t5 t4 t3 t2 t1 this
+      have t1 : trailing_zeros (2 ^ k - 2 + 1) + 1 = 1 := by
+        have : 2 ^ k - 2 + 1 = 2 ^ k - 1 := by
+          have s1 : 2 ^ k - 2 + 2 = 2 ^ k := by
+            refine Nat.sub_add_cancel ?_
+            { exact Nat.le_pow p }
+          have s2 : 2 = 1 + 1 := by exact rfl 
+          nth_rw 3 [s2] at s1
+          have s3 : 2 ^ k - 2 + (1 + 1) = 2 ^ k - 2 + 1 + 1 := by exact rfl
+          simp [s3] at s1
+          exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm s1)))
         simp [this]
-        grind
-      simp [t1] at *
-      
-      -- simp only [hk]
-      sorry }
-      }
+        exact trailing_zeros_prop4 k
+      simp [t1]
+      have t2 : ∑ i ∈ range (2 ^ k), (trailing_zeros (i + 1) + 1) =
+          ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) + (trailing_zeros (2 ^ k - 1 + 1) + 1) := by
+        have s1 : 2 ^ k = 2 ^ k - 1 + 1 := by
+          refine Eq.symm (Nat.sub_add_cancel ?_)
+          { exact Nat.one_le_two_pow }
+        nth_rw 1 [s1]
+        rw [sum_range_succ]
+      have t2' : ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) =
+          ∑ i ∈ range (2 ^ k), (trailing_zeros (i + 1) + 1) - (trailing_zeros (2 ^ k - 1 + 1) + 1) := by
+        exact Nat.eq_sub_of_add_eq (id (Eq.symm t2))
+      simp [t2']
+      simp [ih]
+      have t3 : trailing_zeros (2 ^ k - 1 + 1) = k := by
+        have : 2 ^ k - 1 + 1 = 2 ^ k := by
+          refine Nat.sub_add_cancel ?_
+          { exact Nat.one_le_two_pow }
+        simp [this]
+        exact trailing_zeros_prop3 k
+      simp [t3]
+      rw [add_comm]
+      have t4 : 2 ^ (k + 1) - 1 + (2 ^ (k + 1) - 1 - (k + 1) - 1) = 2 ^ (k + 1) + (2 ^ (k + 1) - 1 - (k + 1) - 1) - 1 := by 
+        exact Eq.symm (Nat.sub_add_comm (by grind))
+      simp [t4]
+      let x := 1 + (k + 1) + 1
+      have hx : x = value_of% x := by exact rfl
+      have t5 : 2 ^ (k + 1) - 1 - (k + 1) - 1 = 2 ^ (k + 1) - x := by
+        simp [hx]
+        refine (Nat.sub_eq_iff_eq_add ?_).mpr ?_
+        { sorry }
+        { sorry }
+      simp [t5]
+      have t6 : 2 ^ (k + 1) + (2 ^ (k + 1) - x) = 2 ^ (k + 1) + 2 ^ (k + 1) - x := by
+        refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (k + 1)))
+        { simp [hx]
+          --
+          sorry }
+      simp [t6]
+      have t7 : 2 ^ (k + 1) + 2 ^ (k + 1) = 2 ^ (k + 1 + 1) := by exact Eq.symm (Nat.two_pow_succ (k + 1))
+      simp [t7]
+      simp [hx]
+      have t8 : 1 + (k + 1 + 1) = k + 1 + 1 + 1 := by exact Nat.add_comm 1 (k + 1 + 1)
+      simp [t8]
+      let y := k + 1 + 1 + 1
+      have hy : y = value_of% y := by exact rfl
+      have t9 : 1 + (k + 1) + 1 = y := by grind 
+      simp [t9 , ←hy]
+      have t10 : 2 ^ (k + 1 + 1) - y - 1 = 2 ^ (k + 1 + 1) - (y + 1) := by exact rfl
+      simp [t10]
+      clear t10 t9 t8 t7 t6 t5 t4 t3 t2' t2 t1
+      simp [hy]
+      clear hy x y hx
+      rw [add_comm]
+      have cond {k : Nat} (h : 0 < k) : 2 ^ (k + 1 + 1) ≥ (k + 1 + 1 + 1 + 1) := by
+        induction' k with k ih
+        { simp }
+        { expose_names
+          clear ih_1
+          have cases : k = 0 ∨ ¬k = 0 := by exact Or.symm (ne_or_eq k 0)
+          rcases cases with k0|kp
+          { simp [k0] }
+          { have kp' : 0 < k := by exact Nat.zero_lt_of_ne_zero kp
+            have ih' := ih kp'
+            clear ih p h
+            have t1 : 2 ^ (k + 1 + 1 + 1) = 2 * 2 ^ (k + 1 + 1) := by
+              exact Nat.pow_succ'
+            rw [mul_comm, mul_two] at t1
+            simp [t1]
+            have t2 : 1 < 2 ^ (k + 1 + 1) := by grind
+            refine Nat.add_le_add ih' ?_
+            exact Nat.one_le_two_pow } }
+      have : 2 ^ (k + 1 + 1) - (k + 1 + 1 + 1 + 1) + (k + 1 + 1 + 1) = 2 ^ (k + 1 + 1) + (k + 1 + 1 + 1) - (k + 1 + 1 + 1 + 1) := by
+        exact Eq.symm (Nat.sub_add_comm (cond p))
+      simp [this]
+      grind } }
 
 -- これはsegment単位でしか説明できない
 theorem LubyState.segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
