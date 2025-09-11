@@ -336,8 +336,7 @@ theorem LubyState.next_in_segment_increments_locIx (s : LubyState) (d : Nat) (h 
     nth_rw 1 [LubyState.next_in_segment]
     have hd' := hd h'
     simp [hd']
-    exact rfl
-  }
+    exact rfl }
 
 theorem LubyState.next_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) :
     LubyState.next_in_segment s d = s.next d := by
@@ -567,9 +566,12 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         exact Nat.one_le_of_lt nsize2
       simp [t11] } }
 
-#eval List.range 6 |>.map (2 ^ ·.succ - 1) |>.map (fun n ↦ (n, (LubyState.ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
-#eval List.range 6 |>.map (· + 1) |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (LubyState.ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (LubyState.ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 
+-- これはenvelopeはいくつのsegmentを必要とするかという問題。
+-- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
+-- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
+-- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
 theorem t20250910 : ∀ n : Nat, n = 2 ^ (n.size - 1) - 1 → (LubyState.ofNat (n - 1)).segIx = 2 ^ (n.size - 1) := by
   intro n hn
   induction' n using Nat.strong_induction_on with n ih
@@ -579,6 +581,7 @@ theorem t20250910 : ∀ n : Nat, n = 2 ^ (n.size - 1) - 1 → (LubyState.ofNat (
       simp [LubyState.ofNat, LubyState.zero, LubyState.next]
       exact rfl }
     {
+      
       sorry
     } }
 
