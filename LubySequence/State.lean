@@ -634,8 +634,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     have zp : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
     rcases zp with z|p
     { simp [z] at * }
-    {
-      have : Finset.range (2 ^ (k + 1) - 2) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by
+    { have : Finset.range (2 ^ (k + 1) - 2) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by
         have t1 : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
         have t2 : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) - 2 := by grind
         have t2' : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2) := by
@@ -746,7 +745,13 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       have t5 : 2 ^ (k + 1) - 1 - (k + 1) - 1 = 2 ^ (k + 1) - x := by
         simp [hx]
         refine (Nat.sub_eq_iff_eq_add ?_).mpr ?_
-        { sorry }
+        { refine Nat.le_sub_of_add_le ?_ 
+          { refine Nat.add_le_of_le_sub ?_ ?_
+            { refine Nat.le_sub_one_of_lt ?_
+              { exact Nat.lt_two_pow_self } } 
+            { refine Nat.le_sub_of_add_le ?_
+              { refine Nat.one_add_le_iff.mpr ?_
+                { exact Nat.lt_sub_of_add_lt base1 } } } } }
         { have : 2 ^ (k + 1) - (1 + (k + 1) + 1) + 1 = 2 ^ (k + 1) - (k + 1) - 1 := by
             have : 2 ^ (k + 1) - (1 + (k + 1) + 1) + 1 = 2 ^ (k + 1) + 1 - (1 + (k + 1) + 1) := by
               refine Eq.symm (Nat.sub_add_comm ?_)
@@ -764,8 +769,10 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       have t6 : 2 ^ (k + 1) + (2 ^ (k + 1) - x) = 2 ^ (k + 1) + 2 ^ (k + 1) - x := by
         refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (k + 1)))
         { simp [hx]
-          --
-          sorry }
+          rw [add_comm, ←add_assoc]
+          simp
+          rw [add_comm]
+          exact base1 }
       simp [t6]
       have t7 : 2 ^ (k + 1) + 2 ^ (k + 1) = 2 ^ (k + 1 + 1) := by exact Eq.symm (Nat.two_pow_succ (k + 1))
       simp [t7]
