@@ -29,7 +29,7 @@ instance : ToString LubyTree where
   toString := LubyTree.toString
 
 def t4 := LubyTree.mk 4
-#eval t4 -- LubyTree.mk 4
+-- #eval t4 -- LubyTree.mk 4
 
 theorem LubyTree.wrap_is_congruent (t1 t2 : LubyTree) : t1.wrap = t2.wrap ↔ t1 = t2 := by
   constructor
@@ -61,8 +61,8 @@ theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) 
       have : sub.depth - 1 = l := by exact this
       simp [←this, tree_ih] }
 
-#eval LubyTree.mk 0
-#eval LubyTree.leaf.depth
+-- #eval LubyTree.mk 0
+-- #eval LubyTree.leaf.depth
 
 theorem LubyTree.mk_self_eq_depth_add_one (n: Nat) : (LubyTree.mk n).depth = n + 1 := by
   induction n with
@@ -142,7 +142,7 @@ theorem size_is_two_sub_sizes_add_one' (n : Nat) :
   simp [←size_is_two_sub_sizes_add_one]
   exact rfl
 
-#eval Nat.bits (2 * 5)
+-- #eval Nat.bits (2 * 5)
 
 theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
   induction tree
@@ -166,10 +166,10 @@ def LubyTree.quotient (s : Nat) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeDepth (n + 1)))
 #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeSize (n + 1), LubyTree.is_envelope (n + 1)))
 #eval LubyTree.quotientOfSize 2 3
-#eval LubyTree.is_envelope 2
-#eval LubyTree.envelopeSize 2
-#eval LubyTree.is_envelope 1
-#eval LubyTree.is_envelope 0
+-- #eval LubyTree.is_envelope 2
+-- #eval LubyTree.envelopeSize 2
+-- #eval LubyTree.is_envelope 1
+-- #eval LubyTree.is_envelope 0
 
 -- This is impossible
 -- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by
