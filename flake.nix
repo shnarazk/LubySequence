@@ -28,30 +28,6 @@
             home.packages.${system}.nvim4lean
             pkgs.tinymist
             pkgs.typst
-            
-            pkgs.tex-fmt
-            pkgs.texlab
-            (pkgs.texlive.combine {
-              inherit (pkgs.texlive)
-                scheme-small
-                lkproof
-                fontawesome5
-                haranoaji
-                ifoddpage
-                latexmk
-                luatexja
-                luaxml
-                make4ht
-                noto
-                tcolorbox
-                tex4ht
-                textpos
-                tikz-cd
-                tikz-ext
-                tikzfill
-                tikzpagenodes
-                ;
-            })
           ];
         };
       }

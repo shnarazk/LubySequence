@@ -74,8 +74,6 @@ This will fetch dependencies (mathlib) and compile the library.
 This repo includes a `flake.nix` that provides a development shell with:
 - elan + Lean + Lake
 - typst + tinymist (for Typst docs)
-- TeX toolchain (LaTeX, latexmk, tikz-cd, etc.)
-- LSPs for TeX and Typst (texlab, tinymist)
 
 To enter the dev shell:
 
@@ -93,13 +91,6 @@ lake build
 ```
 
 ## Documentation and Notes
-
-- LaTeX article: `docs/main.tex`
-  - Build with `latexmk` (provided in the Nix dev shell):
-    ```
-    latexmk -pdf docs/main.tex
-    ```
-  - Outputs a PDF detailing the definitions and equivalences.
 
 - Typst documents in repo root:
   - `memo.typ` and `presen.typ`, with prebuilt PDFs (`memo.pdf`, `presen.pdf`) included.
