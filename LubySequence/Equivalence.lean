@@ -15,8 +15,8 @@ open Tree
 
 theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := by
   intro n
-  induction n using Nat.strong_induction_on
-  case h n hn =>
+  induction n using Nat.strong_induction_on with
+  | h n hn =>
     rw [LubyTree.luby, Luby.luby]
     split
     · simp [Luby.S₂]
@@ -284,8 +284,8 @@ theorem LubyStateSegment_is_LubySegment :
   have defaultSegIx : (default : LubyState).segIx = 1 := by exact rfl
   have defaultLocIx : (default : LubyState).locIx = 0 := by exact rfl
   intro n
-  induction n using Nat.strong_induction_on
-  case h n hn =>
+  induction n using Nat.strong_induction_on with
+  | h n hn =>
     simp [LubyState.is_segment_beg]
     rw [Luby.is_segment_beg.eq_def]
     split
@@ -314,8 +314,8 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
   sorry -/
 
 /-
-  induction n using Nat.strong_induction_on
-  case h n hn =>
+  induction n using Nat.strong_induction_on with
+  | h n hn =>
   -- 先に場合分けをしてしまおう
   have tree_cases : LubyTree.is_envelope (n + 1) = true ∨ LubyTree.is_envelope (n + 1) = false := by
     exact Bool.eq_false_or_eq_true (LubyTree.is_envelope (n + 1))
@@ -368,12 +368,12 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
 
 theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
   intro n
-  induction n /- using Nat.strong_induction_on -/ with n hn
-  case zero =>
+  induction n /- using Nat.strong_induction_on -/ with
+  | zero =>
     simp [LubyState.ofNat, LubyState.zero, LubyState.luby, default, LubyState.next]
     rw [Luby.luby, Luby.S₂]
     simp [Nat.size, Nat.binaryRec, Luby.S₂]
-  case succ n hn =>
+  | succ n hn =>
     `-- simp [LubyState.ofNat, LubyState.zero]
     have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
     simp [this]

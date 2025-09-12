@@ -78,9 +78,9 @@ theorem LubyState.segIx_is_mono (n : Nat) : ∀ n' ≥ n, (LubyState.zero.next n
   have dp : d = value_of% d := rfl
   have dp' : n' = n + d := by exact Eq.symm (Nat.add_sub_of_le np)
   simp [dp']
-  induction d
-  case zero => simp
-  case succ d dq =>
+  induction d with
+  | zero => simp
+  | succ d dq =>
     have a1 : zero.next (n + d + 1) = (zero.next (n + d)).next := by exact rfl
     have a2 : (zero.next (n + d)).next.segIx ≥ (zero.next (n + d)).segIx := by exact LubyState.segIx_is_increasing (zero.next (n + d))
     simp at a2
@@ -119,9 +119,9 @@ theorem LubyState.segId0 {n : Nat} : n = 0 ↔ (LubyState.zero.next n).segIx = 1
 
 theorem LubyState.next_assoc (li : LubyState) : ∀ n : Nat, (li.next n).next = li.next (n + 1) := by
   intro n
-  induction n
-  case zero => dsimp [LubyState.next]
-  case succ n hi =>
+  induction n with
+  | zero => dsimp [LubyState.next]
+  | succ n hi =>
     nth_rw 3 [LubyState.next]
     have tf : ((li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height)
         ∨ ¬((li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height) := by
@@ -156,9 +156,9 @@ theorem LubyState.next_assoc (li : LubyState) : ∀ n : Nat, (li.next n).next = 
 def LubyState.ofNat (n : Nat) : LubyState := LubyState.zero.next n
 
 theorem LubyState.ofNat_dist (a b : Nat) : LubyState.ofNat (a + b) = (LubyState.ofNat a).next b := by
-  induction b
-  case zero => simp [LubyState.next]
-  case succ b hb =>
+  induction b with
+  | zero => simp [LubyState.next]
+  | succ b hb =>
     have t1 : a + (b + 1) = a + b + 1 := by grind
     simp [t1]
     have t2 : ofNat (a + b + 1) = (ofNat (a + b)).next := by exact rfl
@@ -185,10 +185,10 @@ def LubyState.toNat (self : LubyState) : Nat := match self.segIx with
 theorem LubyState.is_iso : ∀ n : Nat, (LubyState.ofNat n).toNat = n := by
   intro n
   change (LubyState.zero.next n).toNat = n
-  induction n
-  case zero =>
+  induction n with
+  | zero =>
    simp [LubyState.next, LubyState.zero, LubyState.toNat, segIdToLastIndex, default]
-  case succ n hn =>
+  | succ n hn =>
     simp [LubyState.toNat] at *
     split at hn
     { simp [←hn] at *
@@ -333,9 +333,9 @@ theorem LubyState.next_in_segment_is_additive {s : LubyState} {d : Nat} :
 
 theorem LubyState.next_in_segment_increments_locIx (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) :
     (s.next_in_segment d).locIx = s.locIx + d := by
-  induction d
-  case zero => simp [LubyState.next_in_segment]
-  case succ d hd =>
+  induction d with
+  | zero => simp [LubyState.next_in_segment]
+  | succ d hd =>
     have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
     have t1 : s.next_in_segment (d + 1) = (s.next_in_segment d).next_in_segment 1 := by exact rfl
     simp [t1]
@@ -346,9 +346,9 @@ theorem LubyState.next_in_segment_increments_locIx (s : LubyState) (d : Nat) (h 
 
 theorem LubyState.next_in_segment_is_next (s : LubyState) (d : Nat) (h : s.locIx + d < s.segment_height) :
     LubyState.next_in_segment s d = s.next d := by
-  induction d
-  case zero => simp [LubyState.next_in_segment, LubyState.next]
-  case succ d hd =>
+  induction d with
+  | zero => simp [LubyState.next_in_segment, LubyState.next]
+  | succ d hd =>
     have t1 : s.next (d + 1) = (s.next d).next 1 := by exact rfl
     simp [t1]
     have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
@@ -439,8 +439,8 @@ def LubyState.segment_height_sum (b : Nat) : Nat := ∑ i ∈ Finset.range b, (t
 theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
     ∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1) = 2 ^ n.size - 1 := by
   intro n
-  induction n using Nat.strong_induction_on
-  case h n ih =>
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
     intro h
     have cases : n = 1 ∨ 1 < n := by exact LE.le.eq_or_lt' h
     rcases cases with case1|case2
@@ -582,8 +582,8 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
 -- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
 theorem t20250910 : ∀ n : Nat, n = 2 ^ (n.size - 1) - 1 → (LubyState.ofNat (n - 1)).segIx = 2 ^ (n.size - 1) := by
   intro n hn
-  induction n using Nat.strong_induction_on
-  case h n ih =>
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
     have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
     rcases zp with z|p
     { simp [z] at *
@@ -597,8 +597,8 @@ theorem t20250904 : ∀ n : Nat,
     (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx
     = (LubyState.ofNat n).segIx := by
   intro n
-  induction n using Nat.strong_induction_on
-  case h n ih =>
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
     have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by
       exact eq_or_ne n (2 ^ (n.size - 1))
     rcases p2_not with p2|not
@@ -612,9 +612,9 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
   simp [segment_height_sum]
-  induction k
-  case zero => simp [trailing_zeros]
-  case succ k ih =>
+  induction k with
+  | zero => simp [trailing_zeros]
+  | succ k ih =>
     have t1 : ∑ i ∈ range (2 ^ (k + 1) - 2 + 2), (trailing_zeros (i + 1) + 1) =
       ∑ i ∈ range (2 ^ (k + 1) - 2), (trailing_zeros (i + 1) + 1)
       + ∑ i ∈ range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) := by
@@ -728,9 +728,9 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
         have hx : x = value_of% x := by exact rfl
         have hx' : x + 1 = k := by exact Nat.sub_add_cancel p
         simp [←hx']
-        induction x
-        case zero => simp
-        case succ x hx =>
+        induction x with
+        | zero => simp
+        | succ x hx =>
           have s1 : x + 1 + 1 + 1 + 2 = 1 + (x + 1 + 1 + 2) := by grind
           simp [s1]
           have s2 : 1 < 2 ^ (x + 1 + 1) := by exact Nat.lt_of_add_left_lt hx
@@ -786,9 +786,9 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       clear hy x y hx
       rw [add_comm]
       have cond {k : Nat} (h : 0 < k) : 2 ^ (k + 1 + 1) ≥ (k + 1 + 1 + 1 + 1) := by
-        induction k
-        case zero => simp
-        case succ k ih =>
+        induction k with
+        | zero => simp
+        | succ k ih =>
           expose_names
           clear ih_1
           have two_cases : k = 0 ∨ ¬k = 0 := by exact Or.symm (ne_or_eq k 0)
