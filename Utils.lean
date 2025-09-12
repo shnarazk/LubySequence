@@ -25,7 +25,7 @@ def trailing_zeros (n : Nat) : Nat := match h : n with
       trailing_zeros (n - 2 ^ (n.size - 1))
   -- | _ => if n < 2 then 0 else if n % 2 = 0 then 1 + trailing_zeros (n / 2) else 0
 
-#eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
+-- #eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
 
 def trailing_ones (n : Nat) : Nat :=
   if h : n < 2
@@ -41,17 +41,14 @@ def scanList {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool :
       then init :: nxt :: scanList f nxt n' false
       else nxt :: scanList f nxt n' false
 
-#eval scanList (· + 1) 10 8
+-- #eval scanList (· + 1) 10 8
 
-theorem self_ne_pow_two_succ_of_size (n : Nat) : n < 2 ^ n.size.succ := by
-  refine Nat.size_le.mp ?_
-  grind
+theorem self_ne_pow_two_succ_of_size (n : Nat) : n < 2 ^ n.size.succ := by exact Nat.size_le.mp (by grind)
 
 theorem mod_gt_right (a b : Nat) (h : 0 < b) : a % b < b := by exact Nat.mod_lt a h
 theorem mod_eq_left {a b : Nat} (ha : a < b) : a % b = a := by exact Nat.mod_eq_of_lt ha
 
-theorem mod_gt_right' {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
-    a % b = 0 → (a - 1) % b + 1 = b := by
+theorem mod_gt_right' {a b : Nat} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a - 1) % b + 1 = b := by
   intro h
   simp [←Nat.dvd_iff_mod_eq_zero] at h
   have s1 : (a / b) * b = a := by exact Nat.div_mul_cancel h
@@ -63,15 +60,11 @@ theorem mod_gt_right' {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
         refine Nat.sub_add_comm ?_
         have tf : a / b = 0 ∨ ¬(a / b = 0) := by exact eq_or_ne _ _
         rcases tf with t|f
-        {
-          have a0 : a = 0 := by exact Nat.eq_zero_of_dvd_of_div_eq_zero h t
+        · have a0 : a = 0 := by exact Nat.eq_zero_of_dvd_of_div_eq_zero h t
           have : ¬ 0 < a := by exact Eq.not_gt a0
           exact absurd ha this
-        }
-        {
-          have : 1 ≤ a / b := by exact Nat.one_le_iff_ne_zero.mpr f
+        · have : 1 ≤ a / b := by exact Nat.one_le_iff_ne_zero.mpr f
           exact this
-        }
       _ = (a / b - 1) * b + 1 * b := by exact Nat.add_mul (a / b - 1) 1 b
       _ = (a / b - 1) * b + b := by grind
   rw [←s1, s2]
@@ -79,11 +72,6 @@ theorem mod_gt_right' {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
     exact Nat.add_sub_assoc hb ((a / b - 1) * b)
   simp [this]
   grind
-
-/-
-Nat.succ_mod_succ_eq_zero_iff 📋 Init.Data.Nat.Lemmas
-{a b : ℕ} : (a + 1) % (b + 1) = 0 ↔ a % (b + 1) = b
--/
 
 theorem mod_gt_right'_mpr {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
     (a - 1) % b + 1 = b → a % b = 0 := by
@@ -107,22 +95,19 @@ theorem mod_gt_right'_mpr {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
 
 theorem mod_gt_right'' {b : Nat} (a : Nat) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
   refine Nat.add_le_of_le_sub hb ?_
-  refine Nat.le_sub_one_of_lt ?_
-  exact mod_gt_right (a - 1) b hb
+  · refine Nat.le_sub_one_of_lt ?_
+    · exact mod_gt_right (a - 1) b hb
 
 theorem mod_gt_right''' {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
     (a - 1) % b + 1 < b := by
   have el : (a - 1) % b + 1 = b ∨ (a - 1) % b + 1 < b := by
     exact Nat.eq_or_lt_of_le (mod_gt_right'' a hb)
   rcases el with e|l
-  {
-    apply mod_gt_right'_mpr ha hb at e
+  · apply mod_gt_right'_mpr ha hb at e
     grind
-  }
-  exact l
+  · exact l
 
-theorem bitslength_eq_size (n : Nat) : n.bits.length = n.size := by
-  exact Nat.size_eq_bits_len n
+theorem bitslength_eq_size (n : Nat) : n.bits.length = n.size := by exact Nat.size_eq_bits_len n
 
 theorem bits_of_double_eq_cons_false_and_bits (n : Nat) (h : n > 0) :
     (2 * n).bits = false :: n.bits := by
@@ -161,13 +146,11 @@ theorem size_lt {a b : Nat} (h : 0 < a) : 2 * a < b → a.size < b.size := by
     have tf : a < c ∨ a = c := by exact Or.symm (Nat.eq_or_lt_of_le le')
     clear le'
     rcases tf with t|f
-    { expose_names ; exact t }
-    {
-      expose_names
+    · expose_names ; exact t
+    · expose_names
       simp [f] at hh
       have : ¬b = 0 := by exact Nat.ne_zero_of_lt h
       exact absurd hh this
-    }
   have tr1 : a.size < (2 * a).size := by
     exact stricten a.size 1 (2 * a).size (by grind) (by grind)
   have hg' : 2 * a ≤ b := by exact Nat.le_of_succ_le hg
@@ -270,8 +253,7 @@ theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
   have p2'' : (2 ^ n + k).bits.length ≤ n + 1 := by exact p2'
   exact Nat.le_antisymm p2' p1'
 
-theorem size_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
-      (2 ^ n + k).size = n + 1 := by
+theorem size_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_add ha hb
 
@@ -286,15 +268,12 @@ theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.b
   have le : n.bits.length < (n + k).bits.length ∨ n.bits.length = (n + k).bits.length := by
     exact Or.symm (Nat.eq_or_lt_of_le t2)
   rcases le with l|e
-  {
-    have l' : n.bits.length + 1 ≤ (n + k).bits.length := by exact l
+  · have l' : n.bits.length + 1 ≤ (n + k).bits.length := by exact l
     have l'' : ¬(n + k).bits.length < n.bits.length + 1 := by exact Nat.not_lt.mpr l
     exact absurd hb l''
-  }
-  { exact id (Eq.symm e) }
+  · exact id (Eq.symm e)
 
-theorem size_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).size < n.size + 1) :
-    (n + k).size = n.size := by
+theorem size_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n + k).size = n.size := by
   simp [←bitslength_eq_size]
   simp [←bitslength_eq_size] at hb
   exact bitslength_add' ha hb
@@ -311,26 +290,19 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
     simp at t1
     have t2 : 0 < 1 := by grind
     grind
-
   have r1 : 2 ^ n - 1 ≥ 2 ^ n - k := by grind
   have e1 : (2 ^ n - 1).bits.length = n := by simp [pow2_sub_one]
-
   have t1 : (2 ^ n - k).bits.length ≤ (2 ^ n - 1).bits.length := by
-    have : 2 ^ n - k ≤ 2 ^ n - 1 := by
-      exact r1
-    have : (2 ^ n - k).size ≤ (2 ^ n - 1).size := by
-      exact Nat.size_le_size r1
+    have : 2 ^ n - k ≤ 2 ^ n - 1 := by exact r1
+    have : (2 ^ n - k).size ≤ (2 ^ n - 1).size := by exact Nat.size_le_size r1
     simp [←bitslength_eq_size] at this
     exact this
   simp [e1] at t1
   clear e1 r1
-
   have t2 : n ≤ (2 ^ n - k).bits.length := by
-    have r2 : 2 ^ n - 2 ^ (n - 1) ≤ 2 ^ n - k := by
-      exact Nat.sub_le_sub_left hb (2 ^ n)
+    have r2 : 2 ^ n - 2 ^ (n - 1) ≤ 2 ^ n - k := by exact Nat.sub_le_sub_left hb (2 ^ n)
     have r2' : (2 ^ n - 2 ^ (n - 1)).bits.length ≤ (2 ^ n - k).bits.length := by
-      have : (2 ^ n - 2 ^ (n - 1)).size ≤ (2 ^ n - k).size := by
-        exact Nat.size_le_size r2
+      have : (2 ^ n - 2 ^ (n - 1)).size ≤ (2 ^ n - k).size := by exact Nat.size_le_size r2
       simp [←bitslength_eq_size] at this
       exact this
     clear r2
@@ -352,8 +324,7 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
             exact Ne.symm (NeZero.ne' (2 ^ (n - 1)))
       simp [step2]
     have e2' : (2 ^ n - 2 ^ (n - 1)).bits.length = (2 ^ (n - 1)).bits.length := by
-      have : (2 ^ n - 2 ^ (n - 1)).size = (2 ^ (n - 1)).size := by
-        exact congrArg Nat.size e2
+      have : (2 ^ n - 2 ^ (n - 1)).size = (2 ^ (n - 1)).size := by exact congrArg Nat.size e2
       simp [←bitslength_eq_size] at this
       exact this
     clear e2
@@ -362,8 +333,7 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
     have e3 : (2 ^ (n - 1)).bits.length = n := by
       have step1 : (2 ^ (n - 1)).bits.length = n - 1 + 1 := by
         exact bitslength_of_pow2_eq_self_add_one (n - 1)
-      have step2 : n - 1 + 1 = n := by
-        exact Nat.sub_add_cancel p1
+      have step2 : n - 1 + 1 = n := by exact Nat.sub_add_cancel p1
       simp [step2] at step1
       exact step1
     simp [e3] at r2'
@@ -409,11 +379,8 @@ theorem le_if_le_size {a b : Nat} : a.size < b.size → a < b := by
   have c2 : ¬a.size < b.size := by exact Nat.not_lt.mpr c1
   exact absurd h1 c2
 
-theorem size_limit {n : Nat} (h : 0 < n) :
-    (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
-  have s1 : n.size ≤ (n + 1).size := by
-    refine Nat.size_le_size ?_
-    exact Nat.le_add_right n 1
+theorem size_limit {n : Nat} (h : 0 < n) : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
+  have s1 : n.size ≤ (n + 1).size := by exact Nat.size_le_size (Nat.le_add_right n 1)
   have s2 : (n + 1).size ≤ n.size + 1 := by
     have t1 : (2 * n).size = n.size + 1 := by exact size_of_double_eq_self_add_one n h
     have t2 : n + 1 ≤ 2 * n := by exact add_one_le_two_mul h
@@ -423,19 +390,15 @@ theorem size_limit {n : Nat} (h : 0 < n) :
   by_contra h'
   push_neg at h'
   rcases h' with ⟨a, b⟩
-  have c1 : n.size < (n + 1).size := by
-    exact Nat.lt_of_le_of_ne s1 (id (Ne.symm a))
-  have c2 : (n + 1).size < n.size + 1 := by
-    exact Nat.lt_of_le_of_ne s2 b
+  have c1 : n.size < (n + 1).size := by exact Nat.lt_of_le_of_ne s1 (id (Ne.symm a))
+  have c2 : (n + 1).size < n.size + 1 := by exact Nat.lt_of_le_of_ne s2 b
   have c2' : (n + 1).size ≤ n.size  := by exact Nat.le_of_lt_succ c2
   have c2'' : ¬(n + 1).size > n.size := by exact Nat.not_lt.mpr c2'
   exact absurd c1 c2''
 
 theorem pow2_is_minimum (k : Nat) : ∀ n < 2 ^ k, n.size ≤ k := by
   intro n hn
-  have t1 : n.size ≤ (2 ^ k).size := by
-    refine Nat.size_le_size ?_
-    exact Nat.le_of_succ_le hn
+  have t1 : n.size ≤ (2 ^ k).size := by exact Nat.size_le_size (Nat.le_of_succ_le hn)
   have t2 : (2 ^ k).size = k + 1 := by exact size_of_pow2_eq_self_add_one k
   simp [t2] at t1
   exact Nat.size_le.mpr hn
@@ -443,8 +406,8 @@ theorem pow2_is_minimum (k : Nat) : ∀ n < 2 ^ k, n.size ≤ k := by
 theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
   have tf : 1 = n ∨ 1 < n := by exact Nat.eq_or_lt_of_le h
   rcases tf with t|f
-  { simp [←t] }
-  { have n2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
+  · simp [←t]
+  · have n2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
     have h1 : 2 ≤ n := by exact f
     have h2 : 2 ≤ n.size := by
       have t1 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size f
@@ -466,7 +429,7 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
         simp [this]
         exact Nat.zero_lt_of_lt h2
       exact le_if_le_size this
-    exact Nat.le_of_pred_lt this }
+    exact Nat.le_of_pred_lt this
 
 theorem pow2size_has_upper_bound : ∀ n > 0, 2 ^ n.size ≤ 2 * n := by
   exact fun n a ↦ pow_two_of_size_le_self a
@@ -529,21 +492,21 @@ theorem trailing_zeros_prop3 : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
   intro n
   rw [trailing_zeros.eq_def]
   split
-  { expose_names
+  · expose_names
     have : ¬2 ^ n = 0 := by exact NeZero.ne (2 ^ n)
-    exact absurd heq this }
-  { expose_names
+    exact absurd heq this
+  · expose_names
     split
-    { expose_names
+    · expose_names
       rw [h]
       have t1 : (2 ^ ((2 ^ n).size - 1)).size = (2 ^ n).size - 1 + 1 := by
         exact size_of_pow2_eq_self_add_one ((2 ^ n).size - 1)
       simp [t1]
       have t2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
-      exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm t2))) }
-    { expose_names
+      exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm t2)))
+    · expose_names
       have t1 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
-      simp [t1] at h } }
+      simp [t1] at h
 
 theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
   intro n
@@ -586,18 +549,14 @@ theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
         exact hn } }
 
 theorem parity_unmatch {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
-  have two_pow_a_is_even : 2 ∣ 2 ^ a := by
-    refine dvd_pow_self 2 ?_
-    exact Nat.ne_zero_of_lt ha
+  have two_pow_a_is_even : 2 ∣ 2 ^ a := by exact dvd_pow_self 2 (Nat.ne_zero_of_lt ha)
   have even : 2 ∣ 2 ^ a + 1 := by
     simp [h]
-    refine dvd_pow ?_ ?_
-    { grind }
-    { exact Nat.ne_zero_of_lt hb }
+    exact dvd_pow (by grind) (Nat.ne_zero_of_lt hb)
   have odd : ¬2 ∣ 2 ^ a + 1 := by
     refine Odd.not_two_dvd_nat ?_
-    refine Even.add_one ?_
-    exact (even_iff_exists_two_nsmul (2 ^ a)).mpr two_pow_a_is_even
+    · refine Even.add_one ?_
+      · exact (even_iff_exists_two_nsmul (2 ^ a)).mpr two_pow_a_is_even
   exact absurd even odd
 
 -- TODO: no need to induction
@@ -613,7 +572,7 @@ theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0
   | succ n hn =>
     rw [trailing_zeros] 
     split
-    { expose_names
+    · expose_names
       simp at h
       have sub1 : 0 < n + 1 + 1 := by grind  
       have sub2 : 0 < (2 ^ (n + 1 + 1) + 1).size - 1 := by
@@ -629,8 +588,8 @@ theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0
         have t6 : 2 ≤ (2 ^ (n + 1 + 1) + 1).size - 1 := by exact Nat.le_sub_one_of_lt t5
         exact Nat.zero_lt_of_lt t6
       have c := parity_unmatch sub1 sub2 h
-      simp at c }
-    { simp 
+      simp at c
+    · simp 
       have t1 : (2 ^ (n + 1 + 1) + 1).size = n + 1 + 1 + 1 := by
         refine size_add (by grind) ?_
         · have s1 : 2 ≤ n + 1 + 1 := by exact Nat.le_add_left 2 n
@@ -638,7 +597,7 @@ theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0
           simp at s2
           exact Nat.one_lt_two_pow' (n + 1)
       simp [t1]
-      simp [trailing_zeros] }
+      simp [trailing_zeros]
 
 theorem trailing_zeros_prop6 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
@@ -648,10 +607,10 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
     intro hn'
     rw [trailing_zeros.eq_def]
     split
-    { contradiction }
-    { split
-      { expose_names ; exact absurd h hn' }
-      { expose_names ; simp } }
+    · contradiction
+    · split
+      · expose_names ; exact absurd h hn'
+      · expose_names ; simp
 
 theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros k := by
@@ -662,16 +621,16 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
     intro h1
     rw [trailing_zeros.eq_def]
     split
-    { expose_names
+    · expose_names
       have c : ¬k + 2 ^ n = 0 := by
         have : 0 < 2 ^ n := by exact Nat.two_pow_pos n
         exact NeZero.ne (k + 2 ^ n)
-      exact absurd heq c }
-    { have zp : n = 0 ∨ 0 < n := by exact Nat.eq_zero_or_pos n
+      exact absurd heq c
+    · have zp : n = 0 ∨ 0 < n := by exact Nat.eq_zero_or_pos n
       rcases zp with z|p
-      { simp [z] at *
-        exact absurd k' h1}
-      { have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
+      · simp [z] at *
+        exact absurd k' h1
+      · have n2 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
         have s1 : 2 ^ n + k < 2 ^ n + 2 ^ n := by exact Nat.add_lt_add_left k' (2 ^ n)
         rw [←mul_two] at s1
         have so : (2 ^ n + k).size = n + 1 := by
@@ -685,11 +644,10 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
           exact Eq.symm (Nat.le_antisymm left right)
         have eq_size : (2 ^ n + k).size = (2 ^ n).size := by
           refine size_add' (by grind) ?_
-          { have s4 : (2 ^ n + k).size = (2 ^ n).size := by simp [so, n2]
-            simp [s4] } 
+          · have s4 : (2 ^ n + k).size = (2 ^ n).size := by simp [so, n2]
+            simp [s4]
         split
-        { expose_names
-          -- h が成立しないことを言うべき
+        · expose_names
           have t1 : 2 ^ n < k + 2 ^ n := by
             refine Nat.lt_add_of_pos_left ?_
             exact Nat.zero_lt_of_ne_zero h1
@@ -701,8 +659,8 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
           simp [←eq_size] at t1
           nth_rw 1 [add_comm] at t1
           have c : ¬k + 2 ^ n = 2 ^ ((k + 2 ^ n).size - 1) := by exact Nat.ne_of_lt' t1
-          exact absurd h c }
-        { expose_names
+          exact absurd h c
+        · expose_names
           simp
           have : k + 2 ^ n - 2 ^ ((k + 2 ^ n).size - 1) = k := by
             have t1 : (k + 2 ^ n).size = n + 1 := by
@@ -711,7 +669,7 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
                 exact eq_size
               simp only [this, n2]
             simp [t1]
-          exact congrArg trailing_zeros this } } }
+          exact congrArg trailing_zeros this
 
 #eval List.range 6 |>.map (fun n' ↦
     let o := n'
@@ -733,26 +691,26 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k ≤ 2 ^ n,
     simp [f1_def]
     ext x
     split
-    { expose_names
+    · expose_names
       split
-      { expose_names ; simp [h_1] }
-      { expose_names ; refine trailing_zeros_prop7 n x h h_1 } }
-    { expose_names ; simp at h ; exact rfl }
+      · expose_names ; simp [h_1]
+      · expose_names ; refine trailing_zeros_prop7 n x h h_1
+    · expose_names ; simp at h ; exact rfl
   have t1 : 
      (∑ x ∈ range (k - 1), (trailing_zeros (2 ^ n + x + 1) + 1)) =
      (∑ x ∈ range (k - 1), (f1             (        x + 1) + 1)) := by
     simp [f1_def]
     refine sum_congr rfl ?_
-    { intro y hy
+    · intro y hy
       split
-      { expose_names
+      · expose_names
         have : 2 ^ n + y + 1 = y + 1 + 2 ^ n := by grind
-        simp [this] }
-      { expose_names 
+        simp [this]
+      · expose_names 
         have t1 : y     < k - 1 := by exact List.mem_range.mp hy
         have t2 : y + 1 < k     := by exact Nat.add_lt_of_lt_sub t1
         have t3 : y + 1 < 2 ^ n := by exact Nat.lt_of_lt_of_le t2 hk
-        exact absurd t3 h } }
+        exact absurd t3 h
   simp [t1]
   clear t1
   let f2 := (fun i ↦ if h : (i + 1) < 2 ^ n then trailing_zeros ((i + 1) + 2 ^ n) else 0)
@@ -768,21 +726,21 @@ theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k ≤ 2 ^ n,
     simp [f2_def, f3_def]
     ext i
     split
-    { expose_names ; refine trailing_zeros_prop7 n (i + 1) h (by grind) }
-    { exact rfl }
+    · expose_names ; refine trailing_zeros_prop7 n (i + 1) h (by grind)
+    · exact rfl
   simp [f2eqf3]
   have t3 : 
      (∑ i ∈ range (k - 1), (trailing_zeros (i + 1) + 1)) =
      (∑ i ∈ range (k - 1), (f3              i + 1)) := by
     simp [f3_def]
     refine sum_congr rfl ?_
-    { intro y hy
+    · intro y hy
       split
-      { expose_names ; exact rfl }
-      { expose_names 
+      · expose_names ; exact rfl
+      · expose_names 
         have t1 : y     < k - 1 := by exact List.mem_range.mp hy
         have t2 : y + 1 < k     := by exact Nat.add_lt_of_lt_sub t1
         have t3 : y + 1 < 2 ^ n := by exact Nat.lt_of_lt_of_le t2 hk
-        exact absurd t3 h } }
+        exact absurd t3 h
   simp [t3]
 
