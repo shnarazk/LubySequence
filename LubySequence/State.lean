@@ -597,12 +597,13 @@ theorem t20250904 : ∀ n : Nat,
     (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx
     = (LubyState.ofNat n).segIx := by
   intro n
-  induction n using Nat.strong_induction_on -- with n ih
+  induction n using Nat.strong_induction_on
   case h n ih =>
-    have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by exact eq_or_ne n (2 ^ (n.size - 1))
+    have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by
+      exact eq_or_ne n (2 ^ (n.size - 1))
     rcases p2_not with p2|not
-    { sorry }
-    { sorry }
+    · sorry
+    · sorry
 
 -- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
 -- あるいは segment_beg な (ofNat n).segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = n 的な
@@ -611,43 +612,37 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
     LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
   simp [segment_height_sum]
-  induction k -- with k ih
+  induction k
   case zero => simp [trailing_zeros]
   case succ k ih =>
-    have t1 : ∑ i ∈ Finset.range (2 ^ (k + 1) - 2 + 2), (trailing_zeros (i + 1) + 1) =
-      ∑ i ∈ Finset.range (2 ^ (k + 1) - 2), (trailing_zeros (i + 1) + 1)
-      + ∑ i ∈ Finset.range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) := by
-      exact Finset.sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) (2 ^ (k + 1) - 2) 2
+    have t1 : ∑ i ∈ range (2 ^ (k + 1) - 2 + 2), (trailing_zeros (i + 1) + 1) =
+      ∑ i ∈ range (2 ^ (k + 1) - 2), (trailing_zeros (i + 1) + 1)
+      + ∑ i ∈ range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) := by
+      exact sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) (2 ^ (k + 1) - 2) 2
     have t2 : 2 ^ (k + 1) - 2 + 2 = 2 ^ (k + 1) := by
       refine Nat.sub_add_cancel ?_
-      refine Nat.le_self_pow ?_ 2
-      exact Ne.symm (Nat.zero_ne_add_one k)
+      · refine Nat.le_self_pow ?_ 2
+        · exact Ne.symm (Nat.zero_ne_add_one k)
     simp [t2] at t1
     simp [t1]
-    -- 間違えた。{2 ^ (k + 1)} = {2 ^ (k +1) - 1} + 1 = {2 ^ k} + {2 ^ k - 1} + 1
-    -- 前者はenvelope, 後者は超限帰納法
-    have t3 : ∑ i ∈ Finset.range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) =
-        (trailing_zeros (2 ^ (k + 1) - 2 + 0 + 1) + 1)
-        + (trailing_zeros (2 ^ (k + 1) - 2 + 1 + 1) + 1)
+    have t3 : ∑ i ∈ range 2, (trailing_zeros (2 ^ (k + 1) - 2 + i + 1) + 1) =
+        (trailing_zeros (2 ^ (k + 1) - 2 + 0 + 1) + 1) + (trailing_zeros (2 ^ (k + 1) - 2 + 1 + 1) + 1)
         := by
       exact rfl
     simp [t3]
     have t4 : 2 ^ (k + 1) - 2 + 1 = 2 ^ (k + 1) - 1 := by
       exact Eq.symm ((fun {n m} ↦ Nat.pred_eq_succ_iff.mpr) (id (Eq.symm t2)))
     simp [t4]
-    have t5 : 2 ^ (k + 1) - 1 + 1 = 2 ^ (k + 1) := by
-      refine Nat.sub_add_cancel ?_
-      exact Nat.one_le_two_pow
+    have t5 : 2 ^ (k + 1) - 1 + 1 = 2 ^ (k + 1) := by exact Nat.sub_add_cancel Nat.one_le_two_pow
     simp [t5]
     have t6 : trailing_zeros (2 ^ (k + 1)) = k + 1 := by exact trailing_zeros_prop3 (k + 1)
     simp [t6]
     have t7 : trailing_zeros (2 ^ (k + 1) - 1) = 0 := by exact trailing_zeros_prop4 (k + 1)
     simp [t7]
-    -- ここでk + 1 > 0 が必要
     have zp : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
     rcases zp with z|p
-    { simp [z] at * }
-    { have : Finset.range (2 ^ (k + 1) - 2) = Finset.range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by
+    · simp [z] at *
+    · have : range (2 ^ (k + 1) - 2) = range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by
         have t1 : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
         have t2 : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) - 2 := by grind
         have t2' : 2 ^ (k + 1) - 2 = 2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2) := by
@@ -670,29 +665,21 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       simp [this]
       simp [Finset.sum_range_add]
       simp [ih]
-      -- FIXME: rewrite to start summation from zero or one, then use variable trabsfornation to
-      -- FIXME: 最後のsegmentは左に持って行けない。1違う。
-      -- ので1を取り出した上でenvelopeに戻してやるべし
-      -- theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k ≤ 2 ^ n,
-      -- ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
-      -- = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
       have t8 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
         refine Nat.sub_eq_of_eq_add ?_
-        rw [←mul_two]
-        exact rfl
+        · rw [←mul_two]
+          exact rfl
       simp [t8]
       have t9 : ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (2 ^ k + i + 1) + 1)
           = ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (      i + 1) + 1) := by
-        refine trailing_zeros_prop8 k (2 ^ k - 1) ?_
-        { exact Nat.sub_le (2 ^ k) 1 }
+        exact trailing_zeros_prop8 k (2 ^ k - 1) (Nat.sub_le (2 ^ k) 1)
       simp [t9]
       have t10 : ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) =
           ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (i + 1) + 1) + (trailing_zeros (2 ^ k - 2 + 1) + 1) := by
         have s1 : 2 ^ k - 1 = 2 ^ k - 1 - 1 + 1 := by
           refine Eq.symm (Nat.sub_add_cancel ?_)
-          { refine Nat.le_sub_one_of_lt ?_
-            { refine Nat.one_lt_two_pow ?_
-              { exact Nat.ne_zero_of_lt p } } }
+          · refine Nat.le_sub_one_of_lt ?_
+            · exact Nat.one_lt_two_pow (Nat.ne_zero_of_lt p)
         nth_rw 1 [s1]
         have s2 : 2 ^ k - 1 - 1 = 2 ^ k - 2 := by exact rfl
         nth_rw 1 [s2]
@@ -704,9 +691,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       clear t10' t10 t9 t8 t7 t6 t5 t4 t3 t2 t1 this
       have t1 : trailing_zeros (2 ^ k - 2 + 1) + 1 = 1 := by
         have : 2 ^ k - 2 + 1 = 2 ^ k - 1 := by
-          have s1 : 2 ^ k - 2 + 2 = 2 ^ k := by
-            refine Nat.sub_add_cancel ?_
-            { exact Nat.le_pow p }
+          have s1 : 2 ^ k - 2 + 2 = 2 ^ k := by exact Nat.sub_add_cancel (Nat.le_pow p)
           have s2 : 2 = 1 + 1 := by exact rfl
           nth_rw 3 [s2] at s1
           have s3 : 2 ^ k - 2 + (1 + 1) = 2 ^ k - 2 + 1 + 1 := by exact rfl
@@ -718,8 +703,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       have t2 : ∑ i ∈ range (2 ^ k), (trailing_zeros (i + 1) + 1) =
           ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) + (trailing_zeros (2 ^ k - 1 + 1) + 1) := by
         have s1 : 2 ^ k = 2 ^ k - 1 + 1 := by
-          refine Eq.symm (Nat.sub_add_cancel ?_)
-          { exact Nat.one_le_two_pow }
+          exact Eq.symm (Nat.sub_add_cancel Nat.one_le_two_pow)
         nth_rw 1 [s1]
         rw [sum_range_succ]
       have t2' : ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) =
@@ -729,8 +713,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       simp [ih]
       have t3 : trailing_zeros (2 ^ k - 1 + 1) = k := by
         have : 2 ^ k - 1 + 1 = 2 ^ k := by
-          refine Nat.sub_add_cancel ?_
-          { exact Nat.one_le_two_pow }
+          exact Nat.sub_add_cancel Nat.one_le_two_pow
         simp [this]
         exact trailing_zeros_prop3 k
       simp [t3]
@@ -759,34 +742,32 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
       have t5 : 2 ^ (k + 1) - 1 - (k + 1) - 1 = 2 ^ (k + 1) - x := by
         simp [hx]
         refine (Nat.sub_eq_iff_eq_add ?_).mpr ?_
-        { refine Nat.le_sub_of_add_le ?_
-          { refine Nat.add_le_of_le_sub ?_ ?_
-            { refine Nat.le_sub_one_of_lt ?_
-              { exact Nat.lt_two_pow_self } }
-            { refine Nat.le_sub_of_add_le ?_
-              { refine Nat.one_add_le_iff.mpr ?_
-                { exact Nat.lt_sub_of_add_lt base1 } } } } }
-        { have : 2 ^ (k + 1) - (1 + (k + 1) + 1) + 1 = 2 ^ (k + 1) - (k + 1) - 1 := by
+        · refine Nat.le_sub_of_add_le ?_
+          · refine Nat.add_le_of_le_sub ?_ ?_
+            · exact Nat.le_sub_one_of_lt Nat.lt_two_pow_self
+            · refine Nat.le_sub_of_add_le ?_
+              · exact Nat.one_add_le_iff.mpr (Nat.lt_sub_of_add_lt base1)
+        · have : 2 ^ (k + 1) - (1 + (k + 1) + 1) + 1 = 2 ^ (k + 1) - (k + 1) - 1 := by
             have : 2 ^ (k + 1) - (1 + (k + 1) + 1) + 1 = 2 ^ (k + 1) + 1 - (1 + (k + 1) + 1) := by
               refine Eq.symm (Nat.sub_add_comm ?_)
               refine Nat.add_le_of_le_sub ?_ ?_
-              { exact Nat.one_le_two_pow }
-              { have s1 : (k + 1) + 1 + 1 ≤ 2 ^ (k + 1) := by exact base1
+              · exact Nat.one_le_two_pow
+              · have s1 : (k + 1) + 1 + 1 ≤ 2 ^ (k + 1) := by exact base1
                 have s2 : 1 + (k + 1) + 1 = k + 1 + 1 + 1 := by exact Eq.symm (Nat.add_comm (k + 1 + 1) 1)
                 simp [←s2] at s1
-                exact Nat.le_sub_one_of_lt s1 }
+                exact Nat.le_sub_one_of_lt s1
             simp [this]
             exact Nat.Simproc.sub_add_eq_comm (2 ^ (k + 1)) 1 (k + 1)
           simp [this]
-          exact Nat.sub_right_comm (2 ^ (k + 1)) 1 (k + 1) }
+          exact Nat.sub_right_comm (2 ^ (k + 1)) 1 (k + 1)
       simp [t5]
       have t6 : 2 ^ (k + 1) + (2 ^ (k + 1) - x) = 2 ^ (k + 1) + 2 ^ (k + 1) - x := by
         refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (k + 1)))
-        { simp [hx]
+        · simp [hx]
           rw [add_comm, ←add_assoc]
           simp
           rw [add_comm]
-          exact base1 }
+          exact base1
       simp [t6]
       have t7 : 2 ^ (k + 1) + 2 ^ (k + 1) = 2 ^ (k + 1 + 1) := by exact Eq.symm (Nat.two_pow_succ (k + 1))
       simp [t7]
@@ -809,10 +790,10 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
         case succ k ih =>
           expose_names
           clear ih_1
-          have cases : k = 0 ∨ ¬k = 0 := by exact Or.symm (ne_or_eq k 0)
-          rcases cases with k0|kp
-          { simp [k0] }
-          { have kp' : 0 < k := by exact Nat.zero_lt_of_ne_zero kp
+          have two_cases : k = 0 ∨ ¬k = 0 := by exact Or.symm (ne_or_eq k 0)
+          rcases two_cases with k0|kp
+          · simp [k0]
+          · have kp' : 0 < k := by exact Nat.zero_lt_of_ne_zero kp
             have ih' := ih kp'
             clear ih p h
             have t1 : 2 ^ (k + 1 + 1 + 1) = 2 * 2 ^ (k + 1 + 1) := by
@@ -821,11 +802,11 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
             simp [t1]
             have t2 : 1 < 2 ^ (k + 1 + 1) := by grind
             refine Nat.add_le_add ih' ?_
-            exact Nat.one_le_two_pow }
+            exact Nat.one_le_two_pow
       have : 2 ^ (k + 1 + 1) - (k + 1 + 1 + 1 + 1) + (k + 1 + 1 + 1) = 2 ^ (k + 1 + 1) + (k + 1 + 1 + 1) - (k + 1 + 1 + 1 + 1) := by
         exact Eq.symm (Nat.sub_add_comm (cond p))
       simp [this]
-      grind }
+      grind
 
 -- これはsegment単位でしか説明できない
 theorem LubyState.segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
