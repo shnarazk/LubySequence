@@ -184,7 +184,7 @@ theorem pow_two_of_size_le_self {n : Nat} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := 
   simp [s3]
 
 theorem bitslength_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).bits.length = n + 1 := by
-  induction' n with n hn
+  induction n with n hn
   { simp }
   {
     have p : 0 < 2 ^ n := by exact Nat.two_pow_pos n
@@ -200,7 +200,7 @@ theorem size_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).size = n + 1 := by
   exact bitslength_of_pow2_eq_self_add_one n
 
 theorem pow2_bit {n : Nat} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
-  induction' n with n hn
+  induction n with n hn
   { simp }
   {
     have s1 : 2 ^ (n + 1) = 2 * (2 ^ n) := by exact Nat.pow_succ'
@@ -209,7 +209,7 @@ theorem pow2_bit {n : Nat} : (2 ^ n).bits = List.iterate (·) false n ++ [true] 
   }
 
 theorem pow2_sub_one {n : Nat} : (2 ^ n - 1).bits = List.iterate (·) true n := by
-  induction' n with n hn
+  induction n with n hn
   { simp }
   {
     have s1 : 2 ^ (n + 1) - 1 = 2 * (2 ^ n - 1) + 1 := by
@@ -476,7 +476,7 @@ theorem pow2size_has_upper_bound : ∀ n > 0, 2 ^ n.size ≤ 2 * n := by
 
 theorem trailing_zeros_of_envelope : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
   intro n
-  induction' n with n hn'
+  induction n with n hn'
   { simp [trailing_zeros.eq_def] } 
   { rw [trailing_zeros.eq_def]
     split
@@ -494,7 +494,7 @@ theorem trailing_zeros_of_envelope : ∀ n : Nat, trailing_zeros (2 ^ n) = n := 
 theorem trailing_zeros_prop1 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn
-  induction' n using Nat.strong_induction_on with n ih
+  induction n using Nat.strong_induction_on with n ih
   intro n_ne_envenlop
   rw [trailing_zeros.eq_def]
   split
@@ -510,7 +510,7 @@ theorem trailing_zeros_prop1 : ∀ n > 0,
 theorem trailing_zeros_prop2 :
     ∀ n > 0, n ≠ 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn1 hn2
-  induction' n using Nat.strong_induction_on with n ih
+  induction n using Nat.strong_induction_on with n ih
   { rw [trailing_zeros.eq_def]
     nth_rw 2 [trailing_zeros.eq_def]
     have ot : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' hn1
@@ -595,7 +595,7 @@ theorem trailing_zeros_prop3 : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
 
 theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
   intro n
-  induction' n with n hn
+  induction n with n hn
   { simp [trailing_zeros.eq_def] }
   { rw [trailing_zeros.eq_def]
     split
@@ -657,7 +657,7 @@ theorem parity_unmatch {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 
 -- TODO: no need to induction
 theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
   intro n
-  induction' n with n hn
+  induction n with n hn
   { simp
     rw [trailing_zeros]
     simp [Nat.size, Nat.binaryRec]
@@ -697,7 +697,7 @@ theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0
 theorem trailing_zeros_prop6 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn
-  induction' n using Nat.strong_induction_on with n ih
+  induction n using Nat.strong_induction_on with n ih
   { intro hn'
     rw [trailing_zeros.eq_def]
     split
@@ -709,7 +709,7 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
 /- theorem trailing_zeros_prop7' : ∀ n > 0, ∀ k < 2 ^ n, 
     ¬k = 0 → trailing_zeros (2 ^ n + k) = trailing_zeros k := by
   intro n hn k hk k0
-  induction' n with n ih
+  induction n with n ih
   { contradiction }
   { rw [trailing_zeros.eq_def]
     split
@@ -730,7 +730,7 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
 theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros k := by
   intro n k
-  induction' n using Nat.strong_induction_on with n ih
+  induction n using Nat.strong_induction_on with n ih
   { intro k'
     intro h1
     rw [trailing_zeros.eq_def]

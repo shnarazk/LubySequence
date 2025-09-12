@@ -45,7 +45,7 @@ theorem S₂_ge_zero (n : Nat) : S₂ n ≥ 0 := by
 
 theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   intro i n0
-  induction' i with a h
+  induction i with a h
   { simp [S₂, Nat.size, Nat.binaryRec] }
   { simp at h
     dsimp [S₂, Nat.size]
@@ -83,7 +83,7 @@ theorem S₂_upper_bound : ∀ n : Nat, S₂ n ≤ n + 1 := by
   exact Nat.le_add_left 1 n
 
 theorem power2_ge_linear (n : Nat) : n + 1 ≤ 2 ^ n := by
-  induction' n with k h
+  induction n with k h
   { simp }
   { have h2 : 2 ^ (k + 1) = 2 ^ k * 2 := by omega
     rw [h2]
@@ -172,7 +172,7 @@ theorem luby_value_at_segment_beg (n : Nat) : is_segment_beg n → luby n = 1 :=
     rw [luby]
     simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
     exact luby0
-  induction' n using Nat.strong_induction_on with n nh
+  induction n using Nat.strong_induction_on with n nh
   { expose_names
     intro h
     rw [is_segment_beg.eq_def] at h
@@ -373,7 +373,7 @@ theorem envelope_prop3 {n : Nat} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
 
 theorem luby_value_not_at_segment_beg (n : Nat) :
     is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
-  induction' n using Nat.strong_induction_on with n nh
+  induction n using Nat.strong_induction_on with n nh
   have cases : is_segment_beg (n + 1) ∨ ¬is_segment_beg (n + 1) := by
     exact eq_or_ne (is_segment_beg (n + 1)) true
   rcases cases with beg|h
