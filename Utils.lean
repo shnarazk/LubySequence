@@ -11,7 +11,7 @@ Returns the number of zeros at the end of bit representation of Nat `n`.
 Note: `trailing_zeros 0 = 0`
 It differs from the Rust implementation which returns 64 if n = 0_u64.
 --/
-def trailing_zeros (n : Nat) : Nat := match h : n with
+def trailing_zeros (n : ℕ) : ℕ := match h : n with
   | 0      => n
   | n' + 1 =>
     if n = 2 ^ (n.size - 1)
@@ -27,12 +27,12 @@ def trailing_zeros (n : Nat) : Nat := match h : n with
 
 -- #eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
 
-def trailing_ones (n : Nat) : Nat :=
+def trailing_ones (n : ℕ) : ℕ :=
   if h : n < 2
   then n
   else if n % 2 = 1 then 1 + trailing_ones (n / 2) else 0
 
-def scanList {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool := true) : List α :=
+def scanList {α : Type _} (f : α → α) (init : α) (n : ℕ) (start : Bool := true) : List α :=
   match n with
   | 0      => []
   | n' + 1 =>
@@ -43,12 +43,12 @@ def scanList {α : Type _} (f : α → α) (init : α) (n : Nat) (start : Bool :
 
 -- #eval scanList (· + 1) 10 8
 
-theorem self_ne_pow_two_succ_of_size (n : Nat) : n < 2 ^ n.size.succ := by exact Nat.size_le.mp (by grind)
+theorem self_ne_pow_two_succ_of_size (n : ℕ) : n < 2 ^ n.size.succ := by exact Nat.size_le.mp (by grind)
 
-theorem mod_gt_right (a b : Nat) (h : 0 < b) : a % b < b := by exact Nat.mod_lt a h
-theorem mod_eq_left {a b : Nat} (ha : a < b) : a % b = a := by exact Nat.mod_eq_of_lt ha
+theorem mod_gt_right (a b : ℕ) (h : 0 < b) : a % b < b := by exact Nat.mod_lt a h
+theorem mod_eq_left {a b : ℕ} (ha : a < b) : a % b = a := by exact Nat.mod_eq_of_lt ha
 
-theorem mod_gt_right' {a b : Nat} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a - 1) % b + 1 = b := by
+theorem mod_gt_right' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a - 1) % b + 1 = b := by
   intro h
   simp [←Nat.dvd_iff_mod_eq_zero] at h
   have s1 : (a / b) * b = a := by exact Nat.div_mul_cancel h
@@ -73,7 +73,7 @@ theorem mod_gt_right' {a b : Nat} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a -
   simp [this]
   grind
 
-theorem mod_gt_right'_mpr {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
+theorem mod_gt_right'_mpr {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
     (a - 1) % b + 1 = b → a % b = 0 := by
   by_contra h
   simp at h
@@ -93,12 +93,12 @@ theorem mod_gt_right'_mpr {a b : Nat} (ha : 0 < a) (hb : 0 < b) :
   have : (a0 + 1) % (b0 + 1) = 0 := by exact Nat.succ_mod_succ_eq_zero_iff.mpr h1
   exact absurd this h2
 
-theorem mod_gt_right'' {b : Nat} (a : Nat) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
+theorem mod_gt_right'' {b : ℕ} (a : ℕ) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
   refine Nat.add_le_of_le_sub hb ?_
   · refine Nat.le_sub_one_of_lt ?_
     · exact mod_gt_right (a - 1) b hb
 
-theorem mod_gt_right''' {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
+theorem mod_gt_right''' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
     (a - 1) % b + 1 < b := by
   have el : (a - 1) % b + 1 = b ∨ (a - 1) % b + 1 < b := by
     exact Nat.eq_or_lt_of_le (mod_gt_right'' a hb)
@@ -107,14 +107,14 @@ theorem mod_gt_right''' {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0)
     grind
   · exact l
 
-theorem bitslength_eq_size (n : Nat) : n.bits.length = n.size := by exact Nat.size_eq_bits_len n
+theorem bitslength_eq_size (n : ℕ) : n.bits.length = n.size := by exact Nat.size_eq_bits_len n
 
-theorem bits_of_double_eq_cons_false_and_bits (n : Nat) (h : n > 0) :
+theorem bits_of_double_eq_cons_false_and_bits (n : ℕ) (h : n > 0) :
     (2 * n).bits = false :: n.bits := by
   have : n ≠ 0 := by exact Nat.ne_zero_of_lt h
   exact Nat.bit0_bits n this
 
-theorem size_of_double_eq_self_add_one (n : Nat) (h : n > 0) : (2 * n).size = n.size + 1 := by
+theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.size + 1 := by
   have h : (2 * n).bits = false :: n.bits := by
     exact bits_of_double_eq_cons_false_and_bits n h
   have t1 : (2 * n).bits.length = (false :: n.bits).length := by
@@ -124,21 +124,21 @@ theorem size_of_double_eq_self_add_one (n : Nat) (h : n > 0) : (2 * n).size = n.
   simp [t2, bitslength_eq_size] at t1
   exact t1
 
-example (n : Nat) : (2 * n + 1).bits = true :: n.bits := by
+example (n : ℕ) : (2 * n + 1).bits = true :: n.bits := by
   exact Nat.bit1_bits n
 
-theorem size_of_two_mul_eq_aize_add_one (n : Nat) (h : n > 0) :
+theorem size_of_two_mul_eq_aize_add_one (n : ℕ) (h : n > 0) :
     n.size + 1 = (n * 2).size := by
   simp [←Nat.size_eq_bits_len, Nat.mul_comm n 2, bits_of_double_eq_cons_false_and_bits n h]
 
-theorem size_lt {a b : Nat} (h : 0 < a) : 2 * a < b → a.size < b.size := by
+theorem size_lt {a b : ℕ} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   intro hg
   have s1 : (2 * a).bits = false :: a.bits := by refine Nat.bit0_bits a (by grind)
   have s2 : (false :: a.bits).length = 1 + a.bits.length := by
     exact Nat.succ_eq_one_add a.bits.length
   have s3 :(2 * a).bits.length = 1 + a.bits.length := by simp only [s1, s2]
   simp [bitslength_eq_size] at s3
-  have stricten (a b c : Nat) (h : 0 < b) : (a + b = c) → (a < c) := by
+  have stricten (a b c : ℕ) (h : 0 < b) : (a + b = c) → (a < c) := by
     have le := @Nat.le.intro a c b
     intro hh
     have le' := le hh
@@ -157,7 +157,7 @@ theorem size_lt {a b : Nat} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   have tr2 : (2 * a).size ≤ b.size := by refine Nat.size_le_size hg'
   exact Nat.lt_of_lt_of_le tr1 tr2
 
-theorem pow_two_of_size_le_self {n : Nat} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := by
+theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := by
   refine Nat.lt_size.mp ?_
   have s1 : (2 * n).bits = false :: n.bits := by refine Nat.bit0_bits n (by grind)
   have s2 : (false :: n.bits).length = 1 + n.bits.length := by
@@ -166,7 +166,7 @@ theorem pow_two_of_size_le_self {n : Nat} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := 
   simp [bitslength_eq_size] at s3
   simp [s3]
 
-theorem bitslength_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).bits.length = n + 1 := by
+theorem bitslength_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
   induction n with
   | zero => simp
   | succ n hn =>
@@ -177,11 +177,11 @@ theorem bitslength_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).bits.length = n 
     simp [this]
     exact hn
 
-theorem size_of_pow2_eq_self_add_one  (n : Nat) : (2 ^ n).size = n + 1 := by
+theorem size_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_of_pow2_eq_self_add_one n
 
-theorem pow2_bit {n : Nat} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
+theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
   induction n with
   | zero => simp
   | succ n hn =>
@@ -189,7 +189,7 @@ theorem pow2_bit {n : Nat} : (2 ^ n).bits = List.iterate (·) false n ++ [true] 
     simp [s1]
     exact hn
 
-theorem pow2_sub_one {n : Nat} : (2 ^ n - 1).bits = List.iterate (·) true n := by
+theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := by
   induction n with
   | zero => simp
   | succ n hn =>
@@ -208,7 +208,7 @@ theorem pow2_sub_one {n : Nat} : (2 ^ n - 1).bits = List.iterate (·) true n := 
     exact hn
 
 @[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
-theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
+theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
     (2 ^ n + k).bits.length = n + 1 := by
   have p1 : (2 ^ n).bits.length ≤ (2 ^ n + k).bits.length := by
     have : (2 ^ n).size ≤ (2 ^ n + k).size := by
@@ -253,12 +253,12 @@ theorem bitslength_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) :
   have p2'' : (2 ^ n + k).bits.length ≤ n + 1 := by exact p2'
   exact Nat.le_antisymm p2' p1'
 
-theorem size_add {n k : Nat} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
+theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_add ha hb
 
 @[deprecated "Use `size_add'` instead of `bitslength_add'`" (since := "2025-08-10")]
-theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.bits.length + 1) :
+theorem bitslength_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).bits.length < n.bits.length + 1) :
     (n + k).bits.length = n.bits.length := by
   have t1 : n < n + k := by exact Nat.lt_add_of_pos_right ha
   have t2 : n.size ≤ (n + k).size := by
@@ -273,18 +273,18 @@ theorem bitslength_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).bits.length < n.b
     exact absurd hb l''
   · exact id (Eq.symm e)
 
-theorem size_add' {n k : Nat} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n + k).size = n.size := by
+theorem size_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n + k).size = n.size := by
   simp [←bitslength_eq_size]
   simp [←bitslength_eq_size] at hb
   exact bitslength_add' ha hb
 
 @[deprecated "Use `size_sub` instead of `bitslength_sub`" (since := "2025-08-10")]
-theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
+theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
     (2 ^ n - k).bits.length = n := by
   have p1 : 0 < n := by
     have p : 1 ≤ n := by exact h
-    have t1 : (1 : Nat).bits.length ≤ n := by
-      have : (1 : Nat).size ≤ n.size := by exact Nat.size_le_size h
+    have t1 : (1 : ℕ).bits.length ≤ n := by
+      have : (1 : ℕ).size ≤ n.size := by exact Nat.size_le_size h
       simp
       exact p
     simp at t1
@@ -340,13 +340,13 @@ theorem bitslength_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
     exact r2'
   exact Nat.le_antisymm t1 t2
 
-theorem size_sub {n k : Nat} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
+theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
       (2 ^ n - k).size = n := by
   simp [←bitslength_eq_size]
   exact bitslength_sub h ha hb
 
 @[deprecated "Use `size_div` instead of `bitslength_div`" (since := "2025-08-10")]
-theorem bitslength_div {n : Nat} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
+theorem bitslength_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
     (n / 2).bits.length = n.bits.length - 1 := by
   let n2b := (n / 2).bits
   have n2bp : n2b = value_of% n2b := by rfl
@@ -362,16 +362,16 @@ theorem bitslength_div {n : Nat} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
   simp [this] at np
   exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
-theorem size_div {n : Nat} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
+theorem size_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_div h1 h2
 
-theorem bitslength_le_bitslength {a b : Nat} (h : a ≤ b) : a.bits.length ≤ b.bits.length := by
+theorem bitslength_le_bitslength {a b : ℕ} (h : a ≤ b) : a.bits.length ≤ b.bits.length := by
   have t := Nat.size_le_size h
   simp [←bitslength_eq_size] at t
   exact t
 
-theorem le_if_le_size {a b : Nat} : a.size < b.size → a < b := by
+theorem le_if_le_size {a b : ℕ} : a.size < b.size → a < b := by
   intro h1
   by_contra h2
   simp at h2
@@ -379,7 +379,7 @@ theorem le_if_le_size {a b : Nat} : a.size < b.size → a < b := by
   have c2 : ¬a.size < b.size := by exact Nat.not_lt.mpr c1
   exact absurd h1 c2
 
-theorem size_limit {n : Nat} (h : 0 < n) : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
+theorem size_limit {n : ℕ} (h : 0 < n) : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
   have s1 : n.size ≤ (n + 1).size := by exact Nat.size_le_size (Nat.le_add_right n 1)
   have s2 : (n + 1).size ≤ n.size + 1 := by
     have t1 : (2 * n).size = n.size + 1 := by exact size_of_double_eq_self_add_one n h
@@ -396,21 +396,21 @@ theorem size_limit {n : Nat} (h : 0 < n) : (n + 1).size = n.size ∨ (n + 1).siz
   have c2'' : ¬(n + 1).size > n.size := by exact Nat.not_lt.mpr c2'
   exact absurd c1 c2''
 
-theorem pow2_is_minimum (k : Nat) : ∀ n < 2 ^ k, n.size ≤ k := by
+theorem pow2_is_minimum (k : ℕ) : ∀ n < 2 ^ k, n.size ≤ k := by
   intro n hn
   have t1 : n.size ≤ (2 ^ k).size := by exact Nat.size_le_size (Nat.le_of_succ_le hn)
   have t2 : (2 ^ k).size = k + 1 := by exact size_of_pow2_eq_self_add_one k
   simp [t2] at t1
   exact Nat.size_le.mpr hn
 
-theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
+theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
   have tf : 1 = n ∨ 1 < n := by exact Nat.eq_or_lt_of_le h
   rcases tf with t|f
   · simp [←t]
-  · have n2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
+  · have n2 : (2 : ℕ).size = 2 := by simp [Nat.size, Nat.binaryRec]
     have h1 : 2 ≤ n := by exact f
     have h2 : 2 ≤ n.size := by
-      have t1 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size f
+      have t1 : (2 : ℕ).size ≤ n.size := by exact Nat.size_le_size f
       simp [n2] at t1
       exact t1
     have : n > 2 ^ (n.size - 1) - 1 := by
@@ -419,8 +419,8 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
           refine size_sub ?_ (by grind)  ?_
           · exact Nat.zero_lt_sub_of_lt h2
           · have : 0 ≤ n.size - 1 - 1 := by
-              have t1 : (2 : Nat).size - 1 - 1 ≤ n.size - 1 - 1 := by
-                have : (2 : Nat).size - 1 ≤ n.size - 1 := by
+              have t1 : (2 : ℕ).size - 1 - 1 ≤ n.size - 1 - 1 := by
+                have : (2 : ℕ).size - 1 ≤ n.size - 1 := by
                   refine Nat.sub_le_sub_right ?_ 1
                   · simp [n2] ; exact h2
                 exact Nat.sub_le_sub_right this 1
@@ -434,7 +434,7 @@ theorem n_ge_subenvelope {n: Nat} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
 theorem pow2size_has_upper_bound : ∀ n > 0, 2 ^ n.size ≤ 2 * n := by
   exact fun n a ↦ pow_two_of_size_le_self a
 
-theorem trailing_zeros_of_envelope : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
+theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
   intro n
   induction n with
   | zero => simp [trailing_zeros.eq_def]
@@ -469,8 +469,8 @@ theorem trailing_zeros_prop2 :
     ∀ n > 1, n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 2)) + 1 := by
   intro n hn1 hn2
   have n2 : 2 ≤ n.size := by
-    have t1 : (2 : Nat).size ≤ n.size := by exact Nat.size_le_size hn1
-    have t2 : (2 : Nat).size = 2 := by simp [Nat.size, Nat.binaryRec]
+    have t1 : (2 : ℕ).size ≤ n.size := by exact Nat.size_le_size hn1
+    have t2 : (2 : ℕ).size = 2 := by simp [Nat.size, Nat.binaryRec]
     exact le_of_eq_of_le (id (Eq.symm t2)) t1
   have t1 : trailing_zeros n = n.size - 1 := by
     nth_rw 1 [hn2]
@@ -488,7 +488,7 @@ theorem trailing_zeros_prop2 :
   simp [this]
   exact (Nat.sub_eq_iff_eq_add n2).mp rfl
 
-theorem trailing_zeros_prop3 : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
+theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
   intro n
   rw [trailing_zeros.eq_def]
   split
@@ -508,7 +508,7 @@ theorem trailing_zeros_prop3 : ∀ n : Nat, trailing_zeros (2 ^ n) = n := by
       have t1 : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
       simp [t1] at h
 
-theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
+theorem trailing_zeros_prop4 : ∀ n : ℕ, trailing_zeros (2 ^ n - 1) = 0 := by
   intro n
   induction n with
   | zero => simp [trailing_zeros.eq_def]
@@ -548,7 +548,7 @@ theorem trailing_zeros_prop4 : ∀ n : Nat, trailing_zeros (2 ^ n - 1) = 0 := by
         simp [this]
         exact hn
 
-theorem parity_unmatch {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
+theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
   have two_pow_a_is_even : 2 ∣ 2 ^ a := by exact dvd_pow_self 2 (Nat.ne_zero_of_lt ha)
   have even : 2 ∣ 2 ^ a + 1 := by
     simp [h]
@@ -560,7 +560,7 @@ theorem parity_unmatch {a b : Nat} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 
   exact absurd even odd
 
 -- TODO: no need to induction
-theorem trailing_zeros_prop5 : ∀ n : Nat, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
+theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
   intro n
   induction n with
   | zero =>
@@ -612,7 +612,7 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
       · expose_names ; exact absurd h hn'
       · expose_names ; simp
 
-theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
+theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros k := by
   intro n k
   induction n using Nat.strong_induction_on with
@@ -677,7 +677,7 @@ theorem trailing_zeros_prop7 : ∀ n : Nat, ∀ k < 2 ^ n,
     ((∑ i ∈ range (o - 1), (trailing_zeros (2 ^ n + i + 1) + 1) + 1),
      (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1)))
 
-theorem trailing_zeros_prop8 : ∀ n : Nat, ∀ k ≤ 2 ^ n, 
+theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n, 
     ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
     = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
   intro n
