@@ -75,9 +75,9 @@ theorem LubyTree.mk_self_eq_depth_add_one (n: Nat) : (LubyTree.mk n).depth = n +
     exact ih
 
 theorem LubyTree.mk_zero_is_leaf {n : Nat} : LubyTree.mk n = LubyTree.leaf → n = 0 := by
-  induction' n with n hn
-  { intro h ; simp [mk] at h ; exact rfl }
-  { intro h ; simp [mk] at h }
+  induction n with
+  | zero => intro h ; simp [mk] at h ; exact rfl
+  | succ n hn => intro h ; simp [mk] at h
 
 theorem LubyTree.wrap_n_eq_n_add_one (n : Nat) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
   induction n with
@@ -489,10 +489,10 @@ theorem LubyTree.is_symmetry (d : Nat) :
     ∀ n ≤ ((LubyTree.mk d).size - 1) / 2,
       n > 0 → (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2)  := by
   intro n hn nz
-  induction' d with d dh
-  { simp [LubyTree.mk]
-    simp [LubyTree.size] }
-  { rw [LubyTree.valueAtSize.eq_def]
+  induction d with
+  | zero => simp [LubyTree.mk, LubyTree.size]
+  | succ d dh =>
+    rw [LubyTree.valueAtSize.eq_def]
     rw [LubyTree.valueAtSize.eq_def]
     split
     { rfl } -- case: leaf

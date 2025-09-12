@@ -314,7 +314,8 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
   sorry -/
 
 /-
-  induction' n using Nat.strong_induction_on with n hn
+  induction n using Nat.strong_induction_on
+  case h n hn =>
   -- 先に場合分けをしてしまおう
   have tree_cases : LubyTree.is_envelope (n + 1) = true ∨ LubyTree.is_envelope (n + 1) = false := by
     exact Bool.eq_false_or_eq_true (LubyTree.is_envelope (n + 1))
@@ -367,12 +368,14 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
 
 theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
   intro n
-  induction' n /- using Nat.strong_induction_on -/ with n hn
-  { simp [LubyState.ofNat, LubyState.zero, LubyState.luby, default, LubyState.next]
+  induction n /- using Nat.strong_induction_on -/ with n hn
+  case zero =>
+    simp [LubyState.ofNat, LubyState.zero, LubyState.luby, default, LubyState.next]
     rw [Luby.luby, Luby.S₂]
-    simp [Nat.size, Nat.binaryRec, Luby.S₂] }
-  { -- simp [LubyState.ofNat, LubyState.zero]
+    simp [Nat.size, Nat.binaryRec, Luby.S₂]
+  case succ n hn =>
+    `-- simp [LubyState.ofNat, LubyState.zero]
     have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
     simp [this]
-    sorry }
+    sorry
 -/
