@@ -78,8 +78,8 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
               have : (2 ^ (a - 1) - 2 + 1).size = a - 1 := by
                 have : (2 ^ (a - 1) - 1).size = a - 1 := by
                   refine size_sub ?_ (by grind) ?_
-                  { refine Nat.zero_lt_sub_of_lt (by grind) }
-                  { exact Nat.one_le_two_pow }
+                  · refine Nat.zero_lt_sub_of_lt (by grind)
+                  · exact Nat.one_le_two_pow
                 have eq1 : 2 ^ (a - 1) - 2 + 1 = 2 ^ (a - 1) - 1 := by
                   refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
                   have : 2 ≤ 2 ^ (a - 1) := by
@@ -168,8 +168,8 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
             have s2 : (2 ^ (n + 1).size - 2) / 2 * 2 = 2 ^ (n + 1).size - 2 := by
               refine Nat.div_mul_cancel ?_
               refine Nat.dvd_sub ?_ (by grind)
-              { refine dvd_pow (by grind) ?_
-                { exact Nat.ne_zero_of_lt n1size1 } }
+              · refine dvd_pow (by grind) ?_
+                · exact Nat.ne_zero_of_lt n1size1
             simp [s2]
             apply Nat.lt_sub_of_add_lt
             have t1 : n + 1 < 2 ^ (n + 1).size := by exact Nat.lt_size_self (n + 1)
@@ -324,21 +324,21 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
   simp [LubyTree.is_envelope, LubyTree.envelopeSize, LubyTree.envelopeDepth] at tree_cases
   -- simp [LubyState.is_envelope] at gen_cases
   rcases tree_cases with tree_env|not_tree_env
-  { rcases gen_cases with gen_env|not_gen_env
-    { sorry }
-    { sorry } }
-  { rcases gen_cases with gen_env|not_gen_env
-    { sorry }
-    { sorry } }
+  · rcases gen_cases with gen_env|not_gen_env
+    · sorry
+    · sorry
+  · rcases gen_cases with gen_env|not_gen_env
+    · sorry
+    · sorry
   split
-  { expose_names
+  · expose_names
     rw [←LubyTree.luby, LubyState.ofNat, LubyState.luby]
     have tf : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
     rcases tf with t|f
-    { simp [t] at *
+    · simp [t] at *
       simp [LubyTree.envelopeDepth]
-      simp [default, LubyState.zero, LubyState.next] }
-    { -- have hn' := hn 0
+      simp [default, LubyState.zero, LubyState.next]
+    · -- have hn' := hn 0
       -- rw [LubyTree.luby] at hn'
       simp only [LubyTree.envelopeDepth]
       -- envelopeなら$n = 2 ^ i - 1$, またsegIxが式として表されるはず。
@@ -363,7 +363,7 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
       have s2 : (LubyState.ofNat n).locIx = (n + 1).size - 1 := by sorry
       have s3 : LubyState.ofNat n = LubyState.zero.next n := by exact rfl
       simp [s3] at s2
-      simp [s2] } }
+      simp [s2]
   sorry
 
 theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
