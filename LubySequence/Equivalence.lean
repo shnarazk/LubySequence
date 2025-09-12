@@ -13,7 +13,7 @@ open Tree
 #eval List.range 24 |>.map (fun n ↦ Luby.luby n)
 #eval List.range 20 |>.map (fun n ↦ LubyTree.valueAt (n + 1) == Luby.luby n)
 
-theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := by
+theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := by
   intro n
   induction n using Nat.strong_induction_on with
   | h n hn =>
@@ -280,7 +280,7 @@ theorem LubyTree_is_Luby : ∀ n : Nat, LubyTree.luby (n + 1) = Luby.luby n := b
 #eval List.range 22 |>.map (fun n ↦ ((LubyState.ofNat n).is_segment_beg, Luby.is_segment_beg n))
 
 theorem LubyStateSegment_is_LubySegment :
-    ∀ n : Nat, (LubyState.ofNat n).is_segment_beg = Luby.is_segment_beg n := by
+    ∀ n : ℕ, (LubyState.ofNat n).is_segment_beg = Luby.is_segment_beg n := by
   have defaultSegIx : (default : LubyState).segIx = 1 := by exact rfl
   have defaultLocIx : (default : LubyState).locIx = 0 := by exact rfl
   intro n
@@ -304,7 +304,7 @@ theorem LubyStateSegment_is_LubySegment :
       · expose_names
         sorry
 
-theorem LubyState_is_Luby : ∀ n : Nat, Luby.luby n = (LubyState.ofNat n).luby := by
+theorem LubyState_is_Luby : ∀ n : ℕ, Luby.luby n = (LubyState.ofNat n).luby := by
   intro n
   sorry
 
