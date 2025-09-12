@@ -570,11 +570,11 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
     rw [trailing_zeros]
     simp [Nat.size]
   | succ n hn =>
-    rw [trailing_zeros] 
+    rw [trailing_zeros]
     split
     · expose_names
       simp at h
-      have sub1 : 0 < n + 1 + 1 := by grind  
+      have sub1 : 0 < n + 1 + 1 := by grind
       have sub2 : 0 < (2 ^ (n + 1 + 1) + 1).size - 1 := by
         have t1 : 2 ≤ n + 1 + 1 := by grind
         have t2 : 2 ^ 2 ≤ 2 ^ (n + 1 + 1) := by exact Nat.pow_le_pow_right (by grind) t1
@@ -589,7 +589,7 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
         exact Nat.zero_lt_of_lt t6
       have c := parity_unmatch sub1 sub2 h
       simp at c
-    · simp 
+    · simp
       have t1 : (2 ^ (n + 1 + 1) + 1).size = n + 1 + 1 + 1 := by
         refine size_add (by grind) ?_
         · have s1 : 2 ≤ n + 1 + 1 := by exact Nat.le_add_left 2 n
@@ -671,13 +671,13 @@ theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
             simp [t1]
           exact congrArg trailing_zeros this
 
-#eval List.range 6 |>.map (fun n' ↦
+/- #eval List.range 6 |>.map (fun n' ↦
     let o := n'
     let n := n' + 2
     ((∑ i ∈ range (o - 1), (trailing_zeros (2 ^ n + i + 1) + 1) + 1),
-     (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1)))
+    (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1))) -/
 
-theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n, 
+theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
     ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
     = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
   intro n
@@ -696,7 +696,7 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
       · expose_names ; simp [h_1]
       · expose_names ; refine trailing_zeros_prop7 n x h h_1
     · expose_names ; simp at h ; exact rfl
-  have t1 : 
+  have t1 :
      (∑ x ∈ range (k - 1), (trailing_zeros (2 ^ n + x + 1) + 1)) =
      (∑ x ∈ range (k - 1), (f1             (        x + 1) + 1)) := by
     simp [f1_def]
@@ -706,7 +706,7 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
       · expose_names
         have : 2 ^ n + y + 1 = y + 1 + 2 ^ n := by grind
         simp [this]
-      · expose_names 
+      · expose_names
         have t1 : y     < k - 1 := by exact List.mem_range.mp hy
         have t2 : y + 1 < k     := by exact Nat.add_lt_of_lt_sub t1
         have t3 : y + 1 < 2 ^ n := by exact Nat.lt_of_lt_of_le t2 hk
@@ -715,7 +715,7 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
   clear t1
   let f2 := (fun i ↦ if h : (i + 1) < 2 ^ n then trailing_zeros ((i + 1) + 2 ^ n) else 0)
   have f2_def : f2 = value_of% f2 := by exact rfl
-  have t2 : 
+  have t2 :
       (∑ i ∈ range (k - 1), (f1 (i + 1) + 1)) =
       (∑ i ∈ range (k - 1), (f2  i      + 1)) := by
     exact rfl
@@ -729,7 +729,7 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
     · expose_names ; refine trailing_zeros_prop7 n (i + 1) h (by grind)
     · exact rfl
   simp [f2eqf3]
-  have t3 : 
+  have t3 :
      (∑ i ∈ range (k - 1), (trailing_zeros (i + 1) + 1)) =
      (∑ i ∈ range (k - 1), (f3              i + 1)) := by
     simp [f3_def]
@@ -737,10 +737,9 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
     · intro y hy
       split
       · expose_names ; exact rfl
-      · expose_names 
+      · expose_names
         have t1 : y     < k - 1 := by exact List.mem_range.mp hy
         have t2 : y + 1 < k     := by exact Nat.add_lt_of_lt_sub t1
         have t3 : y + 1 < 2 ^ n := by exact Nat.lt_of_lt_of_le t2 hk
         exact absurd t3 h
   simp [t3]
-

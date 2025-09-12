@@ -54,7 +54,7 @@ theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
     rw [←Nat.size]
     apply fun x ↦ Nat.sub_le_sub_right x 1
     apply Nat.size_le_size
-    grind 
+    grind
 
 theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
   simp [S₂]
@@ -127,7 +127,7 @@ decreasing_by
 -- #eval S₂ 0 -- 2 = 2 -- 0
 -- #eval luby 2 -- 2 = 2 -- 0
 
-def is_segment_beg (n : ℕ) : Bool := match h : n with 
+def is_segment_beg (n : ℕ) : Bool := match h : n with
   | 0 => true
   | 1 => true
   | m + 1 + 1 => if is_envelope n then false else is_segment_beg (n + 1 - S₂ n)
@@ -152,9 +152,9 @@ decreasing_by
     have : n.succ = n + 1 := by rfl
     simp only [this] at goal
     have goal1 : n + 1 < n + 2 ^ ((n + 1).size - 1) := by exact Nat.add_lt_add_left goal n
-    have goal2 : n + 1 - 2 ^ ((n + 1).size - 1) < n := by 
+    have goal2 : n + 1 - 2 ^ ((n + 1).size - 1) < n := by
       have (a b c : Nat) (h : a ≥ c) : a < b + c → a - c < b := by
-        exact Nat.sub_lt_right_of_lt_add h 
+        exact Nat.sub_lt_right_of_lt_add h
       have c : n + 1 ≥ 2 ^ ((n + 1).size - 1) := by
         refine n_ge_subenvelope ?_
         exact Nat.le_add_left 1 n
@@ -195,9 +195,9 @@ theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 :=
           have np : n = value_of% n := by exact rfl
           simp [←np] at *
           simp [S₂]
-          have r : n + 1 - 2 ^ ((n + 1).size - 1) < n := by 
+          have r : n + 1 - 2 ^ ((n + 1).size - 1) < n := by
             have (a b c : Nat) (h : a ≥ c) : a < b + c → a - c < b := by
-              exact Nat.sub_lt_right_of_lt_add h 
+              exact Nat.sub_lt_right_of_lt_add h
             have c : n + 1 ≥ 2 ^ ((n + 1).size - 1) := by
               refine n_ge_subenvelope ?_
               exact Nat.le_add_left 1 n
@@ -216,7 +216,7 @@ theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 :=
           have goal := nh (n + 1 - S₂ n) r h
           exact goal
 
-#eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
+-- #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
 
 theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
   constructor
@@ -224,7 +224,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
     simp [is_envelope, S₂]
     nth_rw 1 [n2]
     have t1 : (2 ^ ((n + 2).size - 1) + 1).size = ((n + 2).size - 1) + 1 := by
-      refine size_add (by grind) ?_ 
+      refine size_add (by grind) ?_
       · have t1 : 2 ^ ((0 + 2).size - 1) ≤ 2 ^ ((n + 2).size - 1) := by
           refine pow2_le_pow2 ((0 + 2).size - 1) ((n + 2).size - 1) ?_
           refine Nat.sub_le_sub_right ?_ 1
@@ -242,7 +242,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
     apply sub1
     have sub2 (a b c : ℕ) : a = b → a - c = b - c := by
       exact fun a_1 ↦ congrFun (congrArg HSub.hSub a_1) c
-    apply sub2 
+    apply sub2
     have cands : (n + 2 + 1).size = (n + 2).size ∨ (n + 2 + 1).size = (n + 2).size + 1 := by
       refine size_limit (by grind)
     rcases cands with e|g
@@ -271,7 +271,7 @@ theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
     exact le_of_eq_of_le (id (Eq.symm size2_eq_2)) t1
   constructor
   · intro h
-    have size_succ : (n + 2).size > (n + 1).size := by grind 
+    have size_succ : (n + 2).size > (n + 1).size := by grind
     have range1 : n + 2 ≥ 2 ^ (n + 1).size := by exact Nat.lt_size.mp size_succ
     have range2 : n + 2 ≤ 2 ^ (n + 1).size := by
       have s1 : n + 1 ≤ 2 ^ (n + 1).size - 1 := by
@@ -319,7 +319,7 @@ theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelop
       exact Nat.zero_lt_succ n
     rcases ep with e|p
     · exact absurd e hx
-    · have : is_envelope n := by exact (envelope_prop2 n).mp p 
+    · have : is_envelope n := by exact (envelope_prop2 n).mp p
       exact absurd this h
 
 theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
@@ -336,7 +336,7 @@ theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n :
     simp [t2] at t1
     exact (envelope_prop2 n).mp t1
   · intro h
-    -- have t1 : 
+    -- have t1 :
     have t1 : (n + 2).size = (n + 1).size + 1 := by exact (envelope_prop2 n).mpr h
     have env1 : n + 2 = 2 ^ ((n + 2).size - 1) := by
       exact (envelope_prop1 n).mpr h
@@ -372,7 +372,7 @@ theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
   simp [t4] at t3
   exact id (Eq.symm t3)
 
-#eval is_segment_beg 0 -- true
+-- #eval is_segment_beg 0 -- true
 
 theorem luby_value_not_at_segment_beg (n : ℕ) :
     is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
@@ -390,7 +390,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
         simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
         exact luby0
       have nsize1 : 1 ≤ (n + 1).size := by
-        have t1 : (0 + 1).size ≤ (n + 1).size := by 
+        have t1 : (0 + 1).size ≤ (n + 1).size := by
           refine Nat.size_le_size ?_
           exact Nat.le_add_left (0 + 1) n
         have t2 : (0 + 1).size = 1 := by simp
@@ -454,7 +454,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                     have t5 : 2 ^ (n + 1).size - 2 - 2 ^ ((n + 1).size - 1) = 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) - 2 := by
                       exact Nat.sub_right_comm (2 ^ (n + 1).size) 2 (2 ^ ((n + 1).size - 1))
                     simp [t5, t4]
-                    clear t5 t4 
+                    clear t5 t4
                     simp [is_envelope, S₂]
                     have left1 : 2 ^ ((n + 1).size - 1) - 2 + 2 + 1 = 2 ^ ((n + 1).size - 1) + 1 := by
                       refine Nat.add_right_cancel_iff.mpr ?_
@@ -470,7 +470,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                     simp [left1]
                     have right : 2 ^ ((n + 1).size - 1) - 2 + 2 = 2 ^ ((n + 1).size - 1) := by grind
                     rw [right]
-                    refine (Nat.pow_right_inj ?_).mpr ?_ 
+                    refine (Nat.pow_right_inj ?_).mpr ?_
                     grind
                     have : (2 ^ ((n + 1).size - 1) + 1).size = (n + 1).size - 1 + 1 := by
                       refine size_add (by grind) ?_
@@ -498,7 +498,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                   simp [t2] at t1
                   exact t1
                 right
-                simp [S₂] 
+                simp [S₂]
                 have t1 : 2 * 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1) = 2 ^ ((n + 1 - 2 ^ ((n + 1).size - 1) + 1).size - 1 + 1) := by
                   exact Eq.symm Nat.pow_succ'
                 simp [t1]
@@ -582,7 +582,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
               exact t1
             right
             have common1 : n + 1 + 1 = n + 2 := by grind
-            have common2 : (n + 2).size = (n + 1).size := by exact (envelope_prop2' n).mpr h_2 
+            have common2 : (n + 2).size = (n + 1).size := by exact (envelope_prop2' n).mpr h_2
             have common3 : S₂ n < n + 2 := by
               have : S₂ n ≤ n + 1 := by exact S₂_upper_bound n
               exact Nat.lt_add_one_of_le this
@@ -638,11 +638,11 @@ theorem luby_sequence_prop (n : ℕ) :
       have : is_segment_beg 1 = true := by simp [is_segment_beg]
       split
       · rw [luby]
-        simp [is_envelope, S₂, Nat.size, Nat.binaryRec] 
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
         rw [luby]
-        simp [is_envelope, S₂, Nat.size, Nat.binaryRec] 
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
       · rw [luby]
-        simp [is_envelope, S₂, Nat.size, Nat.binaryRec] 
+        simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
         rw [luby]
         simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
     · have tf : is_segment_beg n = true ∨ ¬is_segment_beg n = true := by

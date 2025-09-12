@@ -165,7 +165,7 @@ def LubyTree.quotient (s : ℕ) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 
 #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeDepth (n + 1)))
 #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeSize (n + 1), LubyTree.is_envelope (n + 1)))
-#eval LubyTree.quotientOfSize 2 3
+-- #eval LubyTree.quotientOfSize 2 3
 -- #eval LubyTree.is_envelope 2
 -- #eval LubyTree.envelopeSize 2
 -- #eval LubyTree.is_envelope 1
