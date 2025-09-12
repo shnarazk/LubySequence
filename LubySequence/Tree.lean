@@ -521,6 +521,6 @@ theorem LubyTree.is_symmetry (d : Nat) :
             have : (mk d).size + (n - 1) = (mk d).size + n - 1 := by
               exact Eq.symm (Nat.add_sub_assoc nz (mk d).size)
             rw [this]
-          simp [this] } } } }
+          simp [this] } } }
 
 end Tree
