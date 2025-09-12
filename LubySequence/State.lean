@@ -164,7 +164,7 @@ def toNat (self : LubyState) : ℕ := match self.segIx with
   | 0 => 0
   | n + 1 => segIdToLastIndex n + self.locIx
 
-#eval scanList (·.next) LubyState.zero 24 |>.map (·.toNat)
+#eval scanList (·.next) zero 24 |>.map (·.toNat)
 
 theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
   intro n
@@ -302,55 +302,53 @@ def toLocIx (n : ℕ) : ℕ := n - sumOfSegmentHeights n
 
 def next_in_segment (s : LubyState) (d : ℕ) : LubyState := mk s.segIx (s.locIx + d)
 
-end LubyState
-
-theorem LubyState.next_in_segment_is_additive {s : LubyState} {d : ℕ} :
+theorem next_in_segment_is_additive {s : LubyState} {d : ℕ} :
     ∀ d' < d, 0 < d' → s.next_in_segment d' = (s.next_in_segment (d' - 1)).next_in_segment 1 := by
   intro n hn hd
-  simp [LubyState.next_in_segment]
+  simp [next_in_segment]
   simp [add_assoc]
   exact (Nat.sub_eq_iff_eq_add hd).mp rfl
 
-theorem LubyState.next_in_segment_increments_locIx (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
+theorem next_in_segment_increments_locIx (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
     (s.next_in_segment d).locIx = s.locIx + d := by
   induction d with
-  | zero => simp [LubyState.next_in_segment]
+  | zero => simp [next_in_segment]
   | succ d hd =>
     have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
     have t1 : s.next_in_segment (d + 1) = (s.next_in_segment d).next_in_segment 1 := by exact rfl
     simp [t1]
-    nth_rw 1 [LubyState.next_in_segment]
+    nth_rw 1 [next_in_segment]
     simp [hd h']
     exact rfl
 
-theorem LubyState.next_in_segment_is_next (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
-    LubyState.next_in_segment s d = s.next d := by
+theorem next_in_segment_is_next (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
+    next_in_segment s d = s.next d := by
   induction d with
-  | zero => simp [LubyState.next_in_segment, LubyState.next]
+  | zero => simp [next_in_segment, next]
   | succ d hd =>
     have t1 : s.next (d + 1) = (s.next d).next 1 := by exact rfl
     simp [t1]
     have h' : s.locIx + d < s.segment_height := by exact Nat.lt_of_succ_lt h
     have t2 : s.next_in_segment (d + 1) = (s.next_in_segment d).next_in_segment 1 := by exact rfl
     simp [t2]
-    nth_rw 1 [LubyState.next_in_segment]
+    nth_rw 1 [next_in_segment]
     simp [hd h']
-    nth_rw 1 [LubyState.next]
+    nth_rw 1 [next]
     have t3 : (s.next d).next 0 = s.next d := by exact rfl
     simp [t3]
     simp [←hd h']
-    simp [LubyState.is_segment_end]
+    simp [is_segment_end]
     have t1 : (s.next_in_segment d).locIx = s.locIx + d := by exact rfl
     simp [t1]
     exact Nat.ne_of_lt h
 
-theorem LubyState.segment_beg_transition' : ∀ n : ℕ, (LubyState.ofNat n).is_segment_beg = true →
-    (LubyState.ofNat (n + (LubyState.ofNat n).segment_height)).is_segment_beg := by
+theorem segment_beg_transition' : ∀ n : ℕ, (ofNat n).is_segment_beg = true →
+    (ofNat (n + (ofNat n).segment_height)).is_segment_beg := by
   intro n hz
-  let n' := LubyState.ofNat n
+  let n' := ofNat n
   have nn : n' = value_of% n' := by exact rfl
   simp [←nn]
-  have z : n'.locIx = 0 := by simp [LubyState.is_segment_beg, ←nn] at hz ; exact hz
+  have z : n'.locIx = 0 := by simp [is_segment_beg, ←nn] at hz ; exact hz
   have t1 : n + n'.segment_height = (n + n'.segment_height - 1) + 1 := by exact rfl
   rw [t1]
   have t2 : ofNat (n + n'.segment_height - 1 + 1) = (ofNat (n + n'.segment_height - 1)).next 1 := by
@@ -365,43 +363,43 @@ theorem LubyState.segment_beg_transition' : ∀ n : ℕ, (LubyState.ofNat n).is_
       (ofNat n).next (n'.segment_height - 1) = (ofNat n).next_in_segment (n'.segment_height - 1) := by
     refine Eq.symm (next_in_segment_is_next (ofNat n) (n'.segment_height - 1) ?_)
     simp [←nn, z]
-    simp [LubyState.segment_height]
+    simp [segment_height]
   simp [t4]
   simp [←nn]
   have t5 : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.locIx + n'.segment_height - 1 := by
     exact rfl
-  rw [LubyState.next]
+  rw [next]
   simp [z] at t5
   split
-  · expose_names ; simp [LubyState.is_segment_beg]
+  · expose_names ; simp [is_segment_beg]
   · expose_names
-    simp [LubyState.is_segment_end] at h
-    rw [LubyState.next, t5] at h
+    simp [is_segment_end] at h
+    rw [next, t5] at h
     have t6 : (n'.next_in_segment (n'.segment_height - 1)).segment_height = n'.segment_height := by
       exact rfl
     simp [t6] at h
     have t7 : n'.segment_height - 1 + 1 = n'.segment_height := by exact t6
     exact absurd t7 h
 
-def LubyState.segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ Finset.range b, (trailing_zeros (i + 1) + 1)
+def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i + 1) + 1)
 
--- #eval List.range 12 |>.map (fun n ↦ (LubyState.segment_height_sum n, LubyState.segment_height_sum' n))
-#eval List.range 7 |>.map (fun k ↦ (2 ^ k, LubyState.segment_height_sum (2 ^ k), 2 ^ (k + 1) - 1))
+-- #eval List.range 12 |>.map (fun n ↦ (segment_height_sum n, segment_height_sum' n))
+#eval List.range 7 |>.map (fun k ↦ (2 ^ k, segment_height_sum (2 ^ k), 2 ^ (k + 1) - 1))
 
 #eval List.range 30 |>.map (fun n ↦ (
-    (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx,
-    (LubyState.ofNat n).segIx))
+    (ofNat (∑ k < (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx,
+    (ofNat n).segIx))
 
 #eval List.range 20 |>.map (· + 1) |>.map (fun n ↦ (
-  (∑ i ∈ Finset.range       n, (trailing_zeros       i + 1)),
-  (∑ i ∈ Finset.range (n - 1), (trailing_zeros (i + 1) + 1) + 1)))
+  (∑ i ∈ range       n, (trailing_zeros       i + 1)),
+  (∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1) + 1)))
 
 #eval List.range 7 |>.map (fun k ↦
   let n := 2 ^ k
-  (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1), 2 ^ n.size - 1))
+  (∑ i ∈ range n, (trailing_zeros (i + 1) + 1), 2 ^ n.size - 1))
 
-theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
-    ∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1) = 2 ^ n.size - 1 := by
+theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
+    ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = 2 ^ n.size - 1 := by
   intro n
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -415,7 +413,7 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         have u2 : (2 : ℕ).size = 2 := by simp [Nat.size, Nat.binaryRec]
         simp [u2] at u1
         exact u1
-      have t1 : Finset.range n = Finset.range (2 ^ (n.size - 1)) := by exact congrArg range h2
+      have t1 : range n = range (2 ^ (n.size - 1)) := by exact congrArg range h2
       simp [t1]
       have t2 : 2 ^ (n.size - 1) = 2 * 2 ^ (n.size - 1 - 1) := by
         refine Eq.symm (mul_pow_sub_one ?_ 2)
@@ -423,7 +421,7 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       simp [t2]
       clear t1 t2
       rw [two_mul]
-      rw [Finset.sum_range_add]
+      rw [sum_range_add]
       have sub1 : 2 ^ (n.size - 1 - 1) < n := by
         have t1 : 2 ^ n.size ≤ 2 * n := by exact pow2size_has_upper_bound n (by grind)
         have t2 : 2 ^ n.size / 2 ≤ 2 * n / 2 := by exact Nat.div_le_div_right t1
@@ -461,7 +459,7 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       have t1 : 2 ^ (n.size - 1 - 1) = 2 ^ (n.size - 1 - 1) - 1 + 1 := by
         exact Eq.symm (Nat.sub_add_cancel Nat.one_le_two_pow)
       nth_rw 1 [t1]
-      rw [Finset.sum_range_succ]
+      rw [sum_range_succ]
       -- shift left part1
       have t2 : ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + x + 1) + 1) =
           ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) := by
@@ -503,7 +501,7 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       have t6 : (2 ^ (n.size - 1 - 1) - 1 + 1) = (2 ^ (n.size - 1 - 1)) := by grind
       nth_rw 2 [←t6]
       clear t5 t4 t3 t1
-      rw [←Finset.sum_range_succ (fun n ↦ trailing_zeros (n + 1) + 1) (2 ^ (n.size - 1 - 1) - 1)]
+      rw [←sum_range_succ (fun n ↦ trailing_zeros (n + 1) + 1) (2 ^ (n.size - 1 - 1) - 1)]
       simp [t6, ih']
       have t8 : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by
         have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by exact Nat.size_pow
@@ -524,26 +522,25 @@ theorem LubyState.segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         exact Nat.sub_add_cancel (Nat.one_le_of_lt nsize2)
       simp [t11]
 
-#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (LubyState.ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 
 -- これはenvelopeはいくつのsegmentを必要とするかという問題。
 -- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
 -- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
 -- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
-theorem t20250910 : ∀ n : ℕ, n = 2 ^ (n.size - 1) - 1 → (LubyState.ofNat (n - 1)).segIx = n + 1 := by
+theorem t20250910 : ∀ n : ℕ, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segIx = n + 1 := by
   intro n hn
   induction n using Nat.strong_induction_on with
   | h n ih =>
     have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
     rcases zp with z|p
     · simp [z] at *
-      simp [LubyState.ofNat, LubyState.zero, LubyState.next]
+      simp [ofNat, zero, next]
       exact rfl
     · sorry
 
 theorem t20250904 : ∀ n : ℕ,
-    (LubyState.ofNat (∑ k < (LubyState.ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx
-    = (LubyState.ofNat n).segIx := by
+    (ofNat (∑ k < (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
   intro n
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -556,8 +553,7 @@ theorem t20250904 : ∀ n : ℕ,
 -- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
 -- あるいは segment_beg な (ofNat n).segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = n 的な
 -- ことからsegIxを剥ぎ取ってnに持ち込める。
-theorem LubyState.segment_height_sum_is_envelope : ∀ k : ℕ,
-    LubyState.segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
+theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
   simp [segment_height_sum]
   induction k with
@@ -607,7 +603,7 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : ℕ,
           grind
         rw [←t2']
       simp [this]
-      simp [Finset.sum_range_add]
+      simp [sum_range_add]
       simp [ih]
       have t8 : 2 ^ (k + 1) - 2 ^ k = 2 ^ k := by
         refine Nat.sub_eq_of_eq_add ?_
@@ -739,20 +735,22 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : ℕ,
       grind
 
 -- これはsegment単位でしか説明できない
-theorem LubyState.segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
-    (LubyState.ofNat n).segment_height = (LubyState.ofNat (n - 2 ^ (n.size - 1))).segment_height := by
+theorem segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+    (ofNat n).segment_height = (ofNat (n - 2 ^ (n.size - 1))).segment_height := by
   intro n hn1 hn2
-  simp [LubyState.segment_height]
+  simp [segment_height]
   have : trailing_zeros (ofNat n).segIx = trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by
     sorry -- apply?
   sorry
   --
 
-theorem LubyState.segment_beg_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
-    (LubyState.ofNat n).is_segment_beg = (LubyState.ofNat (n - 2 ^ (n.size - 1))).is_segment_beg := by
-  simp [LubyState.is_segment_beg, LubyState.ofNat]
+theorem segment_beg_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+    (ofNat n).is_segment_beg = (ofNat (n - 2 ^ (n.size - 1))).is_segment_beg := by
+  simp [is_segment_beg, ofNat]
   sorry -- FIXME: todo
 
-theorem LubyState.define_recursively2 : ∀ n : ℕ,
-    LubyState.zero.next n = LubyState.mk (LubyState.toSegIx n 0 0) (LubyState.toLocIx n) := by
+theorem define_recursively2 : ∀ n : ℕ, zero.next n = mk (toSegIx n 0 0) (toLocIx n) := by
   sorry
+
+end LubyState
+
