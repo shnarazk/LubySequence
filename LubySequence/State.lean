@@ -769,7 +769,8 @@ theorem LubyState.segment_height_sum_is_envelope : ∀ k : Nat,
           rw [add_comm]
           exact base1
       simp [t6]
-      have t7 : 2 ^ (k + 1) + 2 ^ (k + 1) = 2 ^ (k + 1 + 1) := by exact Eq.symm (Nat.two_pow_succ (k + 1))
+      have t7 : 2 ^ (k + 1) + 2 ^ (k + 1) = 2 ^ (k + 1 + 1) := by
+        exact Eq.symm (Nat.two_pow_succ (k + 1))
       simp [t7]
       simp [hx]
       have t8 : 1 + (k + 1 + 1) = k + 1 + 1 + 1 := by exact Nat.add_comm 1 (k + 1 + 1)
