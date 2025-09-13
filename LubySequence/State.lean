@@ -271,9 +271,8 @@ def toSegIx (n segIx sum : ℕ) : ℕ :=
       exact sub_lt n0 t1
     toSegIx (n - len) (segIx + 1) (sum + len)
 
-def sumOfSegmentHeights : ℕ → ℕ
-  | 0     => 0
-  | n + 1 => trailing_zeros (n + 1) + sumOfSegmentHeights n
+def sumOfSegmentHeights (si : ℕ) : ℕ := ∑ i ∈ range si, (trailing_zeros (i + 1) + 1)
+#eval List.range 17 |>.map (fun n ↦ (n, sumOfSegmentHeights n))
 
 def toLocIx (n : ℕ) : ℕ := n - sumOfSegmentHeights n
 
