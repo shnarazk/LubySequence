@@ -10,7 +10,7 @@ open Finset Nat
 Returns the number of zeros at the end of bit representation of Nat `n`.
 Note: `trailing_zeros 0 = 0`
 It differs from the Rust implementation which returns 64 if n = 0_u64.
---/
+-/
 def trailing_zeros (n : ℕ) : ℕ := match h : n with
   | 0      => n
   | n' + 1 =>
@@ -30,7 +30,7 @@ def trailing_zeros (n : ℕ) : ℕ := match h : n with
 /--
 Returns the number of consecutive ones at the end of bit representation of Nat `n`.
 For example, `trailing_ones 7 = 3` since 7 in binary is 111.
---/
+-/
 def trailing_ones (n : ℕ) : ℕ :=
   if h : n < 2
   then n
@@ -39,7 +39,7 @@ def trailing_ones (n : ℕ) : ℕ :=
 /--
 Generates a list by repeatedly applying function `f` starting from `init` for `n` iterations.
 If `start` is true, includes the initial value in the result.
---/
+-/
 def scanList {α : Type _} (f : α → α) (init : α) (n : ℕ) (start : Bool := true) : List α :=
   match n with
   | 0      => []
@@ -53,21 +53,21 @@ def scanList {α : Type _} (f : α → α) (init : α) (n : ℕ) (start : Bool :
 
 /--
 Every natural number is strictly less than 2 raised to the power of its size plus one.
---/
+-/
 theorem self_ne_pow_two_succ_of_size (n : ℕ) : n < 2 ^ n.size.succ := by exact size_le.mp (by grind)
 
 /--
 The remainder of division by a positive number is strictly less than the divisor.
---/
+-/
 theorem mod_gt_right (a b : ℕ) (h : 0 < b) : a % b < b := by exact mod_lt a h
 /--
 When a number is smaller than the divisor, the remainder equals the original number.
---/
+-/
 theorem mod_eq_left {a b : ℕ} (ha : a < b) : a % b = a := by exact mod_eq_of_lt ha
 
 /--
 For positive numbers a and b, if a is divisible by b, then (a-1) % b + 1 = b.
---/
+-/
 theorem mod_gt_right' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a - 1) % b + 1 = b := by
   intro h
   simp [←dvd_iff_mod_eq_zero] at h
@@ -95,7 +95,7 @@ theorem mod_gt_right' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a -
 
 /--
 Converse of mod_gt_right': if (a-1) % b + 1 = b, then a is divisible by b.
---/
+-/
 theorem mod_gt_right'_mpr {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
     (a - 1) % b + 1 = b → a % b = 0 := by
   by_contra h
@@ -118,7 +118,7 @@ theorem mod_gt_right'_mpr {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
 
 /--
 For any natural number a and positive b, (a-1) % b + 1 ≤ b.
---/
+-/
 theorem mod_gt_right'' {b : ℕ} (a : ℕ) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
   refine add_le_of_le_sub hb ?_
   · refine le_sub_one_of_lt ?_
@@ -126,7 +126,7 @@ theorem mod_gt_right'' {b : ℕ} (a : ℕ) (hb : 0 < b) : (a - 1) % b + 1 ≤ b 
 
 /--
 If a is not divisible by b, then (a-1) % b + 1 < b.
---/
+-/
 theorem mod_gt_right''' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
     (a - 1) % b + 1 < b := by
   have el : (a - 1) % b + 1 = b ∨ (a - 1) % b + 1 < b := by
@@ -138,12 +138,12 @@ theorem mod_gt_right''' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0)
 
 /--
 The length of the bit representation equals the size of a natural number.
---/
+-/
 theorem bitslength_eq_size (n : ℕ) : n.bits.length = n.size := by exact size_eq_bits_len n
 
 /--
 The bit representation of 2*n is false (0) prepended to the bit representation of n.
---/
+-/
 theorem bits_of_double_eq_cons_false_and_bits (n : ℕ) (h : n > 0) :
     (2 * n).bits = false :: n.bits := by
   have : n ≠ 0 := by exact ne_zero_of_lt h
@@ -151,7 +151,7 @@ theorem bits_of_double_eq_cons_false_and_bits (n : ℕ) (h : n > 0) :
 
 /--
 The size of 2*n is one more than the size of n (for positive n).
---/
+-/
 theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.size + 1 := by
   have h : (2 * n).bits = false :: n.bits := by
     exact bits_of_double_eq_cons_false_and_bits n h
@@ -164,20 +164,20 @@ theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.
 
 /--
 The bit representation of 2*n + 1 is true (1) prepended to the bit representation of n.
---/
+-/
 example (n : ℕ) : (2 * n + 1).bits = true :: n.bits := by
   exact bit1_bits n
 
 /--
 The size of n*2 equals n.size + 1 (for positive n).
---/
+-/
 theorem size_of_two_mul_eq_aize_add_one (n : ℕ) (h : n > 0) :
     n.size + 1 = (n * 2).size := by
   simp [←size_eq_bits_len, mul_comm n 2, bits_of_double_eq_cons_false_and_bits n h]
 
 /--
 If 2*a < b, then the size of a is less than the size of b.
---/
+-/
 theorem size_lt {a b : ℕ} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   intro hg
   have s1 : (2 * a).bits = false :: a.bits := by refine bit0_bits a (by grind)
@@ -206,7 +206,7 @@ theorem size_lt {a b : ℕ} (h : 0 < a) : 2 * a < b → a.size < b.size := by
 
 /--
 For positive n, 2^(n.size) ≤ 2*n.
---/
+-/
 theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := by
   refine lt_size.mp ?_
   have s1 : (2 * n).bits = false :: n.bits := by refine bit0_bits n (by grind)
@@ -218,7 +218,7 @@ theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := 
 
 /--
 The bit representation length of 2^n equals n+1.
---/
+-/
 theorem bitslength_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
   induction n with
   | zero => simp
@@ -232,14 +232,14 @@ theorem bitslength_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).bits.length = n 
 
 /--
 The size of 2^n equals n+1.
---/
+-/
 theorem size_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_of_pow2_eq_self_add_one n
 
 /--
 The bit representation of 2^n consists of n false bits followed by one true bit.
---/
+-/
 theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
   induction n with
   | zero => simp
@@ -250,7 +250,7 @@ theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] 
 
 /--
 The bit representation of 2^n - 1 consists of n true bits.
---/
+-/
 theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := by
   induction n with
   | zero => simp
@@ -271,7 +271,7 @@ theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := 
 
 /--
 For 0 < k < 2^n, the bit length of 2^n + k equals n+1.
---/
+-/
 @[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
 theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
     (2 ^ n + k).bits.length = n + 1 := by
@@ -320,14 +320,14 @@ theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
 
 /--
 For 0 < k < 2^n, the size of 2^n + k equals n+1.
---/
+-/
 theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_add ha hb
 
 /--
 If adding k to n doesn't increase the bit length beyond n.bits.length, then the bit length stays the same.
---/
+-/
 @[deprecated "Use `size_add'` instead of `bitslength_add'`" (since := "2025-08-10")]
 theorem bitslength_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).bits.length < n.bits.length + 1) :
     (n + k).bits.length = n.bits.length := by
@@ -346,7 +346,7 @@ theorem bitslength_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).bits.length < n.b
 
 /--
 If adding k to n doesn't increase the size beyond n.size, then the size stays the same.
---/
+-/
 theorem size_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n + k).size = n.size := by
   simp [←bitslength_eq_size]
   simp [←bitslength_eq_size] at hb
@@ -354,7 +354,7 @@ theorem size_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n
 
 /--
 For n > 0 and 0 < k ≤ 2^(n-1), the bit length of 2^n - k equals n.
---/
+-/
 @[deprecated "Use `size_sub` instead of `bitslength_sub`" (since := "2025-08-10")]
 theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
     (2 ^ n - k).bits.length = n := by
@@ -419,7 +419,7 @@ theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
 
 /--
 For n > 0 and 0 < k ≤ 2^(n-1), the size of 2^n - k equals n.
---/
+-/
 theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
       (2 ^ n - k).size = n := by
   simp [←bitslength_eq_size]
@@ -427,7 +427,7 @@ theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
 
 /--
 For n ≥ 1 divisible by 2, the bit length of n/2 is one less than the bit length of n.
---/
+-/
 @[deprecated "Use `size_div` instead of `bitslength_div`" (since := "2025-08-10")]
 theorem bitslength_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
     (n / 2).bits.length = n.bits.length - 1 := by
@@ -447,14 +447,14 @@ theorem bitslength_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
 
 /--
 For n ≥ 1 divisible by 2, the size of n/2 is one less than the size of n.
---/
+-/
 theorem size_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_div h1 h2
 
 /--
 If a ≤ b, then the bit length of a is at most the bit length of b.
---/
+-/
 theorem bitslength_le_bitslength {a b : ℕ} (h : a ≤ b) : a.bits.length ≤ b.bits.length := by
   have t := size_le_size h
   simp [←bitslength_eq_size] at t
@@ -462,7 +462,7 @@ theorem bitslength_le_bitslength {a b : ℕ} (h : a ≤ b) : a.bits.length ≤ b
 
 /--
 If a has a strictly smaller size than b, then a < b.
---/
+-/
 theorem le_if_le_size {a b : ℕ} : a.size < b.size → a < b := by
   intro h1
   by_contra h2
@@ -473,7 +473,7 @@ theorem le_if_le_size {a b : ℕ} : a.size < b.size → a < b := by
 
 /--
 For positive n, the size of n+1 is either equal to n.size or n.size + 1.
---/
+-/
 theorem size_limit {n : ℕ} (h : 0 < n) : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
   have s1 : n.size ≤ (n + 1).size := by exact size_le_size (le_add_right n 1)
   have s2 : (n + 1).size ≤ n.size + 1 := by
@@ -493,7 +493,7 @@ theorem size_limit {n : ℕ} (h : 0 < n) : (n + 1).size = n.size ∨ (n + 1).siz
 
 /--
 Every natural number less than 2^k has size at most k.
---/
+-/
 theorem pow2_is_minimum (k : ℕ) : ∀ n < 2 ^ k, n.size ≤ k := by
   intro n hn
   have t1 : n.size ≤ (2 ^ k).size := by exact size_le_size (le_of_succ_le hn)
@@ -503,7 +503,7 @@ theorem pow2_is_minimum (k : ℕ) : ∀ n < 2 ^ k, n.size ≤ k := by
 
 /--
 For n ≥ 1, n is at least 2^(n.size - 1).
---/
+-/
 theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
   have tf : 1 = n ∨ 1 < n := by exact eq_or_lt_of_le h
   rcases tf with t|f
@@ -534,13 +534,13 @@ theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
 
 /--
 For positive n, 2^(n.size) ≤ 2*n.
---/
+-/
 theorem pow2size_has_upper_bound : ∀ n > 0, 2 ^ n.size ≤ 2 * n := by
   exact fun n a ↦ pow_two_of_size_le_self a
 
 /--
 The number of trailing zeros in 2^n equals n.
---/
+-/
 theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
   intro n
   induction n with
@@ -559,7 +559,7 @@ theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := 
 
 /--
 For positive n not equal to 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-1)).
---/
+-/
 theorem trailing_zeros_prop1 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn
@@ -576,7 +576,7 @@ theorem trailing_zeros_prop1 : ∀ n > 0,
 
 /--
 For n > 1 where n = 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-2)) + 1.
---/
+-/
 @[simp]
 theorem trailing_zeros_prop2 :
     ∀ n > 1, n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 2)) + 1 := by
@@ -603,7 +603,7 @@ theorem trailing_zeros_prop2 :
 
 /--
 The number of trailing zeros in 2^n equals n.
---/
+-/
 theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
   intro n
   rw [trailing_zeros.eq_def]
@@ -626,7 +626,7 @@ theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
 
 /--
 The number of trailing zeros in 2^n - 1 is always 0.
---/
+-/
 theorem trailing_zeros_prop4 : ∀ n : ℕ, trailing_zeros (2 ^ n - 1) = 0 := by
   intro n
   induction n with
@@ -669,7 +669,7 @@ theorem trailing_zeros_prop4 : ∀ n : ℕ, trailing_zeros (2 ^ n - 1) = 0 := by
 
 /--
 Powers of 2 plus 1 cannot equal other powers of 2 (contradiction lemma).
---/
+-/
 theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
   have two_pow_a_is_even : 2 ∣ 2 ^ a := by exact dvd_pow_self 2 (ne_zero_of_lt ha)
   have even : 2 ∣ 2 ^ a + 1 := by
@@ -684,7 +684,7 @@ theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 
 /--
 The number of trailing zeros in 2^(n+1) + 1 is always 0.
 TODO: no need to induction
---/
+-/
 theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
   intro n
   induction n with
@@ -726,7 +726,7 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
 
 /--
 For positive n not equal to 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-1)).
---/
+-/
 theorem trailing_zeros_prop6 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn
@@ -742,7 +742,7 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
 
 /--
 For k < 2^n and k ≠ 0, trailing_zeros(k + 2^n) = trailing_zeros(k).
---/
+-/
 theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros k := by
   intro n k
@@ -809,9 +809,9 @@ theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
     (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1))) -/
 
 /--
-For k ≤ 2^n, the sum of (trailing_zeros(2^n + i + 1) + 1) over i ∈ [0, k-2] equals 
+For k ≤ 2^n, the sum of (trailing_zeros(2^n + i + 1) + 1) over i ∈ [0, k-2] equals
 the sum of (trailing_zeros(i + 1) + 1) over the same range.
---/
+-/
 theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
     ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
     = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
