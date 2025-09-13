@@ -41,8 +41,8 @@ def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
     else LubyState.mk li.segIx li.locIx.succ
 
 -- #eval LubyState.zero.next 2
-#eval scanList (·.next) LubyState.zero 24 |>.drop 3 |>.map (·.luby)
-#eval scanList (·.next) LubyState.zero 24 |>.drop 3 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
+#eval scanList (·.next) LubyState.zero 24 |>.map (·.luby)
+#eval scanList (·.next) LubyState.zero 24 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
 -- #eval LubyState.zero.next 24 |>.luby
 
 namespace LubyState
@@ -488,6 +488,40 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         simp [this]
         exact Nat.sub_add_cancel (one_le_of_lt nsize2)
       simp [t11]
+
+#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
+
+-- これはenvelopeはいくつのsegmentを必要とするかという問題。
+-- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
+-- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
+-- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
+theorem t20250913 : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segment_height = n.size := by
+  intro n hn
+  let k := n - 1
+  have hk : k = value_of% k := by exact rfl
+  have hk' : n = k + 1 := by exact (Nat.sub_eq_iff_eq_add hn).mp hk
+  simp [hk'] at *
+  induction k using Nat.strong_induction_on with
+  | h k ih =>
+    intro h2
+    have cases : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
+    rcases cases with kz|kp
+    · simp [kz, ofNat, default, segment_height, trailing_zeros]
+    · have h2' : k = 2 ^ ((k + 1).size - 1) - 1 - 1 := by exact Nat.eq_sub_of_add_eq h2
+      let j := 2 ^ ((k + 1).size - 1 - 1)
+      have hj : j = value_of% j := by exact rfl
+      have j2 : 2 ^ ((k + 1).size - 1) = j + j := by
+        simp [hj]
+        rw [←mul_two]
+        refine Eq.symm (two_pow_pred_mul_two ?_)
+        · have t1 : 2 ≤ k + 1 := by exact le_add_of_sub_le kp
+          have t2 : (2 : ℕ).size ≤ (k + 1).size := by exact size_le_size t1
+          have t3 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+          simp [t3] at t2
+          refine zero_lt_sub_of_lt t2
+      simp [j2] at h2'
+      --
+      sorry
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 
