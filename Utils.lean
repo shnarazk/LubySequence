@@ -683,6 +683,7 @@ theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 
 
 /--
 The number of trailing zeros in 2^(n+1) + 1 is always 0.
+TODO: no need to induction
 --/
 theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
   intro n
