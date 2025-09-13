@@ -291,11 +291,11 @@ theorem LubyStateSegment_is_LubySegment :
     split
     · simp [LubyState.ofNat, LubyState.zero, LubyState.next, default]
     · simp [LubyState.ofNat, LubyState.next]
-      have : LubyState.zero.is_segment_end = true := by
-        simp [LubyState.is_segment_end]
-        simp [LubyState.segment_height, LubyState.zero]
+      have : (default : LubyState).is_segment_end = true := by
+        simp [default, LubyState.is_segment_end]
+        simp [LubyState.segment_height]
         rw [trailing_zeros.eq_def]
-        simp [defaultSegIx, defaultLocIx]
+        simp
       simp [this]
     · expose_names
       split
