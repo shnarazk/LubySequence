@@ -5,35 +5,35 @@ import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 import LubySequence.Utils
 
-namespace Luby
-
-/-
+/-!
   The Luby sequence is a sequence of natural numbers defined recursively.
   It is used in randomized algorithms and has applications in computer science.
   The sequence is defined as follows:
-
+```
   L(k ≥ 1) = 2^(i-1)          if k = 2^i - 1 for some i ≥ 0,
            = L(k+1 - 2^(i-1)) if 2^(i-1) ≤ k ≤ 2^i - 1
-
+```
 If we want to start the sequence from 0, to make the mapping a total function:
-
+```
   L(k ≥ 0) = 2^(i-1)          if k = 2^i - 2 for some i ≥ 0,
            = L(k+2 - 2^(i-1)) if 2^(i-1) ≤ k + 1 ≤ 2^i - 1
-
+```
 Or
-
+```
   L(k ≥ 0) = 2^(I(k)-1)          if (k + 2) &&& (k + 1) = 0,
            = L(k+2 - 2^(I(k)-1)) otherwise
+```
 where
   I(n) = ⌈log₂(n+2)⌉
 -/
+namespace Luby
 
 /--
- - Basic relation between Nat and its binary representation.
- - A kind of ceiling function.
- -
- - This is the envelopeMax (zero-based indexed)
- -/
+Basic relation between Nat and its binary representation.
+A kind of ceiling function.
+
+This returns the envelope + 1 (zero-based indexed).
+-/
 def S₂ (n : ℕ) := 2 ^ (n.succ.size - 1)
 #eval List.range 24 |>.map S₂
 
