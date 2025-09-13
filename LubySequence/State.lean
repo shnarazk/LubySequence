@@ -4,8 +4,8 @@ import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 import Mathlib.Data.Finset.Basic
+import LubySequence.Utils
 import LubySequence.Basic
-import Utils
 
 open Finset Nat
 
