@@ -89,10 +89,7 @@ theorem segIx_is_mono (n : ℕ) : ∀ n' ≥ n, (zero.next n').segIx ≥ (zero.n
 
 theorem segId_ge_one : ∀ n : ℕ, (zero.next n).segIx ≥ 1 := by
   intro n
-  have p := segIx_is_mono 0 n (Nat.zero_le n)
-  have z : (zero.next 0).segIx = 1 := by simp [default]
-  simp [z] at p
-  exact p
+  exact (segIx_is_mono 0 n (Nat.zero_le n))
 
 theorem next0 (a : LubyState) : a.next 0 = a := by simp
 
