@@ -501,8 +501,10 @@ theorem t20250913 : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segm
   have hk : k = value_of% k := by exact rfl
   have hk' : n = k + 1 := by exact (Nat.sub_eq_iff_eq_add hn).mp hk
   simp [hk'] at *
+  clear hn hk hk'
   induction k using Nat.strong_induction_on with
   | h k ih =>
+    expose_names
     intro h2
     have cases : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
     rcases cases with kz|kp
@@ -510,6 +512,37 @@ theorem t20250913 : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segm
     · have h2' : k = 2 ^ ((k + 1).size - 1) - 1 - 1 := by exact Nat.eq_sub_of_add_eq h2
       let j := 2 ^ ((k + 1).size - 1 - 1)
       have hj : j = value_of% j := by exact rfl
+      have k3 : k ≥ 3 := by
+        have k1 : k ≥ 1 := by exact kp
+        have k2 : k ≥ 2 := by
+          by_contra not_k2
+          have k_eq_1 : k = 1 := by
+            have : k < 2 := by exact gt_of_not_le not_k2
+            have : k = 1 := by exact Nat.eq_of_le_of_lt_succ kp this
+            exact this
+          nth_rw 2 [k_eq_1] at h2'
+          simp [size, binaryRec] at h2'
+          have : ¬k > 0 := by exact Eq.not_gt h2'
+          exact absurd kp this
+        by_contra not_k3
+        simp at not_k3
+        have k_eq_2 : k = 2 := by exact Nat.eq_of_le_of_lt_succ k2 not_k3
+        nth_rw 2 [k_eq_2] at h2'
+        simp [size, binaryRec] at h2'
+        have : ¬k > 0 := by exact Eq.not_gt h2'
+        exact absurd kp this
+      have j_ge_2 : j ≥ 2 := by
+        have t1 : 3 + 1 ≤ k + 1 := by exact Nat.add_le_add_right k3 1
+        have t2 : (3 + 1).size ≤ (k + 1).size := by exact size_le_size t1
+        have t3 : (3 + 1).size = 3 := by simp [size, binaryRec]
+        simp [t3] at t2
+        have t3 : 3 - 1 ≤ (k + 1).size - 1 := by exact Nat.sub_le_sub_right t2 1
+        have t4 : 3 - 1 - 1 ≤ (k + 1).size - 1 - 1 := by exact Nat.sub_le_sub_right t3 1
+        simp at t4
+        have t5 : 2 ^ 1 ≤ 2 ^ ((k + 1).size - 1 - 1) := by
+          exact Luby.pow2_le_pow2 1 ((k + 1).size - 1 - 1) t4
+        simp at t5
+        exact t5
       have j2 : 2 ^ ((k + 1).size - 1) = j + j := by
         simp [hj]
         rw [←mul_two]
@@ -520,6 +553,16 @@ theorem t20250913 : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segm
           simp [t3] at t2
           refine zero_lt_sub_of_lt t2
       simp [j2] at h2'
+      have h3 : k = 2 * (j - 1) := by omega
+      simp [h3]
+      have : (2 * (j - 1) + 1).size = (2 * (j - 1)).size := by
+        sorry
+      simp [this]
+      have : (2 * (j - 1)).size = (j - 1).size + 1 := by
+        refine size_of_double_eq_self_add_one (j - 1) ?_
+        · refine zero_lt_sub_of_lt ?_
+          sorry
+      simp [this]
       --
       sorry
 
