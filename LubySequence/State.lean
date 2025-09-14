@@ -790,12 +790,25 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
       let as := (ofNat n').segment_height + 1
       f!"(n: {n}, segIx: {si}, height: {sh} ↦ n': {n'}, height': {as})")
 
--- これはsegment単位でしか説明できない
-theorem segment_height_prop1_sorry : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+theorem segIx_prop_20250914_sorry : ∀ n > 0, 
+    (ofNat n).segIx = 2 * (ofNat (n - 2 ^ (n.size - 1))).segIx := by
+  intro n hn1
+  induction n using Nat.strong_induction_on with
+  | h n hn =>
+    have :
+        trailing_zeros (ofNat n).segIx = 
+        trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by
+      sorry -- apply?
+    sorry
+  --
+-- これはsegment単位でしか説明できない。これの前にsegIxの関係をいうべき
+theorem segment_height_prop1_sorry : ∀ n > 0, ¬n = 2 ^ (n.size - 1) →
     (ofNat n).segment_height = (ofNat (n - 2 ^ (n.size - 1))).segment_height := by
   intro n hn1 hn2
   simp [segment_height]
-  have : trailing_zeros (ofNat n).segIx = trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by
+  have :
+      trailing_zeros (ofNat n).segIx = 
+      trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by
     sorry -- apply?
   sorry
   --
