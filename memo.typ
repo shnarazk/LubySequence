@@ -48,7 +48,7 @@ $ #range(1, 32).map(Luby).map(str).join(", ") , dots.h.c $
 
 == Definition
 
-In the paper @Luby1993, the sequence is defined as a recursive function:
+In the paper @Luby1993, @Luby1993-IPL, the sequence is defined as a recursive function:
 
 #set math.equation(numbering: "(1)")
 $

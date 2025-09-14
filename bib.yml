@@ -24,7 +24,7 @@ Luby1993-IPL:
   serial-number:
     doi: "10.1016/0020-0190(93)90029-9"
   parent:
-    type: Periodical
+    type: periodical
     title: Information Processing Letters
     volume: 47
     number: 4
