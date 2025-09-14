@@ -495,7 +495,7 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
 -- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
 -- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
 -- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
-theorem t20250913 : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segment_height = n.size := by
+theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segment_height = n.size := by
   intro n hn
   let k := n - 1
   have hk : k = value_of% k := by exact rfl
@@ -556,13 +556,16 @@ theorem t20250913 : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segm
       have h3 : k = 2 * (j - 1) := by omega
       simp [h3]
       have : (2 * (j - 1) + 1).size = (2 * (j - 1)).size := by
-        sorry
+        refine Eq.symm (size_of_even_add_one_eq_size_of_self (j - 1) ?_)
+        · exact zero_lt_sub_of_lt j_ge_2
       simp [this]
       have : (2 * (j - 1)).size = (j - 1).size + 1 := by
         refine size_of_double_eq_self_add_one (j - 1) ?_
         · refine zero_lt_sub_of_lt ?_
-          sorry
+          · exact j_ge_2
       simp [this]
+      -- envelope の計算にこういうのなかったか？
+      simp [segment_height]
       --
       sorry
 
@@ -572,7 +575,7 @@ theorem t20250913 : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segm
 -- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
 -- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
 -- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
-theorem t20250910 : ∀ n : ℕ, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segIx = n + 1 := by
+theorem t20250910_sorry : ∀ n : ℕ, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segIx = n + 1 := by
   intro n hn
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -583,7 +586,7 @@ theorem t20250910 : ∀ n : ℕ, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).se
       exact rfl
     · sorry
 
-theorem t20250904 : ∀ n : ℕ,
+theorem t20250904_sorry : ∀ n : ℕ,
     (ofNat (∑ k < (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -778,8 +781,17 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
       simp [this]
       grind
 
+#eval List.range 6 |>.map (· + 1) |>.map (2 ^ ·.succ - 2) |>.map
+    (fun n ↦ 
+      let state := ofNat n
+      let si := state.segIx
+      let sh := state.segment_height
+      let n' := n - 2 ^ (n.size - 1)
+      let as := (ofNat n').segment_height + 1
+      f!"(n: {n}, segIx: {si}, height: {sh} ↦ n': {n'}, height': {as})")
+
 -- これはsegment単位でしか説明できない
-theorem segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+theorem segment_height_prop1_sorry : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
     (ofNat n).segment_height = (ofNat (n - 2 ^ (n.size - 1))).segment_height := by
   intro n hn1 hn2
   simp [segment_height]
@@ -788,12 +800,12 @@ theorem segment_height_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
   sorry
   --
 
-theorem segment_beg_prop1 : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+theorem segment_beg_prop1_sorry : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
     (ofNat n).is_segment_beg = (ofNat (n - 2 ^ (n.size - 1))).is_segment_beg := by
   simp [is_segment_beg, ofNat]
   sorry -- FIXME: todo
 
-theorem define_recursively2 : ∀ n : ℕ, zero.next n = mk (toSegIx n 0 0) (toLocIx n) := by
+theorem define_recursively2_sorry : ∀ n : ℕ, zero.next n = mk (toSegIx n 0 0) (toLocIx n) := by
   sorry
 
 end LubyState
