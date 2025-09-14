@@ -14,7 +14,7 @@ ALWAYS reference these instructions first and fallback to search or bash command
 - Update PATH: `export PATH="$HOME/.elan/bin:$PATH"`
 - Verify installation: `elan --version` and `lake --version`
 
-### Build Process  
+### Build Process
 - **CRITICAL**: Set timeout to 60+ minutes for all build commands. Build may take 30-45 minutes.
 - Navigate to project root: `cd /home/runner/work/LubySequence/LubySequence`
 - Update dependencies: `lake update`
@@ -25,7 +25,7 @@ ALWAYS reference these instructions first and fallback to search or bash command
   **NEVER CANCEL**: Documentation build takes 15-20 minutes.
 
 ### Alternative Build with Nix (if available)
-- Enter Nix dev shell: `nix develop` 
+- Enter Nix dev shell: `nix develop`
 - Run standard Lake commands: `lake update && lake build`
 - The flake.nix provides elan, Lean, Lake, typst, and tinymist
 
@@ -36,7 +36,7 @@ LubySequence/
 ├── LubySequence/              # Main library modules
 │   ├── Basic.lean            # Core Luby sequence definitions
 │   ├── Tree.lean             # Tree-based model
-│   ├── State.lean            # Iterator/state-machine model  
+│   ├── State.lean            # Iterator/state-machine model
 │   ├── Equivalence.lean      # Proofs connecting models
 │   └── Utils.lean            # Supporting utilities
 ├── lakefile.toml             # Lake build configuration
@@ -77,7 +77,7 @@ When network connectivity prevents downloading dependencies:
 - The library uses mathlib v4.23.0-rc2 - ensure compatibility when adding dependencies
 - Key modules to understand:
   - `LubySequence.Basic`: Core recursive definition of Luby sequence
-  - `LubySequence.Tree`: Tree-based envelope model  
+  - `LubySequence.Tree`: Tree-based envelope model
   - `LubySequence.State`: Iterator implementation
   - `LubySequence.Utils`: Utility functions for binary operations
 - Always check imports when modifying modules - use relative imports within the library
@@ -133,7 +133,7 @@ cd /home/runner/work/LubySequence/LubySequence
 lake update    # 10-15 min, NEVER CANCEL
 lake build     # 30-45 min, NEVER CANCEL
 
-# Validation  
+# Validation
 lake env lean --check LubySequence.lean
 lake build doc
 
@@ -141,3 +141,65 @@ lake build doc
 typst compile memo.typ
 typst compile presen.typ
 ```
+
+# Documentation Style Guide for LubySequence
+
+Purpose
+- Keep documentation clear, concise, and reproducible. Make it easy for readers to understand definitions, proofs, and examples of the Luby sequence and how to build the project and docs.
+
+Tone and Audience
+- Primary audience: Lean 4 users, contributors familiar with mathlib and formalization.
+- Tone: precise, neutral, and didactic. Prefer short, direct sentences. Avoid colloquialisms.
+
+Structure and Headings
+- Use descriptive headings; prefer the following ordering for each doc:
+  1. Summary / Goal (one or two lines)
+  2. Context (why it matters)
+  3. Minimal reproducible example (commands or code)
+  4. Detailed explanation or proof sketch
+  5. References (files, theorems, external resources)
+- Use code blocks for commands and Lean snippets. Use Typst for slides and longer formatted math content.
+
+Formatting rules
+- Use Markdown for README-level docs and short guides; use Typst (.typ) for formal documents and slides.
+- documentation in Lea files starts with "/--" and ends with "-/".
+- Inline code: `lake build`, `#check Luby.luby_seq`
+- Code blocks: annotate with the language where applicable (bash, lean, typst).
+- Math: prefer Lean code for theorem statements and examples. Keep informal math in Typst or Markdown math where needed. Put spaces around all mathematical operators.
+
+Lean / Mathlib conventions
+- When referencing lemmas or definitions, link to the file and the symbol (e.g., LubySequence.Basic.luby_seq).
+- Include "how to check" snippets:
+  - lake env lean --check LubySequence/Basic.lean
+  - #check Luby.luby_seq
+
+Examples
+- Short good example (command + expected short result):
+  ```bash
+  lake env lean --run - <<EOF
+  import LubySequence
+  #eval Luby.luby_seq 10
+  EOF
+  ```
+  (Explain expected output in one sentence.)
+
+Commit messages for docs
+- Use "docs:" prefix for documentation-only changes, e.g. `docs: add documentation style guide`
+- Mention whether the change requires a rebuild of docs (`lake build doc`) in the PR description.
+
+How to add or update docs
+- Update docs/DOCUMENTATION_STYLE.md for style changes.
+- For Typst docs, add built outputs to CI doc step, but do not commit build artifacts.
+- Run `typst compile memo.typ` locally in the Nix shell or the environment used for docs editing.
+
+Linking and discoverability
+- Add a one-line pointer in README.md or .github/copilot-instructions.md:
+  - "Documentation style: see docs/DOCUMENTATION_STYLE.md"
+
+Short checklist for PRs touching docs
+- [ ] Proofread for precision and clarity
+- [ ] Include minimal reproducible example if introducing new commands or APIs
+- [ ] Run `lake build doc` when feasible (CI will also check)
+
+Contact / Questions
+- If unsure about phrasing mathematical explanations, open an issue and tag it `documentation` so reviewers can suggest clearer statements.

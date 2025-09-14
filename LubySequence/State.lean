@@ -570,12 +570,16 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       sorry
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+#eval List.range 64 
+    |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
+    |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
 
 -- これはenvelopeはいくつのsegmentを必要とするかという問題。
 -- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
 -- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
 -- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
-theorem t20250910_sorry : ∀ n : ℕ, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segIx = n + 1 := by
+theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
+    (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
   intro n hn
   induction n using Nat.strong_induction_on with
   | h n ih =>
