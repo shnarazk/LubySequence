@@ -11,7 +11,7 @@ open Tree
 
 #eval List.range 24 |>.map (fun n ↦ LubyTree.valueAt (n + 1))
 #eval List.range 24 |>.map (fun n ↦ Luby.luby n)
-#eval List.range 20 |>.map (fun n ↦ LubyTree.valueAt (n + 1) == Luby.luby n)
+#eval ∀ n < 20, LubyTree.valueAt (n + 1) == Luby.luby n
 
 theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := by
   intro n
