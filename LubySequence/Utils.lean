@@ -878,3 +878,34 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
         have t3 : y + 1 < 2 ^ n := by exact lt_of_lt_of_le t2 hk
         exact absurd t3 h
   simp [t3]
+
+theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0, 
+    (2 * n).size = (2 * n + 1).size := by
+  intro n h
+  have : (2 * n + 1).size = (2 * n).size ∨ (2 * n + 1).size = (2 * n).size + 1 := by
+    refine size_limit (by grind)
+  rcases this with eq|gt
+  · exact Eq.symm eq
+  · have one_others : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' h
+    rcases one_others with one|others
+    · simp [one, size, binaryRec]
+    · have t1 : 2 * n = 2 ^ (n.size - 1) - 1 := by 
+        sorry
+      have c1 : Even (2 * n) := by exact even_two_mul n
+      have c2 : ¬Even (2 ^ (n.size - 1) - 1) := by
+        have : Even (2 ^ (n.size - 1)) := by
+          refine even_pow.mpr ?_
+          · constructor
+            · exact even_iff.mpr rfl
+            · have t1 : 2 ≤ n := by exact others 
+              have t2 : (2 : ℕ).size ≤ n.size := by exact size_le_size others
+              have t3 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+              simp [t3] at t2
+              exact Nat.sub_ne_zero_iff_lt.mpr t2
+        refine even_add_one.mp ?_
+        · have t4 : 2 ^ (n.size - 1) - 1 + 1 = 2 ^ (n.size - 1) := by
+            exact Nat.sub_add_cancel Nat.one_le_two_pow
+          simp [t4]
+          exact this
+      simp [←t1] at c2
+
