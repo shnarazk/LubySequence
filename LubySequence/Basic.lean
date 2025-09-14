@@ -38,7 +38,7 @@ def S₂ (n : ℕ) := 2 ^ (n.succ.size - 1)
 #eval List.range 24 |>.map S₂
 
 /--
-Monotonicity of powers of 2: if `a ≤ b`, then `2^a ≤ 2^b`.
+Monotonicity of powers of 2: if `a ≤ b`, then `2 ^ a ≤ 2 ^ b`.
 -/
 theorem pow2_le_pow2 (a b : ℕ) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
   exact Nat.pow_le_pow_right (by grind : 2 > 0)
@@ -99,7 +99,7 @@ theorem S₂_upper_bound : ∀ n : ℕ, S₂ n ≤ n + 1 := by
   exact Nat.le_add_left 1 n
 
 /--
-Powers of 2 grow faster than linear: `n + 1 ≤ 2^n` for all natural numbers n.
+Powers of 2 grow faster than linear: `n + 1 ≤ 2 ^ n` for all natural numbers n.
 -/
 theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
   induction n with
@@ -240,7 +240,7 @@ theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 :=
 -- #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
 
 /--
-Characterization of envelope property: n + 2 equals 2^((n + 2).size - 1) 
+Characterization of envelope property: n + 2 equals 2 ^ ((n + 2).size - 1) 
 if and only if n is an envelope.
 -/
 theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
@@ -356,7 +356,7 @@ theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelop
       exact absurd this h
 
 /--
-Alternative envelope characterization: n + 2 equals 2^((n + 1).size) 
+Alternative envelope characterization: n + 2 equals 2 ^ ((n + 1).size) 
 if and only if n is an envelope.
 -/
 theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
