@@ -879,7 +879,18 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
         exact absurd t3 h
   simp [t3]
 
-theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0, 
+/--
+  For any positive natural number `n`, appending a `1` bit to the front of the binary
+  representation of `n` (i.e. going from `2 * n` to `2 * n + 1`) does not change the
+  length of the bit-list, and hence does not change the `size` (the bit-length)
+  of the corresponding natural number.
+
+  In binary terms, for `n > 0` we have
+  `(2 * n).bits = false :: n.bits` and `(2 * n + 1).bits = true :: n.bits`,
+  so both bit-lists have the same length `n.bits.length + 1`. Note that the
+  assumption `n > 0` is necessary: for `n = 0` we have `0.size = 0` but `1.size = 1`.
+  -/
+theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
     (2 * n).size = (2 * n + 1).size := by
   intro n h
   have : (2 * n + 1).size = (2 * n).size ∨ (2 * n + 1).size = (2 * n).size + 1 := by
@@ -889,7 +900,7 @@ theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
   · have one_others : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' h
     rcases one_others with one|others
     · simp [one, size, binaryRec]
-    · have t1 : 2 * n = 2 ^ (n.size - 1) - 1 := by 
+    · have t1 : 2 * n = 2 ^ (n.size - 1) - 1 := by
         sorry
       have c1 : Even (2 * n) := by exact even_two_mul n
       have c2 : ¬Even (2 ^ (n.size - 1) - 1) := by
@@ -897,7 +908,7 @@ theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
           refine even_pow.mpr ?_
           · constructor
             · exact even_iff.mpr rfl
-            · have t1 : 2 ≤ n := by exact others 
+            · have t1 : 2 ≤ n := by exact others
               have t2 : (2 : ℕ).size ≤ n.size := by exact size_le_size others
               have t3 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
               simp [t3] at t2
@@ -908,4 +919,3 @@ theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
           simp [t4]
           exact this
       simp [←t1] at c2
-
