@@ -10,7 +10,7 @@ autoImplicit = false
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.23.0-rc2"
+rev = "v4.23.0"
 
 [[lean_lib]]
 name = "LubySequence"
@@ -20,4 +20,4 @@ name = "doc-gen4"
 scope = "leanprover"
 # If you are developing against a release candidate or a stable version `v4.x`, replace `main` below by `v4.x`.
 # If you do not use `main` keep in mind to update this field as you update your Lean version.
-rev = "main"
+rev = "v4.23.0"
