@@ -7,12 +7,18 @@ import Mathlib.Data.Finset.Basic
 import LubySequence.Utils
 import LubySequence.Basic
 
+/-! A state-based Luby Implementation that compute Luby value in _O(1)_ and transite
+from state n to state n + 1 in _O(1)_.
+
+The main idea is dividing Luby sequence into monotonic subsuences, or *_segments_*.
+-/
+
 open Finset Nat
 
 structure LubyState where
-  -- segment index (0-based)
+  /-- segment index (zero-based) -/
   segIx : ℕ
-  -- local index within the current segment
+  /-- local index within the current segment -/
   locIx : ℕ
 
 instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
@@ -491,6 +497,57 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
 
+section WIP
+
+-- #current-task
+#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+#eval List.range 64 
+    |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
+    |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
+
+theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
+    (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
+  intro n hn1 hn2
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+    rcases zp with z|p
+    · simp [z] at *
+    · let i := n - 1
+      have pi : i = value_of% i := by exact rfl
+      have n_to_i : n = i + 1 := by exact (Nat.sub_eq_iff_eq_add hn1).mp pi
+      have i1 : i ≥ 1 := by
+        by_contra i0
+        simp at i0
+        simp [i0] at *
+        simp [n_to_i] at hn2
+      simp [n_to_i] at *
+      have t1 : i + 1 - 2 ^ ((i + 1).size - 1) = 2 ^ ((i + 1).size - 1) - 2 := by
+        nth_rw 1 [hn2]
+        have s1 : (i + 1).size = (i + 1).size - 1 + 1 := by
+          refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
+          · have r1 : 0 + 1 ≤ i + 1 := by exact Nat.le_add_left (0 + 1) i
+            have r2 : (0 + 1).size ≤ (i + 1).size := by exact size_le_size r1
+            have r3 : (0 + 1).size = 1 := by simp [size]
+            simp [r3] at r2
+            exact r2
+        nth_rw 1 [s1]
+        have s2 : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
+          exact Nat.pow_succ'
+        simp [s2]
+        rw [mul_comm, mul_two]
+        have :
+            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 - 2 ^ ((i + 1).size - 1) =
+            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 ^ ((i + 1).size - 1) - 2 := by
+          exact Nat.sub_right_comm
+              (2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1))
+              2
+              (2 ^ ((i + 1).size - 1))
+        simp [this]
+      nth_rw 1 [t1]
+      --
+      sorry
+
 -- これはenvelopeはいくつのsegmentを必要とするかという問題。
 -- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
 -- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
@@ -567,53 +624,6 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       -- envelope の計算にこういうのなかったか？
       simp [segment_height]
       --
-      sorry
-
-#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
-#eval List.range 64 
-    |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
-    |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
-
--- #current-task
-theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
-    (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
-  intro n hn1 hn2
-  induction n using Nat.strong_induction_on with
-  | h n ih =>
-    have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
-    rcases zp with z|p
-    · simp [z] at *
-    · let i := n - 1
-      have pi : i = value_of% i := by exact rfl
-      have n_to_i : n = i + 1 := by exact (Nat.sub_eq_iff_eq_add hn1).mp pi
-      have i1 : i ≥ 1 := by
-        by_contra i0
-        simp at i0
-        simp [i0] at *
-        simp [n_to_i] at hn2
-      simp [n_to_i] at *
-      have t1 : i + 1 - 2 ^ ((i + 1).size - 1) = 2 ^ ((i + 1).size - 1) - 2 := by
-        nth_rw 1 [hn2]
-        have s1 : (i + 1).size = (i + 1).size - 1 + 1 := by
-          refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
-          · have r1 : 0 + 1 ≤ i + 1 := by exact Nat.le_add_left (0 + 1) i
-            have r2 : (0 + 1).size ≤ (i + 1).size := by exact size_le_size r1
-            have r3 : (0 + 1).size = 1 := by simp [size]
-            simp [r3] at r2
-            exact r2
-        nth_rw 1 [s1]
-        have s2 : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
-          exact Nat.pow_succ'
-        simp [s2]
-        rw [mul_comm, mul_two]
-        have :
-            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 - 2 ^ ((i + 1).size - 1) =
-            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 ^ ((i + 1).size - 1) - 2 := by
-          exact Nat.sub_right_comm (2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1)) 2 (2 ^ ((i + 1).size - 1))
-        simp [this]
-      simp [t1]
-      --
-
       sorry
 
 theorem t20250904_sorry : ∀ n : ℕ,
@@ -850,6 +860,8 @@ theorem segment_beg_prop1_sorry : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
 
 theorem define_recursively2_sorry : ∀ n : ℕ, zero.next n = mk (toSegIx n 0 0) (toLocIx n) := by
   sorry
+
+end WIP
 
 end LubyState
 
