@@ -161,7 +161,7 @@ theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
   induction n with
   | zero => simp [toNat, segIdToLastIndex, default]
   | succ n hn =>
-    simp [toNat] at *
+    simp only [toNat] at *
     split at hn
     · simp [←hn] at *
     · expose_names
@@ -171,11 +171,11 @@ theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
         have c' : ¬(zero.next (n + 1)).segIx = 0 := by exact ne_zero_of_lt c
         exact absurd b c'
       · expose_names
-        have : (zero.next n).segIx - 1 = m := by
+        have : (zero.next n).segIx - 1 = r := by
           exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq)))
         simp only [←this] at *
         clear this
-        have : (zero.next (n + 1)).segIx - 1 = m_1 := by
+        have : (zero.next (n + 1)).segIx - 1 = r_1 := by
           exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq_1)))
         simp [←this] at *
         clear this heq heq_1

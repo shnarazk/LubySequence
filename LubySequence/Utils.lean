@@ -674,7 +674,7 @@ theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 
   have two_pow_a_is_even : 2 ∣ 2 ^ a := by exact dvd_pow_self 2 (ne_zero_of_lt ha)
   have even : 2 ∣ 2 ^ a + 1 := by
     simp [h]
-    exact dvd_pow (by grind) (ne_zero_of_lt hb)
+    exact Nat.ne_zero_of_lt hb
   have odd : ¬2 ∣ 2 ^ a + 1 := by
     refine Odd.not_two_dvd_nat ?_
     · refine Even.add_one ?_
@@ -748,8 +748,7 @@ theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
   intro n k
   induction n using Nat.strong_induction_on with
   | h n ih =>
-    intro k'
-    intro h1
+    intro k' h1
     rw [trailing_zeros.eq_def]
     split
     · expose_names
@@ -815,8 +814,7 @@ the sum of (trailing_zeros(i + 1) + 1) over the same range.
 theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
     ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
     = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
-  intro n
-  intro k hk
+  intro n k hk
   let f1 := (fun i ↦ if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) else 0)
   have f1_def : f1 = value_of% f1 := by exact rfl
   have f1eq : f1 = (fun i ↦
