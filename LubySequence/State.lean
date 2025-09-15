@@ -574,21 +574,47 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
     |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
     |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
 
--- これはenvelopeはいくつのsegmentを必要とするかという問題。
--- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
--- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
--- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
+-- #current-task
 theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
     (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
-  intro n hn
+  intro n hn1 hn2
   induction n using Nat.strong_induction_on with
   | h n ih =>
     have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
     rcases zp with z|p
     · simp [z] at *
-      simp [ofNat]
-      exact rfl
-    · sorry
+    · let i := n - 1
+      have pi : i = value_of% i := by exact rfl
+      have n_to_i : n = i + 1 := by exact (Nat.sub_eq_iff_eq_add hn1).mp pi
+      have i1 : i ≥ 1 := by
+        by_contra i0
+        simp at i0
+        simp [i0] at *
+        simp [n_to_i] at hn2
+      simp [n_to_i] at *
+      have t1 : i + 1 - 2 ^ ((i + 1).size - 1) = 2 ^ ((i + 1).size - 1) - 2 := by
+        nth_rw 1 [hn2]
+        have s1 : (i + 1).size = (i + 1).size - 1 + 1 := by
+          refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
+          · have r1 : 0 + 1 ≤ i + 1 := by exact Nat.le_add_left (0 + 1) i
+            have r2 : (0 + 1).size ≤ (i + 1).size := by exact size_le_size r1
+            have r3 : (0 + 1).size = 1 := by simp [size]
+            simp [r3] at r2
+            exact r2
+        nth_rw 1 [s1]
+        have s2 : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
+          exact Nat.pow_succ'
+        simp [s2]
+        rw [mul_comm, mul_two]
+        have :
+            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 - 2 ^ ((i + 1).size - 1) =
+            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 ^ ((i + 1).size - 1) - 2 := by
+          exact Nat.sub_right_comm (2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1)) 2 (2 ^ ((i + 1).size - 1))
+        simp [this]
+      simp [t1]
+      --
+
+      sorry
 
 theorem t20250904_sorry : ∀ n : ℕ,
     (ofNat (∑ k < (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
