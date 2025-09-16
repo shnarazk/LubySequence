@@ -499,6 +499,11 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
 
 section WIP
 
+-- t20250910_sorryよりも
+-- - envelopeでのsegment_hightがそれまでの最高であること (Utils.lean)
+-- - envelope hightが2 ^ n.size - 1 でのsegment_hightと等しいこと
+-- をいう方が簡単なのでは。
+
 -- #current-task
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 #eval List.range 64 
