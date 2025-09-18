@@ -902,3 +902,64 @@ theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
   simp only [bitslength_eq_size] at t1
   exact t1
 
+theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
+    ∀ n' < n, trailing_zeros n' < trailing_zeros n := by
+  intro n hn
+  have nsize2 : n.size ≥ 2 := by
+    have t1 : (2 : ℕ).size ≤ n.size := by exact size_le_size hn
+    have t2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+    simp [t2] at t1
+    exact t1
+  induction n using Nat.strong_induction_on with
+  | h n hn' =>
+    intro n' n'' hn'2
+    let m := 2 ^ (n.size - 2)
+    have hm : m = value_of% m := by exact rfl
+    have cases : n = 2 ∨ n > 2 := by
+      refine Nat.eq_or_lt_of_not_lt ?_
+      · simp
+        exact hn
+    rcases cases with n_eq_two|n_gt_two
+    · simp [n_eq_two] at * 
+      have cases' : n'' = 0 ∨ n'' = 1 := by
+        refine le_one_iff_eq_zero_or_eq_one.mp ?_
+        · exact le_of_lt_succ hn'2
+      rcases cases' with n''_val|n''_val
+      <;> { simp [n''_val, trailing_zeros] ; split <;> simp [size, binaryRec] }
+    · -- 前半分と後ろ半分
+      have sub1 : m < n := by
+        refine le_if_le_size ?_
+        · simp [hm]
+          have : (2 ^ (n.size - 2)).size = n.size - 2 + 1 := by
+            exact size_of_pow2_eq_self_add_one (n.size - 2)
+          simp [this]
+          grind
+      have n4 : n ≥ 4 := by
+        have n_3_4 : n = 3 ∨ n > 3 := by
+          exact LE.le.eq_or_lt' n_gt_two
+        rcases n_3_4 with n_eq_3|n_gt_3
+        · simp [n_eq_3] at *
+          simp [size, binaryRec] at n'
+        · exact n_gt_3
+      have n4size : n.size ≥ 3 := by
+        have t1 : n.size ≥ (4 : ℕ).size := by exact size_le_size n4 
+        have t2 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
+        simp [t2] at t1
+        exact t1
+      have sub2 : m ≥ 2 := by
+        refine Nat.le_self_pow ?_ 2
+        · exact Nat.sub_ne_zero_iff_lt.mpr n4size
+      have sub3 : m.size ≥ 2 := by
+        have t1 : m.size ≥ (2 : ℕ).size := by exact size_le_size sub2
+        have t2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+        simp [t2] at t1
+        exact t1
+      have sub4 : m = 2 ^ (m.size - 1) := by
+        simp [hm]
+        have t1 : (2 ^ (n.size - 2)).size = n.size - 2 + 1 := by
+          exact size_of_pow2_eq_self_add_one (n.size - 2)
+        simp [t1]
+      have g := hn' m sub1 sub2 sub3 sub4 n''
+      -- 
+      sorry
+        
