@@ -912,7 +912,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
     exact t1
   induction n using Nat.strong_induction_on with
   | h n hn' =>
-    intro n' n'' hn'2
+    intro n' n₂ hn'2
     let m := 2 ^ (n.size - 2)
     have hm : m = value_of% m := by exact rfl
     have cases : n = 2 ∨ n > 2 := by
@@ -921,11 +921,11 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
         exact hn
     rcases cases with n_eq_two|n_gt_two
     · simp [n_eq_two] at * 
-      have cases' : n'' = 0 ∨ n'' = 1 := by
+      have cases' : n₂ = 0 ∨ n₂ = 1 := by
         refine le_one_iff_eq_zero_or_eq_one.mp ?_
         · exact le_of_lt_succ hn'2
-      rcases cases' with n''_val|n''_val
-      <;> { simp [n''_val, trailing_zeros] ; split <;> simp [size, binaryRec] }
+      rcases cases' with n₂|n₂
+      <;> { simp [n₂, trailing_zeros] ; split <;> simp [size, binaryRec] }
     · -- 前半分と後ろ半分
       have sub1 : m < n := by
         refine le_if_le_size ?_
@@ -959,7 +959,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
         have t1 : (2 ^ (n.size - 2)).size = n.size - 2 + 1 := by
           exact size_of_pow2_eq_self_add_one (n.size - 2)
         simp [t1]
-      have divide_and_conquer : n'' < m ∨ n'' ≥ m := by exact Nat.lt_or_ge n'' m
+      have divide_and_conquer : n₂ < m ∨ n₂ ≥ m := by exact Nat.lt_or_ge n₂ m
       have trailing_zeros_m : trailing_zeros m = n.size - 2 := by
         simp [hm]
         exact trailing_zeros_prop3 (n.size - 2)
@@ -970,13 +970,13 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
       · have trans1 : trailing_zeros m < trailing_zeros n := by
           simp [trailing_zeros_m, trailing_zeros_n]
           exact sub_succ_lt_self n.size 1 nsize2
-        have g := hn' m sub1 sub2 sub3 sub4 n'' first_part
-        have trans2 : trailing_zeros n'' < trailing_zeros m := by
+        have g := hn' m sub1 sub2 sub3 sub4 n₂ first_part
+        have trans2 : trailing_zeros n₂ < trailing_zeros m := by
           exact g
         exact Nat.lt_trans g trans1
-      · have split_again : n'' = m ∨ n'' > m := by exact LE.le.eq_or_lt' others
-        rcases split_again with n''_eq_m|n''_gt_m
-        · simp [n''_eq_m] at *
+      · have split_again : n₂ = m ∨ n₂ > m := by exact LE.le.eq_or_lt' others
+        rcases split_again with n₂|n₂
+        · simp [n₂] at *
           simp [trailing_zeros_m, trailing_zeros_n]
           exact sub_succ_lt_self n.size 1 nsize2
         · -- slide to the left
