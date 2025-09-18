@@ -912,7 +912,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
     exact t1
   induction n using Nat.strong_induction_on with
   | h n hn' =>
-    intro n' n₂ hn'2
+    intro n₁ n₂ hn'2
     let m := 2 ^ (n.size - 2)
     have hm : m = value_of% m := by exact rfl
     have cases : n = 2 ∨ n > 2 := by
@@ -939,7 +939,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
           exact LE.le.eq_or_lt' n_gt_two
         rcases n_3_4 with n_eq_3|n_gt_3
         · simp [n_eq_3] at *
-          simp [size, binaryRec] at n'
+          simp [size, binaryRec] at n₁
         · exact n_gt_3
       have n4size : n.size ≥ 3 := by
         have t1 : n.size ≥ (4 : ℕ).size := by exact size_le_size n4 
@@ -964,7 +964,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
         simp [hm]
         exact trailing_zeros_prop3 (n.size - 2)
       have trailing_zeros_n : trailing_zeros n = n.size - 1 := by
-        rewrite (occs := .pos [1]) [n']
+        rewrite (occs := .pos [1]) [n₁]
         exact trailing_zeros_prop3 (n.size - 1)
       rcases divide_and_conquer with first_part|others
       · have trans1 : trailing_zeros m < trailing_zeros n := by
