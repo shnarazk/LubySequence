@@ -84,7 +84,7 @@ theorem LubyTree.wrap_n_eq_n_add_one (n : ℕ) : LubyTree.wrap (LubyTree.mk n) =
   | zero => rfl
   | succ n ih =>
     simp [←ih]
-    nth_rw 2 [LubyTree.mk.eq_def]
+    rewrite (occs := .pos [2]) [LubyTree.mk.eq_def]
     split
     { expose_names
       have (n : ℕ) : n + 1 ≠ 0 := by exact Ne.symm (Nat.zero_ne_add_one n)

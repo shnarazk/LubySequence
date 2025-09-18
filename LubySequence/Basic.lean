@@ -240,14 +240,14 @@ theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 :=
 -- #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
 
 /--
-Characterization of envelope property: n + 2 equals 2 ^ ((n + 2).size - 1) 
+Characterization of envelope property: n + 2 equals 2 ^ ((n + 2).size - 1)
 if and only if n is an envelope.
 -/
 theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
   constructor
   · intro n2
     simp [is_envelope, S₂]
-    nth_rw 1 [n2]
+    rewrite (occs := .pos [1]) [n2]
     have t1 : (2 ^ ((n + 2).size - 1) + 1).size = ((n + 2).size - 1) + 1 := by
       refine size_add (by grind) ?_
       · have t1 : 2 ^ ((0 + 2).size - 1) ≤ 2 ^ ((n + 2).size - 1) := by
@@ -262,7 +262,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
     simp [←n2]
   · intro n2
     simp [is_envelope, S₂] at n2
-    nth_rw 1 [←n2]
+    rewrite (occs := .pos [1]) [←n2]
     have sub1 (a b : ℕ) : a = b → 2 ^ a = 2 ^ b := by exact fun a_1 ↦ congrArg (HPow.hPow 2) a_1
     apply sub1
     have sub2 (a b c : ℕ) : a = b → a - c = b - c := by
@@ -288,7 +288,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
       exact t1
 
 /--
-Size characterization of envelopes: (n + 2).size = (n + 1).size + 1 
+Size characterization of envelopes: (n + 2).size = (n + 1).size + 1
 if and only if n is an envelope.
 -/
 theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
@@ -335,7 +335,7 @@ theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
     simp [this]
 
 /--
-Complement of envelope_prop2: (n + 2).size = (n + 1).size 
+Complement of envelope_prop2: (n + 2).size = (n + 1).size
 if and only if n is not an envelope.
 -/
 theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelope n := by
@@ -356,7 +356,7 @@ theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelop
       exact absurd this h
 
 /--
-Alternative envelope characterization: n + 2 equals 2 ^ ((n + 1).size) 
+Alternative envelope characterization: n + 2 equals 2 ^ ((n + 1).size)
 if and only if n is an envelope.
 -/
 theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
@@ -378,17 +378,17 @@ theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n :
     have env1 : n + 2 = 2 ^ ((n + 2).size - 1) := by
       exact (envelope_prop1 n).mpr h
     simp [is_envelope, S₂] at h
-    nth_rw 1 [env1] at h
+    rewrite (occs := .pos [1]) [env1] at h
     have : (2 ^ ((n + 2).size - 1) + 1).size = (n + 2).size - 1 + 1 := by
       refine size_add (by grind) ?_
       refine Nat.one_lt_pow ?_ (by grind)
       exact Nat.sub_ne_zero_iff_lt.mpr n2size
     simp [this] at h
-    nth_rw 1 [t1] at h
+    rewrite (occs := .pos [1]) [t1] at h
     exact id (Eq.symm h)
 
 /--
-For positive envelopes, the size property: if n > 0 and n is an envelope, 
+For positive envelopes, the size property: if n > 0 and n is an envelope,
 then (n + 1).size = n.size.
 -/
 theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).size = n.size := by
@@ -416,7 +416,7 @@ theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
 -- #eval is_segment_beg 0 -- true
 
 /--
-Key recursion property: either n + 1 is at a segment beginning, 
+Key recursion property: either n + 1 is at a segment beginning,
 or luby (n + 1) = 2 * luby n.
 -/
 theorem luby_value_not_at_segment_beg (n : ℕ) :
@@ -441,7 +441,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
         have t2 : (0 + 1).size = 1 := by simp
         simp [t2] at t1
         exact t1
-      · nth_rw 1 [luby]
+      · rewrite (occs := .pos [1]) [luby]
         split
         · expose_names;
           have tf : is_envelope n ∨ ¬is_envelope n := by exact eq_or_ne (is_envelope n) true
@@ -492,7 +492,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                     exact t1
                   · have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
                     have t1' : n + 1 = 2 ^ (n + 1).size - 2 := by grind
-                    nth_rw 1 [t1']
+                    rewrite (occs := .pos [1]) [t1']
                     have t4 : 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1) := by
                       refine Nat.two_pow_sub_two_pow_pred ?_
                       exact Nat.zero_lt_of_lt nsize1
@@ -554,7 +554,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                 simp [env3_by_h_1] at t2
                 have t3 : n + 1 = 2 ^ (n + 1).size - 2 := by
                   exact Eq.symm (Nat.sub_eq_of_eq_add (id (Eq.symm t2)))
-                nth_rw 2 [t3]
+                rewrite (occs := .pos [2]) [t3]
                 have t4 : 2 ^ (n + 1).size - 2 ^ ((n + 1).size - 1) = 2 ^ ((n + 1).size - 1) := by
                   refine Nat.two_pow_sub_two_pow_pred ?_
                   exact Nat.zero_lt_of_lt nsize1
@@ -576,7 +576,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                 exact absurd env2 h_3
         · expose_names
           -- 右辺のlubyだけ展開して、帰納法に持ち込みたい
-          nth_rw 2 [luby]
+          rewrite (occs := .pos [2]) [luby]
           split
           · expose_names
             simp at h
@@ -596,7 +596,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                   have t1 : n + 1 + 1 = n + 2 := by grind
                   simp [t1]
                   have t2 : n + 2 = 2 ^ ((n + 2).size - 1) := by exact (envelope_prop1 n).mpr h_2
-                  nth_rw 1 [t2]
+                  rewrite (occs := .pos [1]) [t2]
                   simp
                 simp [f1] at h
                 have f : ¬is_segment_beg 0 = true := by exact ne_true_of_eq_false h
@@ -616,7 +616,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
               have t1 : n = 1 := by grind
               have t2 : is_envelope (1 + 1) = true := by
                 simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
-              nth_rw 1 [←t1] at t2
+              rewrite (occs := .pos [1]) [←t1] at t2
               exact absurd t2 h_1
             have n1size' : 2 ≤ (n + 1).size := by
               have t1 : (1 + 1).size ≤ (n + 1).size := by
@@ -644,7 +644,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                 exact n1size'
               refine Nat.sub_lt_left_of_lt_add ?_ ?_
               exact S₂_upper_bound n
-              nth_rw 2 [add_comm]
+              rewrite (occs := .pos [2]) [add_comm]
               exact t2
             have sub2 : ¬is_segment_beg (n + 1 - S₂ n + 1) := by
               -- envelope sumになってないものからan envelop引いてもenvelop sumにはならない

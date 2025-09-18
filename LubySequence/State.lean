@@ -121,7 +121,7 @@ theorem next_assoc (li : LubyState) : ∀ n : ℕ, (li.next n).next = li.next (n
   induction n with
   | zero => dsimp [next]
   | succ n hi =>
-    nth_rw 3 [next]
+    rewrite (occs := .pos [3]) [next]
     have tf : (li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height
         ∨ ¬(li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height := by
       exact eq_or_ne _ _
@@ -195,7 +195,7 @@ theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
             exact absurd pc c2
           | succ m =>
             split
-            · expose_names 
+            · expose_names
               simp at heq
               simp [heq] at pc
               simp [pc] at cp
@@ -296,7 +296,7 @@ theorem next_in_segment_increments_locIx (s : LubyState) (d : ℕ) (h : s.locIx 
     have h' : s.locIx + d < s.segment_height := by exact lt_of_succ_lt h
     have t1 : s.next_in_segment (d + 1) = (s.next_in_segment d).next_in_segment 1 := by exact rfl
     simp [t1]
-    nth_rw 1 [next_in_segment]
+    rewrite (occs := .pos [1]) [next_in_segment]
     simp [hd h']
     exact rfl
 
@@ -308,7 +308,7 @@ theorem next_in_segment_is_next (s : LubyState) (d : ℕ) (h : s.locIx + d < s.s
     have h' : s.locIx + d < s.segment_height := by exact lt_of_succ_lt h
     have t1 : s.next_in_segment (d + 1) = (s.next_in_segment d).next_in_segment 1 := by exact rfl
     simp [t1]
-    nth_rw 1 [next_in_segment]
+    rewrite (occs := .pos [1]) [next_in_segment]
     simp [hd h']
     simp [←hd h']
     simp [is_segment_end]
@@ -404,7 +404,7 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         have t4 : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
           refine Nat.div_eq_of_eq_mul_right (by grind) ?_
           · have : 2 = 2 ^ 1 := by exact rfl
-            nth_rw 2 [this]
+            rewrite (occs := .pos [2]) [this]
             exact Eq.symm (mul_pow_sub_one (by grind) (2 ^ 1))
         simp [t4] at t2
         have t5 : 2 ^ (n.size - 1 - 1) < 2 ^ (n.size - 1) := by
@@ -418,7 +418,7 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         have : n.size - 1 - 1 = (2 ^ (n.size - 1 - 1)).size - 1 := by
           have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by exact size_pow
           simp [this]
-        nth_rw 1 [this]
+        rw (occs := .pos [1]) [this]
       have ih' := ih (2 ^ (n.size - 1 - 1)) sub1 sub2 sub3
       clear sub1 sub2 sub3
       simp [ih']
@@ -431,7 +431,7 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
       -- 最後の1個を一旦外す
       have t1 : 2 ^ (n.size - 1 - 1) = 2 ^ (n.size - 1 - 1) - 1 + 1 := by
         exact Eq.symm (Nat.sub_add_cancel Nat.one_le_two_pow)
-      nth_rw 1 [t1]
+      rewrite (occs := .pos [1]) [t1]
       rw [sum_range_succ]
       -- shift left part1
       have t2 : ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + x + 1) + 1) =
@@ -472,7 +472,7 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         exact rfl
       simp only [t5]
       have t6 : (2 ^ (n.size - 1 - 1) - 1 + 1) = (2 ^ (n.size - 1 - 1)) := by grind
-      nth_rw 2 [←t6]
+      rewrite (occs := .pos [2]) [←t6]
       clear t5 t4 t3 t1
       rw [←sum_range_succ (fun n ↦ trailing_zeros (n + 1) + 1) (2 ^ (n.size - 1 - 1) - 1)]
       simp [t6, ih']
@@ -506,7 +506,7 @@ section WIP
 
 -- #current-task
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
-#eval List.range 64 
+#eval List.range 64
     |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
     |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
 
@@ -528,7 +528,7 @@ theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
         simp [n_to_i] at hn2
       simp [n_to_i] at *
       have t1 : i + 1 - 2 ^ ((i + 1).size - 1) = 2 ^ ((i + 1).size - 1) - 2 := by
-        nth_rw 1 [hn2]
+        rewrite (occs := .pos [1]) [hn2]
         have s1 : (i + 1).size = (i + 1).size - 1 + 1 := by
           refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
           · have r1 : 0 + 1 ≤ i + 1 := by exact Nat.le_add_left (0 + 1) i
@@ -536,7 +536,7 @@ theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
             have r3 : (0 + 1).size = 1 := by simp [size]
             simp [r3] at r2
             exact r2
-        nth_rw 1 [s1]
+        rewrite (occs := .pos [1]) [s1]
         have s2 : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
           exact Nat.pow_succ'
         simp [s2]
@@ -549,7 +549,7 @@ theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
               2
               (2 ^ ((i + 1).size - 1))
         simp [this]
-      nth_rw 1 [t1]
+      rewrite (occs := .pos [1]) [t1]
       --
       sorry
 
@@ -582,14 +582,14 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
             have : k < 2 := by exact gt_of_not_le not_k2
             have : k = 1 := by exact Nat.eq_of_le_of_lt_succ kp this
             exact this
-          nth_rw 2 [k_eq_1] at h2'
+          rewrite (occs := .pos [2]) [k_eq_1] at h2'
           simp [size, binaryRec] at h2'
           have : ¬k > 0 := by exact Eq.not_gt h2'
           exact absurd kp this
         by_contra not_k3
         simp at not_k3
         have k_eq_2 : k = 2 := by exact Nat.eq_of_le_of_lt_succ k2 not_k3
-        nth_rw 2 [k_eq_2] at h2'
+        rewrite (occs := .pos [2]) [k_eq_2] at h2'
         simp [size, binaryRec] at h2'
         have : ¬k > 0 := by exact Eq.not_gt h2'
         exact absurd kp this
@@ -711,9 +711,9 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
         have s1 : 2 ^ k - 1 = 2 ^ k - 1 - 1 + 1 := by
           refine Eq.symm (Nat.sub_add_cancel ?_)
           · exact le_sub_one_of_lt (Nat.one_lt_two_pow (ne_zero_of_lt p))
-        nth_rw 1 [s1]
+        rewrite (occs := .pos [1]) [s1]
         have s2 : 2 ^ k - 1 - 1 = 2 ^ k - 2 := by exact rfl
-        nth_rw 1 [s2]
+        rewrite (occs := .pos [1]) [s2]
         rw [sum_range_succ]
       have t10' : ∑ i ∈ range (2 ^ k - 2), (trailing_zeros (i + 1) + 1) =
           ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) - (trailing_zeros (2 ^ k - 2 + 1) + 1) := by
@@ -724,7 +724,7 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
         have : 2 ^ k - 2 + 1 = 2 ^ k - 1 := by
           have s1 : 2 ^ k - 2 + 2 = 2 ^ k := by exact Nat.sub_add_cancel (le_pow p)
           have s2 : 2 = 1 + 1 := by exact rfl
-          nth_rw 3 [s2] at s1
+          rewrite (occs := .pos [3]) [s2] at s1
           have s3 : 2 ^ k - 2 + (1 + 1) = 2 ^ k - 2 + 1 + 1 := by exact rfl
           simp [s3] at s1
           exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm s1)))
@@ -735,7 +735,7 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
           ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) + (trailing_zeros (2 ^ k - 1 + 1) + 1) := by
         have s1 : 2 ^ k = 2 ^ k - 1 + 1 := by
           exact Eq.symm (Nat.sub_add_cancel Nat.one_le_two_pow)
-        nth_rw 1 [s1]
+        rewrite (occs := .pos [1]) [s1]
         rw [sum_range_succ]
       have t2' : ∑ i ∈ range (2 ^ k - 1), (trailing_zeros (i + 1) + 1) =
           ∑ i ∈ range (2 ^ k), (trailing_zeros (i + 1) + 1) - (trailing_zeros (2 ^ k - 1 + 1) + 1) := by
@@ -827,7 +827,7 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
       grind
 
 #eval List.range 6 |>.map (· + 1) |>.map (2 ^ ·.succ - 2) |>.map
-    (fun n ↦ 
+    (fun n ↦
       let state := ofNat n
       let si := state.segIx
       let sh := state.segment_height
@@ -835,13 +835,13 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
       let as := (ofNat n').segment_height + 1
       f!"(n: {n}, segIx: {si}, height: {sh} ↦ n': {n'}, height': {as})")
 
-theorem segIx_prop_20250914_sorry : ∀ n > 0, 
+theorem segIx_prop_20250914_sorry : ∀ n > 0,
     (ofNat n).segIx = 2 * (ofNat (n - 2 ^ (n.size - 1))).segIx := by
   intro n hn1
   induction n using Nat.strong_induction_on with
   | h n hn =>
     have :
-        trailing_zeros (ofNat n).segIx = 
+        trailing_zeros (ofNat n).segIx =
         trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by
       sorry -- apply?
     sorry
@@ -852,7 +852,7 @@ theorem segment_height_prop1_sorry : ∀ n > 0, ¬n = 2 ^ (n.size - 1) →
   intro n hn1 hn2
   simp [segment_height]
   have :
-      trailing_zeros (ofNat n).segIx = 
+      trailing_zeros (ofNat n).segIx =
       trailing_zeros (ofNat (n - 2 ^ (n.size - 1))).segIx := by
     sorry -- apply?
   sorry
@@ -869,4 +869,3 @@ theorem define_recursively2_sorry : ∀ n : ℕ, zero.next n = mk (toSegIx n 0 0
 end WIP
 
 end LubyState
-
