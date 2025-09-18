@@ -392,7 +392,7 @@ theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
           2 * 2 ^ (n - 1) - 2 ^ (n - 1) = 2 * 2 ^ (n - 1) - 1 * 2 ^ (n - 1) := by
             have : 2 ^ (n - 1) = 1 * 2 ^ (n - 1) := by
               exact Eq.symm (one_mul (2 ^ (n - 1)))
-            nth_rewrite 2 [this]
+            rewrite (occs := .pos [2]) [this]
             exact rfl
           _ = (2 - 1) * 2 ^ (n - 1) := by
              exact Eq.symm (Nat.sub_mul 2 1 (2 ^ (n - 1)))
@@ -586,10 +586,10 @@ theorem trailing_zeros_prop2 :
     have t2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
     exact le_of_eq_of_le (id (Eq.symm t2)) t1
   have t1 : trailing_zeros n = n.size - 1 := by
-    nth_rw 1 [hn2]
+    rewrite (occs := .pos [1]) [hn2]
     exact trailing_zeros_of_envelope (n.size - 1)
   have t2 : n - 2 ^ (n.size - 2) = 2 ^ (n.size - 2) := by
-    nth_rw 1 [hn2]
+    rewrite (occs := .pos [1]) [hn2]
     refine Nat.sub_eq_of_eq_add ?_
     rw [←mul_two]
     have : 2 ^ (n.size - 2) * 2 = 2 ^ (n.size - 2 + 1) := by exact rfl
@@ -708,7 +708,7 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
         have t4 : 4 + 1 ≤ 2 ^ (n + 1 + 1) + 1 := by exact add_le_add_right t2 1
         have t5 : (4 + 1).size ≤ (2 ^ (n + 1 + 1) + 1).size := by exact size_le_size t4
         simp at t5
-        nth_rw 1 [size] at t5
+        rewrite (occs := .pos [1]) [size] at t5
         simp [binaryRec] at t5
         have t6 : 2 ≤ (2 ^ (n + 1 + 1) + 1).size - 1 := by exact le_sub_one_of_lt t5
         exact zero_lt_of_lt t6
@@ -784,10 +784,10 @@ theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
           have t2 : 2 ^ n = 2 ^ ((2 ^ n).size - 1) := by
             have : (2 ^ n).size = n + 1 := by exact size_of_pow2_eq_self_add_one n
             simp [this]
-          nth_rw 1 [t2] at t1
+          rewrite (occs := .pos [1]) [t2] at t1
           clear t2
           simp [←eq_size] at t1
-          nth_rw 1 [add_comm] at t1
+          rewrite (occs := .pos [1]) [add_comm] at t1
           have c : ¬k + 2 ^ n = 2 ^ ((k + 2 ^ n).size - 1) := by exact Nat.ne_of_lt' t1
           exact absurd h c
         · expose_names
@@ -966,7 +966,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
             simp [hm]
             exact trailing_zeros_prop3 (n.size - 2)
           have t2 : trailing_zeros n = n.size - 1 := by
-            rw (occs := .pos [1]) [n']
+            rewrite (occs := .pos [1]) [n']
             exact trailing_zeros_prop3 (n.size - 1)
           simp [t1, t2]
           exact sub_succ_lt_self n.size 1 nsize2
