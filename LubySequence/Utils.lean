@@ -959,7 +959,21 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
         have t1 : (2 ^ (n.size - 2)).size = n.size - 2 + 1 := by
           exact size_of_pow2_eq_self_add_one (n.size - 2)
         simp [t1]
-      have g := hn' m sub1 sub2 sub3 sub4 n''
+      have divide_and_conquer : n'' < m ∨ n'' ≥ m := by exact Nat.lt_or_ge n'' m
+      rcases divide_and_conquer with first_part|others
+      · have trans1 : trailing_zeros m < trailing_zeros n := by
+          have t1 : trailing_zeros m = n.size - 2 := by
+            simp [hm]
+            exact trailing_zeros_prop3 (n.size - 2)
+          have t2 : trailing_zeros n = n.size - 1 := by
+            rw (occs := .pos [1]) [n']
+            exact trailing_zeros_prop3 (n.size - 1)
+          simp [t1, t2]
+          exact sub_succ_lt_self n.size 1 nsize2
+        have g := hn' m sub1 sub2 sub3 sub4 n'' first_part
+        have trans2 : trailing_zeros n'' < trailing_zeros m := by
+          exact g
+        exact Nat.lt_trans g trans1
       -- 
       sorry
-        
+          
