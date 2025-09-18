@@ -960,20 +960,25 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
           exact size_of_pow2_eq_self_add_one (n.size - 2)
         simp [t1]
       have divide_and_conquer : n'' < m ∨ n'' ≥ m := by exact Nat.lt_or_ge n'' m
+      have trailing_zeros_m : trailing_zeros m = n.size - 2 := by
+        simp [hm]
+        exact trailing_zeros_prop3 (n.size - 2)
+      have trailing_zeros_n : trailing_zeros n = n.size - 1 := by
+        rewrite (occs := .pos [1]) [n']
+        exact trailing_zeros_prop3 (n.size - 1)
       rcases divide_and_conquer with first_part|others
       · have trans1 : trailing_zeros m < trailing_zeros n := by
-          have t1 : trailing_zeros m = n.size - 2 := by
-            simp [hm]
-            exact trailing_zeros_prop3 (n.size - 2)
-          have t2 : trailing_zeros n = n.size - 1 := by
-            rewrite (occs := .pos [1]) [n']
-            exact trailing_zeros_prop3 (n.size - 1)
-          simp [t1, t2]
+          simp [trailing_zeros_m, trailing_zeros_n]
           exact sub_succ_lt_self n.size 1 nsize2
         have g := hn' m sub1 sub2 sub3 sub4 n'' first_part
         have trans2 : trailing_zeros n'' < trailing_zeros m := by
           exact g
         exact Nat.lt_trans g trans1
+      · have split_again : n'' = m ∨ n'' > m := by exact LE.le.eq_or_lt' others
+        rcases split_again with n''_eq_m|n''_gt_m
+        · simp [n''_eq_m] at *
+          simp [trailing_zeros_m, trailing_zeros_n]
+          exact sub_succ_lt_self n.size 1 nsize2
+        · -- slide to the left
+          sorry
       -- 
-      sorry
-          
