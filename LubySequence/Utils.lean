@@ -990,5 +990,8 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
             · sorry
             · sorry
           simp [shift_left]
+          have sub2 : n₂ ≥ 2 := by sorry
+          have sub3 : n₂.size ≥ 2 := by sorry
+          -- have
           sorry
       -- 

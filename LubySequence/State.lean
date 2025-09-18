@@ -57,14 +57,12 @@ theorem is_divergent (li : LubyState) : ¬(li.next = li) := by
   contrapose!
   intro t₀
   simp
-  have tf : li.locIx + 1 = li.segment_height ∨ li.locIx + 1 ≠ li.segment_height := by
-    exact eq_or_ne (li.locIx + 1) li.segment_height
-  rcases tf with t|f
-  · simp [is_segment_end, t]
+  by_cases h : li.locIx + 1 = li.segment_height
+  · simp [is_segment_end, h]
     have (a : LubyState) (h : ¬a.segIx = li.segIx) : ¬a = li := by
       exact fun a_1 ↦ t₀ (h (congrArg segIx a_1))
     simp [this]
-  · simp [is_segment_end, f]
+  · simp [is_segment_end, h]
     have (a : LubyState) (h : ¬a.locIx = li.locIx) : ¬a = li := by
       exact fun a_1 ↦ t₀ (h (congrArg locIx a_1))
     simp [this]
@@ -72,9 +70,8 @@ theorem is_divergent (li : LubyState) : ¬(li.next = li) := by
 theorem segIx_is_increasing : ∀ li : LubyState, li.next.segIx ≥ li.segIx := by
   intro li
   simp [is_segment_end]
-  have : li.locIx + 1 = li.segment_height ∨ ¬(li.locIx + 1 = li.segment_height) := by
-    exact eq_or_ne _ _
-  rcases this with p|p <;> simp [p]
+  by_cases h : li.locIx + 1 = li.segment_height
+  <;> simp [h]
 
 theorem segIx_is_mono (n : ℕ) : ∀ n' ≥ n, (zero.next n').segIx ≥ (zero.next n).segIx := by
   let cn := (zero.next n).segIx
@@ -122,10 +119,8 @@ theorem next_assoc (li : LubyState) : ∀ n : ℕ, (li.next n).next = li.next (n
   | zero => dsimp [next]
   | succ n hi =>
     rewrite (occs := .pos [3]) [next]
-    have tf : (li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height
-        ∨ ¬(li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height := by
-      exact eq_or_ne _ _
-    rcases tf with t|f <;> simp [is_segment_end]
+    by_cases h : (li.next (n + 1)).locIx.succ = (li.next (n + 1)).segment_height
+    <;> simp [is_segment_end]
 
 def ofNat (n : ℕ) : LubyState := zero.next n
 
