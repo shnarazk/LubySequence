@@ -971,14 +971,24 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
           simp [trailing_zeros_m, trailing_zeros_n]
           exact sub_succ_lt_self n.size 1 nsize2
         have g := hn' m sub1 sub2 sub3 sub4 n₂ first_part
-        have trans2 : trailing_zeros n₂ < trailing_zeros m := by
-          exact g
+        have trans2 : trailing_zeros n₂ < trailing_zeros m := by exact g
         exact Nat.lt_trans g trans1
       · have split_again : n₂ = m ∨ n₂ > m := by exact LE.le.eq_or_lt' others
-        rcases split_again with n₂|n₂
-        · simp [n₂] at *
+        rcases split_again with n₂_eq_m|n₂_gt_m
+        · simp [n₂_eq_m] at *
           simp [trailing_zeros_m, trailing_zeros_n]
           exact sub_succ_lt_self n.size 1 nsize2
         · -- slide to the left
+          let n₂' := n₂ - m
+          have n₂_def : n₂' = value_of% n₂' := by exact rfl
+          have n₂_def' : n₂ = 2 ^ (m.size - 1) + n₂' := by
+            simp [←sub4]
+            exact Eq.symm (add_sub_of_le others)
+          have shift_left : trailing_zeros n₂ = trailing_zeros n₂' := by
+            rewrite [n₂_def', add_comm]
+            refine trailing_zeros_prop7 (m.size - 1) n₂' ?_ ?_
+            · sorry
+            · sorry
+          simp [shift_left]
           sorry
       -- 
