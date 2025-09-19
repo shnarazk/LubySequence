@@ -500,7 +500,7 @@ section WIP
 
 #eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
 
-theorem t20250910_sorry : ∀ n : ℕ, n = 2 ^ n.size - 2 →
+theorem t20250919_sorry : ∀ n : ℕ, n = 2 ^ n.size - 2 →
     (ofNat (n - 1)).locIx = n.size - 1 := by
   intro n hn
   sorry
