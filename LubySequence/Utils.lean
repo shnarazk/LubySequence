@@ -990,8 +990,10 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
             · sorry
             · sorry
           simp [shift_left]
-          have sub2 : n₂ ≥ 2 := by sorry
-          have sub3 : n₂.size ≥ 2 := by sorry
-          -- have
-          sorry
-      -- 
+          have sub5 : n₂' < m := by sorry
+          have g := hn' m sub1 sub2 sub3 sub4 n₂' sub5
+          have g' : trailing_zeros m < trailing_zeros n := by
+            simp [trailing_zeros_m, trailing_zeros_n]
+            exact sub_succ_lt_self n.size 1 nsize2
+          exact Nat.lt_trans g g'
+
