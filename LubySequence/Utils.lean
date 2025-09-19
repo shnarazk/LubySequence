@@ -902,7 +902,18 @@ theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
   simp only [bitslength_eq_size] at t1
   exact t1
 
-theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
+/--
+If `n ≥ 2` and `n = 2 ^ (n.size - 1)` (so `n` is a power of two), then
+for every `n' < n` we have `trailing_zeros n' < trailing_zeros n`.
+
+In other words, among all natural numbers strictly less than a positive power of two,
+that power of two itself has the maximum possible number of trailing zero bits.
+
+This lemma is useful for measure-based arguments: when splitting an interval at the
+largest power-of-two boundary below an upper limit, the `trailing_zeros` measure strictly
+drops on the left part.
+-/
+theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
     ∀ n' < n, trailing_zeros n' < trailing_zeros n := by
   intro n hn
   have nsize2 : n.size ≥ 2 := by
@@ -920,7 +931,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
       · simp
         exact hn
     rcases cases with n_eq_two|n_gt_two
-    · simp [n_eq_two] at * 
+    · simp [n_eq_two] at *
       have cases' : n₂ = 0 ∨ n₂ = 1 := by
         refine le_one_iff_eq_zero_or_eq_one.mp ?_
         · exact le_of_lt_succ hn'2
@@ -942,7 +953,7 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
           simp [size, binaryRec] at n₁
         · exact n_gt_3
       have n4size : n.size ≥ 3 := by
-        have t1 : n.size ≥ (4 : ℕ).size := by exact size_le_size n4 
+        have t1 : n.size ≥ (4 : ℕ).size := by exact size_le_size n4
         have t2 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
         simp [t2] at t1
         exact t1
@@ -1015,4 +1026,3 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
             simp [trailing_zeros_m, trailing_zeros_n]
             exact sub_succ_lt_self n.size 1 nsize2
           exact Nat.lt_trans g g'
-
