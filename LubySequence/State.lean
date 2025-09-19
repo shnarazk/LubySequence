@@ -422,20 +422,18 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         simp [this]
         exact Nat.sub_add_cancel (le_sub_one_of_lt nsize2)
       simp [this]
-      clear this
       -- 最後の1個を一旦外す
       have t1 : 2 ^ (n.size - 1 - 1) = 2 ^ (n.size - 1 - 1) - 1 + 1 := by
         exact Eq.symm (Nat.sub_add_cancel Nat.one_le_two_pow)
       rewrite (occs := .pos [1]) [t1]
       rw [sum_range_succ]
       -- shift left part1
-      have t2 : ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + x + 1) + 1) =
+      replace : ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (2 ^ (n.size - 1 - 1) + x + 1) + 1) =
           ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1), (trailing_zeros (x + 1) + 1) := by
         refine trailing_zeros_prop8 (n.size - 1 - 1) (2 ^ (n.size - 1 - 1)) ?_
         exact le_refl (2 ^ (n.size - 1 - 1))
-      simp [t2]
-      clear t2
-      have t3 : 2 ^ (n.size - 1 - 1) + (2 ^ (n.size - 1 - 1) - 1) + 1 = 2 ^ (n.size - 1) := by
+      simp [this]
+      replace : 2 ^ (n.size - 1 - 1) + (2 ^ (n.size - 1 - 1) - 1) + 1 = 2 ^ (n.size - 1) := by
         have : 2 ^ (n.size - 1 - 1) + (2 ^ (n.size - 1 - 1) - 1) + 1 =
             2 ^ (n.size - 1 - 1) + 2 ^ (n.size - 1 - 1) - 1 + 1 := by
           refine add_right_cancel_iff.mpr ?_
@@ -449,53 +447,53 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
             simp [this]
             exact (Nat.sub_eq_iff_eq_add nsize2).mp rfl
           simp [this]
-      simp [t3]
+      simp [this]
       -- shift left part 2
-      have t4 : trailing_zeros (2 ^ (n.size - 1)) = trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 := by
+      replace : trailing_zeros (2 ^ (n.size - 1))
+          = trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 := by
         have s1 : trailing_zeros (2 ^ (n.size - 1)) = n.size - 1 := by
           exact trailing_zeros_prop3 (n.size - 1)
         have s2 : trailing_zeros (2 ^ (n.size - 1 - 1)) = n.size - 1 - 1 := by
           exact trailing_zeros_prop3 (n.size - 1 - 1)
         simp [s1, s2]
-        grind
-      simp [t4]
-      have t5 :
+        exact (Nat.sub_eq_iff_eq_add nsize2).mp rfl
+      simp [this]
+      replace :
           ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1),
             (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1 + 1) =
           ∑ x ∈ range (2 ^ (n.size - 1 - 1) - 1),
             (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1 - 1)) + 1) + 1 := by
         exact rfl
-      simp only [t5]
-      have t6 : (2 ^ (n.size - 1 - 1) - 1 + 1) = (2 ^ (n.size - 1 - 1)) := by grind
-      rewrite (occs := .pos [2]) [←t6]
-      clear t5 t4 t3 t1
+      simp only [this]
+      replace : (2 ^ (n.size - 1 - 1) - 1 + 1) = (2 ^ (n.size - 1 - 1)) := by
+         exact id (Eq.symm t1)
+      rewrite (occs := .pos [2]) [←this]
       rw [←sum_range_succ (fun n ↦ trailing_zeros (n + 1) + 1) (2 ^ (n.size - 1 - 1) - 1)]
-      simp [t6, ih']
-      have t8 : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by
+      simp [this, ih']
+      replace : (2 ^ (n.size - 1 - 1)).size = n.size - 1 := by
         have : (2 ^ (n.size - 1 - 1)).size = n.size - 1 - 1 + 1 := by exact size_pow
         simp [this]
         grind
-      simp [t8]
-      have t9 : 2 ^ (n.size - 1) - 1 + 1 = 2 ^ (n.size - 1) := by grind
-      simp [t9]
-      have t10: 2 ^ (n.size - 1) - 1 + 2 ^ (n.size - 1) = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 := by
+      simp [this]
+      replace : 2 ^ (n.size - 1) - 1 + 1 = 2 ^ (n.size - 1) := by grind
+      simp [this]
+      replace : 2 ^ (n.size - 1) - 1 + 2 ^ (n.size - 1) = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 := by
         exact Eq.symm (Nat.sub_add_comm Nat.one_le_two_pow)
-      simp [t10]
-      have t11 : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ n.size := by
+      simp [this]
+      replace : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ n.size := by
         have : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 * 2 ^ (n.size - 1) := by
           exact Eq.symm (two_mul (2 ^ (n.size - 1)))
         simp [this]
-        have : 2 * 2 ^ (n.size - 1) = 2 ^ (n.size - 1 + 1) := by exact Eq.symm pow_succ'
+        replace : 2 * 2 ^ (n.size - 1) = 2 ^ (n.size - 1 + 1) := by exact Eq.symm pow_succ'
         simp [this]
         exact Nat.sub_add_cancel (one_le_of_lt nsize2)
-      simp [t11]
+      simp [this]
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
 
 section WIP
 
 -- t20250910_sorryよりも
--- - envelopeでのsegment_hightがそれまでの最高であること (Utils.lean)
 -- - envelope hightが2 ^ n.size - 1 でのsegment_hightと等しいこと
 -- をいう方が簡単なのでは。
 
