@@ -493,11 +493,18 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
 
 section WIP
 
+-- #CURRENT-TASK
 -- t20250910_sorryよりも
 -- - envelope hightが2 ^ n.size - 1 でのsegment_hightと等しいこと
 -- をいう方が簡単なのでは。
 
--- #current-task
+#eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
+
+theorem t20250910_sorry : ∀ n : ℕ, n = 2 ^ n.size - 2 →
+    (ofNat (n - 1)).locIx = n.size - 1 := by
+  intro n hn
+  sorry
+
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 #eval List.range 64
     |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
