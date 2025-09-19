@@ -984,14 +984,33 @@ theorem trailing_zeros_prop9 : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
           have n₂_def' : n₂ = 2 ^ (m.size - 1) + n₂' := by
             simp [←sub4]
             exact Eq.symm (add_sub_of_le others)
+          have n₂'_range : n₂' < m := by
+            have t1 : m + m = n := by
+              simp [hm]
+              calc
+                2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 2) * 2 := by
+                  exact Eq.symm (Nat.mul_two (2 ^ (n.size - 2)))
+                _ = 2 ^ (n.size - 2 + 1) := by exact rfl
+                _ = 2 ^ (n.size - 1) := by
+                  have : n.size - 2 + 1 = n.size - 1 := by
+                    refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
+                    exact (Nat.sub_eq_iff_eq_add nsize2).mp rfl
+                  simp [this]
+                _ = n := by simp [←n₁]
+            have t2 : n₂ = n₂' + m := by exact (Nat.sub_eq_iff_eq_add others).mp n₂_def
+            simp [←t1, t2] at hn'2
+            exact hn'2
           have shift_left : trailing_zeros n₂ = trailing_zeros n₂' := by
             rewrite [n₂_def', add_comm]
             refine trailing_zeros_prop7 (m.size - 1) n₂' ?_ ?_
-            · sorry
-            · sorry
+            · simp [←sub4] ; exact n₂'_range
+            · by_contra h
+              simp [h] at *
+              have c : n₂ = m := by grind
+              have : ¬n₂ = m := by exact Nat.ne_of_lt' n₂_gt_m
+              exact absurd c this
           simp [shift_left]
-          have sub5 : n₂' < m := by sorry
-          have g := hn' m sub1 sub2 sub3 sub4 n₂' sub5
+          have g := hn' m sub1 sub2 sub3 sub4 n₂' n₂'_range
           have g' : trailing_zeros m < trailing_zeros n := by
             simp [trailing_zeros_m, trailing_zeros_n]
             exact sub_succ_lt_self n.size 1 nsize2
