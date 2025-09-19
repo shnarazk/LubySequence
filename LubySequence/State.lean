@@ -491,157 +491,6 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
 
-section WIP
-
--- #CURRENT-TASK
--- t20250910_sorryよりも
--- - envelope hightが2 ^ n.size - 1 でのsegment_hightと等しいこと
--- をいう方が簡単なのでは。
-
-#eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
-
-theorem t20250919_sorry : ∀ n : ℕ, n = 2 ^ n.size - 2 →
-    (ofNat (n - 1)).locIx = n.size - 1 := by
-  intro n hn
-  sorry
-
-#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
-#eval List.range 64
-    |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
-    |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
-
-theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
-    (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
-  intro n hn1 hn2
-  induction n using Nat.strong_induction_on with
-  | h n ih =>
-    have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
-    rcases zp with z|p
-    · simp [z] at *
-    · let i := n - 1
-      have pi : i = value_of% i := by exact rfl
-      have n_to_i : n = i + 1 := by exact (Nat.sub_eq_iff_eq_add hn1).mp pi
-      have i1 : i ≥ 1 := by
-        by_contra i0
-        simp at i0
-        simp [i0] at *
-        simp [n_to_i] at hn2
-      simp [n_to_i] at *
-      have t1 : i + 1 - 2 ^ ((i + 1).size - 1) = 2 ^ ((i + 1).size - 1) - 2 := by
-        rewrite (occs := .pos [1]) [hn2]
-        have s1 : (i + 1).size = (i + 1).size - 1 + 1 := by
-          refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
-          · have r1 : 0 + 1 ≤ i + 1 := by exact Nat.le_add_left (0 + 1) i
-            have r2 : (0 + 1).size ≤ (i + 1).size := by exact size_le_size r1
-            have r3 : (0 + 1).size = 1 := by simp [size]
-            simp [r3] at r2
-            exact r2
-        rewrite (occs := .pos [1]) [s1]
-        have s2 : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
-          exact Nat.pow_succ'
-        simp [s2]
-        rw [mul_comm, mul_two]
-        have :
-            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 - 2 ^ ((i + 1).size - 1) =
-            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 ^ ((i + 1).size - 1) - 2 := by
-          exact Nat.sub_right_comm
-              (2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1))
-              2
-              (2 ^ ((i + 1).size - 1))
-        simp [this]
-      rewrite (occs := .pos [1]) [t1]
-      --
-      sorry
-
--- これはenvelopeはいくつのsegmentを必要とするかという問題。
--- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
--- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
--- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
-theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segment_height = n.size := by
-  intro n hn
-  let k := n - 1
-  have hk : k = value_of% k := by exact rfl
-  have hk' : n = k + 1 := by exact (Nat.sub_eq_iff_eq_add hn).mp hk
-  simp [hk'] at *
-  clear hn hk hk'
-  induction k using Nat.strong_induction_on with
-  | h k ih =>
-    expose_names
-    intro h2
-    have cases : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
-    rcases cases with kz|kp
-    · simp [kz, ofNat, default, segment_height, trailing_zeros]
-    · have h2' : k = 2 ^ ((k + 1).size - 1) - 1 - 1 := by exact Nat.eq_sub_of_add_eq h2
-      let j := 2 ^ ((k + 1).size - 1 - 1)
-      have hj : j = value_of% j := by exact rfl
-      have k3 : k ≥ 3 := by
-        have k1 : k ≥ 1 := by exact kp
-        have k2 : k ≥ 2 := by
-          by_contra not_k2
-          have k_eq_1 : k = 1 := by
-            have : k < 2 := by exact gt_of_not_le not_k2
-            have : k = 1 := by exact Nat.eq_of_le_of_lt_succ kp this
-            exact this
-          rewrite (occs := .pos [2]) [k_eq_1] at h2'
-          simp [size, binaryRec] at h2'
-          have : ¬k > 0 := by exact Eq.not_gt h2'
-          exact absurd kp this
-        by_contra not_k3
-        simp at not_k3
-        have k_eq_2 : k = 2 := by exact Nat.eq_of_le_of_lt_succ k2 not_k3
-        rewrite (occs := .pos [2]) [k_eq_2] at h2'
-        simp [size, binaryRec] at h2'
-        have : ¬k > 0 := by exact Eq.not_gt h2'
-        exact absurd kp this
-      have j_ge_2 : j ≥ 2 := by
-        have t1 : 3 + 1 ≤ k + 1 := by exact Nat.add_le_add_right k3 1
-        have t2 : (3 + 1).size ≤ (k + 1).size := by exact size_le_size t1
-        have t3 : (3 + 1).size = 3 := by simp [size, binaryRec]
-        simp [t3] at t2
-        have t3 : 3 - 1 ≤ (k + 1).size - 1 := by exact Nat.sub_le_sub_right t2 1
-        have t4 : 3 - 1 - 1 ≤ (k + 1).size - 1 - 1 := by exact Nat.sub_le_sub_right t3 1
-        simp at t4
-        have t5 : 2 ^ 1 ≤ 2 ^ ((k + 1).size - 1 - 1) := by
-          exact Luby.pow2_le_pow2 1 ((k + 1).size - 1 - 1) t4
-        simp at t5
-        exact t5
-      have j2 : 2 ^ ((k + 1).size - 1) = j + j := by
-        simp [hj]
-        rw [←mul_two]
-        refine Eq.symm (two_pow_pred_mul_two ?_)
-        · have t1 : 2 ≤ k + 1 := by exact le_add_of_sub_le kp
-          have t2 : (2 : ℕ).size ≤ (k + 1).size := by exact size_le_size t1
-          have t3 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
-          simp [t3] at t2
-          refine zero_lt_sub_of_lt t2
-      simp [j2] at h2'
-      have h3 : k = 2 * (j - 1) := by omega
-      simp [h3]
-      have : (2 * (j - 1) + 1).size = (2 * (j - 1)).size := by
-        refine Eq.symm (size_of_even_add_one_eq_size_of_self (j - 1) ?_)
-        · exact zero_lt_sub_of_lt j_ge_2
-      simp [this]
-      have : (2 * (j - 1)).size = (j - 1).size + 1 := by
-        refine size_of_double_eq_self_add_one (j - 1) ?_
-        · refine zero_lt_sub_of_lt ?_
-          · exact j_ge_2
-      simp [this]
-      -- envelope の計算にこういうのなかったか？
-      simp [segment_height]
-      --
-      sorry
-
-theorem t20250904_sorry : ∀ n : ℕ,
-    (ofNat (∑ k < (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
-  intro n
-  induction n using Nat.strong_induction_on with
-  | h n ih =>
-    have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by
-      exact eq_or_ne n (2 ^ (n.size - 1))
-    rcases p2_not with p2|not
-    · sorry
-    · sorry
-
 -- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
 -- あるいは segment_beg な (ofNat n).segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = n 的な
 -- ことからsegIxを剥ぎ取ってnに持ち込める。
@@ -825,6 +674,157 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
         exact Eq.symm (Nat.sub_add_comm (cond p))
       simp [this]
       grind
+
+section WIP
+
+-- #CURRENT-TASK
+-- t20250910_sorryよりも
+-- - envelope hightが2 ^ n.size - 1 でのsegment_hightと等しいこと
+-- をいう方が簡単なのでは。
+
+#eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
+
+theorem t20250919_sorry : ∀ n : ℕ, n = 2 ^ n.size - 2 →
+    (ofNat (n - 1)).locIx = n.size - 1 := by
+  intro n hn
+  sorry
+
+#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+#eval List.range 64
+    |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
+    |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
+
+theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
+    (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
+  intro n hn1 hn2
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
+    rcases zp with z|p
+    · simp [z] at *
+    · let i := n - 1
+      have pi : i = value_of% i := by exact rfl
+      have n_to_i : n = i + 1 := by exact (Nat.sub_eq_iff_eq_add hn1).mp pi
+      have i1 : i ≥ 1 := by
+        by_contra i0
+        simp at i0
+        simp [i0] at *
+        simp [n_to_i] at hn2
+      simp [n_to_i] at *
+      have t1 : i + 1 - 2 ^ ((i + 1).size - 1) = 2 ^ ((i + 1).size - 1) - 2 := by
+        rewrite (occs := .pos [1]) [hn2]
+        have s1 : (i + 1).size = (i + 1).size - 1 + 1 := by
+          refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
+          · have r1 : 0 + 1 ≤ i + 1 := by exact Nat.le_add_left (0 + 1) i
+            have r2 : (0 + 1).size ≤ (i + 1).size := by exact size_le_size r1
+            have r3 : (0 + 1).size = 1 := by simp [size]
+            simp [r3] at r2
+            exact r2
+        rewrite (occs := .pos [1]) [s1]
+        have s2 : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
+          exact Nat.pow_succ'
+        simp [s2]
+        rw [mul_comm, mul_two]
+        have :
+            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 - 2 ^ ((i + 1).size - 1) =
+            2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 ^ ((i + 1).size - 1) - 2 := by
+          exact Nat.sub_right_comm
+              (2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1))
+              2
+              (2 ^ ((i + 1).size - 1))
+        simp [this]
+      rewrite (occs := .pos [1]) [t1]
+      --
+      sorry
+
+-- これはenvelopeはいくつのsegmentを必要とするかという問題。
+-- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
+-- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
+-- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
+theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segment_height = n.size := by
+  intro n hn
+  let k := n - 1
+  have hk : k = value_of% k := by exact rfl
+  have hk' : n = k + 1 := by exact (Nat.sub_eq_iff_eq_add hn).mp hk
+  simp [hk'] at *
+  clear hn hk hk'
+  induction k using Nat.strong_induction_on with
+  | h k ih =>
+    expose_names
+    intro h2
+    have cases : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
+    rcases cases with kz|kp
+    · simp [kz, ofNat, default, segment_height, trailing_zeros]
+    · have h2' : k = 2 ^ ((k + 1).size - 1) - 1 - 1 := by exact Nat.eq_sub_of_add_eq h2
+      let j := 2 ^ ((k + 1).size - 1 - 1)
+      have hj : j = value_of% j := by exact rfl
+      have k3 : k ≥ 3 := by
+        have k1 : k ≥ 1 := by exact kp
+        have k2 : k ≥ 2 := by
+          by_contra not_k2
+          have k_eq_1 : k = 1 := by
+            have : k < 2 := by exact gt_of_not_le not_k2
+            have : k = 1 := by exact Nat.eq_of_le_of_lt_succ kp this
+            exact this
+          rewrite (occs := .pos [2]) [k_eq_1] at h2'
+          simp [size, binaryRec] at h2'
+          have : ¬k > 0 := by exact Eq.not_gt h2'
+          exact absurd kp this
+        by_contra not_k3
+        simp at not_k3
+        have k_eq_2 : k = 2 := by exact Nat.eq_of_le_of_lt_succ k2 not_k3
+        rewrite (occs := .pos [2]) [k_eq_2] at h2'
+        simp [size, binaryRec] at h2'
+        have : ¬k > 0 := by exact Eq.not_gt h2'
+        exact absurd kp this
+      have j_ge_2 : j ≥ 2 := by
+        have t1 : 3 + 1 ≤ k + 1 := by exact Nat.add_le_add_right k3 1
+        have t2 : (3 + 1).size ≤ (k + 1).size := by exact size_le_size t1
+        have t3 : (3 + 1).size = 3 := by simp [size, binaryRec]
+        simp [t3] at t2
+        have t3 : 3 - 1 ≤ (k + 1).size - 1 := by exact Nat.sub_le_sub_right t2 1
+        have t4 : 3 - 1 - 1 ≤ (k + 1).size - 1 - 1 := by exact Nat.sub_le_sub_right t3 1
+        simp at t4
+        have t5 : 2 ^ 1 ≤ 2 ^ ((k + 1).size - 1 - 1) := by
+          exact Luby.pow2_le_pow2 1 ((k + 1).size - 1 - 1) t4
+        simp at t5
+        exact t5
+      have j2 : 2 ^ ((k + 1).size - 1) = j + j := by
+        simp [hj]
+        rw [←mul_two]
+        refine Eq.symm (two_pow_pred_mul_two ?_)
+        · have t1 : 2 ≤ k + 1 := by exact le_add_of_sub_le kp
+          have t2 : (2 : ℕ).size ≤ (k + 1).size := by exact size_le_size t1
+          have t3 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+          simp [t3] at t2
+          refine zero_lt_sub_of_lt t2
+      simp [j2] at h2'
+      have h3 : k = 2 * (j - 1) := by omega
+      simp [h3]
+      have : (2 * (j - 1) + 1).size = (2 * (j - 1)).size := by
+        refine Eq.symm (size_of_even_add_one_eq_size_of_self (j - 1) ?_)
+        · exact zero_lt_sub_of_lt j_ge_2
+      simp [this]
+      have : (2 * (j - 1)).size = (j - 1).size + 1 := by
+        refine size_of_double_eq_self_add_one (j - 1) ?_
+        · refine zero_lt_sub_of_lt ?_
+          · exact j_ge_2
+      simp [this]
+      -- envelope の計算にこういうのなかったか？
+      simp [segment_height]
+      --
+      sorry
+
+theorem t20250904_sorry : ∀ n : ℕ,
+    (ofNat (∑ k < (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
+  intro n
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := by
+      exact eq_or_ne n (2 ^ (n.size - 1))
+    rcases p2_not with p2|not
+    · sorry
+    · sorry
 
 #eval List.range 6 |>.map (· + 1) |>.map (2 ^ ·.succ - 2) |>.map
     (fun n ↦
