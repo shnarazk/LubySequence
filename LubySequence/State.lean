@@ -684,10 +684,21 @@ section WIP
 
 #eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
 
-theorem t20250919_sorry : ∀ n : ℕ, n = 2 ^ n.size - 2 →
+theorem t20250919_sorry : ∀ n : ℕ, n = 2 ^ n.size - 1 →
     (ofNat (n - 1)).locIx = n.size - 1 := by
   intro n hn
-  sorry
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    by_cases zero : n = 0
+    · simp [zero, ofNat, default]
+    · let n' := 2 ^ (n.size - 1) - 1
+      have n'_def : n' = value_of% n' := by exact rfl
+      have n'_lt_n : n' < n := by sorry
+      have n'_is_envelope : n' = 2 ^ n'.size - 1 := by
+        sorry
+      have ih' := ih n' n'_lt_n n'_is_envelope
+      --
+      sorry
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 #eval List.range 64
