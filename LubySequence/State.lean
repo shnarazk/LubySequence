@@ -676,11 +676,12 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
       grind
 
 section WIP
-
--- #CURRENT-TASK
 -- t20250910_sorryよりも
 -- - envelope hightが2 ^ n.size - 1 でのsegment_hightと等しいこと
 -- をいう方が簡単なのでは。
+-- - そもそもsegmentの左右対称性が何も言えてない。
+
+-- #CURRENT-TASK
 
 #eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
 
@@ -724,17 +725,17 @@ theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
       simp [n_to_i] at *
       have t1 : i + 1 - 2 ^ ((i + 1).size - 1) = 2 ^ ((i + 1).size - 1) - 2 := by
         rewrite (occs := .pos [1]) [hn2]
-        have s1 : (i + 1).size = (i + 1).size - 1 + 1 := by
+        have : (i + 1).size = (i + 1).size - 1 + 1 := by
           refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
           · have r1 : 0 + 1 ≤ i + 1 := by exact Nat.le_add_left (0 + 1) i
             have r2 : (0 + 1).size ≤ (i + 1).size := by exact size_le_size r1
             have r3 : (0 + 1).size = 1 := by simp [size]
             simp [r3] at r2
             exact r2
-        rewrite (occs := .pos [1]) [s1]
-        have s2 : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
+        rewrite (occs := .pos [1]) [this]
+        replace : 2 ^ ((i + 1).size - 1 + 1) = 2 * 2 ^ ((i + 1).size - 1) := by
           exact Nat.pow_succ'
-        simp [s2]
+        simp [this]
         rw [mul_comm, mul_two]
         have :
             2 ^ ((i + 1).size - 1) + 2 ^ ((i + 1).size - 1) - 2 - 2 ^ ((i + 1).size - 1) =

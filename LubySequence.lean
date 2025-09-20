@@ -3,5 +3,6 @@
 import LubySequence.Utils
 import LubySequence.Basic
 import LubySequence.Tree
+import LubySequence.Segment
 import LubySequence.State
 import LubySequence.Equivalence
