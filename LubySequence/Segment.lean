@@ -6,23 +6,23 @@ import Mathlib.Data.Nat.Size
 import LubySequence.Utils
 import LubySequence.Basic
 
--- open Luby hiding Mathlib.Analysis
-
 namespace LubySegment
 
 #eval! List.range 8 |>.map (fun n ↦ (n, 2 ^ (n.size - 1), Luby.S₂ n, Luby.luby n))
 
 /--
-test
+Convert `n` to `segment index`.
+- `n` starts from 0.
+- `segment index` starts from 1.
 -/
 partial
-def segmentl (n : ℕ) : ℕ := match n with
+def segment (n : ℕ) : ℕ := match n with
   | 0 => 1
   | 1 => 2
   | 2 => 2
   | n =>
-    let n' := 2 ^ (n.size - 1)
-    if n = 2 * n' - 2 then n' else segmentl (n - 1) -- segment n'
-#eval! List.range 6 |>.map (fun n ↦ (n, segmentl n, 2 ^ (n.size - 1)))
+    let n' := 2 ^ ((n + 2).size - 2)
+    if n = 2 * n' - 2 then n' else n' + segment (n - (2 * n' - 2) - 1)
+#eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 
 end LubySegment
