@@ -74,10 +74,32 @@ def segment (n : ℕ) : ℕ := match n with
 theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
     segment (2 ^ (n.size + 1) - 2) = 2 * segment n := by
   intro n n_gt_0 envelope
+  have n1 : n = 2 * 2 ^ (n.size - 2) - 2 := by sorry
+  have nsize2 : n.size ≥ 2 := by sorry
   rewrite (occs := .pos [1]) [segment]
-  · split
-    · sorry
-    · sorry
+  · rewrite (occs := .pos [2]) [segment]
+    · expose_names
+      simp
+      split
+      · expose_names
+        have : (2 ^ (n.size + 1) - 2).size = n.size + 1 := by
+          refine size_sub ?_ ?_ ?_
+          · exact zero_lt_succ n.size
+          · exact Nat.zero_lt_two
+          · simp
+            refine le_pow ?_
+            exact size_pos.mpr n_gt_0
+        simp [this]
+        replace : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
+          exact Eq.symm Nat.pow_succ'
+        simp [this]
+        exact (Nat.sub_eq_iff_eq_add nsize2).mp rfl
+      · expose_names
+        --
+        sorry
+    · expose_names
+      intro x
+      simp [x] at *
   · intro x
     -- have t1 : n ≥ 1 := by exact n_gt_0
     have t1 : n.size ≥ (1 : ℕ).size := by exact size_le_size n_gt_0
