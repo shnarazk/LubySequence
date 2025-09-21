@@ -69,5 +69,20 @@ def segment (n : ℕ) : ℕ := match n with
       n' + segment (n - (2 * n' - 2) - 1)
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
+#eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
+#eval! List.range 8 |>.map (fun n ↦
+    ( 2 ^ ((n + 2).size - 1) - 2,
+      n,
+      2 ^ n.size - 2))
+
+theorem segment_prop1 : ∀ n : ℕ, n = 2 ^ n.size - 2 → 
+    segment (2 ^ (n.size + 1) - 2) = 2 * segment n := by
+  intro n envelope
+  rewrite (occs := .pos [2]) [segment]
+
+  sorry
+
+
+
 
 end LubySegment
