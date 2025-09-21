@@ -318,36 +318,37 @@ theorem segment_beg_transition' : ∀ n : ℕ, (ofNat n).is_segment_beg = true �
   have nn : n' = value_of% n' := by exact rfl
   simp [←nn]
   have z : n'.locIx = 0 := by simp [is_segment_beg, ←nn] at hz ; exact hz
-  have t1 : n + n'.segment_height = (n + n'.segment_height - 1) + 1 := by exact rfl
-  rw [t1]
-  have t2 : ofNat (n + n'.segment_height - 1 + 1) = (ofNat (n + n'.segment_height - 1)).next 1 := by
+  have : n + n'.segment_height = (n + n'.segment_height - 1) + 1 := by exact rfl
+  rw [this]
+  replace : ofNat (n + n'.segment_height - 1 + 1) = (ofNat (n + n'.segment_height - 1)).next 1 := by
     exact rfl
-  simp [t2]
-  have t3 : n + n'.segment_height - 1 = n + (n'.segment_height - 1) := by exact rfl
-  simp [t3]
-  have t4 : ofNat (n + (n'.segment_height - 1)) = (ofNat n).next (n'.segment_height - 1) := by
+  simp only [this]
+  replace : n + n'.segment_height - 1 = n + (n'.segment_height - 1) := by exact rfl
+  simp only [this]
+  replace : ofNat (n + (n'.segment_height - 1)) = (ofNat n).next (n'.segment_height - 1) := by
     exact ofNat_dist n (n'.segment_height - 1)
-  simp [t4]
-  have t4 :
+  simp only [this]
+  replace :
       (ofNat n).next (n'.segment_height - 1) = (ofNat n).next_in_segment (n'.segment_height - 1) := by
     refine Eq.symm (next_in_segment_is_next (ofNat n) (n'.segment_height - 1) ?_)
     simp [←nn, z]
     simp [segment_height]
-  simp [t4]
-  simp [←nn]
-  have t5 : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.locIx + n'.segment_height - 1 := by
+  simp only [this]
+  simp only [←nn]
+  replace : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.locIx + n'.segment_height - 1 := by
     exact rfl
-  simp [z] at t5
+  simp [z] at this
+  simp [this]
   split
   · expose_names ; simp [is_segment_beg]
   · expose_names
     simp [is_segment_end] at h
-    rw [t5] at h
-    have t6 : (n'.next_in_segment (n'.segment_height - 1)).segment_height = n'.segment_height := by
+    rw [this] at h
+    replace : (n'.next_in_segment (n'.segment_height - 1)).segment_height = n'.segment_height := by
       exact rfl
-    simp [t6] at h
-    have t7 : n'.segment_height - 1 + 1 = n'.segment_height := by exact t6
-    exact absurd t7 h
+    simp [this] at h
+    have c : n'.segment_height - 1 + 1 = n'.segment_height := by exact this
+    exact absurd c h
 
 def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i + 1) + 1)
 
