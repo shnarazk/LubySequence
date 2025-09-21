@@ -26,15 +26,27 @@ def segment (n : ℕ) : ℕ := match n with
     then n'
     else 
       have order : 2 * n' - 2 < n := by
-        sorry
+        simp [n'_def]
+        by_cases n_le_1 : n ≤ 1
+        · sorry
+        · --
+          have : 2 * 2 ^ ((n + 2).size - 2) = 2 ^ ((n + 2).size - 1) := by
+            sorry
+          simp [this]
+          replace :(n + 2).size = n.size := by sorry
+          simp [this]
+          replace : 2 ^ (n.size - 1) < n := by
+            have : 2 ^ (n.size - 1) ≤ n := by
+              refine n_ge_subenvelope ?_
+              · sorry
+            sorry
+          exact sub_lt_of_lt this
       have decreasing : n - (2 * n' - 2) - 1 < n := by
         have : 2 * n' - 2 ≥ 0 := by exact Nat.zero_le (2 * n' - 2)
         replace : n - (2 * n' - 2) ≤ n := by exact sub_le n (2 * n' - 2)
         by_cases x : n - (2 * n' - 2) ≥ 1
         · exact sub_one_lt_of_le x this
-        · simp at x
-          refine sub_one_lt_of_le ?_ this
-          · exact zero_lt_sub_of_lt order
+        · exact sub_one_lt_of_le (zero_lt_sub_of_lt order) this
       n' + segment (n - (2 * n' - 2) - 1)
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
