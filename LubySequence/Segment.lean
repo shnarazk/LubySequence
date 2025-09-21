@@ -11,15 +11,13 @@ namespace LubySegment
 #eval! List.range 8 |>.map (fun n ↦ (n, 2 ^ (n.size - 1), Luby.S₂ n, Luby.luby n))
 
 /--
-Convert `n` to `segment index`.
+Return the segment index for `n`.
 - `n` starts from 0.
-- `segment index` starts from 1.
+- segment index starts from 1.
 -/
 partial
 def segment (n : ℕ) : ℕ := match n with
   | 0 => 1
-  | 1 => 2
-  | 2 => 2
   | n =>
     let n' := 2 ^ ((n + 2).size - 2)
     if n = 2 * n' - 2 then n' else n' + segment (n - (2 * n' - 2) - 1)
