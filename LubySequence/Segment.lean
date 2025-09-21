@@ -71,14 +71,23 @@ def segment (n : ℕ) : ℕ := match n with
       n,
       2 ^ n.size - 2))
 
-theorem segment_prop1 : ∀ n : ℕ, n = 2 ^ n.size - 2 → 
+theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
     segment (2 ^ (n.size + 1) - 2) = 2 * segment n := by
-  intro n envelope
-  rewrite (occs := .pos [2]) [segment]
-  sorry
-  sorry
-
-
-
+  intro n n_gt_0 envelope
+  rewrite (occs := .pos [1]) [segment]
+  · split
+    · sorry
+    · sorry
+  · intro x
+    -- have t1 : n ≥ 1 := by exact n_gt_0
+    have t1 : n.size ≥ (1 : ℕ).size := by exact size_le_size n_gt_0
+    have : (1 : ℕ).size = 1 := by exact size_one
+    simp [this] at t1
+    replace : n.size + 1 ≥ 2 := by exact le_add_of_sub_le t1
+    replace : 2 ^ (n.size + 1) ≥ 2 ^ 2 := by exact Luby.pow2_le_pow2 2 (n.size + 1) this
+    simp at this
+    have c : 4 - 2 ≤ 2 ^ (n.size + 1) - 2 := by
+      exact Nat.sub_le_sub_right this 2
+    simp [x] at c
 
 end LubySegment
