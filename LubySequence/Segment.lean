@@ -17,7 +17,6 @@ Return the segment index for `n`.
 - `n` starts from 0.
 - segment index starts from 1.
 -/
--- partial
 def segment (n : ℕ) : ℕ := match n with
   | 0 => 1
   | n =>
@@ -26,21 +25,16 @@ def segment (n : ℕ) : ℕ := match n with
     if h : n = 2 * n' - 2
     then n'
     else 
+      have order : 2 * n' - 2 < n := by
+        sorry
       have decreasing : n - (2 * n' - 2) - 1 < n := by
-        refine Nat.sub_one_lt_of_le ?_ ?_
-        · simp [n'_def]
-          by_cases n_eq_0 : n = 0
-          · simp [n_eq_0] at *
-            simp [size, binaryRec] at n'_def
-            have : 0 = 2 * n' - 2 := by simp [n'_def]
-            exact absurd this h
-          · by_cases n_eq_1 : n = 1
-            · simp [n_eq_1] at *
-              simp [size, binaryRec]
-            · --
-              --
-              sorry
-        · exact Nat.sub_le n (2 * n' - 2)
+        have : 2 * n' - 2 ≥ 0 := by exact Nat.zero_le (2 * n' - 2)
+        replace : n - (2 * n' - 2) ≤ n := by exact sub_le n (2 * n' - 2)
+        by_cases x : n - (2 * n' - 2) ≥ 1
+        · exact sub_one_lt_of_le x this
+        · simp at x
+          refine sub_one_lt_of_le ?_ this
+          · exact zero_lt_sub_of_lt order
       n' + segment (n - (2 * n' - 2) - 1)
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
