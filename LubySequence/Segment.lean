@@ -28,10 +28,28 @@ def segment (n : ℕ) : ℕ := match n with
       have order : 2 * n' - 2 < n := by
         simp [n'_def]
         by_cases n_le_1 : n ≤ 1
-        · sorry
-        · --
+        · have cases : n = 0 ∨ n = 1 := by exact le_one_iff_eq_zero_or_eq_one.mp n_le_1
+          rcases cases with n_eq_0|n_eq_1
+          · simp [n_eq_0, size, binaryRec] at *
+            simp [n'_def] at h
+          · simp [n_eq_1, size, binaryRec] at *
+        · have n_ge_2 : n ≥ 2 := by
+            have : n > 1 := by exact Nat.lt_of_not_le n_le_1
+            exact this
+          have nsize2 : (n + 2).size ≥ 2 := by
+            have t1 : (n + 2).size ≥ (2 + 2).size := by
+              refine size_le_size ?_
+              · exact Nat.add_le_add_right n_ge_2 2
+            have t2 : (2 + 2).size = 3 := by simp [size, binaryRec]
+            simp [t2] at t1
+            exact le_of_add_left_le t1
           have : 2 * 2 ^ ((n + 2).size - 2) = 2 ^ ((n + 2).size - 1) := by
-            sorry
+            have : 2 * 2 ^ ((n + 2).size - 2) = 2 ^ ((n + 2).size - 2 + 1) := by
+              exact Eq.symm Nat.pow_succ'
+            simp [this]
+            rw [add_comm]
+            refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add' h).mp) ?_ rfl)
+            · exact le_sub_one_of_lt nsize2
           simp [this]
           replace :(n + 2).size = n.size := by sorry
           simp [this]
