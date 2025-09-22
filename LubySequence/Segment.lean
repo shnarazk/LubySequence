@@ -17,14 +17,16 @@ Return the segment index for `n`.
 - `n` starts from 0.
 - segment index starts from 1.
 -/
+partial
 def segment (n : ℕ) : ℕ := match n with
   | 0 => 1
   | n =>
-    let n' := 2 ^ (n.size - 2)
+    let n' := 2 ^ (n.size - 1)
     have n'_def : n' = value_of% n' := by exact rfl
     if h : n = 2 * n' - 2
     then n'
-    else 
+    else
+      /-
       have order : 2 * n' - 2 < n := by
         simp [n'_def]
         by_cases n_le_1 : n ≤ 1
@@ -62,20 +64,36 @@ def segment (n : ℕ) : ℕ := match n with
         by_cases x : n - (2 * n' - 2) ≥ 1
         · exact sub_one_lt_of_le x this
         · exact sub_one_lt_of_le (zero_lt_sub_of_lt order) this
-      n' + segment (n - (2 * n' - 2) - 1)
+      -/
+      2 ^ ((n + 2).size - 2) + 
+      segment (n - (2 ^ ((n + 2).size - 1) - 1))
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
-#eval! List.range 8 |>.map (fun n ↦
-    ( 2 ^ ((n + 2).size - 1) - 2,
-      n,
-      2 ^ n.size - 2))
+#eval! List.range 8 
+  |>.map (2 ^ ·.succ - 2)
+  |>.map (fun n ↦
+    ( n,
+      2 ^ (n.size + 1) - 2,
+      LubySegment.segment n,
+      segment (2 ^ (n.size + 1) - 2)))
 
 theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
     segment (2 ^ (n.size + 1) - 2) = 2 * segment n := by
   intro n n_gt_0 envelope
-  have n1 : n = 2 * 2 ^ (n.size - 2) - 2 := by sorry
-  have nsize2 : n.size ≥ 2 := by sorry
+  have n_ge_2 : n ≥ 2 := by
+    by_contra n_eq_1
+    simp at n_eq_1
+    replace n_eq_1 : n = 1 := by exact Nat.eq_of_le_of_lt_succ n_gt_0 n_eq_1
+    simp [n_eq_1] at envelope
+  have nsize2 : n.size ≥ 2 := by
+    have t1 : n.size ≥ (2 : ℕ).size := by exact size_le_size n_ge_2
+    have t2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+    simp [t2] at t1
+    exact t1
+  -- have n1 : n = 2 * 2 ^ (n.size - 2) - 2 := by sorry
+  sorry
+/-
   rewrite (occs := .pos [1]) [segment]
   · rewrite (occs := .pos [2]) [segment]
     · expose_names
@@ -90,10 +108,14 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
             refine le_pow ?_
             exact size_pos.mpr n_gt_0
         simp [this]
-        replace : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
-          exact Eq.symm Nat.pow_succ'
+        replace : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
+          replace t1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
+            exact Eq.symm Nat.pow_succ'
+          replace t2 : n.size - 2 + 1 = n.size - 1 := by grind
+          simp [t2] at t1
+          exact t1
         simp [this]
-        exact (Nat.sub_eq_iff_eq_add nsize2).mp rfl
+        sorry
       · expose_names
         --
         sorry
@@ -111,5 +133,6 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     have c : 4 - 2 ≤ 2 ^ (n.size + 1) - 2 := by
       exact Nat.sub_le_sub_right this 2
     simp [x] at c
+-/
 
 end LubySegment
