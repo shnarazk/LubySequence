@@ -21,10 +21,8 @@ partial
 def segment (n : ℕ) : ℕ := match n with
   | 0 => 1
   | n =>
-    let n' := 2 ^ (n.size - 1)
-    have n'_def : n' = value_of% n' := by exact rfl
-    if h : n = 2 * n' - 2
-    then n'
+    if _h : n = 2 ^ ((n + 2).size - 1) - 2
+    then  2 ^ ((n + 2).size - 2)
     else
       /-
       have order : 2 * n' - 2 < n := by
