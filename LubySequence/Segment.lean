@@ -106,8 +106,10 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     · expose_names
       simp
       simp [←n'_def] at h
-      --
-      sorry
+      -- conflict path
+      have : n' = 2 ^ ((n' + 2).size - 1) - 2 := by
+        sorry
+      exact absurd this h
   · intro x
     have : 2 ^ (n + 2).size ≥ 2 ^ 3 := by
       exact Luby.pow2_le_pow2 3 (n + 2).size n2size3
