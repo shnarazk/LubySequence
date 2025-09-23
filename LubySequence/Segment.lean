@@ -47,10 +47,10 @@ def segment (n : ℕ) : ℕ := match n with
     ( n,
       2 ^ (n.size + 1) - 2,
       LubySegment.segment n,
-      segment (2 ^ (n.size + 1) - 2)))
+      segment (2 ^ (n + 2).size - 2)))
 
 theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
-    segment (2 ^ (n.size + 1) - 2) = 2 * segment n := by
+    segment (2 ^ (n + 2).size - 2) = 2 * segment n := by
   intro n n_gt_0 envelope
   have n_ge_2 : n ≥ 2 := by
     by_contra n_eq_1
@@ -62,6 +62,24 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     have t2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
     simp [t2] at t1
     exact t1
+  have n2size3 : (n + 2).size ≥ 3 := by
+    have : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right n_ge_2 2
+    replace : (n + 2).size ≥ (2 + 2).size := by exact size_le_size this
+    have s2 : (2 + 2).size = 3 := by simp [size, binaryRec]
+    simp [s2] at this
+    exact this
+  let n' := 2 ^ (n + 2).size - 2
+  have n'_def : n' = value_of% n' := by exact rfl
+  have n'_is_envelope : n' = 2 ^n'.size - 2 := by
+    simp [n'_def]
+    have : (2 ^ (n + 2).size - 2).size = (n + 2).size := by
+      refine size_sub ?_ ?_ ?_
+      · exact size_pos.mpr (Nat.add_pos_left n_gt_0 2)
+      · exact Nat.zero_lt_two 
+      · refine Nat.le_self_pow ?_ 2
+        · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size3)
+    simp [this]
+  rw [segment]
   -- have n1 : n = 2 * 2 ^ (n.size - 2) - 2 := by sorry
   sorry
 /-
