@@ -98,17 +98,32 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
           grind
         · expose_names
           simp
-          --
-          sorry
+          have : n = 2 ^ ((n + 2).size - 1) - 2 := by
+            rw (occs := .pos [1]) [envelope]
+            have : n + 2 = 2 ^ n.size := by
+              refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm envelope)))
+              · exact Nat.le_self_pow (Nat.ne_zero_of_lt nsize2) 2
+            simp [this]
+            replace : (2 ^ n.size).size - 1 = n.size := by
+              have : (2 ^ n.size).size = n.size + 1 := by exact size_pow
+              simp [this]
+            simp [this]
+          exact absurd this h_1
       · intro n_eq_0
         have : ¬n = 0 := by exact Nat.ne_zero_of_lt n_gt_0
         exact absurd n_eq_0 this
     · expose_names
       simp
       simp [←n'_def] at h
-      -- conflict path
       have : n' = 2 ^ ((n' + 2).size - 1) - 2 := by
-        sorry
+        simp [n'_def]
+        have s1 : (2 ^ (n + 2).size - 2 + 2) = 2 ^ (n + 2).size := by
+          refine Nat.sub_add_cancel ?_
+          · exact Nat.le_self_pow (Nat.ne_zero_of_lt n2size3) 2
+        simp [s1]
+        replace s1 : (2 ^ (n + 2).size).size = (n + 2).size + 1 := by
+          exact size_pow
+        simp [s1]
       exact absurd this h
   · intro x
     have : 2 ^ (n + 2).size ≥ 2 ^ 3 := by
