@@ -6,6 +6,12 @@ import Mathlib.Data.Nat.Size
 import LubySequence.Utils
 import LubySequence.Basic
 
+/-!
+Segments are monotonic subsequences of the Luby sequence.
+In this file, it's defined a mapping from ℕ to ℕ.
+Its index starts from 1.
+-/
+
 open Nat
 
 namespace LubySegment
