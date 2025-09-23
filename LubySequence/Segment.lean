@@ -139,4 +139,7 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
     exact absurd x this
 
+def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
+#eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n, LubySegment.segment_length n))
+
 end LubySegment
