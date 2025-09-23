@@ -148,4 +148,12 @@ def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 example : segment_length 0 = 1 := by
   simp [segment_length, segment, trailing_zeros]
 
+theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
+    segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n := by
+      sorry
+
+theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
+    segment_length (2 ^ (n + 2).size - 2) = segment_length n := by
+      sorry
+
 end LubySegment
