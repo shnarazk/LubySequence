@@ -139,7 +139,13 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
     exact absurd x this
 
+/--
+Return the length of segment of state `n`.
+So `n` starts from zero. -/
 def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n, LubySegment.segment_length n))
+
+example : segment_length 0 = 1 := by
+  simp [segment_length, segment, trailing_zeros]
 
 end LubySegment
