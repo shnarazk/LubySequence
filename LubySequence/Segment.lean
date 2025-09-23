@@ -17,54 +17,27 @@ Return the segment index for `n`.
 - `n` starts from 0.
 - segment index starts from 1.
 -/
-partial
 def segment (n : ℕ) : ℕ := match n with
   | 0 => 1
   | n =>
-    if _h : n = 2 ^ ((n + 2).size - 1) - 2
-    then  2 ^ ((n + 2).size - 2)
+    if h : n = 2 ^ ((n + 2).size - 1) - 2
+    then 2 ^ ((n + 2).size - 2)
     else
-      /-
-      have order : 2 * n' - 2 < n := by
-        simp [n'_def]
-        by_cases n_le_1 : n ≤ 1
-        · have cases : n = 0 ∨ n = 1 := by exact le_one_iff_eq_zero_or_eq_one.mp n_le_1
-          rcases cases with n_eq_0|n_eq_1
-          · simp [n_eq_0, size] at *
-            simp [n'_def] at h
-          · simp [n_eq_1, size] at *
-        · have n_ge_2 : n ≥ 2 := by
-            have : n > 1 := by exact Nat.lt_of_not_le n_le_1
-            exact this
-          have nsize2 : n.size ≥ 2 := by
-            have t1 : n.size ≥ (2 : ℕ).size := by
-              exact size_le_size n_ge_2
-            have t2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
-            simp [t2] at t1
-            exact t1
-          have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
-            have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
-              exact Eq.symm Nat.pow_succ'
-            simp [this]
-            rw [add_comm]
-            refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add' h).mp) ?_ rfl)
-            · exact le_sub_one_of_lt nsize2
-          simp [this]
-          refine Nat.sub_lt_right_of_lt_add ?_ ?_
-          · exact le_pow (zero_lt_sub_of_lt nsize2)
-          · have t1 : 2 ^ (n.size - 1) ≤ n := by
-              exact n_ge_subenvelope (one_le_of_lt n_ge_2)
-            have t2 : 2 ^ (n.size - 1) < n + 1 := by exact Order.lt_add_one_iff.mpr t1
-            exact lt_succ_of_lt t2
-      have decreasing : n - (2 * n' - 2) - 1 < n := by
-        have : 2 * n' - 2 ≥ 0 := by exact Nat.zero_le (2 * n' - 2)
-        replace : n - (2 * n' - 2) ≤ n := by exact sub_le n (2 * n' - 2)
-        by_cases x : n - (2 * n' - 2) ≥ 1
-        · exact sub_one_lt_of_le x this
-        · exact sub_one_lt_of_le (zero_lt_sub_of_lt order) this
-      -/
-      2 ^ ((n + 2).size - 2) + 
-      segment (n - (2 ^ ((n + 2).size - 1) - 1))
+      have n2size : (n + 2).size ≥ 2 := by
+        have s1 : (n + 2).size ≥ (0 + 2).size := by
+          exact size_le_size (Nat.le_add_left (0 + 2) n)
+        have s2 : (0 + 2).size = 2 := by simp [size, binaryRec]
+        simp [s2] at s1
+        exact s1
+      have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
+        have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
+          refine zero_lt_sub_of_lt ?_
+          · exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr n2size)
+        refine sub_lt ?_ s1
+        · by_contra n_eq_0
+          simp at n_eq_0
+          simp [n_eq_0, size, binaryRec] at h
+      2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1))
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
