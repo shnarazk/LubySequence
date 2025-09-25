@@ -150,10 +150,42 @@ example : segment_length 0 = 1 := by
 
 theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
     segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n := by
-      sorry
+  intro n n_gt_0 n_is_envelope
+  have segment_of_n : segment n = 2 ^ (n.size - 1) := by
+    rw [segment]
+    have n_gt_2 : n ≥ 2 := by
+      by_contra n_eq_1
+      simp at n_eq_1
+      have : n = 1 := by exact Nat.eq_of_le_of_lt_succ n_gt_0 n_eq_1
+      simp [this] at n_is_envelope
+    have pow2nsize : 2 ^ n.size - 2 + 2 = 2 ^ n.size := by
+      exact Nat.sub_add_cancel (le_pow (size_pos.mpr n_gt_0))
+    split
+    · expose_names
+      rw (occs := .pos [1]) [n_is_envelope]
+      simp [pow2nsize]
+      replace : (2 ^ n.size).size = n.size + 1 := by exact size_pow
+      simp [this]
+    · expose_names
+      simp
+      rw (occs := .pos [2]) [n_is_envelope] at h
+      simp [pow2nsize] at h
+      have : (2 ^ n.size).size = n.size + 1 := by exact size_pow
+      simp [this] at h
+      exact absurd n_is_envelope h
+    · intro n_eq_0
+      have : ¬n = 0 := by exact Nat.ne_zero_of_lt n_gt_0
+      exact absurd n_eq_0 this
+  rw (occs := .pos [2]) [segment_length]
+  simp [segment_of_n]
+  have : trailing_zeros (2 ^ (n.size - 1)) = n.size - 1 := by
+    exact trailing_zeros_prop3 (n.size - 1)
+  simp [this]
+  --
+  sorry
 
 theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
     segment_length (2 ^ (n + 2).size - 2) = segment_length n := by
-      sorry
+  sorry
 
 end LubySegment
