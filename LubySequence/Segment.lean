@@ -139,6 +139,42 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
     exact absurd x this
 
+-- 
+theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
+    segment n = 2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1)) := by
+  intro n n_gt_0 n_ne_envelope
+  have n2size : (n + 2).size ≥ 2 := by
+    have s1 : (n + 2).size ≥ (0 + 2).size := by
+      exact size_le_size (Nat.le_add_left (0 + 2) n)
+    have s2 : (0 + 2).size = 2 := by simp [size, binaryRec]
+    simp [s2] at s1
+    exact s1
+  have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
+    have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
+      refine zero_lt_sub_of_lt ?_
+      · exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr n2size)
+    refine sub_lt ?_ s1
+    · by_contra n_eq_0
+      simp at n_eq_0
+      simp [n_eq_0, size] at n_ne_envelope
+  rw [segment]
+  · split
+    · expose_names
+      simp
+      sorry
+    · expose_names
+      simp
+  · intro x
+    sorry
+ /-
+    have : 2 ^ (n + 2).size ≥ 2 ^ 3 := by
+      exact Luby.pow2_le_pow2 3 (n + 2).size n2size
+    replace : 2 ^ (n + 2).size ≥ 8 := by exact this
+    replace : ¬2 ^ (n + 2).size - 2 = 0 := by
+      exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
+    exact absurd x this
+    -/
+
 /--
 Return the length of segment of state `n`.
 So `n` starts from zero. -/
@@ -260,6 +296,9 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
 
 theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
     segment_length (n - 2 ^ ((n + 2).size - 1) - 1) = segment_length n := by
+  intro n n_gt_0 n_ne_envelope 
+  simp [segment_length]
+  --
   sorry
 
 end LubySegment
