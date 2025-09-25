@@ -253,8 +253,13 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
   simp [this]
   exact Nat.add_comm n.size 1
 
+#eval List.range 32
+  -- |>.map (fun n ↦ (n, segment n, 2 ^ ((n + 1).size - 1)))
+  |>.filter (fun n ↦ ¬segment n = 2 ^ ((n + 1).size - 1))
+  |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 2).size - 1) - 1)), segment_length n))
+
 theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
-    segment_length (2 ^ (n + 2).size - 2) = segment_length n := by
+    segment_length (n - 2 ^ ((n + 2).size - 1) - 1) = segment_length n := by
   sorry
 
 end LubySegment
