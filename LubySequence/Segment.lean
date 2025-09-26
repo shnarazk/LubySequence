@@ -160,20 +160,32 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   rw [segment]
   · split
     · expose_names
-      simp
-      sorry
+      have n_ge_2 : n ≥ 2 := by
+        by_contra n_eq_1
+        simp at n_eq_1
+        replace n_eq_1 : n = 1 := by exact Nat.eq_of_le_of_lt_succ n_gt_0 n_eq_1
+        simp [n_eq_1] at *
+        simp [size, binaryRec] at h
+      have n2size_ge_2 : (n + 2).size ≥ 3 := by
+        have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right n_ge_2 2
+        have s2 : (2 + 2).size = 3 := by simp [size, binaryRec]
+        rw [←s2]
+        exact size_le_size s1
+      have : n = 2 ^ n.size - 2 := by
+        rw (occs := .pos [2]) [h]
+        have s1 : (2 ^ ((n + 2).size - 1) - 2).size = (n + 2).size - 1 := by
+          refine size_sub ?_ ?_ ?_
+          · exact zero_lt_sub_of_lt n2size
+          · exact Nat.zero_lt_two
+          · refine Nat.le_self_pow ?_ 2
+            · exact Nat.sub_ne_zero_iff_lt.mpr (lt_sub_of_add_lt n2size_ge_2)
+        simp [s1]
+        exact h
+      exact absurd this n_ne_envelope
     · expose_names
       simp
-  · intro x
-    sorry
- /-
-    have : 2 ^ (n + 2).size ≥ 2 ^ 3 := by
-      exact Luby.pow2_le_pow2 3 (n + 2).size n2size
-    replace : 2 ^ (n + 2).size ≥ 8 := by exact this
-    replace : ¬2 ^ (n + 2).size - 2 = 0 := by
-      exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
-    exact absurd x this
-    -/
+  · intro n_eq_0
+    simp [n_eq_0] at *
 
 /--
 Return the length of segment of state `n`.
