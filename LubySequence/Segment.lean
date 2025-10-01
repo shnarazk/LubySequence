@@ -139,7 +139,6 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
     exact absurd x this
 
--- 
 theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
     segment n = 2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope
@@ -244,9 +243,7 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       refine size_sub ?_ ?_ ?_
       · exact size_pos.mpr (Nat.add_pos_left n_gt_0 2)
       · exact Nat.zero_lt_two 
-      · refine Nat.le_self_pow ?_ 2
-        · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-          · exact lt_of_add_left_lt n2size_ge_3
+      · exact Nat.le_self_pow (Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_ge_3)) 2
     simp [this]
   simp [segment_length]
   have : segment (2 ^ (n + 2).size - 2) = 2 ^ ((n + 2).size - 1) := by
@@ -255,16 +252,13 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     split
     · expose_names
       have : 2 ^ (n + 2).size - 2 + 2 = 2 ^ (n + 2).size := by
-        refine Nat.sub_add_cancel ?_
-        · refine Nat.le_self_pow ?_ 2
-          · exact Nat.ne_zero_of_lt n2size_ge_3
+        exact Nat.sub_add_cancel (Nat.le_self_pow (Nat.ne_zero_of_lt n2size_ge_3) 2)
       simp [this]
       replace : (2 ^ (n + 2).size).size = (n + 2).size + 1 := by exact size_pow
       simp [this]
     · expose_names
       have : 2 ^ (n + 2).size - 2 + 2 = 2 ^ (n + 2).size := by
-        refine Nat.sub_add_cancel ?_
-        · exact le_pow (zero_lt_of_lt n2size_ge_3)
+        exact Nat.sub_add_cancel (le_pow (zero_lt_of_lt n2size_ge_3))
       simp only [this] at h
       replace : (2 ^ (n + 2).size).size - 1 = (n + 2).size := by 
         have : (2 ^ (n + 2).size).size = (n + 2).size + 1 := by exact size_pow
@@ -310,7 +304,8 @@ theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
     segment_length (n - 2 ^ ((n + 2).size - 1) - 1) = segment_length n := by
   intro n n_gt_0 n_ne_envelope 
   simp [segment_length]
-  --
+  rw [segment_prop2 n n_gt_0 n_ne_envelope]
+  -- TODO: trailing_zeros_prop?
   sorry
 
 end LubySegment
