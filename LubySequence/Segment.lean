@@ -45,6 +45,20 @@ def segment (n : ℕ) : ℕ := match n with
           simp [n_eq_0, size, binaryRec] at h
       2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1))
 
+theorem segment_is_pos : ∀ n : ℕ, segment n > 0 := by
+  intro n
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    rw [segment.eq_def]
+    split
+    · exact Nat.one_pos
+    · expose_names
+      split
+      · expose_names
+        exact Nat.two_pow_pos ((n + 2).size - 2)
+      · expose_names
+        simp
+
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 
@@ -308,13 +322,11 @@ theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   let x := 2 ^ ((n + 2).size - 1)
   have x_def : x = value_of% x := by exact rfl
   simp [←x_def]
-  let y := 2 ^ ((n + 2).size - 2) + segment (n - (x - 1))
-  have y_def : y = value_of% y := by exact rfl
-  have y_def' : segment (n - (x - 1)) = y - 2 ^ ((n + 2).size - 2) := by
-    exact Nat.eq_sub_of_add_eq' y_def
-  rw (occs := .pos [1]) [y_def']
-  rw [←y_def]
-  -- TODO: trailing_zeros_prop?
-  sorry
+  rw [add_comm]
+  refine Eq.symm (trailing_zeros_prop1' (segment (n - (x - 1))) ?_ ((n + 2).size - 2) ?_)
+  · exact segment_is_pos (n - (x - 1))
+  · simp [x]
+    --
+    sorry
 
 end LubySegment
