@@ -58,6 +58,39 @@ theorem segment_is_pos : ∀ n : ℕ, segment n > 0 := by
         exact Nat.two_pow_pos ((n + 2).size - 2)
       · expose_names
         simp
+ 
+theorem segment_is_monotone : ∀ n, segment n ≤ segment (n + 1) := by
+  intro n
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    rw [segment.eq_def]
+    split
+    · expose_names
+      simp
+      rw [segment.eq_def]
+      split
+      · expose_names
+        contradiction
+      · expose_names
+        split
+        · expose_names
+          simp [size, binaryRec] at h_1
+        · expose_names
+          simp [size, binaryRec]
+    · expose_names
+      simp at h
+      split
+      · expose_names
+        rw [segment.eq_def]
+        simp
+        split
+        · expose_names
+          sorry
+        · expose_names
+          sorry
+      · expose_names
+        simp
+        sorry
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
@@ -326,6 +359,12 @@ theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   refine Eq.symm (trailing_zeros_prop1' (segment (n - (x - 1))) ?_ ((n + 2).size - 2) ?_)
   · exact segment_is_pos (n - (x - 1))
   · simp [x]
+    have t1 : n - (2 ^ ((n + 2).size - 1) - 1) < 2 ^ ((n + 2).size - 1) - 1 := by
+      sorry
+    have t2 :
+        segment (n - (2 ^ ((n + 2).size - 1) - 1)) < segment (2 ^ ((n + 2).size - 1) - 1) := by
+      sorry
+    -- FIXME
     --
     sorry
 
