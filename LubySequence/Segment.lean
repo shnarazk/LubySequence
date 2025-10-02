@@ -301,10 +301,14 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
   |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 2).size - 1) - 1)), segment_length n))
 
 theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
-    segment_length (n - 2 ^ ((n + 2).size - 1) - 1) = segment_length n := by
+    segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment_length n := by
   intro n n_gt_0 n_ne_envelope 
   simp [segment_length]
   rw [segment_prop2 n n_gt_0 n_ne_envelope]
+  let x := 2 ^ ((n + 2).size - 1)
+  have x_def : x = value_of% x := by exact rfl
+  simp [←x_def] -- ???
+
   -- TODO: trailing_zeros_prop?
   sorry
 
