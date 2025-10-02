@@ -574,6 +574,28 @@ theorem trailing_zeros_prop1 : ∀ n > 0,
       · expose_names ; exact absurd h n_ne_envenlop
       · exact rfl
 
+theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
+    2 ^ k > n → trailing_zeros (n + 2 ^ k) = trailing_zeros n := by
+  intro n n_gt_0 k pow2k_gt_n
+  rw [trailing_zeros.eq_def]
+  split
+  · expose_names
+    have n_eq_0 : n = 0 := by exact Nat.eq_zero_of_add_eq_zero_right heq
+    replace n_gt_0 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_gt_0
+    exact absurd n_eq_0 n_gt_0
+  · expose_names
+    split
+    · expose_names
+      have : 2 ^ (k + 1) = 2 ^ ((n + 2 ^ k).size - 1) := by
+        sorry
+      rw (occs := .pos [1]) [←this] at h
+      replace : 2 ^ (k + 1) = 2 ^ k + 2 ^ k := by exact two_pow_succ k
+      simp [this] at h
+      have h' : ¬n = 2 ^ k := by exact Nat.ne_of_lt pow2k_gt_n
+      exact absurd h h'
+    · expose_names
+      sorry
+
 /--
 For n > 1 where n = 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-2)) + 1.
 -/
