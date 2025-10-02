@@ -587,14 +587,23 @@ theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
     split
     · expose_names
       have : 2 ^ (k + 1) = 2 ^ ((n + 2 ^ k).size - 1) := by
-        sorry
+        have : (2 ^ k + n).size = k + 1 := by exact size_add n_gt_0 pow2k_gt_n
+        rw (occs := .pos [2]) [add_comm] at h
+        simp [this] at h
+        replace n_gt_0 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_gt_0
+        exact absurd h n_gt_0
       rw (occs := .pos [1]) [←this] at h
       replace : 2 ^ (k + 1) = 2 ^ k + 2 ^ k := by exact two_pow_succ k
       simp [this] at h
       have h' : ¬n = 2 ^ k := by exact Nat.ne_of_lt pow2k_gt_n
       exact absurd h h'
     · expose_names
-      sorry
+      simp
+      have : 2 ^ ((n + 2 ^ k).size - 1) = 2 ^ k := by
+        have : (2 ^ k + n).size = k + 1 := by exact size_add n_gt_0 pow2k_gt_n
+        rw (occs := .pos [1]) [add_comm] at this
+        simp [this]
+      simp [this]
 
 /--
 For n > 1 where n = 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-2)) + 1.
