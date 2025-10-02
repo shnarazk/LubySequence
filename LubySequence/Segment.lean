@@ -307,8 +307,13 @@ theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   rw [segment_prop2 n n_gt_0 n_ne_envelope]
   let x := 2 ^ ((n + 2).size - 1)
   have x_def : x = value_of% x := by exact rfl
-  simp [←x_def] -- ???
-
+  simp [←x_def]
+  let y := 2 ^ ((n + 2).size - 2) + segment (n - (x - 1))
+  have y_def : y = value_of% y := by exact rfl
+  have y_def' : segment (n - (x - 1)) = y - 2 ^ ((n + 2).size - 2) := by
+    exact Nat.eq_sub_of_add_eq' y_def
+  rw (occs := .pos [1]) [y_def']
+  rw [←y_def]
   -- TODO: trailing_zeros_prop?
   sorry
 
