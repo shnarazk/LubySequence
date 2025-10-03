@@ -59,7 +59,7 @@ theorem segment_is_pos : ∀ n : ℕ, segment n > 0 := by
       · expose_names
         simp
  
-theorem segment_is_monotone : ∀ n, segment n ≤ segment (n + 1) := by
+theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
   intro n
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -115,6 +115,13 @@ theorem segment_is_monotone : ∀ n, segment n ≤ segment (n + 1) := by
         split <;> simp [n3size_eq_n2size]
       · expose_names
         simp
+        rw (occs := .pos [2]) [segment.eq_def]
+        split
+        · expose_names
+          contradiction
+        · split
+          · expose_names
+
         sorry
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
@@ -257,6 +264,24 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
       simp
   · intro n_eq_0
     simp [n_eq_0] at *
+
+theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
+  rw [segment.eq_def]
+  split
+  · expose_names  ; contradiction
+  · expose_names
+    split
+    · expose_names
+      replace h_2 : n + 2 = 2 ^ ((n + 2).size - 2) := by
+        sorry
+      rw [h_2]
+      have : (2 ^ ((n + 2).size - 2)).size = (n + 2).size - 2 + 1 := by exact size_pow
+      simp [this]
+      sorry
+    · expose_names
+      simp
+      sorry
+
 
 /--
 Return the length of segment of state `n`.
