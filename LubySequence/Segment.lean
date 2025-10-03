@@ -85,6 +85,25 @@ theorem segment_is_monotone : ∀ n, segment n ≤ segment (n + 1) := by
         simp
         split
         · expose_names
+          -- conflict path
+          have n_ge_2 : n ≥ 2 := by
+            by_contra n_eq_1
+            simp at n_eq_1
+            replace n_eq_1 : n = 1 := by
+              refine Eq.symm (Nat.le_antisymm ?_ ?_)
+              · exact one_le_iff_ne_zero.mpr h
+              · exact le_of_lt_succ n_eq_1
+            simp [n_eq_1] at *
+            simp [size, binaryRec] at h_1
+          have : n + 1 + 2 = n + 2 + 1 := by exact rfl
+          simp [this] at h_2
+          have : (n + 2 + 1).size = (n + 2).size := by
+            refine size_add' ?_ ?_
+            · exact Nat.one_pos
+            · have : (n + 2).size + 1 = (2 * (n + 2)).size := by
+                exact Eq.symm (size_of_double_eq_self_add_one (n + 2) (zero_lt_succ (n + 1)))
+              simp [this]
+              sorry
           sorry
         · expose_names
           sorry
