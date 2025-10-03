@@ -121,8 +121,8 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
           contradiction
         · split
           · expose_names
-
-        sorry
+            sorry
+          · sorry
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
@@ -268,11 +268,29 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
 theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
   rw [segment.eq_def]
   split
-  · expose_names  ; contradiction
+  · expose_names ; contradiction
   · expose_names
     split
+    have n_ge_2 : n ≥ 2 := by
+      by_cases n_eq_1 : n = 1
+      · expose_names
+        simp [n_eq_1] at *
+        simp [size, binaryRec] at h_2
+      · expose_names
+        replace h : n ≥ 1 := by exact h
+        by_cases n_ge_2 : n ≥ 2
+        · exact n_ge_2
+        · replace n_ge_2 : n < 2 := by exact Nat.lt_of_not_le n_ge_2
+          replace n_ge_2 : n ≤ 1 := by exact le_of_lt_succ n_ge_2
+          have : n = 1 := by exact Eq.symm (Nat.le_antisymm h n_ge_2)
+          exact absurd this n_eq_1
     · expose_names
       replace h_2 : n + 2 = 2 ^ ((n + 2).size - 2) := by
+        rw (occs := .pos [1]) [h_2]
+        have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+          refine Nat.sub_add_cancel ?_
+          · refine le_pow ?_
+            · sorry
         sorry
       rw [h_2]
       have : (2 ^ ((n + 2).size - 2)).size = (n + 2).size - 2 + 1 := by exact size_pow
