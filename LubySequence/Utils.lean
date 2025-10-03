@@ -162,6 +162,21 @@ theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.
   simp [t2, bitslength_eq_size] at t1
   exact t1
 
+theorem size_of_pow2 {k n : ℕ} (h1 : n ≥ 2) (h2 : k < 2 ^ n) :
+    (2 ^ n + k).size = (2 ^ n).size := by
+  have s1 : (2 ^ n + k).size ≤ n + 1 := by
+    have : 2 ^ n + k < 2 ^ (n + 1) := by
+      have t1 : 2 ^ n + k < 2 ^ n + 2 ^ n := by exact Nat.add_lt_add_left h2 (2 ^ n)
+      have t2 : 2 ^ n + 2 ^ n = 2 ^ (n + 1) := by exact Eq.symm (two_pow_succ n)
+      simp [t2] at t1
+      exact t1
+    exact size_le.mpr this
+  have s2 : (2 ^ n).size = n + 1 := by exact size_pow
+  simp [←s2] at s1
+  have s3 : (2 ^ n + k).size ≥ (2 ^ n).size := by
+    exact size_le_size (Nat.le_add_right (2 ^ n) k)
+  exact Nat.le_antisymm s1 s3
+
 /--
 The bit representation of 2*n + 1 is true (1) prepended to the bit representation of n.
 -/
