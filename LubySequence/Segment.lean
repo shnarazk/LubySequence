@@ -95,16 +95,29 @@ theorem segment_is_monotone : ∀ n, segment n ≤ segment (n + 1) := by
               · exact le_of_lt_succ n_eq_1
             simp [n_eq_1] at *
             simp [size, binaryRec] at h_1
+          have n2size_gt_3 : (n + 2).size ≥ 3 := by
+            have t1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right n_ge_2 2
+            replace t1 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size t1
+            have t2 : (2 + 2).size = 3 := by simp [size, binaryRec]
+            simp [t2] at t1
+            exact t1
           have : n + 1 + 2 = n + 2 + 1 := by exact rfl
           simp [this] at h_2
           have : (n + 2 + 1).size = (n + 2).size := by
-            refine size_add' ?_ ?_
-            · exact Nat.one_pos
-            · have : (n + 2).size + 1 = (2 * (n + 2)).size := by
-                exact Eq.symm (size_of_double_eq_self_add_one (n + 2) (zero_lt_succ (n + 1)))
-              simp [this]
-              sorry
-          sorry
+            have h_1' : n + 2 = 2 ^ ((n + 2).size - 1) := by
+              have s1 : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
+                exact congrFun (congrArg HAdd.hAdd h_1) 2
+              have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+                refine Nat.sub_add_cancel ?_
+                · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3))
+              simp [s2] at s1
+              exact s1
+            rw [h_1']
+            refine size_of_pow2 ?_ ?_
+            · exact le_sub_one_of_lt n2size_gt_3
+            · refine Nat.one_lt_two_pow_iff.mpr ?_
+              · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
+          simp [this]
         · expose_names
           sorry
       · expose_names
