@@ -121,8 +121,61 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
           contradiction
         · split
           · expose_names
+            have : n - (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) - 2 := by
+              replace h_3 : n = 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 := by
+                exact Nat.eq_sub_of_add_eq h_3
+              rw (occs := .pos [1]) [h_3]
+              have : (n + 2 + 1).size = (n + 2).size + 1 := by sorry
+              simp [this]
+              replace : 2 ^ (n + 2).size = 2 ^ ((n + 2).size - 1) + 2 ^ ((n + 2).size - 1) := by
+                refine Eq.symm (Nat.two_pow_pred_add_two_pow_pred ?_)
+                · exact size_pos.mpr (zero_lt_succ (n + 1))
+              simp [this]
+              -- rw [Nat.eq_add_of_sub_eq]
+              rw [Nat.sub_sub]
+              have : 1 + (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) := by
+                rw [add_comm]
+                exact Nat.sub_add_cancel (Nat.one_le_two_pow)
+              simp [this]
+              rw [Nat.sub_sub]
+              exact Nat.add_sub_add_right (2 ^ ((n + 2).size - 1)) (2 ^ ((n + 2).size - 1)) 2
+            simp [this]
+            -- これはenvelopeなので展開できるはず
+            rw [segment.eq_def]
+            split
+            · expose_names
+              have : n = 1 := by
+                by_cases n_le_1 : n ≤ 1
+                · have : n = 1 := by
+                    refine Eq.symm (Nat.le_antisymm ?_ n_le_1)
+                    · exact one_le_iff_ne_zero.mpr h
+                  exact this
+                · simp at n_le_1
+                  replace n_le_1 : 2 ≤ n := by exact n_le_1
+                  have s1 : (2 + 2).size ≤ (n + 2).size := by
+                    exact size_le_size (Nat.add_le_add_right n_le_1 2)
+                  have s2 : (2 + 2).size = 3 := by simp [size, binaryRec]
+                  simp [s2] at s1
+                  have : 2 ^ ((n + 2).size - 1) - 2 > 0 := by
+                    have t1 : (n + 2).size - 1 ≥ 2 := by exact le_sub_one_of_lt s1
+                    have t2 : 2 ^ ((n + 2).size - 1) ≥ 2 ^ 2 := by
+                      exact Luby.pow2_le_pow2 2 ((n + 2).size - 1) t1
+                    replace t2 : 2 ^ ((n + 2).size - 1) - 2 ≥ 2 ^ 2 - 2 := by
+                      exact Nat.sub_le_sub_right t2 2
+                    simp at t2
+                    exact zero_lt_of_lt t2
+                  replace : ¬2 ^ ((n + 2).size - 1) - 2 = 0 := by exact Nat.ne_zero_of_lt this
+                  exact absurd heq this
+              simp [this, size, binaryRec]
+            · expose_names
+              split
+              · expose_names
+                sorry
+              · expose_names
+                simp
+                sorry
+          · expose_names
             sorry
-          · sorry
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
