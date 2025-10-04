@@ -516,6 +516,17 @@ theorem pow2_is_minimum (k : ℕ) : ∀ n < 2 ^ k, n.size ≤ k := by
   simp [t2] at t1
   exact size_le.mpr hn
 
+theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
+    n = 2 ^ n.size - 1 → (n + 1).size = n.size + 1 := by
+  intro n_is_envelope
+  rw (occs := .pos [1]) [n_is_envelope]
+  have : 2 ^ n.size - 1 + 1 = 2 ^ n.size := by
+    exact Nat.sub_add_cancel (Nat.one_le_two_pow)
+  simp [this]
+  replace : (2 ^ n.size).size = n.size + 1 := by
+    exact size_of_pow2_eq_self_add_one n.size
+  simp [this]
+
 /--
 For n ≥ 1, n is at least 2^(n.size - 1).
 -/
