@@ -125,7 +125,20 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
               replace h_3 : n = 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 := by
                 exact Nat.eq_sub_of_add_eq h_3
               rw (occs := .pos [1]) [h_3]
-              have : (n + 2 + 1).size = (n + 2).size + 1 := by sorry
+              have n2_is_envelope : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
+                have : 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 = 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 := by
+                  exact rfl
+                simp [this] at h_3
+                replace h_3 : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 + 2 := by
+                  exact congrFun (congrArg HAdd.hAdd h_3) 2
+                have : 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
+                  refine Nat.sub_add_cancel ?_
+                  · sorry
+                simp only [this] at h_3
+                exact h_3
+              have : (n + 2 + 1).size = (n + 2).size + 1 := by
+                apply?
+                sorry
               simp [this]
               replace : 2 ^ (n + 2).size = 2 ^ ((n + 2).size - 1) + 2 ^ ((n + 2).size - 1) := by
                 refine Eq.symm (Nat.two_pow_pred_add_two_pow_pred ?_)
@@ -140,7 +153,6 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
               rw [Nat.sub_sub]
               exact Nat.add_sub_add_right (2 ^ ((n + 2).size - 1)) (2 ^ ((n + 2).size - 1)) 2
             simp [this]
-            -- これはenvelopeなので展開できるはず
             rw [segment.eq_def]
             split
             · expose_names
