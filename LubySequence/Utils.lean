@@ -527,6 +527,37 @@ theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
     exact size_of_pow2_eq_self_add_one n.size
   simp [this]
 
+theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
+    n = 2 ^ (n.size - 1) → n.size = (n - 1).size + 1 := by
+  intro n_is_envelope
+  have : (n - 1 + 1).size = (n - 1).size ∨ (n - 1 + 1).size = (n - 1).size + 1 := by
+    by_cases n_eq_1 : n = 1
+    · simp [n_eq_1]
+    · refine size_limit ?_
+      · have : n > 1 := by exact Nat.lt_of_le_of_ne h fun a ↦ n_eq_1 (id (Eq.symm a))
+        exact zero_lt_sub_of_lt this
+  have n_mp : n - 1 + 1 = n := by exact Nat.sub_add_cancel h
+  have nsize_mp : n.size - 1 + 1 = n.size := by
+    refine Nat.sub_add_cancel ?_
+    · replace h : n ≥ 1 := by exact h
+      have s1 : n.size ≥ (1 : ℕ).size := by exact size_le_size h
+      have s2 : (1 : ℕ).size = 1 := by simp [size]
+      simp [s2] at s1
+      exact s1
+  rcases this with eq|gt
+  · have s1 : (n - 1).size < n.size := by
+      have s1 : n - 1 < 2 ^ (n.size - 1) := by
+        rw [←n_is_envelope]
+        exact sub_one_lt_of_lt h
+      have : (n - 1).size ≤ n.size - 1 := by exact pow2_is_minimum (n.size - 1) (n - 1) s1
+      replace : (n - 1).size < n.size - 1 + 1 := by exact Order.lt_add_one_iff.mpr this
+      simp [nsize_mp] at this
+      exact this
+    simp [n_mp] at eq
+    simp [eq] at s1
+  · simp [n_mp] at gt
+    exact gt
+
 /--
 For n ≥ 1, n is at least 2^(n.size - 1).
 -/
