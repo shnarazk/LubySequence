@@ -7,9 +7,9 @@ import LubySequence.Utils
 import LubySequence.Basic
 
 /-!
-Segments are monotonic subsequences of the Luby sequence.
-In this file, it's defined a mapping from ℕ to ℕ.
-Its index starts from 1.
+Segments are monotonic subsequences in the Luby sequence.
+In this file, it's defined as a mapping from ℕ to ℕ.
+But its index starts from 1.
 -/
 
 open Nat
@@ -58,7 +58,7 @@ theorem segment_is_pos : ∀ n : ℕ, segment n > 0 := by
         exact Nat.two_pow_pos ((n + 2).size - 2)
       · expose_names
         simp
- 
+
 theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -133,11 +133,26 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
                   exact congrFun (congrArg HAdd.hAdd h_3) 2
                 have : 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
                   refine Nat.sub_add_cancel ?_
-                  · sorry
+                  · have : (n + 1 + 2).size ≥ 3 := by
+                      replace h : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
+                      have : n + 1 + 2 ≥ 1 + 1 + 2 := by
+                        exact Nat.add_le_add_right (Nat.add_le_add_right h 1) 2
+                      replace : (n + 1 + 2).size ≥ (1 + 1 + 2).size := by exact size_le_size this
+                      have s : (1 + 1 + 2).size = 3 := by simp [size, binaryRec]
+                      simp [s] at this
+                      exact this
+                    replace : 2 ^ ((n + 1 + 2).size - 1) ≥ 4 := by
+                      have s1 : 2 ^ ((n + 1 + 2).size - 1) ≥ 2 ^ (3 - 1) := by
+                        refine Nat.pow_le_pow_right Nat.zero_lt_two ?_
+                        · exact Nat.sub_le_sub_right this 1
+                      have s2 : 2 ^ (3 - 1) = 4 := by exact rfl
+                      simp [s2] at s1
+                      exact s1
+                    grind
                 simp only [this] at h_3
                 exact h_3
               have : (n + 2 + 1).size = (n + 2).size + 1 := by
-                apply?
+                -- apply?
                 sorry
               simp [this]
               replace : 2 ^ (n + 2).size = 2 ^ ((n + 2).size - 1) + 2 ^ ((n + 2).size - 1) := by
@@ -191,7 +206,7 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
-#eval! List.range 8 
+#eval! List.range 8
   |>.map (2 ^ ·.succ - 2)
   |>.map (fun n ↦
     ( n,
@@ -199,7 +214,7 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
       LubySegment.segment n,
       segment (2 ^ (n + 2).size - 2)))
 
-theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
+theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment (2 ^ (n + 2).size - 2) = 2 * segment n := by
   intro n n_gt_0 envelope
   have n_ge_2 : n ≥ 2 := by
@@ -225,7 +240,7 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     have : (2 ^ (n + 2).size - 2).size = (n + 2).size := by
       refine size_sub ?_ ?_ ?_
       · exact size_pos.mpr (Nat.add_pos_left n_gt_0 2)
-      · exact Nat.zero_lt_two 
+      · exact Nat.zero_lt_two
       · refine Nat.le_self_pow ?_ 2
         · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size3)
     simp [this]
@@ -283,7 +298,7 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
     exact absurd x this
 
-theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
+theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
     segment n = 2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope
   have n2size : (n + 2).size ≥ 2 := by
@@ -375,7 +390,7 @@ def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 example : segment_length 0 = 1 := by
   simp [segment_length, segment, trailing_zeros]
 
-theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → 
+theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n := by
   intro n n_gt_0 n_is_envelope
   have n_gt_2 : n ≥ 2 := by
@@ -422,7 +437,7 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     have : (2 ^ (n + 2).size - 2).size = (n + 2).size := by
       refine size_sub ?_ ?_ ?_
       · exact size_pos.mpr (Nat.add_pos_left n_gt_0 2)
-      · exact Nat.zero_lt_two 
+      · exact Nat.zero_lt_two
       · exact Nat.le_self_pow (Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_ge_3)) 2
     simp [this]
   simp [segment_length]
@@ -440,7 +455,7 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       have : 2 ^ (n + 2).size - 2 + 2 = 2 ^ (n + 2).size := by
         exact Nat.sub_add_cancel (le_pow (zero_lt_of_lt n2size_ge_3))
       simp only [this] at h
-      replace : (2 ^ (n + 2).size).size - 1 = (n + 2).size := by 
+      replace : (2 ^ (n + 2).size).size - 1 = (n + 2).size := by
         have : (2 ^ (n + 2).size).size = (n + 2).size + 1 := by exact size_pow
         simp [this]
       simp [this] at h
@@ -480,9 +495,9 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
   |>.filter (fun n ↦ ¬segment n = 2 ^ ((n + 1).size - 1))
   |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 2).size - 1) - 1)), segment_length n))
 
-theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 → 
+theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
     segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment_length n := by
-  intro n n_gt_0 n_ne_envelope 
+  intro n n_gt_0 n_ne_envelope
   simp [segment_length]
   rw [segment_prop2 n n_gt_0 n_ne_envelope]
   let x := 2 ^ ((n + 2).size - 1)
