@@ -152,8 +152,17 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
                 simp only [this] at h_3
                 exact h_3
               have : (n + 2 + 1).size = (n + 2).size + 1 := by
-                -- apply?
-                sorry
+                let x := n + 2 + 1
+                have x_def : x = value_of% x := by exact rfl
+                simp [←x_def]
+                have : x - 1 = n + 2 := by exact rfl
+                simp [←this]
+                replace n2_is_envelope : n + 2 + 1 = 2 ^ ((n + 2 + 1).size - 1) := by
+                  exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mp) (id (Eq.symm n2_is_envelope)))
+                simp [←x_def] at n2_is_envelope
+                refine size_of_pow2_eq_size_of_envelope_add_1' ?_ ?_
+                · simp [x_def]
+                · exact n2_is_envelope
               simp [this]
               replace : 2 ^ (n + 2).size = 2 ^ ((n + 2).size - 1) + 2 ^ ((n + 2).size - 1) := by
                 refine Eq.symm (Nat.two_pow_pred_add_two_pow_pred ?_)
