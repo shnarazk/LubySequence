@@ -178,6 +178,13 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
               rw [Nat.sub_sub]
               exact Nat.add_sub_add_right (2 ^ ((n + 2).size - 1)) (2 ^ ((n + 2).size - 1)) 2
             simp [this]
+            have : segment (2 ^ ((n + 2).size - 1) - 2) ≤ 2 ^ ((n + 2).size - 1) - 2 + 1 := by
+              sorry
+            sorry
+            --
+
+            -- これ以上splitしないはずでは
+            /-
             rw [segment.eq_def]
             split
             · expose_names
@@ -235,9 +242,19 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
                   grind
                 simp [this]
               · expose_names
-                -- 帰納法に持ち込む
                 simp
+                have aux : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by grind
+                simp [aux]
+                replace aux : (2 ^ ((n + 2).size - 1)).size = (n + 2).size := by
+                  have : (2 ^ ((n + 2).size - 1)).size = (n + 2).size - 1 + 1 := by
+                    exact size_pow
+                  simp [this]
+                  grind
+                simp [aux]
+                rw [←add_assoc]
+                --
                 sorry
+            -/
           · expose_names
             simp
             -- これも帰納法に持ち込む
