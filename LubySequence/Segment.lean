@@ -402,32 +402,79 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
     simp [n_eq_0] at *
 
 theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
-  rw [segment.eq_def]
-  split
-  · expose_names ; contradiction
-  · expose_names
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    rw [segment.eq_def]
     split
-    have n_ge_2 : n ≥ 2 := by
-      by_cases n_eq_1 : n = 1
-      · expose_names
-        simp [n_eq_1] at *
-        simp [size, binaryRec] at h_2
-      · expose_names
-        replace h : n ≥ 1 := by exact h
-        by_cases n_ge_2 : n ≥ 2
-        · exact n_ge_2
-        · replace n_ge_2 : n < 2 := by exact Nat.lt_of_not_le n_ge_2
-          replace n_ge_2 : n ≤ 1 := by exact le_of_lt_succ n_ge_2
-          have : n = 1 := by exact Eq.symm (Nat.le_antisymm h n_ge_2)
-          exact absurd this n_eq_1
+    · expose_names ; contradiction
     · expose_names
-      replace h_2 : n + 2 = 2 ^ ((n + 2).size - 2) := by
+      split
+      have n_ge_2 : n ≥ 2 := by
+        by_cases n_eq_1 : n = 1
+        · expose_names
+          simp [n_eq_1] at *
+          simp [size, binaryRec] at h_2
+        · expose_names
+          replace h : n ≥ 1 := by exact h
+          by_cases n_ge_2 : n ≥ 2
+          · exact n_ge_2
+          · replace n_ge_2 : n < 2 := by exact Nat.lt_of_not_le n_ge_2
+            replace n_ge_2 : n ≤ 1 := by exact le_of_lt_succ n_ge_2
+            have : n = 1 := by exact Eq.symm (Nat.le_antisymm h n_ge_2)
+            exact absurd this n_eq_1
+      have n2size_ge_3 : (n + 2).size ≥ 3 := by
+        have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right n_ge_2 2
+        replace s1 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size s1
+        have s2 : (2 + 2).size = 3 := by simp [size, binaryRec]
+        simp [s2] at s1
+        exact s1
+      · expose_names
+        replace h_2 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+          have : n + 1 = 2 ^ ((n + 2).size - 1) - 2 + 1 := by
+            exact congrFun (congrArg HAdd.hAdd h_2) 1
+          rw [this]
+          grind
+        simp [h_2]
+        have : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) := by
+          have : 2 ^ ((n + 2).size - 1) = 2 * 2 ^ ((n + 2).size - 1 - 1) := by
+            refine Eq.symm (mul_pow_sub_one ?_ 2)
+            · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_ge_3)
+          simp [this]
+          replace : (n + 2).size - 1 - 1 = (n + 2).size - 2 := by exact rfl
+          simp [this]
+          exact Nat.two_mul (2 ^ ((n + 2).size - 2))
+        simp only [this]
+        rw [Nat.add_sub_assoc]
+        · exact Nat.le_add_right (2 ^ ((n + 2).size - 2)) (2 ^ ((n + 2).size - 2) - 1)
+        · exact Nat.one_le_two_pow
+      · expose_names
+        simp
+        have ih1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by sorry
+        have ih2 : n - (2 ^ ((n + 2).size - 1) - 1) > 0 := by sorry
+        have ih' :
+            segment (n - (2 ^ ((n + 2).size - 1) - 1)) ≤ n - (2 ^ ((n + 2).size - 1) - 1) + 1 := by
+          exact ih (n - (2 ^ ((n + 2).size - 1) - 1)) ih1 ih2
+        replace ih' :
+            2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1))
+            ≤ 2 ^ ((n + 2).size - 2) + (n - (2 ^ ((n + 2).size - 1) - 1) + 1) := by
+          exact Nat.add_le_add_iff_left.mpr (ih (n - (2 ^ ((n + 2).size - 1) - 1)) ih1 ih2)
+        have :
+            2 ^ ((n + 2).size - 2) + (n - (2 ^ ((n + 2).size - 1) - 1) + 1)
+            ≤ n + 1 := by
+          sorry
+        exact Nat.le_trans ih' this
+
+
+ /-
+
+      
         rw (occs := .pos [1]) [h_2]
         have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
           refine Nat.sub_add_cancel ?_
           · refine le_pow ?_
             · sorry
-        sorry
+        simp [this]
+
       rw [h_2]
       have : (2 ^ ((n + 2).size - 2)).size = (n + 2).size - 2 + 1 := by exact size_pow
       simp [this]
@@ -435,7 +482,7 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
     · expose_names
       simp
       sorry
-
+-/
 
 /--
 Return the length of segment of state `n`.
