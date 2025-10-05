@@ -121,54 +121,55 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
           contradiction
         · split
           · expose_names
+            have n2_is_envelope : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
+              replace h_3 : n = 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 := by
+                exact Nat.eq_sub_of_add_eq h_3
+              have : 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 = 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 := by
+                exact rfl
+              simp [this] at h_3
+              replace h_3 : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 + 2 := by
+                exact congrFun (congrArg HAdd.hAdd h_3) 2
+              have : 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
+                refine Nat.sub_add_cancel ?_
+                · have : (n + 1 + 2).size ≥ 3 := by
+                    replace h : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
+                    have : n + 1 + 2 ≥ 1 + 1 + 2 := by
+                      exact Nat.add_le_add_right (Nat.add_le_add_right h 1) 2
+                    replace : (n + 1 + 2).size ≥ (1 + 1 + 2).size := by exact size_le_size this
+                    have s : (1 + 1 + 2).size = 3 := by simp [size, binaryRec]
+                    simp [s] at this
+                    exact this
+                  replace : 2 ^ ((n + 1 + 2).size - 1) ≥ 4 := by
+                    have s1 : 2 ^ ((n + 1 + 2).size - 1) ≥ 2 ^ (3 - 1) := by
+                      refine Nat.pow_le_pow_right Nat.zero_lt_two ?_
+                      · exact Nat.sub_le_sub_right this 1
+                    have s2 : 2 ^ (3 - 1) = 4 := by exact rfl
+                    simp [s2] at s1
+                    exact s1
+                  grind
+              simp only [this] at h_3
+              exact h_3
+            have n3size_eq_n2size : (n + 2 + 1).size = (n + 2).size + 1 := by
+              let x := n + 2 + 1
+              have x_def : x = value_of% x := by exact rfl
+              simp [←x_def]
+              have : x - 1 = n + 2 := by exact rfl
+              simp [←this]
+              replace n2_is_envelope : n + 2 + 1 = 2 ^ ((n + 2 + 1).size - 1) := by
+                exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mp) (id (Eq.symm n2_is_envelope)))
+              simp [←x_def] at n2_is_envelope
+              refine size_of_pow2_eq_size_of_envelope_add_1' ?_ ?_
+              · simp [x_def]
+              · exact n2_is_envelope
             have : n - (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) - 2 := by
               replace h_3 : n = 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 := by
                 exact Nat.eq_sub_of_add_eq h_3
               rw (occs := .pos [1]) [h_3]
-              have n2_is_envelope : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
-                have : 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 = 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 := by
-                  exact rfl
-                simp [this] at h_3
-                replace h_3 : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 + 2 := by
-                  exact congrFun (congrArg HAdd.hAdd h_3) 2
-                have : 2 ^ ((n + 1 + 2).size - 1) - 1 - 2 + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
-                  refine Nat.sub_add_cancel ?_
-                  · have : (n + 1 + 2).size ≥ 3 := by
-                      replace h : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
-                      have : n + 1 + 2 ≥ 1 + 1 + 2 := by
-                        exact Nat.add_le_add_right (Nat.add_le_add_right h 1) 2
-                      replace : (n + 1 + 2).size ≥ (1 + 1 + 2).size := by exact size_le_size this
-                      have s : (1 + 1 + 2).size = 3 := by simp [size, binaryRec]
-                      simp [s] at this
-                      exact this
-                    replace : 2 ^ ((n + 1 + 2).size - 1) ≥ 4 := by
-                      have s1 : 2 ^ ((n + 1 + 2).size - 1) ≥ 2 ^ (3 - 1) := by
-                        refine Nat.pow_le_pow_right Nat.zero_lt_two ?_
-                        · exact Nat.sub_le_sub_right this 1
-                      have s2 : 2 ^ (3 - 1) = 4 := by exact rfl
-                      simp [s2] at s1
-                      exact s1
-                    grind
-                simp only [this] at h_3
-                exact h_3
-              have : (n + 2 + 1).size = (n + 2).size + 1 := by
-                let x := n + 2 + 1
-                have x_def : x = value_of% x := by exact rfl
-                simp [←x_def]
-                have : x - 1 = n + 2 := by exact rfl
-                simp [←this]
-                replace n2_is_envelope : n + 2 + 1 = 2 ^ ((n + 2 + 1).size - 1) := by
-                  exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mp) (id (Eq.symm n2_is_envelope)))
-                simp [←x_def] at n2_is_envelope
-                refine size_of_pow2_eq_size_of_envelope_add_1' ?_ ?_
-                · simp [x_def]
-                · exact n2_is_envelope
-              simp [this]
+              simp [n3size_eq_n2size]
               replace : 2 ^ (n + 2).size = 2 ^ ((n + 2).size - 1) + 2 ^ ((n + 2).size - 1) := by
                 refine Eq.symm (Nat.two_pow_pred_add_two_pow_pred ?_)
                 · exact size_pos.mpr (zero_lt_succ (n + 1))
               simp [this]
-              -- rw [Nat.eq_add_of_sub_eq]
               rw [Nat.sub_sub]
               have : 1 + (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) := by
                 rw [add_comm]
@@ -204,13 +205,42 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
                   exact absurd heq this
               simp [this, size, binaryRec]
             · expose_names
+              have n_ge_1 : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
+              have n2size_ge_2 : (n + 2).size ≥ 2 := by
+                have s1 : n + 2 ≥ 1 + 2 := by exact Nat.add_le_add_right n_ge_1 2
+                replace s1 : (n + 2).size ≥ (1 + 2).size := by exact size_le_size s1
+                have s2 : (1 + 2).size = 2 := by simp [size, binaryRec] 
+                simp [s2] at s1
+                exact s1
               split
               · expose_names
-                sorry
+                simp [n3size_eq_n2size]
+                have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+                  exact Nat.sub_add_cancel (le_pow (zero_lt_sub_of_lt n2size_ge_2))
+                simp [this]
+                replace : (2 ^ ((n + 2).size - 1)).size = (n + 2).size := by 
+                  have : (2 ^ ((n + 2).size - 1)).size = (n + 2).size - 1 + 1 := by 
+                    exact size_pow
+                  simp [this]
+                  replace : (n + 2).size - 1 + 1 = (n + 2).size := by
+                    exact Nat.sub_add_cancel (one_le_of_lt n2size_ge_2)
+                  simp [this]
+                simp [this]
+                replace :
+                    2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) = 2 ^ ((n + 2).size - 1) := by
+                  rw [←Nat.two_mul]
+                  have : 2 * 2 ^ ((n + 2).size - 2) = 2 ^ ((n + 2).size - 2 + 1) := by
+                    exact Eq.symm Nat.pow_succ'
+                  simp [this]
+                  grind
+                simp [this]
               · expose_names
+                -- 帰納法に持ち込む
                 simp
                 sorry
           · expose_names
+            simp
+            -- これも帰納法に持ち込む
             sorry
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
