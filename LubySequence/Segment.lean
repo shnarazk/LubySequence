@@ -463,18 +463,13 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
             ≤ n + 1 := by
           sorry
         exact Nat.le_trans ih' this
-
-
  /-
-
-      
         rw (occs := .pos [1]) [h_2]
         have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
           refine Nat.sub_add_cancel ?_
           · refine le_pow ?_
             · sorry
         simp [this]
-
       rw [h_2]
       have : (2 ^ ((n + 2).size - 2)).size = (n + 2).size - 2 + 1 := by exact size_pow
       simp [this]
