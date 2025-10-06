@@ -492,17 +492,36 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
           have x_def : x = value_of% x := by exact rfl
           simp [←x_def]
           by_cases n_eq_1 : n = 1
-          · sorry
+          · simp [x_def] at *
+            --
+            sorry
           · have n_ge_2 : n ≥ 2 := by
               refine (two_le_iff n).mpr ?_
               · constructor
                 · exact h_1
                 · exact n_eq_1
+            have n_ge_3 : n ≥ 3 := by
+              have : ¬n = 2 := by
+                by_contra n_eq_2
+                simp [n_eq_2, size, binaryRec] at h_2
+              by_cases it : n ≥ 3
+              · exact it
+              · simp at it
+                replace it : n ≤ 2 := by exact le_of_lt_succ it
+                replace it : n < 2 := by exact Nat.lt_of_le_of_ne it this
+                replace it : ¬n ≥ 2 := by exact Nat.not_le_of_lt it
+                exact absurd n_ge_2 it
             have n2size_ge_3 : (n + 2).size ≥ 3 := by
-              sorry
+              have s1 : n + 2 ≥ 3 + 2 := by exact Nat.add_le_add_right n_ge_3 2
+              replace s1 : (n + 2).size ≥ (3 + 2).size := by exact size_le_size s1
+              have : (3 + 2).size = 3 := by simp [size, binaryRec]
+              simp [this] at s1
+              exact s1
             rw [←Nat.add_sub_assoc]
             · have : 2 ^ (x.size - 1) = 2 ^ (x.size - 2) + 2 ^ (x.size - 2) := by
-                sorry
+                rw [←mul_two, ←Nat.pow_succ]
+                simp
+                exact (Nat.sub_eq_iff_eq_add n2size_ge_2).mp rfl
               simp only [this]
               rw [Nat.sub_add_eq]
               simp
