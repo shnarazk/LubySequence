@@ -482,9 +482,37 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
           simp [this]
           replace : n - 2 ^ ((n + 2).size - 1) + 1 + 1 = n - 2 ^ ((n + 2).size - 1) + 2 := by
             exact rfl
-          simp [this]
-          refine Nat.add_le_add ih2'' ?_
-          · sorry 
+          simp only [this]
+          replace : n - 2 ^ ((n + 2).size - 1) + 2 = n + 2 - 2 ^ ((n + 2).size - 1) := by
+            exact Eq.symm (Nat.sub_add_comm ih2')
+          simp only [this]
+          replace : n + 1 = n + 2 - 1 := by exact rfl
+          simp only [this]
+          let x := n + 2
+          have x_def : x = value_of% x := by exact rfl
+          simp [←x_def]
+          by_cases n_eq_1 : n = 1
+          · sorry
+          · have n_ge_2 : n ≥ 2 := by
+              refine (two_le_iff n).mpr ?_
+              · constructor
+                · exact h_1
+                · exact n_eq_1
+            have n2size_ge_3 : (n + 2).size ≥ 3 := by
+              sorry
+            rw [←Nat.add_sub_assoc]
+            · have : 2 ^ (x.size - 1) = 2 ^ (x.size - 2) + 2 ^ (x.size - 2) := by
+                sorry
+              simp only [this]
+              rw [Nat.sub_add_eq]
+              simp
+              refine Nat.add_le_add ?_ ?_
+              · simp [x_def]
+              · simp [x_def]
+                refine Nat.le_self_pow ?_ 2
+                · exact sub_ne_zero_of_lt n2size_ge_3
+            · sorry
+            --
           --
         exact Nat.le_trans ih' this
  /-
