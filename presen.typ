@@ -184,7 +184,9 @@ $
           (text(fill: red, [$11 = (\#7, 0)$])),
           (text(fill: blue, [$12 = (\#8, 0)$])), ), )) )
 })
-
+#text(size: 16pt)[
+(Both of the index of Luby sequence and the index of segments start from 1.)
+]
 #pause
 
 Segments start at 1, 2, 4, 5, 8, 9, 11, 12 ...
