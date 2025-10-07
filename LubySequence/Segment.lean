@@ -401,27 +401,27 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   · intro n_eq_0
     simp [n_eq_0] at *
 
-theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
+theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
     rw [segment.eq_def]
     split
-    · expose_names ; contradiction
+    · expose_names ; simp
     · expose_names
       split
       have n_ge_2 : n ≥ 2 := by
         by_cases n_eq_1 : n = 1
         · expose_names
-          simp [n_eq_1] at *
-          simp [size, binaryRec] at h_2
+          simp [n_eq_1] at h_1
+          simp [size, binaryRec] at h_1
         · expose_names
-          replace h : n ≥ 1 := by exact h
-          by_cases n_ge_2 : n ≥ 2
-          · exact n_ge_2
-          · replace n_ge_2 : n < 2 := by exact Nat.lt_of_not_le n_ge_2
-            replace n_ge_2 : n ≤ 1 := by exact le_of_lt_succ n_ge_2
-            have : n = 1 := by exact Eq.symm (Nat.le_antisymm h n_ge_2)
-            exact absurd this n_eq_1
+          by_cases n_eq_0 : n = 0
+          · replace h := h n_eq_0
+            contradiction
+          · refine (two_le_iff n).mpr ?_
+            · constructor
+              · exact h
+              · exact n_eq_1
       have n2size_ge_3 : (n + 2).size ≥ 3 := by
         have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right n_ge_2 2
         replace s1 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size s1
@@ -429,12 +429,12 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
         simp [s2] at s1
         exact s1
       · expose_names
-        replace h_2 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+        replace h_1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
           have : n + 1 = 2 ^ ((n + 2).size - 1) - 2 + 1 := by
-            exact congrFun (congrArg HAdd.hAdd h_2) 1
+            exact congrFun (congrArg HAdd.hAdd h_1) 1
           rw [this]
           grind
-        simp [h_2]
+        simp [h_1]
         have : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) := by
           have : 2 ^ ((n + 2).size - 1) = 2 * 2 ^ ((n + 2).size - 1 - 1) := by
             refine Eq.symm (mul_pow_sub_one ?_ 2)
@@ -450,24 +450,26 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
       · expose_names
         simp
         have n2size_ge_2 : (n + 2).size ≥ 2 := by
-          have s1 : n + 2 ≥ 1 + 2 := by exact Nat.add_le_add_right h 2
+          have s1 : n + 2 ≥ 1 + 2 := by
+            refine Nat.add_le_add ?_ ?_
+            · exact one_le_iff_ne_zero.mpr h
+            · exact AtLeastTwo.prop
           replace s1 : (n + 2).size ≥ (1 + 2).size := by exact size_le_size s1
           have : (1 + 2).size = 2 := by simp [size, binaryRec]
           simp [this] at s1
           exact s1
         have ih1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
-          refine sub_lt h ?_
+          refine sub_lt ?_ ?_
+          · exact zero_lt_of_ne_zero h
           · refine zero_lt_sub_of_lt ?_
             · refine Nat.one_lt_two_pow_iff.mpr ?_
               · exact Nat.sub_ne_zero_iff_lt.mpr n2size_ge_2
-        have ih2 : n - (2 ^ ((n + 2).size - 1) - 1) > 0 := by
-          have : (2 ^ ((n + 2).size - 1) - 1) > 0 := by exact lt_of_tsub_lt_tsub_left ih1
-          refine zero_lt_sub_of_lt ?_
-          · sorry
-        have ih2' : n ≥ 2 ^ ((n + 2).size - 1) := by
-          have : n > 2 ^ ((n + 2).size - 1) - 1 := by exact Nat.lt_of_sub_pos ih2
-          exact le_of_pred_lt this
-        have ih2'' : n ≥ 2 ^ ((n + 2).size - 2) := by
+        have ih2 : n + 2 ≥ 2 ^ ((n + 2).size - 1) := by
+          have : n + 2 ≥ 2 ^ ((n + 2).size - 1) := by
+            refine n_ge_subenvelope ?_
+            · exact Nat.le_add_left 1 (n + 1)
+          exact this
+        have ih2' : n ≥ 2 ^ ((n + 2).size - 2) := by
           have : 2 ^ ((n + 2).size - 1) > 2 ^ ((n + 2).size - 2) := by
             refine (Nat.pow_lt_pow_iff_right ?_).mpr ?_
             · exact Nat.one_lt_two
@@ -475,23 +477,22 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
           grind
         have ih' :
             segment (n - (2 ^ ((n + 2).size - 1) - 1)) ≤ n - (2 ^ ((n + 2).size - 1) - 1) + 1 := by
-          exact ih (n - (2 ^ ((n + 2).size - 1) - 1)) ih1 ih2
+          exact ih (n - (2 ^ ((n + 2).size - 1) - 1)) ih1
         replace ih' :
             2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1))
             ≤ 2 ^ ((n + 2).size - 2) + (n - (2 ^ ((n + 2).size - 1) - 1) + 1) := by
-          exact Nat.add_le_add_iff_left.mpr (ih (n - (2 ^ ((n + 2).size - 1) - 1)) ih1 ih2)
+          exact Nat.add_le_add_iff_left.mpr (ih (n - (2 ^ ((n + 2).size - 1) - 1)) ih1)
         have :
             2 ^ ((n + 2).size - 2) + (n - (2 ^ ((n + 2).size - 1) - 1) + 1)
             ≤ n + 1 := by
           have : n - (2 ^ ((n + 2).size - 1) - 1) = n - 2 ^ ((n + 2).size - 1) + 1 := by
-            refine tsub_tsub_assoc ih2' ?_
-            · exact Nat.one_le_two_pow
+            sorry
           simp [this]
           replace : n - 2 ^ ((n + 2).size - 1) + 1 + 1 = n - 2 ^ ((n + 2).size - 1) + 2 := by
             exact rfl
           simp only [this]
           replace : n - 2 ^ ((n + 2).size - 1) + 2 = n + 2 - 2 ^ ((n + 2).size - 1) := by
-            exact Eq.symm (Nat.sub_add_comm ih2')
+            sorry
           simp only [this]
           replace : n + 1 = n + 2 - 1 := by exact rfl
           simp only [this]
@@ -503,12 +504,12 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
           · have n_ge_2 : n ≥ 2 := by
               refine (two_le_iff n).mpr ?_
               · constructor
-                · exact h_1
+                · exact h
                 · exact n_eq_1
             have n_ge_3 : n ≥ 3 := by
               have : ¬n = 2 := by
                 by_contra n_eq_2
-                simp [n_eq_2, size, binaryRec] at h_2
+                simp [n_eq_2, size, binaryRec] at h_1
               by_cases it : n ≥ 3
               · exact it
               · simp at it
@@ -535,23 +536,8 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
               · simp [x_def]
                 refine Nat.le_self_pow ?_ 2
                 · exact sub_ne_zero_of_lt n2size_ge_3
-            · exact le_add_right_of_le ih2'
+            · exact ih2
         exact Nat.le_trans ih' this
- /-
-        rw (occs := .pos [1]) [h_2]
-        have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
-          refine Nat.sub_add_cancel ?_
-          · refine le_pow ?_
-            · sorry
-        simp [this]
-      rw [h_2]
-      have : (2 ^ ((n + 2).size - 2)).size = (n + 2).size - 2 + 1 := by exact size_pow
-      simp [this]
-      sorry
-    · expose_names
-      simp
-      sorry
--/
 
 /--
 Return the length of segment of state `n`.
