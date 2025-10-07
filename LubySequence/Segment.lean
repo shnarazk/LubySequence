@@ -455,8 +455,15 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
           have : (1 + 2).size = 2 := by simp [size, binaryRec]
           simp [this] at s1
           exact s1
-        have ih1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by sorry
-        have ih2 : n - (2 ^ ((n + 2).size - 1) - 1) > 0 := by sorry
+        have ih1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
+          refine sub_lt h ?_
+          · refine zero_lt_sub_of_lt ?_
+            · refine Nat.one_lt_two_pow_iff.mpr ?_
+              · exact Nat.sub_ne_zero_iff_lt.mpr n2size_ge_2
+        have ih2 : n - (2 ^ ((n + 2).size - 1) - 1) > 0 := by
+          have : (2 ^ ((n + 2).size - 1) - 1) > 0 := by exact lt_of_tsub_lt_tsub_left ih1
+          refine zero_lt_sub_of_lt ?_
+          · sorry
         have ih2' : n ≥ 2 ^ ((n + 2).size - 1) := by
           have : n > 2 ^ ((n + 2).size - 1) - 1 := by exact Nat.lt_of_sub_pos ih2
           exact le_of_pred_lt this
@@ -492,9 +499,7 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
           have x_def : x = value_of% x := by exact rfl
           simp [←x_def]
           by_cases n_eq_1 : n = 1
-          · simp [x_def] at *
-            --
-            sorry
+          · simp [x_def, n_eq_1, size, binaryRec]
           · have n_ge_2 : n ≥ 2 := by
               refine (two_le_iff n).mpr ?_
               · constructor
@@ -530,9 +535,7 @@ theorem segment_limit {n : ℕ} (h : n > 0) : segment n ≤ n + 1 := by
               · simp [x_def]
                 refine Nat.le_self_pow ?_ 2
                 · exact sub_ne_zero_of_lt n2size_ge_3
-            · sorry
-            --
-          --
+            · exact le_add_right_of_le ih2'
         exact Nat.le_trans ih' this
  /-
         rw (occs := .pos [1]) [h_2]
