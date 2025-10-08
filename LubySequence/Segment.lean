@@ -479,13 +479,10 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
             exact s1
           by_cases with_carry : n = 2 ^ ((n + 2).size - 1) - 1
           · have lift : (n + 2).size = n.size + 1 := by 
-             have s1 : (n + 1).size = (n + 2).size - 1 := by sorry
-             replace s1 : (n + 1).size + 1 = (n + 2).size := by
-               refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm s1)))
-               · exact one_le_of_lt n2size_ge_3
+             have s1 : (n + 2).size = (n + 1).size + 1 := by sorry
              have s2 : n.size = (n + 1).size := by sorry
              simp [←s2] at s1
-             exact id (Eq.symm s1)
+             exact s1
             simp [lift] at *
             have s1 : segment (n - (2 ^ n.size - 1)) ≤ n - (2 ^ n.size - 1) + 1 := by
               have : n - (2 ^ n.size - 1) < n := by sorry
@@ -523,7 +520,8 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
                 ≤ n + 1 := by
               have : n - (2 ^ ((n + 2).size - 1) - 1) = n - 2 ^ ((n + 2).size - 1) + 1 := by
                 refine tsub_tsub_assoc ?_ ?_
-                · sorry 
+                · simp [same_size]
+                  exact n_ge_subenvelope (one_le_of_lt n_ge_4)
                 · exact Nat.one_le_two_pow
               simp [this]
               replace : n - 2 ^ ((n + 2).size - 1) + 1 + 1 = n - 2 ^ ((n + 2).size - 1) + 2 := by
