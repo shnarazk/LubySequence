@@ -480,22 +480,21 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
           by_cases with_carry : n = 2 ^ ((n + 2).size - 1) - 1
           · have lift : (n + 2).size = n.size + 1 := by 
              have s1 : (n + 1).size = (n + 2).size - 1 := by sorry
-             replace s1 : (n + 1).size + 1 = (n + 2).size := by sorry
+             replace s1 : (n + 1).size + 1 = (n + 2).size := by
+               refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm s1)))
+               · exact one_le_of_lt n2size_ge_3
              have s2 : n.size = (n + 1).size := by sorry
              simp [←s2] at s1
              exact id (Eq.symm s1)
             simp [lift] at *
-            have s1 : n - (2 ^ n.size - 1) = n - 2 ^ n.size + 1 := by
-              sorry
-            simp [s1]
-            replace s1 : segment (n - 2 ^ n.size + 1) ≤ n - 2 ^ n.size + 1 + 1 := by
-              have : n - 2 ^ n.size + 1 < n := by sorry
-              exact ih (n - 2 ^ n.size + 1) this 
-            have s2 : 2 ^ (n.size - 1) + (n - 2 ^ n.size + 1 + 1) ≤ n + 1 := by
-              sorry
+            have s1 : segment (n - (2 ^ n.size - 1)) ≤ n - (2 ^ n.size - 1) + 1 := by
+              have : n - (2 ^ n.size - 1) < n := by sorry
+              exact ih (n - (2 ^ n.size - 1)) this 
+            have s2 : 2 ^ (n.size - 1) + (n - (2 ^ n.size - 1) + 1) ≤ n + 1 := by
+              simp [←with_carry]
+              exact n_ge_subenvelope (one_le_of_lt n_ge_4)
             exact add_le_of_add_le_left s2 s1
           · have same_size : (n + 2).size = n.size := by sorry
-            --
             have ih1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
               refine sub_lt ?_ ?_
               · exact zero_lt_of_ne_zero h
