@@ -485,7 +485,10 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
              exact s1
             simp [lift] at *
             have s1 : segment (n - (2 ^ n.size - 1)) ≤ n - (2 ^ n.size - 1) + 1 := by
-              have : n - (2 ^ n.size - 1) < n := by sorry
+              have : n - (2 ^ n.size - 1) < n := by
+                refine sub_lt (zero_lt_of_ne_zero h) ?_
+                · refine zero_lt_sub_of_lt ?_
+                  · exact Nat.one_lt_two_pow (Nat.ne_zero_of_lt n2size_ge_3)
               exact ih (n - (2 ^ n.size - 1)) this 
             have s2 : 2 ^ (n.size - 1) + (n - (2 ^ n.size - 1) + 1) ≤ n + 1 := by
               simp [←with_carry]
