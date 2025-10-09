@@ -479,22 +479,35 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
             exact s1
           by_cases with_carry : n = 2 ^ ((n + 2).size - 1) - 1
           · have lift : (n + 2).size = n.size + 1 := by 
-             have s1 : (n + 1).size = n.size + 1 := by sorry
-             have s2 : (n + 1).size = (n + 2).size := by
-               replace with_carry : n + 1 = 2 ^ ((n + 2).size - 1) := by
-                 refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ (id (Eq.symm with_carry)))
-                 · exact Nat.one_le_two_pow
-               replace with_carry : (n + 1).size = (2 ^ ((n + 2).size - 1)).size := by
-                 exact congrArg size with_carry
-               have : (2 ^ ((n + 2).size - 1)).size = (n + 2).size - 1 + 1 := by 
-                 exact size_pow
-               simp [this] at with_carry
-               replace : (n + 2).size - 1 + 1 = (n + 2).size := by
-                 exact Nat.sub_add_cancel (one_le_of_lt n2size_ge_3)
-               simp [this] at with_carry
-               exact with_carry
-             simp [s2] at s1
-             exact s1
+              have s2 : (n + 1).size = (n + 2).size := by
+                replace with_carry : n + 1 = 2 ^ ((n + 2).size - 1) := by
+                  refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ (id (Eq.symm with_carry)))
+                  · exact Nat.one_le_two_pow
+                replace with_carry : (n + 1).size = (2 ^ ((n + 2).size - 1)).size := by
+                  exact congrArg size with_carry
+                have : (2 ^ ((n + 2).size - 1)).size = (n + 2).size - 1 + 1 := by 
+                  exact size_pow
+                simp [this] at with_carry
+                replace : (n + 2).size - 1 + 1 = (n + 2).size := by
+                  exact Nat.sub_add_cancel (one_le_of_lt n2size_ge_3)
+                simp [this] at with_carry
+                exact with_carry
+              have s1 : (n + 1).size = n.size + 1 := by
+                simp [←s2] at with_carry
+                replace with_carry : n.size = (2 ^ ((n + 1).size - 1) - 1).size := by
+                  exact congrArg size with_carry
+                have : (2 ^ ((n + 1).size - 1) - 1).size = (n + 1).size - 1 := by
+                  refine size_sub ?_ ?_ ?_
+                  · refine zero_lt_sub_of_lt ?_
+                    · simp [s2] ; exact lt_of_add_left_lt n2size_ge_3
+                  · exact Nat.one_pos
+                  · exact Nat.one_le_two_pow
+                simp [this] at with_carry
+                simp [with_carry]
+                refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
+                · simp [s2] ; exact lt_of_add_left_lt n2size_ge_3
+              simp [s2] at s1
+              exact s1
             simp [lift] at *
             have s1 : segment (n - (2 ^ n.size - 1)) ≤ n - (2 ^ n.size - 1) + 1 := by
               have : n - (2 ^ n.size - 1) < n := by
