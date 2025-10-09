@@ -162,6 +162,10 @@ theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.
   simp [t2, bitslength_eq_size] at t1
   exact t1
 
+/--
+For n ≥ 2 and k < 2^n, adding k to 2^n does not change the bit size.
+In other words, (2^n + k).size = (2^n).size when k is strictly less than 2^n.
+-/
 theorem size_of_pow2 {k n : ℕ} (h1 : n ≥ 2) (h2 : k < 2 ^ n) :
     (2 ^ n + k).size = (2 ^ n).size := by
   have s1 : (2 ^ n + k).size ≤ n + 1 := by
@@ -516,6 +520,10 @@ theorem pow2_is_minimum (k : ℕ) : ∀ n < 2 ^ k, n.size ≤ k := by
   simp [t2] at t1
   exact size_le.mpr hn
 
+/--
+If n is an "envelope" (n = 2^(n.size) - 1), then incrementing n increases the size by exactly 1.
+This characterizes when the bit size increases: it happens precisely at powers of 2 minus 1.
+-/
 theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
     n = 2 ^ n.size - 1 → (n + 1).size = n.size + 1 := by
   intro n_is_envelope
@@ -527,6 +535,10 @@ theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
     exact size_of_pow2_eq_self_add_one n.size
   simp [this]
 
+/--
+For positive n equal to 2^(n.size - 1), the size of n is one more than the size of n - 1.
+This is a variant characterization showing when a number is exactly a power of 2.
+-/
 theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
     n = 2 ^ (n.size - 1) → n.size = (n - 1).size + 1 := by
   intro n_is_envelope
@@ -631,6 +643,10 @@ theorem trailing_zeros_prop1 : ∀ n > 0,
       · expose_names ; exact absurd h n_ne_envenlop
       · exact rfl
 
+/--
+For positive n and k where 2^k > n, adding 2^k to n preserves the number of trailing zeros.
+This shows that adding a sufficiently large power of 2 does not affect trailing zeros.
+-/
 theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
     2 ^ k > n → trailing_zeros (n + 2 ^ k) = trailing_zeros n := by
   intro n n_gt_0 k pow2k_gt_n
@@ -1115,6 +1131,11 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
             exact sub_succ_lt_self n.size 1 nsize2
           exact Nat.lt_trans g g'
 
+/--
+If incrementing n increases the size by 1, then n + 1 must be a power of 2.
+This is the converse of size_of_pow2_eq_size_of_envelope_add_1, showing that
+size increases happen if and only if we reach a power of 2.
+-/
 theorem increase_size_at_pow2 {n : ℕ} :
     (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
   intro eq
