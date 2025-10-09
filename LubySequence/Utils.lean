@@ -1114,3 +1114,34 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
             simp [trailing_zeros_m, trailing_zeros_n]
             exact sub_succ_lt_self n.size 1 nsize2
           exact Nat.lt_trans g g'
+
+theorem increase_size_at_pow2 {n : ℕ} :
+    (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
+  intro eq
+  by_contra ne_pow2
+  by_cases n_eq_0 : n = 0
+  · simp [n_eq_0] at ne_pow2
+  · replace n_eq_0 : n > 0 := by exact zero_lt_of_ne_zero n_eq_0
+    replace n_eq_0 : n ≥ 1 := by exact n_eq_0
+    by_cases n_eq_1 : n = 1
+    · simp [n_eq_1, size, binaryRec] at ne_pow2
+    · have n_ge_2 : n ≥ 2 := by
+        refine (two_le_iff n).mpr ?_
+        · constructor
+          · exact Nat.ne_zero_of_lt n_eq_0
+          · exact n_eq_1
+      clear n_eq_0 n_eq_1
+      have s1 : n + 1 < 2 ^ n.size := by
+        simp [eq] at ne_pow2
+        have : n < 2 ^ n.size := by exact lt_size_self n
+        replace : n + 1 ≤ 2 ^ n.size := by exact this
+        replace : n + 1 < 2 ^ n.size ∨ n + 1 = 2 ^ n.size := by
+          exact Or.symm (Nat.eq_or_lt_of_le this)
+        rcases this with lt|eq
+        · exact lt
+        · exact absurd eq ne_pow2
+      have s2 : (n + 1).size ≤ n.size := by
+        exact pow2_is_minimum n.size (n + 1) s1
+      replace eq : (n + 1).size > n.size := by grind
+      replace eq : ¬(n + 1).size ≤ n.size := by exact Nat.not_le_of_lt eq
+      exact absurd s2 eq
