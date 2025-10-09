@@ -534,7 +534,17 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
                   exact Nat.eq_sub_of_add_eq this
                 exact absurd this h_1
               have s2 : n.size = (n + 1).size := by
-                sorry
+                by_contra nsize_ne_n1size
+                have : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
+                  exact size_limit (zero_lt_of_ne_zero h)
+                rcases this with c|c
+                · simp [c] at nsize_ne_n1size
+                · have : n + 1 = 2 ^ ((n + 1).size - 1) := by
+                    exact increase_size_at_pow2 c
+                  replace : n = 2 ^ ((n + 1).size - 1) - 1 := by
+                    exact Nat.eq_sub_of_add_eq this
+                  simp [s1] at this
+                  exact absurd this with_carry
               simp [s1] at s2
               exact id (Eq.symm s2)
             have ih1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
