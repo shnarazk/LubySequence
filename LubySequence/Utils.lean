@@ -166,7 +166,7 @@ theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.
 For n ≥ 2 and k < 2^n, adding k to 2^n does not change the bit size.
 In other words, (2^n + k).size = (2^n).size when k is strictly less than 2^n.
 -/
-theorem size_of_pow2 {k n : ℕ} (h1 : n ≥ 2) (h2 : k < 2 ^ n) :
+theorem size_of_pow2 {k n : ℕ} (h2 : k < 2 ^ n) :
     (2 ^ n + k).size = (2 ^ n).size := by
   have s1 : (2 ^ n + k).size ≤ n + 1 := by
     have : 2 ^ n + k < 2 ^ (n + 1) := by
@@ -491,24 +491,27 @@ theorem le_if_le_size {a b : ℕ} : a.size < b.size → a < b := by
   exact absurd h1 c2
 
 /--
-For positive n, the size of n+1 is either equal to n.size or n.size + 1.
+For any n, the size of `n + 1` is either equal to `n.size` or `n.size + 1`.
 -/
-theorem size_limit {n : ℕ} (h : 0 < n) : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
-  have s1 : n.size ≤ (n + 1).size := by exact size_le_size (le_add_right n 1)
-  have s2 : (n + 1).size ≤ n.size + 1 := by
-    have t1 : (2 * n).size = n.size + 1 := by exact size_of_double_eq_self_add_one n h
-    have t2 : n + 1 ≤ 2 * n := by exact add_one_le_two_mul h
-    have t2' : (n + 1).size ≤ (2 * n).size := by exact size_le_size t2
-    simp [t1] at t2'
-    exact t2'
-  by_contra h'
-  push_neg at h'
-  rcases h' with ⟨a, b⟩
-  have c1 : n.size < (n + 1).size := by exact lt_of_le_of_ne s1 (id (Ne.symm a))
-  have c2 : (n + 1).size < n.size + 1 := by exact lt_of_le_of_ne s2 b
-  have c2' : (n + 1).size ≤ n.size  := by exact le_of_lt_succ c2
-  have c2'' : ¬(n + 1).size > n.size := by exact not_lt.mpr c2'
-  exact absurd c1 c2''
+theorem size_limit (n : ℕ) : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
+  by_cases h : n = 0
+  · simp [h]
+  · replace h : n > 0 := by exact zero_lt_of_ne_zero h
+    have s1 : n.size ≤ (n + 1).size := by exact size_le_size (le_add_right n 1)
+    have s2 : (n + 1).size ≤ n.size + 1 := by
+      have t1 : (2 * n).size = n.size + 1 := by exact size_of_double_eq_self_add_one n h
+      have t2 : n + 1 ≤ 2 * n := by exact add_one_le_two_mul h
+      have t2' : (n + 1).size ≤ (2 * n).size := by exact size_le_size t2
+      simp [t1] at t2'
+      exact t2'
+    by_contra h'
+    push_neg at h'
+    rcases h' with ⟨a, b⟩
+    have c1 : n.size < (n + 1).size := by exact lt_of_le_of_ne s1 (id (Ne.symm a))
+    have c2 : (n + 1).size < n.size + 1 := by exact lt_of_le_of_ne s2 b
+    have c2' : (n + 1).size ≤ n.size  := by exact le_of_lt_succ c2
+    have c2'' : ¬(n + 1).size > n.size := by exact not_lt.mpr c2'
+    exact absurd c1 c2''
 
 /--
 Every natural number less than 2^k has size at most k.
@@ -543,11 +546,7 @@ theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
     n = 2 ^ (n.size - 1) → n.size = (n - 1).size + 1 := by
   intro n_is_envelope
   have : (n - 1 + 1).size = (n - 1).size ∨ (n - 1 + 1).size = (n - 1).size + 1 := by
-    by_cases n_eq_1 : n = 1
-    · simp [n_eq_1]
-    · refine size_limit ?_
-      · have : n > 1 := by exact Nat.lt_of_le_of_ne h fun a ↦ n_eq_1 (id (Eq.symm a))
-        exact zero_lt_sub_of_lt this
+    exact size_limit (n - 1)
   have n_mp : n - 1 + 1 = n := by exact Nat.sub_add_cancel h
   have nsize_mp : n.size - 1 + 1 = n.size := by
     refine Nat.sub_add_cancel ?_

@@ -183,7 +183,7 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
                 by_contra n1size_ne_n2size
                 have : (n + 2).size = (n + 1).size + 1 := by
                   have : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
-                    exact size_limit (zero_lt_succ n)
+                    exact size_limit (n + 1)
                   rcases this with c|c
                   · exact absurd (id (Eq.symm c)) n1size_ne_n2size
                   · exact c
@@ -195,7 +195,7 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
               have s2 : n.size = (n + 1).size := by
                 by_contra nsize_ne_n1size
                 have : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
-                  exact size_limit (zero_lt_of_ne_zero h)
+                  exact size_limit n
                 rcases this with c|c
                 · simp [c] at nsize_ne_n1size
                 · have : n + 1 = 2 ^ ((n + 1).size - 1) := by
@@ -339,8 +339,7 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
             simp [s2] at s1
             exact s1
           rw [h_1']
-          refine size_of_pow2 ?_ ?_
-          · exact le_sub_one_of_lt n2size_gt_3
+          refine size_of_pow2 ?_
           · refine Nat.one_lt_two_pow_iff.mpr ?_
             · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
         split <;> simp [n3size_eq_n2size]

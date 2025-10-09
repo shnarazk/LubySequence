@@ -269,7 +269,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
       exact fun a_1 ↦ congrFun (congrArg HSub.hSub a_1) c
     apply sub2
     have cands : (n + 2 + 1).size = (n + 2).size ∨ (n + 2 + 1).size = (n + 2).size + 1 := by
-      refine size_limit (by grind)
+      exact size_limit (n + 2)
     rcases cands with e|g
     · simp [e]
     · have t1 : (2 ^ ((n + 2 + 1).size - 1)).size = (n + 2).size := by exact congrArg Nat.size n2
@@ -348,8 +348,7 @@ theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelop
   · intro h
     by_contra hx
     have ep : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
-      refine size_limit ?_
-      exact Nat.zero_lt_succ n
+      exact size_limit (n + 1)
     rcases ep with e|p
     · exact absurd e hx
     · have : is_envelope n := by exact (envelope_prop2 n).mp p
