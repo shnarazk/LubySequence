@@ -1165,3 +1165,32 @@ theorem increase_size_at_pow2 {n : ℕ} :
       replace eq : (n + 1).size > n.size := by grind
       replace eq : ¬(n + 1).size ≤ n.size := by exact Nat.not_le_of_lt eq
       exact absurd s2 eq
+
+theorem increase_size_iff_pow2 {n : ℕ} :
+    (n + 1).size = n.size + 1 ↔ n + 1 = 2 ^ ((n + 1).size - 1) := by
+  constructor
+  · exact increase_size_at_pow2
+  · intro h
+    exact size_of_pow2_eq_size_of_envelope_add_1' (zero_lt_succ n) h
+
+theorem same_size_iff_not_pow2 {n : ℕ} :
+    ¬n + 1 = 2 ^ ((n + 1).size - 1) ↔ (n + 1).size = n.size := by
+  have it {a b : Prop} : (a → b) → (¬b → ¬a) := by exact fun a_1 a_2 a ↦ a_2 (a_1 a)
+  constructor
+  · intro p
+    have : (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
+      exact fun a ↦ increase_size_at_pow2 a
+    replace this := it this p
+    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+    rcases cases with q|q
+    · exact q
+    · exact absurd q this
+  · intro p
+    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+    rcases cases with q|q
+    · replace q : ¬(n + 1).size = n.size + 1 := by simp [p]
+      have : n + 1 = 2 ^ ((n + 1).size - 1) → (n + 1).size = n.size + 1 := by
+        exact fun a ↦ increase_size_iff_pow2.mpr a
+      replace this := it this q
+      exact this
+    · simp [q] at p
