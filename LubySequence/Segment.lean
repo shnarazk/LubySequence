@@ -461,27 +461,18 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
               rw [Nat.two_pow_pred_add_two_pow_pred this]
           · expose_names
             simp
-            sorry
-/-
-              exact segment_limit (2 ^ ((n + 2).size - 1) - 2)
-            have s2 :
-                2 ^ ((n + 2).size - 2) + (2 ^ ((n + 2).size - 1) - 2 + 1)
-                ≤ 2 ^ ((n + 1 + 2).size - 2) := by
-              simp [n3size_eq_n2size]
-              have : 2 ^ ((n + 2).size - 1) - 2 + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
-                refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
-                · refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
-                  · exact Nat.le_self_pow (Nat.sub_ne_zero_iff_lt.mpr n2size_ge_2) 2
-              simp [this]
-              refine add_le_of_le_sub ?_ ?_
+            have n3size_eq_n2size : (n + 1 + 2).size = (n + 2).size := by sorry
+            simp [n3size_eq_n2size]
+            have : n + 1 - (2 ^ ((n + 2).size - 1) - 1) = n - (2 ^ ((n + 2).size - 1) - 1) + 1 := by
+              refine Nat.sub_add_comm ?_
               · sorry
-              · sorry -- apply?
-            exact add_le_of_add_le_left s2 s1
-          · expose_names
-            simp
-            -- これも帰納法に持ち込む
-            sorry
-            -/
+            simp [this]
+            have s1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
+              refine sub_lt ?_ ?_
+              · exact zero_lt_of_ne_zero h
+              · sorry
+            have ih' := ih (n - (2 ^ ((n + 2).size - 1) - 1)) s1
+            exact ih'
 
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
 #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
