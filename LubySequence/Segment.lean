@@ -519,7 +519,24 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
               simp [←with_carry]
               exact n_ge_subenvelope (one_le_of_lt n_ge_4)
             exact add_le_of_add_le_left s2 s1
-          · have same_size : (n + 2).size = n.size := by sorry
+          · have same_size : (n + 2).size = n.size := by
+              have s1 : (n + 1).size = (n + 2).size := by
+                by_contra n1size_ne_n2size
+                have : (n + 2).size = (n + 1).size + 1 := by
+                  have : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
+                    exact size_limit (zero_lt_succ n)
+                  rcases this with c|c
+                  · exact absurd (id (Eq.symm c)) n1size_ne_n2size
+                  · exact c
+                have : n + 2 = 2 ^ ((n + 2).size - 1) := by
+                  exact increase_size_at_pow2 this
+                replace : n = 2 ^ ((n + 2).size - 1) - 2 := by
+                  exact Nat.eq_sub_of_add_eq this
+                exact absurd this h_1
+              have s2 : n.size = (n + 1).size := by
+                sorry
+              simp [s1] at s2
+              exact id (Eq.symm s2)
             have ih1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
               refine sub_lt ?_ ?_
               · exact zero_lt_of_ne_zero h
