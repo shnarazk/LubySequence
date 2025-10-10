@@ -613,28 +613,29 @@ theorem segment_prop1 {n : ℕ} (h' : n = 2 ^ n.size - 2) : segment n = 2 ^ (n.s
         by_cases n_eq_2 : n = 2
         · simp [n_eq_2, segment, size, binaryRec]
         · have n_ge_4 : n ≥ 4 := by
-            sorry
-          let x := n - 2
-          have x_def : x = value_of% x := by exact rfl
-          have x_def' : n = x + 2 := by exact (Nat.sub_eq_iff_eq_add n_ge_2).mp x_def
-          have x_ge_2 : x ≥ 2 := by exact le_sub_of_add_le n_ge_4
-          have xsize_ge_2 : x.size ≥ 2 := by
-            exact size_ge_2 x_ge_2
-          have h'' : x = 2 ^ x.size - 2 := by
-            sorry
-          have x_lt_n : x < n := by sorry
-          rw (occs := .pos [1]) [h']
-          rw /- (occs := .pos [1]) -/ [x_def']
-          rw [segment_prop1' _ h'']
-          simp [ih x x_lt_n h'']
-          rw [mul_comm]
-          have : 2 ^ (x.size - 1) * 2 = 2 ^ (x.size - 1 + 1) := by exact rfl
-          simp [this]
-          replace : x.size - 1 + 1 = x.size := by
-            refine Nat.sub_add_cancel ?_
-            · exact one_le_iff_ne_zero.mpr (Nat.ne_zero_of_lt xsize_ge_2)
-          --
-          sorry
+            have : n > 2 := by exact Nat.lt_of_le_of_ne n_ge_2 fun a ↦ n_eq_2 (id (Eq.symm a))
+            replace : n ≥ 3 := by exact this
+            by_cases n_eq_3 : n = 3
+            · simp [n_eq_3] at h'
+            · replace : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' this
+              rcases this with c|c
+              · exact absurd c n_eq_3
+              · exact c
+          rw [segment]
+          simp
+          split
+          · expose_names
+            have : (n + 2).size = n.size + 1 := by
+              sorry
+            simp [this]
+          · expose_names
+            have h'' : n + 2 = 2 ^ n.size := by
+              refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm h')))
+              · exact le_pow (size_pos.mpr (zero_lt_of_ne_zero n_eq_0))
+            simp [h'', size_pow] at h
+            exact absurd h' h 
+          · intro z
+            exact absurd z n_eq_0
 
 /--
 For positions not at envelope boundaries, the segment index is computed recursively:
