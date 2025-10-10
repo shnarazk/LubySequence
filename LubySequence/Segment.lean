@@ -460,23 +460,40 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
               rw [Nat.two_pow_pred_add_two_pow_pred this]
           · expose_names
             simp
+            replace h_1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
+              by_contra case_if
+              replace case_if : n = 2 ^ ((n + 2).size - 1) - 2 := by grind
+              simp [←case_if] at h_1
+            replace h_3 : ¬n + 2 + 1 = 2 ^ ((n + 2 + 1).size - 1) := by
+              have ordering : n + 1 + 2 = n + 2 + 1 := by exact rfl
+              simp [ordering] at *
+              by_contra case_if
+              replace case_if : n + 1 = 2 ^ ((n + 2 + 1).size - 1) - 2 := by grind
+              simp [case_if] at h_3
             have n3size_eq_n2size : (n + 2 + 1).size = (n + 2).size := by
               have ordering : n + 1 + 2 = n + 2 + 1 := by exact rfl
               simp [ordering] at *
-              have : ¬n + 2 + 1 = 2 ^ ((n + 2 + 1).size - 1) := by
-                by_contra case_if
-                replace case_if : n + 1 = 2 ^ ((n + 2 + 1).size - 1) - 2 := by grind
-                simp [case_if] at h_3
-              refine same_size_iff_not_pow2.mp this
+              refine same_size_iff_not_pow2.mp h_3
             simp [n3size_eq_n2size]
             have : n + 1 - (2 ^ ((n + 2).size - 1) - 1) = n - (2 ^ ((n + 2).size - 1) - 1) + 1 := by
               refine Nat.sub_add_comm ?_
-              · sorry
+              · have : 2 ^ ((n + 2).size - 1) ≤ n + 2 := by
+                  exact n_ge_subenvelope (Nat.le_add_left 1 (n + 1))
+                replace : 2 ^ ((n + 2).size - 1) < n + 2 := by
+                  exact Nat.lt_of_le_of_ne this fun a ↦ h_1 (id (Eq.symm a))
+                replace : 2 ^ ((n + 2).size - 1) ≤ n + 1 := by exact le_of_lt_succ this
+                exact sub_le_of_le_add this
             simp [this]
             have s1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
               refine sub_lt ?_ ?_
               · exact zero_lt_of_ne_zero h
-              · sorry
+              · refine zero_lt_sub_of_lt ?_
+                · have s1 : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
+                  replace s1 : (n + 2).size ≥ (1 + 2).size := by
+                    exact size_le_size (Nat.add_le_add_right s1 2)
+                  have s2 : (1 + 2).size = 2 := by simp [size, binaryRec]
+                  simp [s2] at s1
+                  exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr s1)
             have ih' := ih (n - (2 ^ ((n + 2).size - 1) - 1)) s1
             exact ih'
 
