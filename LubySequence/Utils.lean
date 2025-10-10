@@ -1194,3 +1194,32 @@ theorem same_size_iff_not_pow2 {n : ℕ} :
       replace this := it this q
       exact this
     · simp [q] at p
+
+@[simp]
+theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+
+@[simp]
+theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
+
+@[simp]
+theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
+
+@[simp]
+theorem size_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
+  have s1 : n.size ≥ (2 : ℕ).size := by exact size_le_size h
+  simp at s1
+  exact s1
+
+@[simp]
+theorem size0_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
+  have s1 : n ≥ 0 := by exact Nat.zero_le n
+  have s2 : n + 2 ≥ 0 + 2 := by exact Nat.add_le_add_right s1 2
+  exact size_ge_2 s2
+
+@[simp]
+theorem size2_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
+  have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right h 2
+  have s2 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size s1
+  simp at s2
+  exact s2
+

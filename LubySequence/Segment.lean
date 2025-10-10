@@ -29,12 +29,7 @@ def segment (n : ℕ) : ℕ := match n with
     if h : n = 2 ^ ((n + 2).size - 1) - 2
     then 2 ^ ((n + 2).size - 2)
     else
-      have n2size : (n + 2).size ≥ 2 := by
-        have s1 : (n + 2).size ≥ (0 + 2).size := by
-          exact size_le_size (Nat.le_add_left (0 + 2) n)
-        have s2 : (0 + 2).size = 2 := by simp [size, binaryRec]
-        simp [s2] at s1
-        exact s1
+      have n2size : (n + 2).size ≥ 2 := by exact size0_2_ge_2 n
       have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
         have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
           refine zero_lt_sub_of_lt ?_
@@ -80,7 +75,6 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
         by_cases n_eq_1 : n = 1
         · expose_names
           simp [n_eq_1] at h_1
-          simp [size, binaryRec] at h_1
         · expose_names
           by_cases n_eq_0 : n = 0
           · replace h := h n_eq_0
@@ -335,7 +329,6 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
             · exact one_le_iff_ne_zero.mpr h
             · exact le_of_lt_succ n_eq_1
           simp [n_eq_1] at *
-          simp [size, binaryRec] at h_1
         have n2size_gt_3 : (n + 2).size ≥ 3 := by
           have t1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right n_ge_2 2
           replace t1 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size t1
@@ -365,12 +358,7 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
         · split
           · expose_names
             have n_ge_1 : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
-            have n2size_ge_2 : (n + 2).size ≥ 2 := by
-              have s1 : n + 2 ≥ 1 + 2 := by exact Nat.add_le_add_right n_ge_1 2
-              replace s1 : (n + 2).size ≥ (1 + 2).size := by exact size_le_size s1
-              have s2 : (1 + 2).size = 2 := by simp[size, binaryRec]
-              simp [s2] at s1
-              exact s1
+            have n2size_ge_2 : (n + 2).size ≥ 2 := by exact size0_2_ge_2 n
             have n2_is_envelope : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
               replace h_3 : n = 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 := by
                 exact Nat.eq_sub_of_add_eq h_3
@@ -505,7 +493,7 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
                   replace s1 : (n + 2).size ≥ (1 + 2).size := by
                     exact size_le_size (Nat.add_le_add_right s1 2)
                   have s2 : (1 + 2).size = 2 := by simp [size, binaryRec]
-                  simp [s2] at s1
+                  simp only [s2] at s1
                   exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr s1)
             have ih' := ih (n - (2 ^ ((n + 2).size - 1) - 1)) s1
             exact ih'
@@ -574,7 +562,6 @@ theorem segment_prop1' : ∀ n : ℕ, n = 2 ^ n.size - 2 →
             have : 2 * 2 ^ ((n + 2).size - 2) = 2 ^ ((n + 2).size - 2 + 1) := by
               exact Eq.symm Nat.pow_succ'
             simp [this]
-            grind
           · expose_names
             simp
             have : n = 2 ^ ((n + 2).size - 1) - 2 := by
@@ -623,18 +610,31 @@ theorem segment_prop1 {n : ℕ} (h' : n = 2 ^ n.size - 2) : segment n = 2 ^ (n.s
           rcases n_eq_0 with eq|gt
           · simp [eq] at h'
           · exact gt
-        let x := n - 2
-        have x_def : x = value_of% x := by exact rfl
-        have x_def' : n = x + 2 := by exact (Nat.sub_eq_iff_eq_add n_ge_2).mp x_def
-        have h'' : x = 2 ^ x.size - 2 := by
+        by_cases n_eq_2 : n = 2
+        · simp [n_eq_2, segment, size, binaryRec]
+        · have n_ge_4 : n ≥ 4 := by
+            sorry
+          let x := n - 2
+          have x_def : x = value_of% x := by exact rfl
+          have x_def' : n = x + 2 := by exact (Nat.sub_eq_iff_eq_add n_ge_2).mp x_def
+          have x_ge_2 : x ≥ 2 := by exact le_sub_of_add_le n_ge_4
+          have xsize_ge_2 : x.size ≥ 2 := by
+            exact size_ge_2 x_ge_2
+          have h'' : x = 2 ^ x.size - 2 := by
+            sorry
+          have x_lt_n : x < n := by sorry
+          rw (occs := .pos [1]) [h']
+          rw /- (occs := .pos [1]) -/ [x_def']
+          rw [segment_prop1' _ h'']
+          simp [ih x x_lt_n h'']
+          rw [mul_comm]
+          have : 2 ^ (x.size - 1) * 2 = 2 ^ (x.size - 1 + 1) := by exact rfl
+          simp [this]
+          replace : x.size - 1 + 1 = x.size := by
+            refine Nat.sub_add_cancel ?_
+            · exact one_le_iff_ne_zero.mpr (Nat.ne_zero_of_lt xsize_ge_2)
+          --
           sorry
-        have x_lt_n : x < n := by sorry
-        rw (occs := .pos [1]) [h']
-        rw /- (occs := .pos [1]) -/ [x_def']
-        rw [segment_prop1' _ h'']
-        simp [ih x x_lt_n h'']
-        --
-        sorry
 
 /--
 For positions not at envelope boundaries, the segment index is computed recursively:
@@ -648,9 +648,7 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   have n2size : (n + 2).size ≥ 2 := by
     have s1 : (n + 2).size ≥ (0 + 2).size := by
       exact size_le_size (Nat.le_add_left (0 + 2) n)
-    have s2 : (0 + 2).size = 2 := by simp [size, binaryRec]
-    simp [s2] at s1
-    exact s1
+    exact size0_2_ge_2 n
   have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
     have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
       refine zero_lt_sub_of_lt ?_
@@ -667,7 +665,6 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
         simp at n_eq_1
         replace n_eq_1 : n = 1 := by exact Nat.eq_of_le_of_lt_succ n_gt_0 n_eq_1
         simp [n_eq_1] at *
-        simp [size, binaryRec] at h
       have n2size_ge_2 : (n + 2).size ≥ 3 := by
         have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right n_ge_2 2
         have s2 : (2 + 2).size = 3 := by simp [size, binaryRec]
@@ -832,8 +829,7 @@ theorem segment_length_prop1_ : ∀ n > 0, n = 2 ^ n.size - 2 →
         have s1 : 2 ^ (n + 2).size ≥ 2 ^ (2 + 2).size := by
           refine Luby.pow2_le_pow2 (2 + 2).size (n + 2).size ?_
           · exact size_le_size (Nat.add_le_add_right n_gt_2 2)
-        have : 2 ^ (2 + 2).size = 8 := by simp [size, binaryRec]
-        simp [this] at s1
+        simp at s1
         exact le_sub_of_add_le s1
       replace c : ¬2 ^ (n + 2).size - 2 = 0 := by exact Nat.ne_zero_of_lt c
       exact absurd x c

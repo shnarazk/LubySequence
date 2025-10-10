@@ -48,7 +48,7 @@ theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := b
             · refine Nat.pos_iff_ne_zero.mp ?_
               · have t1 : (2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
                 have t2 : (2 + 1).size ≤ (n + 2 + 1).size := by exact Nat.size_le_size (by grind)
-                simp [t1] at t2
+                simp only [t1] at t2
                 exact Nat.zero_lt_of_lt t2
         simp [sl] at ap5
         have ap6 : 2 ^ ((n + 2 + 1).size - 1) = 2 ^ a := by exact congrArg (HPow.hPow 2) ap5

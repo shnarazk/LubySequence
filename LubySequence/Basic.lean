@@ -255,8 +255,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
           refine Nat.sub_le_sub_right ?_ 1
           refine Nat.size_le_size ?_
           exact Nat.le_add_left (0 + 2) n
-        have t2 : 2 ^ ((0 + 2).size - 1) = 2 := by simp [Nat.size, Nat.binaryRec]
-        simp [t2] at t1
+        simp at t1
         exact t1
     simp [t1]
     simp [←n2]
@@ -282,7 +281,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
           refine Nat.size_le_size ?_
           exact Nat.le_add_left (0 + 2 + 1) n
         have u2 : (0 + 2 + 1).size = 2 := by simp [Nat.size, Nat.binaryRec]
-        simp [u2] at u1
+        simp only [u2] at u1
         exact Nat.one_le_of_lt u1
       simp [t3] at t1
       exact t1
@@ -480,14 +479,12 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
               have env2 : is_envelope (n + 1 - 2 ^ ((n + 1).size - 1)) := by
                 have cases : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
                 rcases cases with z|p
-                · simp [z] ; simp [is_envelope, S₂] ; simp [Nat.size, Nat.binaryRec]
+                · simp [z] ; simp [is_envelope, S₂]
                 · have cases1 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' p
                   rcases cases1 with n1|nt
                   · simp [n1] at *
-                    simp [Nat.size, Nat.binaryRec]
                     have t1 : is_envelope 0 = true := by
                       simp [is_envelope, S₂]
-                      simp [Nat.size, Nat.binaryRec]
                     exact t1
                   · have t1 : n + 1 + 2 = 2 ^ (n + 1).size := by grind
                     have t1' : n + 1 = 2 ^ (n + 1).size - 2 := by grind
