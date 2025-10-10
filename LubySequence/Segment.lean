@@ -460,7 +460,14 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
               rw [Nat.two_pow_pred_add_two_pow_pred this]
           · expose_names
             simp
-            have n3size_eq_n2size : (n + 1 + 2).size = (n + 2).size := by sorry
+            have n3size_eq_n2size : (n + 2 + 1).size = (n + 2).size := by
+              have ordering : n + 1 + 2 = n + 2 + 1 := by exact rfl
+              simp [ordering] at *
+              have : ¬n + 2 + 1 = 2 ^ ((n + 2 + 1).size - 1) := by
+                by_contra case_if
+                replace case_if : n + 1 = 2 ^ ((n + 2 + 1).size - 1) - 2 := by grind
+                simp [case_if] at h_3
+              refine same_size_iff_not_pow2.mp this
             simp [n3size_eq_n2size]
             have : n + 1 - (2 ^ ((n + 2).size - 1) - 1) = n - (2 ^ ((n + 2).size - 1) - 1) + 1 := by
               refine Nat.sub_add_comm ?_
