@@ -671,13 +671,24 @@ def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 example : segment_length 0 = 1 := by
   simp [segment_length, segment, trailing_zeros]
 
+#eval List.range 64
+  |>.filter (fun n ↦ n = 2 ^ n.size - 2)
+  |>.map (fun n ↦ (n, 1 + segment_length (n - 2 ^ ((n + 2).size - 2)) , segment_length n))
+theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
+    segment_length n = segment_length (n - 2 ^ ((n + 2).size - 2)) + 1 := by
+  sorry
+
+#eval List.range 64
+  |>.filter (fun n ↦ n = 2 ^ n.size - 2)
+  |>.map (fun n ↦ (n, segment_length (2 ^ (n + 2).size - 2) , 1 + segment_length n))
+
 /--
 At envelope boundaries (where `n = 2 ^ n.size - 2`), the segment length increases by 1
 when jumping to the next envelope: `segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n`.
 This reflects the fact that each new envelope level in the Luby tree adds one more element
 to the maximum segment height.
 -/
-theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
+theorem segment_length_prop1_ : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n := by
   intro n n_gt_0 n_is_envelope
   have n_gt_2 : n ≥ 2 := by
@@ -777,10 +788,14 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
   simp [this]
   exact Nat.add_comm n.size 1
 
-#eval List.range 32
+#eval List.range 64
+  |>.filter (fun n ↦ n = 2 ^ n.size - 2)
+  |>.map (fun n ↦ (n, segment_length (2 ^ (n + 2).size - 2) , 1 + segment_length n))
+
+#eval List.range 62
   -- |>.map (fun n ↦ (n, segment n, 2 ^ ((n + 1).size - 1)))
   |>.filter (fun n ↦ ¬segment n = 2 ^ ((n + 1).size - 1))
-  |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 2).size - 1) - 1)), segment_length n))
+  |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 1).size - 1) - 1)), segment_length n))
 
 /--
 For positions not at envelope boundaries, the segment length remains invariant under
@@ -789,7 +804,7 @@ This shows that within an envelope level, all segments have the same length, whi
 increases when crossing to a new envelope.
 -/
 theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
-    segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment_length n := by
+    segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope
   simp [segment_length]
   rw [segment_prop2 n n_gt_0 n_ne_envelope]
@@ -801,6 +816,8 @@ theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   · exact segment_is_pos (n - (x - 1))
   · simp [x]
     have t1 : n - (2 ^ ((n + 2).size - 1) - 1) < 2 ^ ((n + 2).size - 1) - 1 := by
+      refine sub_lt_of_lt ?_
+      · 
       sorry
     have t2 :
         segment (n - (2 ^ ((n + 2).size - 1) - 1)) < segment (2 ^ ((n + 2).size - 1) - 1) := by
