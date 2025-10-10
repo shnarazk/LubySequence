@@ -45,6 +45,10 @@ def segment (n : ℕ) : ℕ := match n with
           simp [n_eq_0, size, binaryRec] at h
       2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1))
 
+/--
+Every segment index is positive. Since segments partition the Luby sequence
+and indices start from 1, this ensures all segment values are at least 1.
+-/
 theorem segment_is_pos : ∀ n : ℕ, segment n > 0 := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -59,6 +63,11 @@ theorem segment_is_pos : ∀ n : ℕ, segment n > 0 := by
       · expose_names
         simp
 
+/--
+The segment index for position `n` is bounded by `n + 1`.
+This upper bound comes from the fact that each position belongs to at most
+one segment, and segments are numbered sequentially starting from 1.
+-/
 theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -290,6 +299,10 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
                 · exact ih2
             exact Nat.le_trans ih' this
 
+/--
+The segment function is monotone: `segment n ≤ segment (n + 1)` for all `n`.
+Segments form a non-decreasing sequence as positions increase through the Luby sequence.
+-/
 theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -507,6 +520,11 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
       LubySegment.segment n,
       segment (2 ^ (n + 2).size - 2)))
 
+/--
+At envelope boundaries (where `n = 2 ^ n.size - 2`), the segment index doubles
+when jumping to the next envelope. This reflects the tree structure of the Luby sequence,
+where each new level contains twice as many segments as the previous level.
+-/
 theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment (2 ^ (n + 2).size - 2) = 2 * segment n := by
   intro n n_gt_0 envelope
@@ -591,6 +609,12 @@ theorem segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
     exact absurd x this
 
+/--
+For positions not at envelope boundaries, the segment index is computed recursively:
+`segment n = 2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1))`.
+This formula reflects the recursive structure of the Luby sequence, where non-envelope
+positions reference earlier positions in the sequence.
+-/
 theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
     segment n = 2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope
@@ -647,6 +671,12 @@ def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 example : segment_length 0 = 1 := by
   simp [segment_length, segment, trailing_zeros]
 
+/--
+At envelope boundaries (where `n = 2 ^ n.size - 2`), the segment length increases by 1
+when jumping to the next envelope: `segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n`.
+This reflects the fact that each new envelope level in the Luby tree adds one more element
+to the maximum segment height.
+-/
 theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n := by
   intro n n_gt_0 n_is_envelope
@@ -752,6 +782,12 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
   |>.filter (fun n ↦ ¬segment n = 2 ^ ((n + 1).size - 1))
   |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 2).size - 1) - 1)), segment_length n))
 
+/--
+For positions not at envelope boundaries, the segment length remains invariant under
+the recursive step: `segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment_length n`.
+This shows that within an envelope level, all segments have the same length, which only
+increases when crossing to a new envelope.
+-/
 theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
     segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment_length n := by
   intro n n_gt_0 n_ne_envelope
