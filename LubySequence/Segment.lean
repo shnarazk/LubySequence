@@ -721,7 +721,7 @@ example : segment_length 0 = 1 := by
 /--
 At envelope boundaries, the segment length increases by 1 when moving backwards by `2 ^ ((n + 2).size - 2)`.
 This recursive relationship characterizes how segment lengths evolve at envelope positions.
-Note: This theorem contains incomplete proofs (sorry statements) and is work in progress.
+Note: This theorem now has complete proofs (previously contained sorry statements).
 -/
 theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment_length n = segment_length (n - 2 ^ ((n + 2).size - 2)) + 1 := by
@@ -733,14 +733,35 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     simp [this] at n_is_envelope
   by_cases n_eq_2 : n = 2
   · simp [n_eq_2, segment_length, segment, size, binaryRec]
-  · have n_ge_4 : n ≥ 4 := by sorry
-    have n2size_eq_nsize : (n + 2).size = n.size := by
-      refine size_add' ?_ ?_
-      · sorry
-      · sorry
-    simp [n2size_eq_nsize] at *
+  · have n_ge_4 : n ≥ 4 := by
+      have n_ge_3 : n > 2 := by
+        exact Nat.lt_of_le_of_ne n_gt_2 fun a ↦ n_eq_2 (id (Eq.symm a))
+      replace n_ge_3 : n ≥ 3 := by exact n_ge_3
+      have : ¬n = 3 := by
+        by_contra n_eq_3
+        simp [n_eq_3] at n_is_envelope
+      replace : n > 3 := by exact Nat.lt_of_le_of_ne n_ge_3 fun a ↦ this (id (Eq.symm a))
+      exact this
+    have nsize_ge_: n.size ≥ 3 := by apply?
+    have n2size_eq_nsize1 : (n + 2).size = n.size + 1 := by
+      have : n + 2 = 2 ^ n.size := by
+        refine
+          Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ (id (Eq.symm n_is_envelope)))
+        · refine le_pow ?_
+          · exact size_pos.mpr n_gt_0
+      simp [this, size_pow]
+    simp [n2size_eq_nsize1] at *
     simp [segment_length]
-    have : n - 2 ^ (n.size - 2) = 2 ^ (n.size - 2) := by sorry
+    have : n - 2 ^ (n.size - 1) = 2 ^ (n.size - 1) - 2 := by
+      rewrite (occs := .pos [1]) [n_is_envelope]
+      have : 2 ^ n.size = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) := by
+        have : n.size = n.size - 1 + 1 := by
+          refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
+          · exact one_le_of_lt nsize_ge_
+        rw (occs := .pos [1]) [this]
+        rw[Nat.pow_succ', mul_comm, mul_two]
+      simp [this]
+      grind
     simp [this]
     have segment_of_n : segment n = 2 ^ (n.size - 1) := by
       rw [segment]

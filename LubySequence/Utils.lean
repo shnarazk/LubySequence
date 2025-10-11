@@ -384,12 +384,9 @@ theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
   exact le_antisymm p2' p1'
 
 /--
-For 0 < k < 2^n, the bit length of 2^n + k equals n+1.
-Deprecated in favor of `size_add`.
+For 0 < k < 2^n, the size of 2^n + k equals n+1.
 -/
-@[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
-theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
-    (2 ^ n + k).bits.length = n + 1 := by
+theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_add ha hb
 
