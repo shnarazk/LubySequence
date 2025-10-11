@@ -6,6 +6,34 @@ import Mathlib.Data.Nat.Size
 
 open Finset Nat
 
+@[simp]
+theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+
+@[simp]
+theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
+
+@[simp]
+theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
+
+@[simp]
+theorem size_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
+  have s1 : n.size ≥ (2 : ℕ).size := by exact size_le_size h
+  simp at s1
+  exact s1
+
+@[simp]
+theorem size0_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
+  have s1 : n ≥ 0 := by exact Nat.zero_le n
+  have s2 : n + 2 ≥ 0 + 2 := by exact Nat.add_le_add_right s1 2
+  exact size_ge_2 s2
+
+@[simp]
+theorem size2_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
+  have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right h 2
+  have s2 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size s1
+  simp at s2
+  exact s2
+
 /--
 Returns the number of zeros at the end of bit representation of Nat `n`.
 Note: `trailing_zeros 0 = 0`
@@ -1039,7 +1067,7 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
         refine le_one_iff_eq_zero_or_eq_one.mp ?_
         · exact le_of_lt_succ hn'2
       rcases cases' with n₂|n₂
-      <;> { simp [n₂, trailing_zeros] ; split <;> simp [size, binaryRec] }
+      <;> { simp [n₂, trailing_zeros] }
     · -- 前半分と後ろ半分
       have sub1 : m < n := by
         refine le_if_le_size ?_
@@ -1053,7 +1081,6 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
           exact LE.le.eq_or_lt' n_gt_two
         rcases n_3_4 with n_eq_3|n_gt_3
         · simp [n_eq_3] at *
-          simp [size, binaryRec] at n₁
         · exact n_gt_3
       have n4size : n.size ≥ 3 := by
         have t1 : n.size ≥ (4 : ℕ).size := by exact size_le_size n4
@@ -1195,31 +1222,42 @@ theorem same_size_iff_not_pow2 {n : ℕ} :
       exact this
     · simp [q] at p
 
-@[simp]
-theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
-
-@[simp]
-theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
-
-@[simp]
-theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
-
-@[simp]
-theorem size_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
-  have s1 : n.size ≥ (2 : ℕ).size := by exact size_le_size h
-  simp at s1
-  exact s1
-
-@[simp]
-theorem size0_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
-  have s1 : n ≥ 0 := by exact Nat.zero_le n
-  have s2 : n + 2 ≥ 0 + 2 := by exact Nat.add_le_add_right s1 2
-  exact size_ge_2 s2
-
-@[simp]
-theorem size2_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
-  have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right h 2
-  have s2 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size s1
-  simp at s2
-  exact s2
+theorem increase_size_iff_pow2' {n : ℕ} (h : n ≥ 4) :
+    n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1:= by
+  intro h'
+  have s1 : (n + 1).size + 1 = (n + 2).size := by
+    exact Eq.symm ((fun {n} ↦ increase_size_iff_pow2.mpr) h')
+  have s2 : (n + 1).size = n.size := by
+    refine same_size_iff_not_pow2.mp ?_
+    · by_contra ch
+      have : n + 2 = n + 1 + 1 := by exact rfl
+      rewrite (occs := .pos [1]) [this] at h'
+      rw [ch] at h'
+      have n1size_gt_3 : (n + 1).size ≥ 3 := by
+        have s1 : (n + 1).size ≥ (4 + 1).size := by
+          exact size_le_size (Nat.add_le_add_right h 1)
+        have s2 : (4 + 1).size = 3 := by simp [size, binaryRec]
+        simp [s2] at s1
+        exact s1
+      have n2size_gt_3 : (n + 2).size ≥ 3 := by
+        have s1 : (n + 2).size ≥ (4 + 2).size := by
+          exact size_le_size (Nat.add_le_add_right h 2)
+        have s2 : (4 + 2).size = 3 := by simp [size, binaryRec]
+        simp [s2] at s1
+        exact s1
+      have even : Even (2 ^ ((n + 2).size - 1)) := by
+        refine (even_pow' ?_).mpr ?_
+        · refine Nat.sub_ne_zero_iff_lt.mpr ?_
+          · exact lt_of_add_left_lt n2size_gt_3 
+        · exact even_iff.mpr rfl
+      have odd : Odd (2 ^ ((n + 1).size - 1) + 1) := by
+        refine Even.add_one ?_
+        · refine (even_pow' ?_).mpr ?_
+          · refine Nat.sub_ne_zero_iff_lt.mpr ?_
+            · exact lt_of_add_left_lt n1size_gt_3
+          · exact even_iff.mpr rfl
+      simp [h'] at odd
+      replace odd : ¬Even (2 ^ ((n + 2).size - 1)) := by exact not_even_iff_odd.mpr odd
+      exact absurd even odd
+  simp [←s2, s1]
 
