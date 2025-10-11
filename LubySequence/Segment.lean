@@ -599,6 +599,10 @@ theorem segment_prop1' : ∀ n : ℕ, n = 2 ^ n.size - 2 →
         exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt this)
       exact absurd x this
 
+/--
+At envelope boundaries (where `n = 2 ^ n.size - 2`), the segment index equals `2 ^ (n.size - 1)`.
+This provides a direct formula for segment values at envelope positions.
+-/
 theorem segment_prop1 {n : ℕ} (h' : n = 2 ^ n.size - 2) : segment n = 2 ^ (n.size - 1) := by
     induction n using Nat.strong_induction_on with
     | h n ih =>
@@ -714,6 +718,11 @@ example : segment_length 0 = 1 := by
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
   |>.map (fun n ↦ (n, 1 + segment_length (n - 2 ^ ((n + 2).size - 2)) , segment_length n))
 
+/--
+At envelope boundaries, the segment length increases by 1 when moving backwards by `2 ^ ((n + 2).size - 2)`.
+This recursive relationship characterizes how segment lengths evolve at envelope positions.
+Note: This theorem contains incomplete proofs (sorry statements) and is work in progress.
+-/
 theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment_length n = segment_length (n - 2 ^ ((n + 2).size - 2)) + 1 := by
   intro n n_gt_0 n_is_envelope

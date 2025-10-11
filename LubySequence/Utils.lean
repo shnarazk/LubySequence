@@ -6,27 +6,45 @@ import Mathlib.Data.Nat.Size
 
 open Finset Nat
 
+/--
+The size (bit length) of the natural number 2 is 2.
+-/
 @[simp]
 theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
 
+/--
+The size (bit length) of the natural number 3 is 2.
+-/
 @[simp]
 theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
 
+/--
+The size (bit length) of the natural number 4 is 3.
+-/
 @[simp]
 theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
 
+/--
+For any natural number n ≥ 2, its size (bit length) is at least 2.
+-/
 @[simp]
 theorem size_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
   have s1 : n.size ≥ (2 : ℕ).size := by exact size_le_size h
   simp at s1
   exact s1
 
+/--
+For any natural number n, the size of n + 2 is at least 2.
+-/
 @[simp]
 theorem size0_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
   have s1 : n ≥ 0 := by exact Nat.zero_le n
   have s2 : n + 2 ≥ 0 + 2 := by exact Nat.add_le_add_right s1 2
   exact size_ge_2 s2
 
+/--
+For any natural number n ≥ 2, the size of n + 2 is at least 3.
+-/
 @[simp]
 theorem size2_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
   have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right h 2
@@ -366,9 +384,12 @@ theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
   exact le_antisymm p2' p1'
 
 /--
-For 0 < k < 2^n, the size of 2^n + k equals n+1.
+For 0 < k < 2^n, the bit length of 2^n + k equals n+1.
+Deprecated in favor of `size_add`.
 -/
-theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
+@[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
+theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
+    (2 ^ n + k).bits.length = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_add ha hb
 
@@ -1193,6 +1214,10 @@ theorem increase_size_at_pow2 {n : ℕ} :
       replace eq : ¬(n + 1).size ≤ n.size := by exact Nat.not_le_of_lt eq
       exact absurd s2 eq
 
+/--
+The size of `n + 1` increases by 1 if and only if `n + 1` is a power of 2.
+This characterizes exactly when the bit size increases.
+-/
 theorem increase_size_iff_pow2 {n : ℕ} :
     (n + 1).size = n.size + 1 ↔ n + 1 = 2 ^ ((n + 1).size - 1) := by
   constructor
@@ -1200,6 +1225,10 @@ theorem increase_size_iff_pow2 {n : ℕ} :
   · intro h
     exact size_of_pow2_eq_size_of_envelope_add_1' (zero_lt_succ n) h
 
+/--
+The size of `n + 1` stays the same as `n.size` if and only if `n + 1` is not a power of 2.
+This is the contrapositive of `increase_size_iff_pow2`.
+-/
 theorem same_size_iff_not_pow2 {n : ℕ} :
     ¬n + 1 = 2 ^ ((n + 1).size - 1) ↔ (n + 1).size = n.size := by
   have it {a b : Prop} : (a → b) → (¬b → ¬a) := by exact fun a_1 a_2 a ↦ a_2 (a_1 a)
@@ -1222,6 +1251,10 @@ theorem same_size_iff_not_pow2 {n : ℕ} :
       exact this
     · simp [q] at p
 
+/--
+For n ≥ 4, if `n + 2` is a power of 2, then its size is one more than `n.size`.
+This is a variant of `increase_size_iff_pow2` specialized for the case of adding 2.
+-/
 theorem increase_size_iff_pow2' {n : ℕ} (h : n ≥ 4) :
     n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1:= by
   intro h'
