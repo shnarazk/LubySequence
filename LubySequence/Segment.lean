@@ -721,7 +721,6 @@ example : segment_length 0 = 1 := by
 /--
 At envelope boundaries, the segment length increases by 1 when moving backwards by `2 ^ ((n + 2).size - 2)`.
 This recursive relationship characterizes how segment lengths evolve at envelope positions.
-Note: This theorem now has complete proofs (previously contained sorry statements).
 -/
 theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment_length n = segment_length (n - 2 ^ ((n + 2).size - 2)) + 1 := by
@@ -928,12 +927,7 @@ theorem segment_length_prop1_ : ∀ n > 0, n = 2 ^ n.size - 2 →
   simp [this]
   exact Nat.add_comm n.size 1
 
-#eval List.range 64
-  |>.filter (fun n ↦ n = 2 ^ n.size - 2)
-  |>.map (fun n ↦ (n, segment_length (2 ^ (n + 2).size - 2) , 1 + segment_length n))
-
 #eval List.range 62
-  -- |>.map (fun n ↦ (n, segment n, 2 ^ ((n + 1).size - 1)))
   |>.filter (fun n ↦ ¬segment n = 2 ^ ((n + 1).size - 1))
   |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 1).size - 1) - 1)), segment_length n))
 
@@ -943,16 +937,19 @@ the recursive step: `segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment
 This shows that within an envelope level, all segments have the same length, which only
 increases when crossing to a new envelope.
 -/
-theorem segment_length_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
+theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
     segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope
-  simp [segment_length]
-  rw [segment_prop2 n n_gt_0 n_ne_envelope]
-  let x := 2 ^ ((n + 2).size - 1)
-  have x_def : x = value_of% x := by exact rfl
-  simp [←x_def]
-  rw [add_comm]
-  sorry
-    
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    have n_ne_envelope : ¬n = 2 ^ ((n + 2).size - 1) - 2 := by sorry
+    simp [segment_length]
+    rw (occs := .pos [1]) [segment]
+    · split
+      · expose_names
+        exact absurd h n_ne_envelope
+      · sorry
+    · intro n_eq_0
+      simp [n_eq_0] at n_ne_envelope
 
 end LubySegment
