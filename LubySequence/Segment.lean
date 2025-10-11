@@ -626,7 +626,21 @@ theorem segment_prop1 {n : ℕ} (h' : n = 2 ^ n.size - 2) : segment n = 2 ^ (n.s
           split
           · expose_names
             have : (n + 2).size = n.size + 1 := by
-              sorry
+              replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by
+                have s1 : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
+                  exact congrFun (congrArg HAdd.hAdd h) 2
+                have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+                  refine Nat.sub_add_cancel ?_
+                  · refine le_pow ?_
+                    · refine zero_lt_sub_of_lt ?_
+                      · have t1 : n + 2 ≥ 4 + 2 := by exact Nat.add_le_add_right n_ge_4 2
+                        replace t1 : (n + 2).size ≥ (4 + 2).size := by exact size_le_size t1
+                        have t2 : (4 + 2).size = 3 := by simp [size, binaryRec]
+                        simp [t2] at t1
+                        exact lt_of_add_left_lt t1
+                simp [s2] at s1
+                exact s1
+              exact increase_size_iff_pow2' n_ge_4 h
             simp [this]
           · expose_names
             have h'' : n + 2 = 2 ^ n.size := by
