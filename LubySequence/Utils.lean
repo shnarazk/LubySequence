@@ -28,7 +28,7 @@ theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
 For any natural number n ≥ 2, its size (bit length) is at least 2.
 -/
 @[simp]
-theorem size_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
+theorem size2_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
   have s1 : n.size ≥ (2 : ℕ).size := by exact size_le_size h
   simp at s1
   exact s1
@@ -37,20 +37,29 @@ theorem size_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
 For any natural number n, the size of n + 2 is at least 2.
 -/
 @[simp]
-theorem size0_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
+theorem size0_add_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
   have s1 : n ≥ 0 := by exact Nat.zero_le n
   have s2 : n + 2 ≥ 0 + 2 := by exact Nat.add_le_add_right s1 2
-  exact size_ge_2 s2
+  exact size2_ge_2 s2
 
 /--
 For any natural number n ≥ 2, the size of n + 2 is at least 3.
 -/
 @[simp]
-theorem size2_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
+theorem size2_add_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
   have s1 : n + 2 ≥ 2 + 2 := by exact Nat.add_le_add_right h 2
   have s2 : (n + 2).size ≥ (2 + 2).size := by exact size_le_size s1
   simp at s2
   exact s2
+
+/--
+For any natural number n ≥ 4, the size of n is at least 3.
+-/
+@[simp]
+theorem size4_add_0_ge_2 {n : ℕ} (h : n ≥ 4) : n.size ≥ 3 := by
+  have s1 : n.size ≥ (4 : ℕ).size := by exact size_le_size h
+  simp at s1
+  exact s1
 
 /--
 Returns the number of zeros at the end of bit representation of Nat `n`.

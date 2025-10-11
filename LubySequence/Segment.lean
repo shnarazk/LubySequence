@@ -29,7 +29,7 @@ def segment (n : ℕ) : ℕ := match n with
     if h : n = 2 ^ ((n + 2).size - 1) - 2
     then 2 ^ ((n + 2).size - 2)
     else
-      have n2size : (n + 2).size ≥ 2 := by exact size0_2_ge_2 n
+      have n2size : (n + 2).size ≥ 2 := by exact size0_add_2_ge_2 n
       have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
         have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
           refine zero_lt_sub_of_lt ?_
@@ -358,7 +358,7 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
         · split
           · expose_names
             have n_ge_1 : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
-            have n2size_ge_2 : (n + 2).size ≥ 2 := by exact size0_2_ge_2 n
+            have n2size_ge_2 : (n + 2).size ≥ 2 := by exact size0_add_2_ge_2 n
             have n2_is_envelope : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
               replace h_3 : n = 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 := by
                 exact Nat.eq_sub_of_add_eq h_3
@@ -667,7 +667,7 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
   have n2size : (n + 2).size ≥ 2 := by
     have s1 : (n + 2).size ≥ (0 + 2).size := by
       exact size_le_size (Nat.le_add_left (0 + 2) n)
-    exact size0_2_ge_2 n
+    exact size0_add_2_ge_2 n
   have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
     have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
       refine zero_lt_sub_of_lt ?_
@@ -742,7 +742,7 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
         simp [n_eq_3] at n_is_envelope
       replace : n > 3 := by exact Nat.lt_of_le_of_ne n_ge_3 fun a ↦ this (id (Eq.symm a))
       exact this
-    have nsize_ge_: n.size ≥ 3 := by apply?
+    have nsize_ge_: n.size ≥ 3 := by exact size4_add_0_ge_2 n_ge_4
     have n2size_eq_nsize1 : (n + 2).size = n.size + 1 := by
       have : n + 2 = 2 ^ n.size := by
         refine
@@ -790,16 +790,34 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     simp [segment_of_n]
     simp [trailing_zeros_prop3 (n.size - 1)]
     have segment_value : segment (2 ^ (n.size - 1) - 2) = 2 ^ (n.size - 1 - 1) := by
-      let x := n ^ (n.size - 1) - 2
+      let x := 2 ^ (n.size - 1) - 2
       have x_def : x = value_of% x := by exact rfl
       have x_is_envelope : x = 2 ^ x.size - 2 := by
         simp [x_def]
-        sorry
+        have : (2 ^ (n.size - 1) - 2).size = n.size - 1 := by
+          refine size_sub ?_ ?_ ?_
+          · refine zero_lt_sub_of_lt ?_
+            · exact lt_size.mpr n_gt_2
+          · exact Nat.zero_lt_two
+          · refine le_pow ?_
+            · refine zero_lt_sub_of_lt ?_
+              · exact lt_sub_of_add_lt nsize_ge_
+        simp [this]
       have : segment x = 2 ^ (x.size - 1) := by exact segment_prop1 x_is_envelope
       simp [x_def] at this
-      sorry
+      simp [this]
+      replace : (2 ^ (n.size - 1) - 2).size = n.size - 1 := by
+        refine size_sub ?_ ?_ ?_
+        · refine zero_lt_sub_of_lt ?_
+          · exact lt_size.mpr n_gt_2
+        · exact Nat.zero_lt_two
+        · refine le_pow ?_
+          · refine zero_lt_sub_of_lt ?_
+            · exact lt_sub_of_add_lt nsize_ge_
+      simp [this]
     simp [segment_value]
-    sorry
+    rw [trailing_zeros_prop3 (n.size - 1 - 1)]
+    grind
 
 #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
