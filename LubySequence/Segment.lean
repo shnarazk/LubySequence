@@ -768,27 +768,38 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
       split
       · expose_names
         rw (occs := .pos [1]) [n_is_envelope]
-        sorry
-        -- simp [pow2nsize]
-        -- replace : (2 ^ n.size).size = n.size + 1 := by exact size_pow
-        -- simp [this]
+        replace : 2 ^ n.size - 2 + 2 = 2 ^ n.size := by
+          refine Nat.sub_add_cancel ?_
+          · refine le_pow ?_
+            · exact size_pos.mpr n_gt_0
+        simp [this]
+        rw [size_pow]
+        grind
       · expose_names
-        simp
-        rw (occs := .pos [2]) [n_is_envelope] at h
-        sorry
-        -- simp [pow2nsize] at h
-        -- have : (2 ^ n.size).size = n.size + 1 := by exact size_pow
-        -- simp [this] at h
-        -- exact absurd n_is_envelope h
+        have n_is_envelope' : n + 2 = 2 ^ n.size := by
+          refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm n_is_envelope)))
+          · refine le_pow ?_
+            · exact size_pos.mpr n_gt_0
+        simp [n_is_envelope'] at h
+        rw [size_pow] at h
+        simp at h
+        exact absurd n_is_envelope h
       · intro n_eq_0
         have : ¬n = 0 := by exact Nat.ne_zero_of_lt n_gt_0
         exact absurd n_eq_0 this
     simp [segment_of_n]
     simp [trailing_zeros_prop3 (n.size - 1)]
+    have segment_value : segment (2 ^ (n.size - 1) - 2) = 2 ^ (n.size - 1 - 1) := by
+      let x := n ^ (n.size - 1) - 2
+      have x_def : x = value_of% x := by exact rfl
+      have x_is_envelope : x = 2 ^ x.size - 2 := by
+        simp [x_def]
+        sorry
+      have : segment x = 2 ^ (x.size - 1) := by exact segment_prop1 x_is_envelope
+      simp [x_def] at this
+      sorry
+    simp [segment_value]
     sorry
-    -- simp [trailing_zeros_prop3 (n.size - 2)]
-    --
-
 
 #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
