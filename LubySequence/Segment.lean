@@ -939,14 +939,68 @@ increases when crossing to a new envelope.
 -/
 theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
     segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
-  intro n n_gt_0 n_ne_envelope
+  intro n n_gt_0 n_ne_envelope_segment
   induction n using Nat.strong_induction_on with
   | h n ih =>
+    have n_ge_3 : n ≥ 3 := by
+      replace n_gt_0 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' n_gt_0
+      rcases n_gt_0 with eq|n_gt_1
+      · simp [eq, segment] at n_ne_envelope_segment
+      · replace n_gt_1 : n ≥ 2 := by exact n_gt_1
+        replace n_gt_1 : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_gt_1
+        rcases n_gt_1 with eq|n_gt_2
+        · simp [eq, segment] at n_ne_envelope_segment
+        · replace n_gt_2 : n ≥ 3 := by exact n_gt_2
+          exact n_gt_2
+    have n2size_gt_3 : (n + 2).size ≥ 3 := by
+      have s1 : n + 2 ≥ 3 + 2 := by exact Nat.add_le_add_right n_ge_3 2
+      replace s1 : (n + 2).size ≥ (3 + 2).size := by exact size_le_size s1
+      have s2 : (3 + 2).size = 3 := by simp [size, binaryRec]
+      simp [s2] at s1
+      exact s1
     have n_ne_envelope : ¬n = 2 ^ ((n + 2).size - 1) - 2 := by
-      -- envelope segment上にいないのであればenvelopeにはならないので
-      -- 背理法からこれは言えるはず。
-      -- またそれより(n + 2).size = (n + 1).size = n.size も言える？
-      sorry
+      by_contra n_is_envelope
+      have n_is_envelope' : n + 2 = 2 ^ ((n + 2).size - 1) := by
+        refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm n_is_envelope)))
+        · refine le_pow ?_
+          · refine zero_lt_sub_of_lt ?_
+            · exact lt_of_add_left_lt n2size_gt_3
+      have n1size_eq_nsize : (n + 1).size = n.size := by
+        have cond : ¬n + 1 = 2 ^ ((n + 1).size - 1) := by
+          have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+            exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm n_is_envelope')))
+          simp [n1]
+          have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by
+            refine size_sub ?_ ?_ ?_
+            · refine zero_lt_sub_of_lt ?_
+              · exact lt_of_add_left_lt n2size_gt_3
+            · exact Nat.one_pos
+            · exact Nat.one_le_two_pow
+          simp [this]
+          by_contra odd_and_even
+          have even : Even (2 ^ ((n + 2).size - 1 - 1)) := by
+            refine (even_pow' ?_).mpr ?_
+            · refine Nat.sub_ne_zero_iff_lt.mpr ?_
+              · exact lt_sub_of_add_lt n2size_gt_3
+            · exact even_iff.mpr rfl
+          have odd : Odd ( 2 ^ ((n + 2).size - 1) - 1) := by
+            refine Nat.Even.sub_odd ?_ ?_ ?_
+            · exact Nat.one_le_two_pow
+            · refine (even_pow' ?_).mpr ?_
+              · refine Nat.sub_ne_zero_iff_lt.mpr ?_
+                · exact lt_of_add_left_lt n2size_gt_3 
+              · exact even_iff.mpr rfl
+            · exact odd_iff.mpr rfl
+          simp [odd_and_even] at odd
+          replace odd : ¬Even (2 ^ ((n + 2).size - 1 - 1)) := by
+            exact not_even_iff_odd.mpr odd
+          exact absurd even odd
+        exact same_size_iff_not_pow2.mp cond
+      simp [n1size_eq_nsize] at n_ne_envelope_segment
+      have : segment n = 2 ^ (n.size - 1) := by
+        refine segment_prop1 ?_
+        · sorry 
+      exact absurd this n_ne_envelope_segment
     simp [segment_length]
     rw (occs := .pos [1]) [segment]
     · split
