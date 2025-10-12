@@ -1262,7 +1262,7 @@ For n ≥ 4, if `n + 2` is a power of 2, then its size is one more than `n.size`
 This is a variant of `increase_size_iff_pow2` specialized for the case of adding 2.
 -/
 theorem increase_size_iff_pow2' {n : ℕ} (h : n ≥ 4) :
-    n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1:= by
+    n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1 := by
   intro h'
   have s1 : (n + 1).size + 1 = (n + 2).size := by
     exact Eq.symm ((fun {n} ↦ increase_size_iff_pow2.mpr) h')
