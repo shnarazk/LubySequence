@@ -128,7 +128,7 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
                 rcases h with h_2|h
                 · simp [h_2, size, binaryRec] at h_1
                 · replace h : n ≥ 3 := by exact h
-                  replace h : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' h 
+                  replace h : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' h
                   rcases h with h_3|h
                   · exact absurd h_3 n_eq_1_or_3.right
                   · replace h : ¬n < 4 := by exact Nat.not_lt.mpr h
@@ -140,14 +140,14 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
             simp [this] at s1
             exact s1
           by_cases with_carry : n = 2 ^ ((n + 2).size - 1) - 1
-          · have lift : (n + 2).size = n.size + 1 := by 
+          · have lift : (n + 2).size = n.size + 1 := by
               have s2 : (n + 1).size = (n + 2).size := by
                 replace with_carry : n + 1 = 2 ^ ((n + 2).size - 1) := by
                   refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ (id (Eq.symm with_carry)))
                   · exact Nat.one_le_two_pow
                 replace with_carry : (n + 1).size = (2 ^ ((n + 2).size - 1)).size := by
                   exact congrArg size with_carry
-                have : (2 ^ ((n + 2).size - 1)).size = (n + 2).size - 1 + 1 := by 
+                have : (2 ^ ((n + 2).size - 1)).size = (n + 2).size - 1 + 1 := by
                   exact size_pow
                 simp [this] at with_carry
                 replace : (n + 2).size - 1 + 1 = (n + 2).size := by
@@ -176,7 +176,7 @@ theorem segment_limit (n : ℕ) : segment n ≤ n + 1 := by
                 refine sub_lt (zero_lt_of_ne_zero h) ?_
                 · refine zero_lt_sub_of_lt ?_
                   · exact Nat.one_lt_two_pow (Nat.ne_zero_of_lt n2size_ge_3)
-              exact ih (n - (2 ^ n.size - 1)) this 
+              exact ih (n - (2 ^ n.size - 1)) this
             have s2 : 2 ^ (n.size - 1) + (n - (2 ^ n.size - 1) + 1) ≤ n + 1 := by
               simp [←with_carry]
               exact n_ge_subenvelope (one_le_of_lt n_ge_4)
@@ -434,9 +434,9 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
                 replace : 2 = 2 * 1 := by exact rfl
                 rewrite (occs := .pos [4]) [this] at heq
                 have (a b c : ℕ) (h : a > 0) : a * b = a * c → b = c := by exact fun a_1 ↦ Nat.eq_of_mul_eq_mul_left h a_1
-                have two_gt_0 : 0 < 2 := by exact Nat.zero_lt_two 
+                have two_gt_0 : 0 < 2 := by exact Nat.zero_lt_two
                 have goal := Nat.eq_of_mul_eq_mul_left two_gt_0 heq
-                replace : (n + 2).size - 1 - 1 = (n + 2).size - 2 := by  
+                replace : (n + 2).size - 1 - 1 = (n + 2).size - 2 := by
                   exact
                     this n ((n + 2).size - 1 - 1) ((n + 2).size - 2) n_ge_1
                       (this n (n * ((n + 2).size - 1 - 1)) (n * ((n + 2).size - 2)) n_ge_1 rfl)
@@ -454,10 +454,10 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
                   simp [this]
                 · expose_names
                   simp [s1, s2] at h_5
-            · simp [s1, n3size_eq_n2size] 
+            · simp [s1, n3size_eq_n2size]
               have : (n + 2).size - 1 - 1 = (n + 2).size - 2 := by exact rfl
               simp [←this]
-              replace : 0 < (n + 2).size - 1 := by exact zero_lt_sub_of_lt n2size_ge_2 
+              replace : 0 < (n + 2).size - 1 := by exact zero_lt_sub_of_lt n2size_ge_2
               rw [Nat.two_pow_pred_add_two_pow_pred this]
           · expose_names
             simp
@@ -651,7 +651,7 @@ theorem segment_prop1 {n : ℕ} (h' : n = 2 ^ n.size - 2) : segment n = 2 ^ (n.s
               refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm h')))
               · exact le_pow (size_pos.mpr (zero_lt_of_ne_zero n_eq_0))
             simp [h'', size_pow] at h
-            exact absurd h' h 
+            exact absurd h' h
           · intro z
             exact absurd z n_eq_0
 
@@ -942,13 +942,22 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
   intro n n_gt_0 n_ne_envelope
   induction n using Nat.strong_induction_on with
   | h n ih =>
-    have n_ne_envelope : ¬n = 2 ^ ((n + 2).size - 1) - 2 := by sorry
+    have n_ne_envelope : ¬n = 2 ^ ((n + 2).size - 1) - 2 := by
+      -- envelope segment上にいないのであればenvelopeにはならないので
+      -- 背理法からこれは言えるはず。
+      -- またそれより(n + 2).size = (n + 1).size = n.size も言える？
+      sorry
     simp [segment_length]
     rw (occs := .pos [1]) [segment]
     · split
       · expose_names
         exact absurd h n_ne_envelope
-      · sorry
+      · expose_names
+        simp
+        -- ここが本流。
+        -- trailing_zerosが上位ビットに影響されないことから、引数の合同性？
+        -- 帰納法はどこに行った？
+        sorry
     · intro n_eq_0
       simp [n_eq_0] at n_ne_envelope
 
