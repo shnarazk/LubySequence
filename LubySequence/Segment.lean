@@ -1001,10 +1001,22 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
         exact absurd h n_ne_envelope
       · expose_names
         simp
-        -- ここが本流。
-        -- trailing_zerosが上位ビットに影響されないことから、引数の合同性？
-        -- 帰納法はどこに行った？
-        sorry
+        have n_ne_envelope' : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
+          have s1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by exact (add_ne_add_left 2).mpr n_ne_envelope
+          have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+            exact Nat.sub_add_cancel (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
+          simp [s2] at s1
+          exact s1
+        have n2size_eq_n1size : (n + 2).size = (n + 1).size := by
+          exact same_size_iff_not_pow2.mp n_ne_envelope'
+        have : trailing_zeros (2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1)))
+            = trailing_zeros (segment (n - (2 ^ ((n + 2).size - 1) - 1))) := by
+          rw [add_comm]
+          refine trailing_zeros_prop1' (segment (n - (2 ^ ((n + 2).size - 1) - 1))) ?_ ((n + 2).size - 2) ?_
+          · exact segment_is_pos (n - (2 ^ ((n + 2).size - 1) - 1))
+          · sorry
+        simp [this]
+        simp [n2size_eq_n1size]
     · intro n_eq_0
       simp [n_eq_0] at n_ne_envelope
 
