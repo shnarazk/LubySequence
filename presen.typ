@@ -60,7 +60,7 @@ $
 Luby, M. et al., Optimal Speedup of Las Vegas Algorithms,
 In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
 
-== on the natural number triangle
+== Example on the natural number triangle
 // We can illustrate its recursive property as transitions on a triangle of natural numbers greater than zero.
 
 #let encircle(i) = {
@@ -168,25 +168,23 @@ $
 #canvas(length: 10pt, {
   draw.set-style(content: (padding: (0.4em, 0.04em)))
   tree.tree(spread: 0.4,
-    ( text(fill: blue, [$(\#8, 3)$]),
-      ( text(fill: blue, [$(\#4, 2)$]),
-        ( text(fill: blue, [$(\#2, 1)$]),
-          (text(fill: red, [$1 = (\#1, 0)$])),
-          (text(fill: blue, [$2 = (\#2, 0)$])), ),
+    ( text(fill: blue, [$15 arrow (\#8, 3)$]),
+      ( text(fill: blue, [$7 arrow (\#4, 2)$]),
+        ( text(fill: blue, [$3 arrow (\#2, 1)$]),
+          (text(fill: red, [$1 arrow (\#1, 0)$])),
+          (text(fill: blue, [$2 arrow (\#2, 0)$])), ),
         ( text(fill: blue, [$(\#4, 1)$]),
-          (text(fill: red, [$4 = (\#3, 0)$])),
-          (text(fill: blue, [$5 = (\#4, 0)$])), ), ),
+          (text(fill: red, [$4 arrow (\#3, 0)$])),
+          (text(fill: blue, [$5 arrow (\#4, 0)$])), ), ),
       ( text(fill: blue, [$(\#8, 2)$]),
         ( text(fill: blue, [$(\#6, 1)$]),
-          (text(fill: red, [$8 = (\#5, 0)$])),
-          (text(fill: blue, [$9 = (\#6, 0)$])), ),
+          (text(fill: red, [$8 arrow (\#5, 0)$])),
+          (text(fill: blue, [$9 arrow (\#6, 0)$])), ),
         ( text(fill: blue, [$(\#8, 1)$]),
-          (text(fill: red, [$11 = (\#7, 0)$])),
-          (text(fill: blue, [$12 = (\#8, 0)$])), ), )) )
+          (text(fill: red, [$11 arrow (\#7, 0)$])),
+          (text(fill: blue, [$(\#8, 0)$])), ), )) )
 })
-#text(size: 16pt)[
-(Both of the index of Luby sequence and the index of segments start from 1.)
-]
+#text(size: 18pt, fill: green.darken(40%))[Both of the index of Luby sequence and the index of segments start from 1.]
 #pause
 
 Segments start at 1, 2, 4, 5, 8, 9, 11, 12 ...
@@ -270,7 +268,7 @@ def State.luby (s : State) : ℕ := 2 ^ s.locIx
 	node((2, 2), $L u b y(n + 1)$)
 })]
 #pause
-only if ...
+*only if $forall n, L u b y(n) = S_n.l u b y$*
 
 = Equivalence of Luby and Luby state
 _*Prove it in Lean4*_
@@ -307,11 +305,12 @@ theorem LubyState_is_additive : ∀ n : ℕ,
 
 == Process of proof
 
-- `rg "luby" Mathlib4`
-- `rg "bandid" Mathlib4`
-- `rg "bits" Mathlib4` -> Data.Nat.Bits
+- `rg "luby" Mathlib4` -> nothing
+- `rg "bandid" Mathlib4` -> nothing
+- `rg "bits" Mathlib4` -> `Data.Nat.Bits`
 
-Add many aux. theorems
+Add many aux. theorems about
 
 - modulo
-- `2 ^ n.size`
+- `n.size`
+- `2 ^ (...)`
