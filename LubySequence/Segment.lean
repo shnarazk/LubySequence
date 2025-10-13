@@ -965,6 +965,12 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
         · refine le_pow ?_
           · refine zero_lt_sub_of_lt ?_
             · exact lt_of_add_left_lt n2size_gt_3
+      have n_gt_4 : n ≥ 4 := by
+        replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
+        rcases n_ge_3 with eq|gt
+        · simp [eq, size, binaryRec] at n_is_envelope'
+        · replace gt : n ≥ 4 := by exact gt
+          exact gt
       have n1size_eq_nsize : (n + 1).size = n.size := by
         have cond : ¬n + 1 = 2 ^ ((n + 1).size - 1) := by
           have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
@@ -999,7 +1005,12 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
       simp [n1size_eq_nsize] at n_ne_envelope_segment
       have : segment n = 2 ^ (n.size - 1) := by
         refine segment_prop1 ?_
-        · sorry 
+        · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by
+            refine increase_size_iff_pow2' ?_ ?_
+            · exact n_gt_4
+            · exact n_is_envelope'
+          simp [n2size_eq_nsize] at n_is_envelope'
+          exact Nat.eq_sub_of_add_eq n_is_envelope'
       exact absurd this n_ne_envelope_segment
     simp [segment_length]
     rw (occs := .pos [1]) [segment]
