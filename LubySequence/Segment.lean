@@ -962,53 +962,35 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
       by_contra n_is_envelope
       have n_is_envelope' : n + 2 = 2 ^ ((n + 2).size - 1) := by
         refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm n_is_envelope)))
-        · refine le_pow ?_
-          · refine zero_lt_sub_of_lt ?_
-            · exact lt_of_add_left_lt n2size_gt_3
+        · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3))
       have n_gt_4 : n ≥ 4 := by
         replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
         rcases n_ge_3 with eq|gt
         · simp [eq, size, binaryRec] at n_is_envelope'
-        · replace gt : n ≥ 4 := by exact gt
-          exact gt
+        · exact (by exact gt : n ≥ 4)
       have n1size_eq_nsize : (n + 1).size = n.size := by
         have cond : ¬n + 1 = 2 ^ ((n + 1).size - 1) := by
           have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
             exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm n_is_envelope')))
           simp [n1]
           have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by
-            refine size_sub ?_ ?_ ?_
-            · refine zero_lt_sub_of_lt ?_
-              · exact lt_of_add_left_lt n2size_gt_3
-            · exact Nat.one_pos
-            · exact Nat.one_le_two_pow
+            exact size_sub (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)) Nat.one_pos Nat.one_le_two_pow
           simp [this]
           by_contra odd_and_even
           have even : Even (2 ^ ((n + 2).size - 1 - 1)) := by
-            refine (even_pow' ?_).mpr ?_
-            · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-              · exact lt_sub_of_add_lt n2size_gt_3
-            · exact even_iff.mpr rfl
-          have odd : Odd ( 2 ^ ((n + 2).size - 1) - 1) := by
-            refine Nat.Even.sub_odd ?_ ?_ ?_
-            · exact Nat.one_le_two_pow
-            · refine (even_pow' ?_).mpr ?_
-              · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-                · exact lt_of_add_left_lt n2size_gt_3 
-              · exact even_iff.mpr rfl
-            · exact odd_iff.mpr rfl
+            exact (even_pow' (Nat.sub_ne_zero_iff_lt.mpr (lt_sub_of_add_lt n2size_gt_3))).mpr (even_iff.mpr rfl)
+          have odd : Odd (2 ^ ((n + 2).size - 1) - 1) := by
+            refine Nat.Even.sub_odd Nat.one_le_two_pow ?_ (odd_iff.mpr rfl)
+            · refine (even_pow' ?_).mpr (even_iff.mpr rfl)
+              · refine Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
           simp [odd_and_even] at odd
-          replace odd : ¬Even (2 ^ ((n + 2).size - 1 - 1)) := by
-            exact not_even_iff_odd.mpr odd
+          replace odd : ¬Even (2 ^ ((n + 2).size - 1 - 1)) := by exact not_even_iff_odd.mpr odd
           exact absurd even odd
         exact same_size_iff_not_pow2.mp cond
       simp [n1size_eq_nsize] at n_ne_envelope_segment
       have : segment n = 2 ^ (n.size - 1) := by
         refine segment_prop1 ?_
-        · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by
-            refine increase_size_iff_pow2' ?_ ?_
-            · exact n_gt_4
-            · exact n_is_envelope'
+        · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by exact increase_size_iff_pow2' n_gt_4 n_is_envelope'
           simp [n2size_eq_nsize] at n_is_envelope'
           exact Nat.eq_sub_of_add_eq n_is_envelope'
       exact absurd this n_ne_envelope_segment
