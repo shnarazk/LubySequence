@@ -329,9 +329,13 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
           rcases n_ge_3 with eq|n_ge_4
           · simp [eq, size, binaryRec, segment]
           · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
-            have n2size_gt_n1size : (n + 2).size = (n + 1).size := by
+            have n2size_eq_n1size : (n + 2).size = (n + 1).size := by
               refine same_size_iff_not_pow2.mp ?_ 
-              · sorry
+              · replace h_1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
+                  by_contra x
+                  have : n = 2 ^ ((n + 2).size - 1) - 2 := by exact Nat.eq_sub_of_add_eq x
+                  exact absurd this h_1
+                exact h_1
             have n2size_ge_3 : (n + 2).size ≥ 3 := by
               have s1 : n + 2 ≥ 4 + 2 := by refine Nat.add_le_add n_ge_4 AtLeastTwo.prop
               replace s1 : (n + 2).size ≥ (4 + 2).size := by exact size_le_size s1
@@ -339,37 +343,24 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
               simp [this] at s1
               exact s1
             by_cases with_carry : n = 2 ^ ((n + 2).size - 1) - 1
-            · have lift : (n + 2).size = n.size + 1 := by
-                have s2 : (n + 1).size = (n + 2).size := by
-                  replace with_carry : n + 1 = 2 ^ ((n + 2).size - 1) := by
-                    refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ (id (Eq.symm with_carry)))
-                    · exact Nat.one_le_two_pow
-                  replace with_carry : (n + 1).size = (2 ^ ((n + 2).size - 1)).size := by
-                    exact congrArg size with_carry
-                  have : (2 ^ ((n + 2).size - 1)).size = (n + 2).size - 1 + 1 := by
-                    exact size_pow
-                  simp [this] at with_carry
-                  replace : (n + 2).size - 1 + 1 = (n + 2).size := by
-                    exact Nat.sub_add_cancel (one_le_of_lt n2size_ge_3)
-                  simp [this] at with_carry
-                  exact with_carry
+            · have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
                 have s1 : (n + 1).size = n.size + 1 := by
-                  simp [←s2] at with_carry
+                  simp [n2size_eq_n1size] at with_carry
                   replace with_carry : n.size = (2 ^ ((n + 1).size - 1) - 1).size := by
                     exact congrArg size with_carry
                   have : (2 ^ ((n + 1).size - 1) - 1).size = (n + 1).size - 1 := by
                     refine size_sub ?_ ?_ ?_
                     · refine zero_lt_sub_of_lt ?_
-                      · simp [s2] ; exact lt_of_add_left_lt n2size_ge_3
+                      · simp [←n2size_eq_n1size] ; exact lt_of_add_left_lt n2size_ge_3
                     · exact Nat.one_pos
                     · exact Nat.one_le_two_pow
                   simp [this] at with_carry
                   simp [with_carry]
                   refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
-                  · simp [s2] ; exact lt_of_add_left_lt n2size_ge_3
-                simp [s2] at s1
+                  · simp [←n2size_eq_n1size] ; exact lt_of_add_left_lt n2size_ge_3
+                simp [←n2size_eq_n1size] at s1
                 exact s1
-              simp [lift] at *
+              simp [n2size_eq_nsize_add_1] at *
               have s1 : segment (n - (2 ^ n.size - 1)) = 1 := by
                 have t1 : n - (2 ^ n.size - 1) = 0 := by
                   rewrite (occs := .pos [1]) [with_carry]
