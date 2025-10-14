@@ -331,7 +331,7 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
           · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
             have n2size_gt_n1size : (n + 2).size = (n + 1).size := by
               refine same_size_iff_not_pow2.mp ?_ 
-              · apply?
+              · sorry
             have n2size_ge_3 : (n + 2).size ≥ 3 := by
               have s1 : n + 2 ≥ 4 + 2 := by refine Nat.add_le_add n_ge_4 AtLeastTwo.prop
               replace s1 : (n + 2).size ≥ (4 + 2).size := by exact size_le_size s1

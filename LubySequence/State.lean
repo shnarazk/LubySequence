@@ -60,11 +60,11 @@ theorem is_divergent (li : LubyState) : ¬(li.next = li) := by
   by_cases h : li.locIx + 1 = li.segment_height
   · simp [is_segment_end, h]
     have (a : LubyState) (h : ¬a.segIx = li.segIx) : ¬a = li := by
-      exact fun a_1 ↦ t₀ (h (congrArg segIx a_1))
+      exact fun a_1 ↦ h (congrArg segIx a_1)
     simp [this]
   · simp [is_segment_end, h]
     have (a : LubyState) (h : ¬a.locIx = li.locIx) : ¬a = li := by
-      exact fun a_1 ↦ t₀ (h (congrArg locIx a_1))
+      exact fun a_1 ↦ h (congrArg locIx a_1)
     simp [this]
 
 theorem segIx_is_increasing : ∀ li : LubyState, li.next.segIx ≥ li.segIx := by
