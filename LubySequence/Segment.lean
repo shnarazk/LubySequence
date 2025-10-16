@@ -1204,7 +1204,8 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
       simp [n1size_eq_nsize] at n_ne_envelope_segment
       have : segment n = 2 ^ (n.size - 1) := by
         refine segment_prop1 ?_
-        · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by exact increase_size_iff_pow2' n_gt_4 n_is_envelope'
+        · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by
+            exact increase_size_iff_pow2' n_gt_4 n_is_envelope'
           simp [n2size_eq_nsize] at n_is_envelope'
           exact Nat.eq_sub_of_add_eq n_is_envelope'
       exact absurd this n_ne_envelope_segment
@@ -1216,19 +1217,26 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
       · expose_names
         simp
         have n_ne_envelope' : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
-          have s1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by exact (add_ne_add_left 2).mpr n_ne_envelope
+          have s1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
+            exact (add_ne_add_left 2).mpr n_ne_envelope
           have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
             exact Nat.sub_add_cancel (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
           simp [s2] at s1
           exact s1
-        have n2size_eq_nsize : (n + 2).size = n.size := by
+        replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
+        rcases n_ge_3 with n_eq_3|n_ge_4
+        · simp [n_eq_3] at *
+          simp [size, binaryRec, segment, trailing_zeros]
+        · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
+          have n2size_eq_nsize : (n + 2).size = n.size := by
+            apply?
+            sorry
+          -- ここが本流。
+          -- trailing_zerosが上位ビットに影響されないことから、引数の合同性？
+          -- 帰納法はどこに行った？
+          have s1 : n - (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) - 1 := by
+            sorry
           sorry
-        -- ここが本流。
-        -- trailing_zerosが上位ビットに影響されないことから、引数の合同性？
-        -- 帰納法はどこに行った？
-        have s1 : n - (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) - 1 := by
-          sorry
-        sorry
     · intro n_eq_0
       simp [n_eq_0] at n_ne_envelope
 
