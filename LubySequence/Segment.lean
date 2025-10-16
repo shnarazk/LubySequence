@@ -1228,15 +1228,31 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
         · simp [n_eq_3] at *
           simp [size, binaryRec, segment, trailing_zeros]
         · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
-          have n2size_eq_nsize : (n + 2).size = n.size := by
-            apply?
+          -- seg_beg の場合を分離
+          by_cases at_seg_beg : n + 1 = 2 ^ ((n + 1).size - 1)
+          · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
+              exact increase_size_iff_pow2.mpr at_seg_beg
+            have n2size_eq_n1size : (n + 2).size = (n + 1).size := by
+              exact same_size_iff_not_pow2.mp n_ne_envelope'
+            simp [n2size_eq_n1size]
+            rw [add_comm]
+            refine
+              trailing_zeros_prop1' (segment (n - (2 ^ ((n + 1).size - 1) - 1))) ?_
+                ((n + 1).size - 2) ?_
+            · exact segment_is_pos (n - (2 ^ ((n + 1).size - 1) - 1))
+            · simp [←at_seg_beg, segment]
+              exact sub_ne_zero_of_lt (Nat.lt_of_lt_of_eq n2size_gt_3 n2size_eq_n1size)
+          · have n2size_eq_nsize : (n + 2).size = n.size := by
+              refine same_size_iff_not_pow2'.mp ?_
+              · constructor
+                · exact n_ne_envelope'
+                · sorry -- apply?
+            -- ここが本流。
+            -- trailing_zerosが上位ビットに影響されないことから、引数の合同性？
+            -- 帰納法はどこに行った？
+            have s1 : n - (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) - 1 := by
+              sorry
             sorry
-          -- ここが本流。
-          -- trailing_zerosが上位ビットに影響されないことから、引数の合同性？
-          -- 帰納法はどこに行った？
-          have s1 : n - (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) - 1 := by
-            sorry
-          sorry
     · intro n_eq_0
       simp [n_eq_0] at n_ne_envelope
 
