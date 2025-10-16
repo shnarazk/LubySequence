@@ -1257,6 +1257,29 @@ theorem same_size_iff_not_pow2 {n : ℕ} :
       exact this
     · simp [q] at p
 
+theorem same_size_iff_not_pow2' {n : ℕ} :
+    ¬n + 2 = 2 ^ ((n + 2).size - 1) ∧ ¬n + 1 = 2 ^ ((n + 1).size - 1)
+    ↔ (n + 2).size = n.size := by
+  constructor
+  · intro ⟨h2, h1⟩
+    have s1 : (n + 1).size = n.size := by exact same_size_iff_not_pow2.mp h1
+    have s2 : (n + 2).size = (n + 1).size := by exact same_size_iff_not_pow2.mp h2
+    simp [s2, s1]
+  · intro h
+    constructor
+    · refine same_size_iff_not_pow2.mpr ?_
+      · have : n + 1 + 1 = n + 2 := by exact rfl
+        simp [this]
+        have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
+        have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
+        replace s2 : (n + 1).size ≥ (n + 2).size := by simp only [←h] at s2 ; exact s2
+        exact Nat.le_antisymm s2 s1
+    · refine same_size_iff_not_pow2.mpr ?_
+      · have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
+        replace s1 : n.size ≥ (n + 1).size := by simp [h] at s1 ; exact s1
+        have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
+        exact Eq.symm (Nat.le_antisymm s2 s1)
+
 /--
 For n ≥ 4, if `n + 2` is a power of 2, then its size is one more than `n.size`.
 This is a variant of `increase_size_iff_pow2` specialized for the case of adding 2.
