@@ -424,21 +424,22 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                   · exact Nat.one_lt_two
                   · exact sub_succ_lt_self (n + 2).size 1 (lt_of_add_left_lt n2size_ge_3)
                 grind
-              simp [n2size_eq_nsize] at *
+              simp [n2size_eq_nsize]
               by_cases n_range : n - (2 ^ (n.size - 1) - 1) = 0
               · simp [n_range]
                 have : segment 0 = 1 := by simp [segment]
                 simp [this]
-                refine (Nat.le_sub_iff_add_le ?_).mp ?_
-                · exact one_le_of_lt n_ge_4
-                · replace with_carry : ¬n + 1 = 2 ^ (n.size - 1) := by
-                    refine Nat.ne_of_gt ?_
-                    · have : n < n + 1 := by exact lt_add_one n
-                      have : 2 ^ (n.size - 1) ≤ n := by
-                        refine n_ge_subenvelope ?_
-                        · exact one_le_of_lt n_ge_4
-                      exact Order.lt_add_one_iff.mpr this
-                  sorry
+                have s1 : 1 ≤ 2 ^ (n.size - 2) := by exact Nat.one_le_two_pow
+                have s2 : 2 ^ (n.size - 1) ≤ n := by exact n_ge_subenvelope (one_le_of_lt n_ge_4)
+                replace s2 : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) ≤ n := by
+                  have : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
+                    have : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
+                      exact Eq.symm (two_pow_succ (n.size - 2))
+                    simp [this]
+                    grind
+                  simp [this]
+                  exact s2
+                exact add_le_of_add_le_left s2 s1
               · replace n'_eq_0 : n - (2 ^ (n.size - 1) - 1) > 0 := by exact zero_lt_of_ne_zero n_range
                 have cond : n - (2 ^ ((n + 2).size - 1) - 1) ≥ 2 := by
                   sorry
