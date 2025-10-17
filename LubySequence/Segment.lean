@@ -1269,7 +1269,23 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                 exact LE.le.eq_or_lt' case0
               rcases case0 with case1|case2
               · simp [case1]
-                have n_ge_8 : n ≥ 8 := by sorry -- envelope segmentではないので言えるはず
+                have n_ge_8 : n ≥ 8 := by -- envelope segmentではないので言えるはず
+                  have n_lower : n = 4 ∨ n > 4 := by exact LE.le.eq_or_lt' n_ge_4
+                  rcases n_lower with eq|gt
+                  · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
+                  · replace gt : n ≥ 5 := by exact gt
+                    replace n_lower : n = 5 ∨ n > 5 := by exact LE.le.eq_or_lt' gt
+                    rcases n_lower with eq|gt
+                    · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
+                    · replace gt : n ≥ 6 := by exact gt
+                      replace n_lower : n = 6 ∨ n > 6 := by exact LE.le.eq_or_lt' gt
+                      rcases n_lower with eq|gt
+                      · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
+                      · replace gt : n ≥ 7 := by exact gt
+                        replace n_lower : n = 7 ∨ n > 7 := by exact LE.le.eq_or_lt' gt
+                        rcases n_lower with eq|gt
+                        · simp [eq, size, binaryRec] at case1
+                        · exact gt
                 have : trailing_zeros (2 + 2 ^ (n.size - 2)) = trailing_zeros 2 := by
                   refine trailing_zeros_prop1' 2 ?_ (n.size - 2) ?_
                   · exact Nat.zero_lt_two
