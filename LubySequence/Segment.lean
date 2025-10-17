@@ -1257,15 +1257,33 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
             rw [add_comm]
             by_cases case0 : n - (2 ^ (n.size - 1) - 1) = 0
             · simp [case0]
-              sorry
+              have : trailing_zeros (1 + 2 ^ (n.size - 2)) = trailing_zeros 1 := by
+                refine trailing_zeros_prop1' 1 ?_ (n.size - 2) ?_
+                · exact Nat.one_pos
+                · refine Nat.one_lt_two_pow ?_
+                  · exact Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3
+              simp [this]
             · replace case0 : n - (2 ^ (n.size - 1) - 1) ≥ 1 := by
                 exact one_le_iff_ne_zero.mpr case0
               replace case0 : n - (2 ^ (n.size - 1) - 1) = 1 ∨ n - (2 ^ (n.size - 1) - 1) > 1 := by 
                 exact LE.le.eq_or_lt' case0
               rcases case0 with case1|case2
               · simp [case1]
-                sorry
-              sorry
+                have n_ge_8 : n ≥ 8 := by sorry -- envelope segmentではないので言えるはず
+                have : trailing_zeros (2 + 2 ^ (n.size - 2)) = trailing_zeros 2 := by
+                  refine trailing_zeros_prop1' 2 ?_ (n.size - 2) ?_
+                  · exact Nat.zero_lt_two
+                  · refine size_le.mp ?_
+                    · refine le_sub_of_add_le ?_
+                      · simp
+                        have : n.size ≥ 4 := by
+                          have s1 : n.size ≥ (8 : ℕ).size := by exact size_le_size n_ge_8
+                          have s2 : (8 : ℕ).size = 4 := by simp [size, binaryRec]
+                          simp [s2] at s1
+                          exact s1
+                        exact this
+                simp [this]
+              · sorry
              /-
                 have s1 : n + 1 = 2 ^ (n.size - 1) - 1 + 1 := by
                     exact congrFun (congrArg HAdd.hAdd case0) 1
