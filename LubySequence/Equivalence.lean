@@ -233,10 +233,7 @@ theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := b
                 have s3 : 2 ^ (1 + 1).size ≤ 2 ^ (n + 1).size := by
                   refine Luby.pow2_le_pow2 (1 + 1).size (n + 1).size ?_
                   exact Nat.size_le_size s2
-                have : 2 ^ (1 + 1).size = 4 := by
-                  simp only [Nat.reduceAdd]
-                  simp [Nat.size, Nat.binaryRec]
-                simp [this] at s3
+                simp at s3
                 exact Nat.lt_of_add_left_lt s3
               have step2 : 2 / 2 < 2 ^ (n + 1).size / 2 := by
                 refine Nat.div_lt_div_of_lt_of_dvd ?_ step1
@@ -294,8 +291,6 @@ theorem LubyStateSegment_is_LubySegment :
       have : (default : LubyState).is_segment_end = true := by
         simp [default, LubyState.is_segment_end]
         simp [LubyState.segment_height]
-        rw [trailing_zeros.eq_def]
-        simp
       simp [this]
     · expose_names
       split

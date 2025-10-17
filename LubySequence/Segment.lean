@@ -118,7 +118,7 @@ theorem segment_limit' (n : ℕ) : segment n ≤ n + 1 := by
         simp
         by_cases n_eq_1_or_3 : n = 1 ∨ n = 3
         · rcases n_eq_1_or_3 with n_def|n_def
-          <;> simp [n_def, size, binaryRec, segment]
+          <;> simp [n_def, size, binaryRec]
         · have n_ge_4 : n ≥ 4 := by
             by_contra n_le_3
             simp at n_le_3
@@ -332,7 +332,7 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
         · replace n_ge_3 : n ≥ 3 := by exact n_ge_3
           replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
           rcases n_ge_3 with eq|n_ge_4
-          · simp [eq, size, binaryRec, segment]
+          · simp [eq, size, binaryRec]
           · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
             have n2size_eq_n1size : (n + 2).size = (n + 1).size := by
               refine same_size_iff_not_pow2.mp ?_ 
@@ -372,7 +372,7 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                   have : 2 ^ n.size = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) := by
                     exact Eq.symm (Nat.two_pow_pred_add_two_pow_pred (zero_lt_of_lt n2size_ge_3))
                   simp [this]
-                simp [t1, segment]
+                simp [t1]
               simp [s1]
               rw (occs := .pos [2]) [with_carry]
               have : 2 ^ n.size = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) := by
@@ -432,8 +432,6 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
               simp [n2size_eq_nsize]
               by_cases n_range : n - (2 ^ (n.size - 1) - 1) = 0
               · simp [n_range]
-                have : segment 0 = 1 := by simp [segment]
-                simp [this]
                 have s1 : 1 ≤ 2 ^ (n.size - 2) := by exact Nat.one_le_two_pow
                 have s2 : 2 ^ (n.size - 1) ≤ n := by exact n_ge_subenvelope (one_le_of_lt n_ge_4)
                 replace s2 : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) ≤ n := by
@@ -451,7 +449,7 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                   have : n - (n - 1) = 1 := by
                     refine Nat.sub_sub_self ?_
                     · exact one_le_of_lt n_ge_4
-                  simp [this, segment]
+                  simp [this]
                   have s1 : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) ≤ n := by
                     have t1 : 2 ^ (n.size - 1) ≤ n := by
                       refine n_ge_subenvelope ?_
@@ -932,7 +930,7 @@ So `n` starts from zero. -/
 def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n, LubySegment.segment_length n))
 
-example : segment_length 0 = 1 := by simp [segment_length, trailing_zeros]
+example : segment_length 0 = 1 := by simp [segment_length]
 
 #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)

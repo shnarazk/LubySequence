@@ -82,6 +82,12 @@ def trailing_zeros (n : ℕ) : ℕ := match h : n with
 
 -- #eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
 
+@[simp]
+theorem trailing_zeros0 : trailing_zeros 0 = 0 := by simp [trailing_zeros]
+
+@[simp]
+theorem trailing_zeros1 : trailing_zeros 1 = 0 := by simp [trailing_zeros]
+
 /--
 Returns the number of consecutive ones at the end of bit representation of Nat `n`.
 For example, `trailing_ones 7 = 3` since 7 in binary is 111.
@@ -850,8 +856,6 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
     simp
     rw [trailing_zeros]
     simp [size, binaryRec]
-    rw [trailing_zeros]
-    simp [size]
   | succ n hn =>
     rw [trailing_zeros]
     split
@@ -880,7 +884,6 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
           simp at s2
           exact one_lt_two_pow' (n + 1)
       simp [t1]
-      simp [trailing_zeros]
 
 /--
 For positive n not equal to 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-1)).
@@ -1094,7 +1097,7 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
         refine le_one_iff_eq_zero_or_eq_one.mp ?_
         · exact le_of_lt_succ hn'2
       rcases cases' with n₂|n₂
-      <;> { simp [n₂, trailing_zeros] }
+      <;> { simp [n₂] }
     · -- 前半分と後ろ半分
       have sub1 : m < n := by
         refine le_if_le_size ?_

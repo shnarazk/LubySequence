@@ -105,11 +105,11 @@ theorem segId0 {n : ℕ} : n = 0 ↔ (zero.next n).segIx = 1 := by
   · intro h
     by_contra x
     have base1 : (zero.next 1).segIx = 2 := by
-      simp [is_segment_end, default, segment_height, trailing_zeros]
+      simp [is_segment_end, default, segment_height]
     have np : n ≥ 1 := by exact one_le_iff_ne_zero.mpr x
     have : (zero.next n).segIx ≥ 2 := by
       have sub : (zero.next n).segIx ≥ (zero.next 1).segIx := by exact segIx_is_mono 1 n np
-      simp [default, is_segment_end, segment_height, trailing_zeros] at sub
+      simp [default, is_segment_end, segment_height] at sub
       exact sub
     grind
 
@@ -231,7 +231,7 @@ theorem LubyState_prop (n : ℕ) :
   have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
   have segbeg1 : Luby.is_segment_beg 1 := by simp [Luby.is_segment_beg.eq_def]
   have defaultenv : (default : LubyState).is_segment_end =true := by
-    simp [is_segment_end, default, segment_height, trailing_zeros]
+    simp [is_segment_end, default, segment_height]
   split
   · expose_names ; exact LubyState_segment_prop2 h
   · expose_names
@@ -375,7 +375,7 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
     intro h
     have cases : n = 1 ∨ 1 < n := by exact LE.le.eq_or_lt' h
     rcases cases with case1|case2
-    · simp [case1] at * ; simp [trailing_zeros]
+    · simp [case1]
     · intro h2
       have nsize2 : 2 ≤ n.size := by
         have u1 : (2 : ℕ).size ≤ n.size := by exact size_le_size case2
@@ -767,7 +767,7 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
     intro h2
     have cases : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
     rcases cases with kz|kp
-    · simp [kz, ofNat, default, segment_height, trailing_zeros]
+    · simp [kz, ofNat, default, segment_height]
     · have h2' : k = 2 ^ ((k + 1).size - 1) - 1 - 1 := by exact Nat.eq_sub_of_add_eq h2
       let j := 2 ^ ((k + 1).size - 1 - 1)
       have hj : j = value_of% j := by exact rfl
