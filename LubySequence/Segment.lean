@@ -1246,13 +1246,17 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
               refine same_size_iff_not_pow2'.mp ?_
               · constructor
                 · exact n_ne_envelope'
-                · sorry -- apply?
+                · exact at_seg_beg
+            have n1size_eq_nsize : (n + 1).size = n.size := by
+              exact same_size_iff_not_pow2.mp at_seg_beg
             -- ここが本流。
             -- trailing_zerosが上位ビットに影響されないことから、引数の合同性？
             -- 帰納法はどこに行った？
-            have s1 : n - (2 ^ ((n + 2).size - 1) - 1) = 2 ^ ((n + 2).size - 1) - 1 := by
-              sorry
-            sorry
+            simp [n2size_eq_nsize, n1size_eq_nsize] at *
+            rw [add_comm]
+            refine trailing_zeros_prop1' (segment (n - (2 ^ (n.size - 1) - 1))) ?_ (n.size - 2) ?_
+            · exact segment_is_pos (n - (2 ^ (n.size - 1) - 1))
+            · sorry
     · intro n_eq_0
       simp [n_eq_0] at n_ne_envelope
 
