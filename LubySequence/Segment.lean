@@ -1232,113 +1232,57 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
         · simp [n_eq_3] at *
           simp [size, binaryRec, trailing_zeros]
         · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
-          -- seg_beg の場合を分離
-          by_cases at_seg_beg : n + 1 = 2 ^ ((n + 1).size - 1)
-          · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
-              exact increase_size_iff_pow2.mpr at_seg_beg
-            have n2size_eq_n1size : (n + 2).size = (n + 1).size := by
-              exact same_size_iff_not_pow2.mp n_ne_envelope'
-            simp [n2size_eq_n1size]
-            rw [add_comm]
-            refine
-              trailing_zeros_prop1' (segment (n - (2 ^ ((n + 1).size - 1) - 1))) ?_
-                ((n + 1).size - 2) ?_
-            · exact segment_is_pos (n - (2 ^ ((n + 1).size - 1) - 1))
-            · simp [←at_seg_beg]
-              exact sub_ne_zero_of_lt (Nat.lt_of_lt_of_eq n2size_gt_3 n2size_eq_n1size)
-          · have n2size_eq_nsize : (n + 2).size = n.size := by
-              refine same_size_iff_not_pow2'.mp ?_
-              · constructor
-                · exact n_ne_envelope'
-                · exact at_seg_beg
-            have n1size_eq_nsize : (n + 1).size = n.size := by
-              exact same_size_iff_not_pow2.mp at_seg_beg
-            simp [n2size_eq_nsize, n1size_eq_nsize] at *
-            rw [add_comm]
-            by_cases case0 : n - (2 ^ (n.size - 1) - 1) = 0
-            · simp [case0]
-              have : trailing_zeros (1 + 2 ^ (n.size - 2)) = trailing_zeros 1 := by
-                refine trailing_zeros_prop1' 1 ?_ (n.size - 2) ?_
-                · exact Nat.one_pos
-                · refine Nat.one_lt_two_pow ?_
-                  · exact Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3
-              simp [this]
-            · replace case0 : n - (2 ^ (n.size - 1) - 1) ≥ 1 := by
-                exact one_le_iff_ne_zero.mpr case0
-              replace case0 : n - (2 ^ (n.size - 1) - 1) = 1 ∨ n - (2 ^ (n.size - 1) - 1) > 1 := by 
-                exact LE.le.eq_or_lt' case0
-              rcases case0 with case1|case2
-              · simp [case1]
-                have n_ge_8 : n ≥ 8 := by -- envelope segmentではないので言えるはず
-                  have n_lower : n = 4 ∨ n > 4 := by exact LE.le.eq_or_lt' n_ge_4
-                  rcases n_lower with eq|gt
-                  · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
-                  · replace gt : n ≥ 5 := by exact gt
-                    replace n_lower : n = 5 ∨ n > 5 := by exact LE.le.eq_or_lt' gt
-                    rcases n_lower with eq|gt
-                    · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
-                    · replace gt : n ≥ 6 := by exact gt
-                      replace n_lower : n = 6 ∨ n > 6 := by exact LE.le.eq_or_lt' gt
-                      rcases n_lower with eq|gt
-                      · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
-                      · replace gt : n ≥ 7 := by exact gt
-                        replace n_lower : n = 7 ∨ n > 7 := by exact LE.le.eq_or_lt' gt
-                        rcases n_lower with eq|gt
-                        · simp [eq, size, binaryRec] at case1
-                        · exact gt
-                have : trailing_zeros (2 + 2 ^ (n.size - 2)) = trailing_zeros 2 := by
-                  refine trailing_zeros_prop1' 2 ?_ (n.size - 2) ?_
-                  · exact Nat.zero_lt_two
-                  · refine size_le.mp ?_
-                    · refine le_sub_of_add_le ?_
-                      · simp
-                        have : n.size ≥ 4 := by
-                          have s1 : n.size ≥ (8 : ℕ).size := by exact size_le_size n_ge_8
-                          have s2 : (8 : ℕ).size = 4 := by simp [size, binaryRec]
-                          simp [s2] at s1
-                          exact s1
-                        exact this
-                simp [this]
-              · sorry
-             /-
-                have s1 : n + 1 = 2 ^ (n.size - 1) - 1 + 1 := by
-                    exact congrFun (congrArg HAdd.hAdd case0) 1
-                  have s2 : 2 ^ (n.size - 1) - 1 + 1 = 2 ^ (n.size - 1) := by
-                    refine Nat.sub_add_cancel ?_
-                    · exact Nat.one_le_two_pow
-                  simp [s2] at s1
-                  exact s1
-              exact absurd case0 at_seg_beg
-            · by_cases  
-
-
-
-            refine trailing_zeros_prop1' (segment (n - (2 ^ (n.size - 1) - 1))) ?_ (n.size - 2) ?_
-            · exact segment_is_pos (n - (2 ^ (n.size - 1) - 1))
-            · have s1 : n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 2) := by
-                sorry
-              have s2 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ n - (2 ^ (n.size - 1) - 1) := by
-                refine segment_limit ?_
+          have n_ge_7 : n ≥ 7 := by -- envelope segmentではないので言えるはず
+            have n_lower : n = 4 ∨ n > 4 := by exact LE.le.eq_or_lt' n_ge_4
+            rcases n_lower with eq|gt
+            · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
+            · replace gt : n ≥ 5 := by exact gt
+              replace n_lower : n = 5 ∨ n > 5 := by exact LE.le.eq_or_lt' gt
+              rcases n_lower with eq|gt
+              · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
+              · replace gt : n ≥ 6 := by exact gt
+                replace n_lower : n = 6 ∨ n > 6 := by exact LE.le.eq_or_lt' gt
+                rcases n_lower with eq|gt
+                · simp [eq, segment, size, binaryRec] at n_ne_envelope_segment
+                · replace gt : n ≥ 7 := by exact gt
+                  exact gt
+          clear n_ge_4
+          replace n_ge_7 : n = 7 ∨ n > 7 := by exact LE.le.eq_or_lt' n_ge_7
+          rcases n_ge_7 with n_eq_7|n_ge_8
+          · simp [n_eq_7, size, binaryRec, trailing_zeros]
+          · replace n_ge_8 : n ≥ 8 := by exact n_ge_8 
+            by_cases at_seg_beg : n + 1 = 2 ^ ((n + 1).size - 1)
+            · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
+                exact increase_size_iff_pow2.mpr at_seg_beg
+              have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
+                have : (n + 2).size = (n + 1).size := by
+                  exact same_size_iff_not_pow2.mp n_ne_envelope'
+                simp [←this] at n1size_eq_nsize_add_1
+                exact n1size_eq_nsize_add_1
+              simp [n2size_eq_nsize_add_1, n1size_eq_nsize_add_1] at *
+              have : n - (2 ^ n.size - 1) = 0 := by
+                refine Nat.sub_eq_zero_of_le ?_
                 · refine le_sub_of_add_le ?_
-                  · refine (Nat.le_sub_iff_add_le' ?_).mp ?_
-                    · exact le_of_add_left_le n_ge_4
-                    · refine Nat.sub_le_iff_le_add.mpr ?_
-                      have : n - 2 + 1 = n - 1 := by
-                        refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
-                        · refine Eq.symm (Nat.sub_add_cancel ?_)
-                          · exact le_of_add_left_le n_ge_4
-                      simp [this]
-                      have s1 : 2 ^ (n.size - 1) ≤ n := by exact n_ge_subenvelope n_gt_0
-                      replace s1 : 2 ^ (n.size - 1) = n ∨ 2 ^ (n.size - 1) < n := by
-                        exact Nat.eq_or_lt_of_le s1
-                      rcases s1 with eq|gt
-                      · simp [eq] at *
-                        simp at x
-
-                sorry
-              exact Nat.lt_of_le_of_lt s2 s1
-              -/
-    · intro n_eq_0
-      simp [n_eq_0] at n_ne_envelope
+                  exact Nat.le_of_eq at_seg_beg
+              simp [this]
+              rw [add_comm]
+              have : trailing_zeros (1 + 2 ^ (n.size - 1)) = trailing_zeros 1 := by
+                refine trailing_zeros_prop7 (n.size - 1) 1 ?_ ?_
+                · refine Nat.one_lt_two_pow_iff.mpr ?_
+                  · exact Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3
+                · exact Nat.one_ne_zero
+              simp [this]
+            · have n1size_eq_nsize : (n + 1).size = n.size := by 
+                exact same_size_iff_not_pow2.mp at_seg_beg
+              have n2size_eq_nsize : (n + 2).size = n.size := by
+                have : (n + 2).size = (n + 1).size := by
+                  exact same_size_iff_not_pow2.mp n_ne_envelope'
+                simp [this]
+                exact n1size_eq_nsize
+              simp [n1size_eq_nsize, n2size_eq_nsize] at *
+              -- envelope segmentを省くとは?
+              --
+              sorry
+    · sorry
 
 end LubySegment
