@@ -510,6 +510,11 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                           · exact Nat.two_pow_pos (n.size - 2)
                   exact add_le_of_add_le_left this (ih (n - (2 ^ (n.size - 1) - 1)) cond1 cond2)
 
+#eval List.range 64 |>.all (fun n ↦ (segment  n ≤ 2 ^ ((n + 1).size - 1)))
+
+theorem segment_limit2 {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).size - 1) := by
+  sorry
+  
 /--
 The segment function is monotone: `segment n ≤ segment (n + 1)` for all `n`.
 Segments form a non-decreasing sequence as positions increase through the Luby sequence.
@@ -1311,6 +1316,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                       refine
                         trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) ?_ ?_
                       · have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ n - (2 ^ (n.size - 1) - 1) := by
+                          -- envelope_segmentでないことを使ってない
                           refine segment_limit ?_
                           · refine (Nat.le_sub_iff_add_le' ?_).mpr ?_
                             · refine sub_le_of_le_add ?_
@@ -1330,7 +1336,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                                 rcases s1 with h|h
                                 · exact absurd h eq
                                 · exact (Nat.le_sub_one_iff_lt n_gt_0).mpr h
-                        have s2 :n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 2) := by
+                        have s2 : n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 2) := by
                           sorry
                         exact Nat.lt_of_le_of_lt s1 s2
                       refine Nat.ne_zero_iff_zero_lt.mpr ?_
