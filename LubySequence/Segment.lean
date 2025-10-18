@@ -1279,10 +1279,53 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                   exact same_size_iff_not_pow2.mp n_ne_envelope'
                 simp [this]
                 exact n1size_eq_nsize
-              simp [n1size_eq_nsize, n2size_eq_nsize] at *
               -- envelope segmentを省くとは?
-              --
-              sorry
+              rw [segment.eq_def] at n_ne_envelope_segment
+              split at n_ne_envelope_segment
+              · contradiction
+              · split at n_ne_envelope_segment <;> expose_names
+                · simp [n1size_eq_nsize, n2size_eq_nsize] at *
+                  exact absurd h_2 n_ne_envelope
+                · simp at n_ne_envelope_segment 
+                  simp [n1size_eq_nsize, n2size_eq_nsize] at *
+                  by_cases eq : 2 ^ (n.size - 1) = n
+                  · simp [eq]
+                    have : n - (n - 1) = 1 := by exact Nat.sub_sub_self n_gt_0
+                    simp [this]
+                    sorry
+                    --
+                  · have : trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) = trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
+                      rw [add_comm]
+                      refine
+                        trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) ?_ ?_
+                      · have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ n - (2 ^ (n.size - 1) - 1) := by
+                          refine segment_limit ?_
+                          · refine (Nat.le_sub_iff_add_le' ?_).mpr ?_
+                            · refine sub_le_of_le_add ?_
+                              · have : 2 ^ (n.size - 1) ≤ n := by exact n_ge_subenvelope n_gt_0
+                                exact le_add_right_of_le this
+                            · refine add_le_of_le_sub ?_ ?_
+                              · exact le_of_add_left_le n_ge_8
+                              · refine sub_le_of_le_add ?_
+                                have : n - 2 + 1 = n - 1 := by
+                                  refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
+                                  · refine le_sub_one_of_lt ?_
+                                    · exact lt_of_add_left_lt n_ge_8
+                                simp [this]
+                                have s1 : 2 ^ (n.size - 1) ≤ n := by exact n_ge_subenvelope n_gt_0
+                                replace s1 : 2 ^ (n.size - 1) = n ∨ 2 ^ (n.size - 1) < n := by 
+                                  exact Nat.eq_or_lt_of_le s1
+                                rcases s1 with h|h
+                                · exact absurd h eq
+                                · exact (Nat.le_sub_one_iff_lt n_gt_0).mpr h
+                        have s2 :n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 2) := by
+                          sorry
+                        exact Nat.lt_of_le_of_lt s1 s2
+                      refine Nat.ne_zero_iff_zero_lt.mpr ?_
+                      · exact segment_is_pos (n - (2 ^ (n.size - 1) - 1))
+                    simp [this]
+                  --
+          --
     · sorry
 
 end LubySegment
