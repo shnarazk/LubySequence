@@ -1251,6 +1251,11 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
           rcases n_ge_7 with n_eq_7|n_ge_8
           · simp [n_eq_7, size, binaryRec, trailing_zeros]
           · replace n_ge_8 : n ≥ 8 := by exact n_ge_8 
+            have nsize_ge_4 : n.size ≥ 4 := by
+              have s1 : n.size ≥ (8 : ℕ).size := by exact size_le_size n_ge_8
+              have s2 : (8 : ℕ).size = 4 := by simp [size, binaryRec]
+              simp [s2] at s1
+              exact s1
             by_cases at_seg_beg : n + 1 = 2 ^ ((n + 1).size - 1)
             · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
                 exact increase_size_iff_pow2.mpr at_seg_beg
@@ -1292,8 +1297,15 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                   · simp [eq]
                     have : n - (n - 1) = 1 := by exact Nat.sub_sub_self n_gt_0
                     simp [this]
-                    sorry
-                    --
+                    have : trailing_zeros (2 ^ (n.size - 2) + 2) = trailing_zeros 2 := by
+                      rw [add_comm]
+                      refine trailing_zeros_prop1' 2 ?_ (n.size - 2) ?_
+                      · exact Nat.zero_lt_two
+                      · refine size_le.mp ?_
+                        · refine le_sub_of_add_le ?_
+                          simp
+                          exact nsize_ge_4
+                    simp [this]
                   · have : trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) = trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
                       rw [add_comm]
                       refine
