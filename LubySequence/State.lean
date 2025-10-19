@@ -182,6 +182,10 @@ def toNat (self : LubyState) : ℕ := match self.segIx with
 
 #eval scanList (·.next) zero 24 |>.map (·.toNat)
 
+/--
+The toNat and ofNat functions are inverses: (ofNat n).toNat = n for all n.
+This proves that the state-based representation is isomorphic to natural numbers.
+-/
 theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
   intro n
   change (zero.next n).toNat = n
@@ -231,6 +235,9 @@ theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
               grind
         · grind
 
+/--
+Applying next increases toNat by 1: (ofNat n).next.toNat = n + 1.
+-/
 theorem next_is_succ : ∀ n : ℕ, (ofNat n).next.toNat = n + 1 := by
   intro n
   calc
@@ -421,6 +428,10 @@ def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i 
   let n := 2 ^ k
   (∑ i ∈ range n, (trailing_zeros (i + 1) + 1), 2 ^ n.size - 1))
 
+/--
+For powers of 2, the sum of segment heights equals 2^(n.size) - 1.
+This is a key property connecting segment heights to the binary structure.
+-/
 theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
     ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = 2 ^ n.size - 1 := by
   intro n
