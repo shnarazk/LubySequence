@@ -513,7 +513,35 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
 #eval List.range 64 |>.all (fun n ↦ (segment  n ≤ 2 ^ ((n + 1).size - 1)))
 
 theorem segment_limit2 {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).size - 1) := by
-  sorry
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    have n2size_ge_3 : (n + 2).size ≥ 3 := by exact size2_add_2_ge_2 n_ge_2
+    have pow2_n2_minus_1_divide : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) := by
+      have s1 : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 1 - 1) * 2 := by
+        exact Eq.symm (two_pow_pred_mul_two (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3)))
+      have s2 : (n + 2).size - 1 - 1 = (n + 2).size - 2 := by exact rfl
+      simp [s2] at s1
+      rw [mul_two] at s1
+      exact s1
+    by_cases n2size_eq_n1_size : (n + 2).size = (n + 1).size
+    · rw [segment]
+      simp [n2size_eq_n1_size] at *
+      split <;> expose_names
+      · exact le.intro (id (Eq.symm pow2_n2_minus_1_divide))
+      · sorry
+      · intro x
+        replace n_ge_2 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_2
+        exact absurd x n_ge_2
+    · rw [segment]
+      replace n2size_eq_n1_size : (n + 2).size = (n + 1).size + 1 := by
+        sorry
+      simp [n2size_eq_n1_size] at *
+      split <;> expose_names
+      · exact Nat.le_refl (2 ^ ((n + 1).size - 1)) 
+      · sorry
+      · intro x
+        replace n_ge_2 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_2
+        exact absurd x n_ge_2
   
 /--
 The segment function is monotone: `segment n ≤ segment (n + 1)` for all `n`.
