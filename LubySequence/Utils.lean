@@ -9,11 +9,17 @@ open Finset Nat
 /--
 The size (bit length) of the natural number 2 is 2.
 -/
+/--
+The size (bit length) of 2 is 2.
+-/
 @[simp]
 theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
 
 /--
 The size (bit length) of the natural number 3 is 2.
+-/
+/--
+The size (bit length) of 3 is 2.
 -/
 @[simp]
 theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
@@ -21,9 +27,15 @@ theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
 /--
 The size (bit length) of the natural number 4 is 3.
 -/
+/--
+The size (bit length) of 4 is 3.
+-/
 @[simp]
 theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
 
+/--
+For any natural number n ≥ 2, its size (bit length) is at least 2.
+-/
 /--
 For any natural number n ≥ 2, its size (bit length) is at least 2.
 -/
@@ -36,12 +48,18 @@ theorem size2_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
 /--
 For any natural number n, the size of n + 2 is at least 2.
 -/
+/--
+For any natural number n, the size of n + 2 is at least 2.
+-/
 @[simp]
 theorem size0_add_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
   have s1 : n ≥ 0 := by exact Nat.zero_le n
   have s2 : n + 2 ≥ 0 + 2 := by exact Nat.add_le_add_right s1 2
   exact size2_ge_2 s2
 
+/--
+For any natural number n ≥ 2, the size of n + 2 is at least 3.
+-/
 /--
 For any natural number n ≥ 2, the size of n + 2 is at least 3.
 -/
@@ -52,6 +70,9 @@ theorem size2_add_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
   simp at s2
   exact s2
 
+/--
+For any natural number n ≥ 4, the size of n is at least 3.
+-/
 /--
 For any natural number n ≥ 4, the size of n is at least 3.
 -/
@@ -82,9 +103,15 @@ def trailing_zeros (n : ℕ) : ℕ := match h : n with
 
 -- #eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
 
+/--
+The number of trailing zeros in 0 is 0.
+-/
 @[simp]
 theorem trailing_zeros0 : trailing_zeros 0 = 0 := by simp [trailing_zeros]
 
+/--
+The number of trailing zeros in 1 is 0.
+-/
 @[simp]
 theorem trailing_zeros1 : trailing_zeros 1 = 0 := by simp [trailing_zeros]
 
@@ -350,6 +377,7 @@ theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := 
     exact hn
 
 /--
+Deprecated: Use `size_add` instead.
 For 0 < k < 2^n, the bit length of 2^n + k equals n+1.
 -/
 @[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
@@ -406,6 +434,7 @@ theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = 
   exact bitslength_add ha hb
 
 /--
+Deprecated: Use `size_add'` instead.
 If adding k to n doesn't increase the bit length beyond n.bits.length, then the bit length stays the same.
 -/
 @[deprecated "Use `size_add'` instead of `bitslength_add'`" (since := "2025-08-10")]
@@ -433,6 +462,7 @@ theorem size_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n
   exact bitslength_add' ha hb
 
 /--
+Deprecated: Use `size_sub` instead.
 For n > 0 and 0 < k ≤ 2^(n-1), the bit length of 2^n - k equals n.
 -/
 @[deprecated "Use `size_sub` instead of `bitslength_sub`" (since := "2025-08-10")]
@@ -506,6 +536,7 @@ theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
   exact bitslength_sub h ha hb
 
 /--
+Deprecated: Use `size_div` instead.
 For n ≥ 1 divisible by 2, the bit length of n/2 is one less than the bit length of n.
 -/
 @[deprecated "Use `size_div` instead of `bitslength_div`" (since := "2025-08-10")]
@@ -739,7 +770,8 @@ theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
       simp [this]
 
 /--
-For n > 1 where n = 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-2)) + 1.
+For n > 1 where n = 2^(n.size-1), the trailing zeros of n equals
+the trailing zeros of (n - 2^(n.size-2)) plus 1.
 -/
 @[simp]
 theorem trailing_zeros_prop2 :
@@ -1260,6 +1292,10 @@ theorem same_size_iff_not_pow2 {n : ℕ} :
       exact this
     · simp [q] at p
 
+/--
+The size of n + 2 equals n.size if and only if both n + 2 and n + 1 are not powers of 2.
+This is a two-step variant of same_size_iff_not_pow2.
+-/
 theorem same_size_iff_not_pow2' {n : ℕ} :
     ¬n + 2 = 2 ^ ((n + 2).size - 1) ∧ ¬n + 1 = 2 ^ ((n + 1).size - 1)
     ↔ (n + 2).size = n.size := by
