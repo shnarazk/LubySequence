@@ -16,26 +16,17 @@ The size (bit length) of 2 is 2.
 theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
 
 /--
-The size (bit length) of the natural number 3 is 2.
--/
-/--
 The size (bit length) of 3 is 2.
 -/
 @[simp]
 theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
 
 /--
-The size (bit length) of the natural number 4 is 3.
--/
-/--
 The size (bit length) of 4 is 3.
 -/
 @[simp]
 theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
 
-/--
-For any natural number n ≥ 2, its size (bit length) is at least 2.
--/
 /--
 For any natural number n ≥ 2, its size (bit length) is at least 2.
 -/
@@ -48,18 +39,12 @@ theorem size2_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
 /--
 For any natural number n, the size of n + 2 is at least 2.
 -/
-/--
-For any natural number n, the size of n + 2 is at least 2.
--/
 @[simp]
 theorem size0_add_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := by
   have s1 : n ≥ 0 := by exact Nat.zero_le n
   have s2 : n + 2 ≥ 0 + 2 := by exact Nat.add_le_add_right s1 2
   exact size2_ge_2 s2
 
-/--
-For any natural number n ≥ 2, the size of n + 2 is at least 3.
--/
 /--
 For any natural number n ≥ 2, the size of n + 2 is at least 3.
 -/
