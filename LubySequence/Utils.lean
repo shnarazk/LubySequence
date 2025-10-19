@@ -9,9 +9,6 @@ open Finset Nat
 /--
 The size (bit length) of the natural number 2 is 2.
 -/
-/--
-The size (bit length) of 2 is 2.
--/
 @[simp]
 theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
 
@@ -55,9 +52,6 @@ theorem size2_add_2_ge_2 {n : ℕ} (h : n ≥ 2) : (n + 2).size ≥ 3 := by
   simp at s2
   exact s2
 
-/--
-For any natural number n ≥ 4, the size of n is at least 3.
--/
 /--
 For any natural number n ≥ 4, the size of n is at least 3.
 -/

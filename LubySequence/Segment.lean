@@ -757,10 +757,6 @@ Monotonicity over arbitrary intervals: if a ≤ b, then segment a ≤ segment b.
 This generalizes segment_is_monotone to non-adjacent positions.
 -/
 theorem segment_is_monotone' {a b : ℕ} (h : a ≤ b) : segment a ≤ segment b := by
-Monotonicity over arbitrary intervals: if a ≤ b, then segment a ≤ segment b.
-This generalizes segment_is_monotone to non-adjacent positions.
--/
-theorem segment_is_monotone' {a b : ℕ} (h : a ≤ b) : segment a ≤ segment b := by
   let d := b - a
   have d_def : d = value_of% d := by exact rfl
   have d_as_b : b = a + d := by exact Eq.symm (add_sub_of_le h)
