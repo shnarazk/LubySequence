@@ -40,8 +40,15 @@ def segment (n : ℕ) : ℕ := match n with
           simp [n_eq_0, size, binaryRec] at h
       2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1))
 
+/--
+The segment index at position 0 is 1.
+-/
 @[simp]
 theorem segment0 : segment 0 = 1 := by simp [segment]
+
+/--
+The segment index at position 1 is 2.
+-/
 @[simp]
 theorem segment1 : segment 1 = 2 := by simp [segment]
 
@@ -295,6 +302,10 @@ theorem segment_limit' (n : ℕ) : segment n ≤ n + 1 := by
                 · exact ih2
             exact Nat.le_trans ih' this
 
+/--
+For n ≥ 2, the segment index at position n is at most n.
+This is a tighter bound than segment_limit', showing segments are bounded by their position.
+-/
 theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -512,6 +523,10 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
 
 #eval List.range 64 |>.all (fun n ↦ (segment  n ≤ 2 ^ ((n + 1).size - 1)))
 
+/--
+For n ≥ 2, the segment index is bounded by 2^((n+1).size - 1).
+This provides a logarithmic upper bound on segment indices.
+-/
 theorem segment_limit2 {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).size - 1) := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -737,6 +752,14 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
             have ih' := ih (n - (2 ^ ((n + 2).size - 1) - 1)) s1
             exact ih'
 
+/--
+Monotonicity over arbitrary intervals: if a ≤ b, then segment a ≤ segment b.
+This generalizes segment_is_monotone to non-adjacent positions.
+-/
+theorem segment_is_monotone' {a b : ℕ} (h : a ≤ b) : segment a ≤ segment b := by
+Monotonicity over arbitrary intervals: if a ≤ b, then segment a ≤ segment b.
+This generalizes segment_is_monotone to non-adjacent positions.
+-/
 theorem segment_is_monotone' {a b : ℕ} (h : a ≤ b) : segment a ≤ segment b := by
   let d := b - a
   have d_def : d = value_of% d := by exact rfl
