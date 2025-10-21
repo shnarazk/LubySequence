@@ -543,7 +543,12 @@ theorem segment_limit2 {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ 2 ^ ((n + 1)
       simp [n2size_eq_n1_size] at *
       split <;> expose_names
       · exact le.intro (id (Eq.symm pow2_n2_minus_1_divide))
-      · sorry
+      · have s1 : n - (2 ^ ((n + 1).size - 1) - 1) < n := by
+          sorry
+        have s2 : 2 ≤ n - (2 ^ ((n + 1).size - 1) - 1) := by
+          sorry
+        have ih' := ih (n - (2 ^ ((n + 1).size - 1) - 1)) s1 s2
+        sorry
       · intro x
         replace n_ge_2 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_2
         exact absurd x n_ge_2
