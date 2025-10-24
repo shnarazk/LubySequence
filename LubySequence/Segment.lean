@@ -572,7 +572,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             have s1 : n - (2 ^ ((n + 1).size - 1) - 1) < n := by
               simp only [n2size_eq_n1_size] at *
               refine sub_lt ?_ ?_
-              · exact zero_lt_of_lt n_ge_2
+              · exact zero_lt_of_lt n_ge_4
               · refine zero_lt_sub_of_lt ?_
                 · refine Nat.one_lt_two_pow ?_
                   · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_ge_3)
@@ -585,8 +585,8 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
               · sorry
             sorry
           · intro x
-            replace n_ge_2 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_2
-            exact absurd x n_ge_2
+            replace n_ge_4 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_4
+            exact absurd x n_ge_4
         · rw [segment]
           replace n2size_eq_n1_size : (n + 2).size = (n + 1).size + 1 := by
             sorry
@@ -595,8 +595,8 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
           · exact Nat.le_refl (2 ^ ((n + 1).size - 1)) 
           · sorry
           · intro x
-            replace n_ge_2 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_2
-            exact absurd x n_ge_2
+            replace n_ge_4 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_4
+            exact absurd x n_ge_4
       
     /--
     The segment function is monotone: `segment n ≤ segment (n + 1)` for all `n`.
