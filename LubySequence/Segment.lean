@@ -528,6 +528,21 @@ For n ≥ 2, the segment index is bounded by 2^((n+1).size - 1).
 This provides a logarithmic upper bound on segment indices.
 -/
 theorem segment_limit2 {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).size - 1) := by
+  -- Proof Strcture
+  -- +1: n ≤ 4の場合を個別撃破
+  -- -1: n ≥ 4 
+  --   +c0: (n + 0).is_pow2
+  --     have : ¬(n + 1).is_pow2 ∧ ¬(n + 0).is_pow2
+  --     split
+  --   -c0: ¬(n + 0).is_pow2
+  --     +c1: (n + 1).is_pow2
+  --       have : ¬(n + 2).is_pow2
+  --       split
+  --     -c1: ¬(n + 1).is_pow2
+  --       +c2: (n + 2).is_pow2
+  --         split
+  --       -c2: (n + 2).is_pow2
+  --         split
   induction n using Nat.strong_induction_on with
   | h n ih =>
     have n2size_ge_3 : (n + 2).size ≥ 3 := by exact size2_add_2_ge_2 n_ge_2
@@ -540,14 +555,25 @@ theorem segment_limit2 {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ 2 ^ ((n + 1)
       exact s1
     by_cases n2size_eq_n1_size : (n + 2).size = (n + 1).size
     · rw [segment]
-      simp [n2size_eq_n1_size] at *
+      have n2_ne_pow2 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
+        exact same_size_iff_not_pow2.mpr n2size_eq_n1_size
       split <;> expose_names
-      · exact le.intro (id (Eq.symm pow2_n2_minus_1_divide))
-      · have s1 : n - (2 ^ ((n + 1).size - 1) - 1) < n := by
-          sorry
+      · simp [n2size_eq_n1_size] at * ; exact le.intro (id (Eq.symm pow2_n2_minus_1_divide))
+      · -- 場合分けが必要
+        have s1 : n - (2 ^ ((n + 1).size - 1) - 1) < n := by
+          simp only [n2size_eq_n1_size] at *
+          refine sub_lt ?_ ?_
+          · exact zero_lt_of_lt n_ge_2
+          · refine zero_lt_sub_of_lt ?_
+            · refine Nat.one_lt_two_pow ?_
+              · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_ge_3)
+        -- by_cases
         have s2 : 2 ≤ n - (2 ^ ((n + 1).size - 1) - 1) := by
           sorry
         have ih' := ih (n - (2 ^ ((n + 1).size - 1) - 1)) s1 s2
+        have s3 : n - (2 ^ ((n + 1).size - 1) - 1) + 1 = n - 2 ^ ((n + 1).size - 1) + 2 := by
+          refine Nat.add_left_inj.mpr ?_
+          · sorry
         sorry
       · intro x
         replace n_ge_2 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_2
