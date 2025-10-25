@@ -581,7 +581,22 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                   exact le_sub_one_of_lt nsize_ge_3
             simp [this] at x
             simp [←n_is_pow2] at x
-          sorry
+          have n1size_eq_nsize : (n + 1).size = n.size := by
+            exact same_size_iff_not_pow2.mp n1_ne_pow2
+          have n2size_eq_nsize : (n + 2).size = n.size := by
+            refine same_size_iff_not_pow2'.mp ?_
+            · constructor
+              · exact n2_ne_pow2
+              · exact n1_ne_pow2
+          rw [segment]
+          split <;> expose_names ; simp [n1size_eq_nsize, n2size_eq_nsize]
+          · refine Nat.pow_le_pow_of_le ?_ ?_
+            · exact Nat.one_lt_two
+            · exact sub_le_succ_sub n.size 2
+          · simp [n1size_eq_nsize, n2size_eq_nsize]
+            sorry
+          · intro x
+            simp [x] at n_ge_4
         · rename' n_is_pow2 => n_ne_pow2
           by_cases n1_is_pow2 : n + 1 = 2 ^ ((n + 1).size - 1)
           · have n2_ne_pow2 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
