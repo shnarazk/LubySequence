@@ -537,9 +537,11 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
       rcases n_ge with n_eq_3|n_ge_4
       · simp [n_eq_3, segment, size, binaryRec]
       · replace n_ge_4 : n ≥ 4 := by exact n_ge_4 
+        have nsize_ge_3 : n.size ≥ 3 := by exact size4_add_0_ge_2 n_ge_4
+        have n1size_ge_3 : (n + 1).size ≥ 3 := by
+          exact size4_add_0_ge_2 (le_add_right_of_le n_ge_4)
         have n2size_ge_3 : (n + 2).size ≥ 3 := by
           exact size2_add_2_ge_2 (le_of_add_left_le n_ge_4)
-
         have pow2_n2_minus_1_divide : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) := by
           have s1 : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 1 - 1) * 2 := by
             exact Eq.symm (two_pow_pred_mul_two (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3)))
@@ -547,13 +549,46 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
           simp [s2] at s1
           rw [mul_two] at s1
           exact s1
+        by_cases n_is_pow2 : n = 2 ^ (n.size - 1)
+        · have n1_ne_pow2 : ¬n + 1 = 2 ^ ((n + 1).size - 1) := by
+            by_contra x
+            have even : Even (n + 1) := by
+              have : Even (2 ^ ((n + 1).size - 1)) := by
+                refine (even_pow' ?_).mpr ?_
+                · exact sub_ne_zero_of_lt (lt_of_add_left_lt n1size_ge_3)
+                · exact even_iff.mpr rfl
+              simp [←x] at this
+              exact this
+            have odd : Odd (n + 1) := by
+              have : Even (2 ^ (n.size - 1)) := by
+                refine (even_pow' ?_).mpr ?_
+                · exact sub_ne_zero_of_lt (lt_of_add_left_lt nsize_ge_3)
+                · exact even_iff.mpr rfl
+              replace : Even n := by simp [←n_is_pow2] at this ; exact this
+              replace : Odd (n + 1) := by exact Even.add_one this
+              exact this
+            replace odd : ¬Even (n + 1) := by exact not_even_iff_odd.mpr odd
+            exact absurd even odd
+          have n2_ne_pow2 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
+            by_contra x
+            rw (occs := .pos [2]) [n_is_pow2] at x
+            have : (2 ^ (n.size - 1) + 2).size = n.size - 1 + 1 := by
+              refine size_add ?_ ?_
+              · exact Nat.zero_lt_two
+              · refine size_le.mp ?_
+                · have : size 2 = 2 := by exact size2_eq_2
+                  simp [this]
+                  exact le_sub_one_of_lt nsize_ge_3
+            simp [this] at x
+            simp [←n_is_pow2] at x
+          sorry
         -- Proof Strcture
         -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
         -- -1: n ≥ 4 
-        --*   +c0: (n + 0).is_pow2
+        --    +c0: (n + 0).is_pow2
         --     have : ¬(n + 1).is_pow2 ∧ ¬(n + 0).is_pow2
         --     split
-        --   -c0: ¬(n + 0).is_pow2
+        --*   -c0: ¬(n + 0).is_pow2
         --     +c1: (n + 1).is_pow2
         --       have : ¬(n + 2).is_pow2
         --       split
