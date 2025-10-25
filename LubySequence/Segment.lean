@@ -16,7 +16,7 @@ open Nat
 
 namespace LubySegment
 
-#eval! List.range 8 |>.map (fun n ↦ (n, 2 ^ (n.size - 1), Luby.S₂ n, Luby.luby n))
+-- #eval! List.range 8 |>.map (fun n ↦ (n, 2 ^ (n.size - 1), Luby.S₂ n, Luby.luby n))
 
 /--
 Return the segment index for `n`.
@@ -70,7 +70,7 @@ theorem segment_is_pos : ∀ n : ℕ, segment n > 0 := by
       · expose_names
         simp
 
-#eval List.range 32 |>.map (fun n ↦ (n, segment n))
+-- #eval List.range 32 |>.map (fun n ↦ (n, segment n))
 /--
 The segment index for position `n` is bounded by `n + 1`.
 This upper bound comes from the fact that each position belongs to at most
@@ -251,7 +251,8 @@ theorem segment_limit' (n : ℕ) : segment n ≤ n + 1 := by
                   exact n_ge_subenvelope (one_le_of_lt n_ge_4)
                 · exact Nat.one_le_two_pow
               simp [this]
-              replace : n - 2 ^ ((n + 2).size - 1) + 1 + 1 = n - 2 ^ ((n + 2).size - 1) + 2 := by exact rfl
+              replace : n - 2 ^ ((n + 2).size - 1) + 1 + 1 = n - 2 ^ ((n + 2).size - 1) + 2 := by
+                exact rfl
               simp only [this]
               replace : n - 2 ^ ((n + 2).size - 1) + 2 = n + 2 - 2 ^ ((n + 2).size - 1) := by
                 refine Eq.symm (Nat.sub_add_comm ?_)
@@ -339,14 +340,14 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
         simp
         replace n_ge_2 : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_ge_2
         rcases n_ge_2 with eq|n_ge_3
-        · simp [eq, size, binaryRec] at h_1 
+        · simp [eq, size, binaryRec] at h_1
         · replace n_ge_3 : n ≥ 3 := by exact n_ge_3
           replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
           rcases n_ge_3 with eq|n_ge_4
           · simp [eq, size, binaryRec]
           · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
             have n2size_eq_n1size : (n + 2).size = (n + 1).size := by
-              refine same_size_iff_not_pow2.mp ?_ 
+              refine same_size_iff_not_pow2.mp ?_
               · replace h_1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
                   by_contra x
                   have : n = 2 ^ ((n + 2).size - 1) - 2 := by exact Nat.eq_sub_of_add_eq x
@@ -521,8 +522,7 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                           · exact Nat.two_pow_pos (n.size - 2)
                   exact add_le_of_add_le_left this (ih (n - (2 ^ (n.size - 1) - 1)) cond1 cond2)
 
-#eval List.range 64 |>.all (fun n ↦ (segment  n ≤ 2 ^ ((n + 1).size - 1)))
-
+-- #eval List.range 64 |>.all (fun n ↦ (segment  n ≤ 2 ^ ((n + 1).size - 1)))
 /--
 For n ≥ 2, the segment index is bounded by 2^((n+1).size - 1).
 This provides a logarithmic upper bound on segment indices.
@@ -536,15 +536,18 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
     · replace n_ge : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge
       rcases n_ge with n_eq_3|n_ge_4
       · simp [n_eq_3, segment, size, binaryRec]
-      · replace n_ge_4 : n ≥ 4 := by exact n_ge_4 
+      · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
         have nsize_ge_3 : n.size ≥ 3 := by exact size4_add_0_ge_2 n_ge_4
         have n1size_ge_3 : (n + 1).size ≥ 3 := by
           exact size4_add_0_ge_2 (le_add_right_of_le n_ge_4)
         have n2size_ge_3 : (n + 2).size ≥ 3 := by
           exact size2_add_2_ge_2 (le_of_add_left_le n_ge_4)
-        have pow2_n2_minus_1_divide : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) := by
+        have
+            pow2_n2_minus_1_divide : 2 ^ ((n + 2).size - 1)
+            = 2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) := by
           have s1 : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 1 - 1) * 2 := by
-            exact Eq.symm (two_pow_pred_mul_two (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3)))
+            exact
+              Eq.symm (two_pow_pred_mul_two (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3)))
           have s2 : (n + 2).size - 1 - 1 = (n + 2).size - 2 := by exact rfl
           simp [s2] at s1
           rw [mul_two] at s1
@@ -623,7 +626,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             simp
             split <;> expose_names
             /-
-            · replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by 
+            · replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by
                 have s1 : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
                   exact congrFun (congrArg HAdd.hAdd h) 2
                 have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
@@ -639,7 +642,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             · sorry
         -- Proof Strcture
         -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
-        -- -1: n ≥ 4 
+        -- -1: n ≥ 4
         --    +c0: (n + 0).is_pow2
         --     have : ¬(n + 1).is_pow2 ∧ ¬(n + 0).is_pow2
         --     split
@@ -683,13 +686,13 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             sorry
           simp [n2size_eq_n1_size] at *
           split <;> expose_names
-          · exact Nat.le_refl (2 ^ ((n + 1).size - 1)) 
+          · exact Nat.le_refl (2 ^ ((n + 1).size - 1))
           · sorry
           · intro x
             replace n_ge_4 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_4
             exact absurd x n_ge_4
 -/
-      
+
 /--
 The segment function is monotone: `segment n ≤ segment (n + 1)` for all `n`.
 Segments form a non-decreasing sequence as positions increase through the Luby sequence.
@@ -901,15 +904,15 @@ theorem segment_is_monotone' {a b : ℕ} (h : a ≤ b) : segment a ≤ segment b
     replace : segment (a + d) ≤ segment (a + d + 1) := by exact segment_is_monotone (a + d)
     exact Nat.le_trans ih this
 
-#eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
-#eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
-#eval! List.range 8
+-- #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n))
+-- #eval! List.range 8 |>.map (2 ^ ·.succ - 2) |>.map (fun n ↦ (n, LubySegment.segment n))
+/- #eval! List.range 8
   |>.map (2 ^ ·.succ - 2)
   |>.map (fun n ↦
     ( n,
       2 ^ (n.size + 1) - 2,
       LubySegment.segment n,
-      segment (2 ^ (n + 2).size - 2)))
+      segment (2 ^ (n + 2).size - 2))) -/
 
 /--
 At envelope boundaries (where `n = 2 ^ n.size - 2`), the segment index doubles
@@ -1112,9 +1115,12 @@ theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
 Return the length of segment of state `n`.
 So `n` starts from zero. -/
 def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
-#eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n, LubySegment.segment_length n))
+-- #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n, LubySegment.segment_length n))
+-- example : segment_length 0 = 1 := by simp [segment_length]
 
-example : segment_length 0 = 1 := by simp [segment_length]
+theorem segment_of_0_eq_1 : segment_length 0 = 1 := by simp [segment_length]
+theorem segment_of_1_eq_2 : segment_length 1 = 2 := by simp [segment_length]
+theorem segment_of_2_eq_2 : segment_length 2 = 2 := by simp [segment_length, segment]
 
 #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
@@ -1434,7 +1440,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
           replace n_ge_7 : n = 7 ∨ n > 7 := by exact LE.le.eq_or_lt' n_ge_7
           rcases n_ge_7 with n_eq_7|n_ge_8
           · simp [n_eq_7, size, binaryRec, trailing_zeros]
-          · replace n_ge_8 : n ≥ 8 := by exact n_ge_8 
+          · replace n_ge_8 : n ≥ 8 := by exact n_ge_8
             have nsize_ge_4 : n.size ≥ 4 := by
               have s1 : n.size ≥ (8 : ℕ).size := by exact size_le_size n_ge_8
               have s2 : (8 : ℕ).size = 4 := by simp [size, binaryRec]
@@ -1461,7 +1467,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                   · exact Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3
                 · exact Nat.one_ne_zero
               simp [this]
-            · have n1size_eq_nsize : (n + 1).size = n.size := by 
+            · have n1size_eq_nsize : (n + 1).size = n.size := by
                 exact same_size_iff_not_pow2.mp at_seg_beg
               have n2size_eq_nsize : (n + 2).size = n.size := by
                 have : (n + 2).size = (n + 1).size := by
@@ -1475,7 +1481,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
               · split at n_ne_envelope_segment <;> expose_names
                 · simp [n1size_eq_nsize, n2size_eq_nsize] at *
                   exact absurd h_2 n_ne_envelope
-                · simp at n_ne_envelope_segment 
+                · simp at n_ne_envelope_segment
                   simp [n1size_eq_nsize, n2size_eq_nsize] at *
                   by_cases eq : 2 ^ (n.size - 1) = n
                   · simp [eq]
@@ -1510,7 +1516,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                                     · exact lt_of_add_left_lt n_ge_8
                                 simp [this]
                                 have s1 : 2 ^ (n.size - 1) ≤ n := by exact n_ge_subenvelope n_gt_0
-                                replace s1 : 2 ^ (n.size - 1) = n ∨ 2 ^ (n.size - 1) < n := by 
+                                replace s1 : 2 ^ (n.size - 1) = n ∨ 2 ^ (n.size - 1) < n := by
                                   exact Nat.eq_or_lt_of_le s1
                                 rcases s1 with h|h
                                 · exact absurd h eq
