@@ -582,7 +582,15 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             simp [this] at x
             simp [←n_is_pow2] at x
           sorry
-        · sorry
+        · rename' n_is_pow2 => n_ne_pow2
+          by_cases n1_is_pow2 : n + 1 = 2 ^ ((n + 1).size - 1)
+          · have n2_ne_pow2 : ¬ n + 2 = 2 ^ ((n + 2).size - 1) := by
+              sorry
+            sorry
+          · rename' n1_is_pow2 => n1_ne_pow2
+            by_cases n2_is_pow2 : n + 2 = 2 ^ ((n + 2).size - 1)
+            · sorry
+            · sorry
         -- Proof Strcture
         -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
         -- -1: n ≥ 4 
