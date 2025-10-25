@@ -584,8 +584,39 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
           sorry
         · rename' n_is_pow2 => n_ne_pow2
           by_cases n1_is_pow2 : n + 1 = 2 ^ ((n + 1).size - 1)
-          · have n2_ne_pow2 : ¬ n + 2 = 2 ^ ((n + 2).size - 1) := by
-              sorry
+          · have n2_ne_pow2 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
+              by_contra x
+              have odd : Odd (n + 2) := by
+                have : 2 = 1 + 1 := by exact rfl
+                simp only [this, ←add_assoc]
+                replace : Even (2 ^ ((n + 1).size - 1)) := by
+                  refine (even_pow' ?_).mpr ?_
+                  · exact sub_ne_zero_of_lt (lt_of_add_left_lt n1size_ge_3)
+                  · exact even_iff.mpr rfl
+                simp [←n1_is_pow2] at this
+                exact Even.add_one this
+              have even : Even (n + 2) := by
+                have : Even (2 ^ ((n + 2).size - 1)) := by
+                  refine (even_pow' ?_).mpr ?_
+                  · exact sub_ne_zero_of_lt (lt_of_add_left_lt n2size_ge_3)
+                  · exact even_iff.mpr rfl
+                simp [←x] at this
+                exact this
+              replace even : ¬Odd (n + 2) := by exact not_odd_iff_even.mpr even
+              apply absurd odd even
+            rw [segment]
+            simp
+            split <;> expose_names
+            /-
+            · replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by 
+                have s1 : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
+                  exact congrFun (congrArg HAdd.hAdd h) 2
+                have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+                  refine Nat.sub_add_cancel ?_
+                  · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3))
+            -/
+            sorry
+            sorry
             sorry
           · rename' n1_is_pow2 => n1_ne_pow2
             by_cases n2_is_pow2 : n + 2 = 2 ^ ((n + 2).size - 1)
