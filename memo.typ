@@ -8,7 +8,12 @@
   paper: "a4",
   numbering: "1"
 )
-#set par(justify: true)
+#set par(
+  justify: true,
+  justification-limits: (
+    spacing: (min: 66.67% + 0pt, max: 150% + 0pt),
+    tracking: (min: 0pt, max: 0.1pt))
+)
 #set text(
   font: ((name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
   size: 10pt)
@@ -59,7 +64,7 @@ $
 $<def_1>
 #set math.equation(numbering: none)
 
-By introducing `Nat.size` operator which returns the length of bit vector representing a natural number `Nat`, we can eliminate $i$ and rewrite the definition as
+By introducing `Nat.size` operator which returns the length of bit vector representing a natural number `Nat`, we can eliminate variable $i$ and rewrite the definition as
 #set math.equation(numbering: "(1)")
 $
   L u b y_1(k >= 1) = cases(
@@ -75,7 +80,7 @@ We can illustrate its recursive property as transitions on a triangle of natural
 #canvas({
   import draw: *
   let encircle(i) = {
-    std.box(baseline: 2pt, std.circle(stroke: .5pt, radius: .5em)[#move(dx: -0.36em, dy: -1.1em, $#i$)])
+    std.box(baseline: 2pt, std.circle(stroke: .5pt, radius: .5em)[#move(dx: -0.36em, dy: -0.5em, $#i$)])
   }
 
   set-style(content: (padding: 0.4em))
