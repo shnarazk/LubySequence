@@ -542,13 +542,12 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
           exact size4_add_0_ge_2 (le_add_right_of_le n_ge_4)
         have n2size_ge_3 : (n + 2).size ≥ 3 := by
           exact size2_add_2_ge_2 (le_of_add_left_le n_ge_4)
-        have
-            pow2_n2_minus_1_divide : 2 ^ ((n + 2).size - 1)
-            = 2 ^ ((n + 2).size - 2) + 2 ^ ((n + 2).size - 2) := by
-          have s1 : 2 ^ ((n + 2).size - 1) = 2 ^ ((n + 2).size - 1 - 1) * 2 := by
+        have pow2_nsize_minus_1_divide :
+            2 ^ (n.size - 1) = 2 ^ (n.size - 2) + 2 ^ (n.size - 2) := by
+          have s1 : 2 ^ (n.size - 1) = 2 ^ (n.size - 1 - 1) * 2 := by
             exact
-              Eq.symm (two_pow_pred_mul_two (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3)))
-          have s2 : (n + 2).size - 1 - 1 = (n + 2).size - 2 := by exact rfl
+              Eq.symm (two_pow_pred_mul_two (zero_lt_sub_of_lt (lt_of_add_left_lt nsize_ge_3)))
+          have s2 : n.size - 1 - 1 = n.size - 2 := by exact rfl
           simp [s2] at s1
           rw [mul_two] at s1
           exact s1
@@ -597,7 +596,42 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             · exact Nat.one_lt_two
             · exact sub_le_succ_sub n.size 2
           · simp [n1size_eq_nsize, n2size_eq_nsize]
-            sorry
+            -- 帰納法を使いたいがm ≥ 2 の条件が邪魔をする
+            -- n - (2 ^ (n.size - 1) - 1) の場合分けが必要
+            by_cases segment_arg_eq_0 : n - (2 ^ (n.size - 1) - 1) = 0
+            · simp [segment_arg_eq_0]
+              rw [pow2_nsize_minus_1_divide]
+              refine Nat.add_le_add_iff_left.mpr ?_
+              · exact Nat.one_le_two_pow
+            · rename' segment_arg_eq_0 => segment_arg_pos
+              replace segment_arg_pos : n - (2 ^ (n.size - 1) - 1) > 0 := by
+                exact zero_lt_of_ne_zero segment_arg_pos
+              replace segment_arg_pos :
+                  n - (2 ^ (n.size - 1) - 1) = 1 ∨  n - (2 ^ (n.size - 1) - 1) > 1 := by
+                exact LE.le.eq_or_lt' segment_arg_pos
+              rcases segment_arg_pos with segment_arg_eq_1|segment_arg_ge_2
+              · simp [segment_arg_eq_1] 
+                simp [pow2_nsize_minus_1_divide]
+                exact le_pow (zero_lt_sub_of_lt nsize_ge_3)
+              · replace segment_arg_ge_2 : n - (2 ^ (n.size - 1) - 1) ≥ 2 := by
+                  exact segment_arg_ge_2
+                have arg1 : n - (2 ^ (n.size - 1) - 1) < n := by
+                  refine sub_lt ?_ ?_
+                  · exact zero_lt_of_lt n_ge_4
+                  · refine zero_lt_sub_of_lt ?_
+                    · refine Nat.one_lt_two_pow ?_
+                      · have : n.size - 1 ≥ 2 := by exact le_sub_one_of_lt nsize_ge_3
+                        exact Nat.ne_zero_of_lt this
+                replace ih := ih (n - (2 ^ (n.size - 1) - 1)) arg1 segment_arg_ge_2
+                have : 2 ^ (n.size - 2) + 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤
+                    2 ^ (n.size - 1) := by
+                  have s1 : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
+                    exact id (Eq.symm pow2_nsize_minus_1_divide)
+                  rw (occs := .pos [2]) [←s1]
+                  have s1 : 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
+                    sorry
+                  exact Nat.add_le_add (Nat.le_refl (2 ^ (n.size - 2))) s1
+                exact add_le_of_add_le_left this ih 
           · intro x
             simp [x] at n_ge_4
         · rename' n_is_pow2 => n_ne_pow2
@@ -1118,9 +1152,14 @@ def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 -- #eval! List.range 32 |>.map (fun n ↦ (n, LubySegment.segment n, LubySegment.segment_length n))
 -- example : segment_length 0 = 1 := by simp [segment_length]
 
-theorem segment_of_0_eq_1 : segment_length 0 = 1 := by simp [segment_length]
-theorem segment_of_1_eq_2 : segment_length 1 = 2 := by simp [segment_length]
-theorem segment_of_2_eq_2 : segment_length 2 = 2 := by simp [segment_length, segment]
+@[simp]
+theorem segment_length_of_0_eq_1 : segment_length 0 = 1 := by simp [segment_length]
+
+@[simp]
+theorem segment_length_of_1_eq_2 : segment_length 1 = 2 := by simp [segment_length]
+
+@[simp]
+theorem segment_length_of_2_eq_2 : segment_length 2 = 2 := by simp [segment_length, segment]
 
 #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
