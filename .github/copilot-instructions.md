@@ -162,7 +162,7 @@ Structure and Headings
 
 Formatting rules
 - Use Markdown for README-level docs and short guides; use Typst (.typ) for formal documents and slides.
-- documentation in Lea files starts with "/--" and ends with "-/".
+- documentation in Lean files starts with "/--" and ends with "-/".
 - Inline code: `lake build`, `#check Luby.luby_seq`
 - Code blocks: annotate with the language where applicable (bash, lean, typst).
 - Math: prefer Lean code for theorem statements and examples. Keep informal math in Typst or Markdown math where needed. Put spaces around all mathematical operators.

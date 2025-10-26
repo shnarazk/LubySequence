@@ -81,7 +81,7 @@ To enter the dev shell:
   ```
   nix develop
   ```
-- If you use direnv (there’s a `.direnv/` in the repo), allow it in the project directory to auto-enter the shell.
+- If you use direnv (there’s a `.envrc` in the repo), allow it in the project directory to auto-enter the shell.
 
 Once in the shell, build as usual:
 
