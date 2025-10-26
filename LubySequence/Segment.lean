@@ -628,9 +628,22 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                   have s1 : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
                     exact id (Eq.symm pow2_nsize_minus_1_divide)
                   rw (occs := .pos [2]) [←s1]
-                  have s1 : 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
-                    sorry
-                  exact Nat.add_le_add (Nat.le_refl (2 ^ (n.size - 2))) s1
+                  replace s1 : 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
+                    have t1 : n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 1) := by
+                      sorry
+                    replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size < n.size := by
+                      sorry
+                    replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size ≤ n.size - 1 := by
+                      exact le_sub_one_of_lt t1
+                    replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size - 1 ≤ n.size - 1 - 1 := by
+                      exact Nat.sub_le_sub_right t1 1
+                    have t2 :
+                        2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
+                      exact
+                        Luby.pow2_le_pow2 ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) (n.size - 2)
+                          t1
+                    exact t2
+                  exact Nat.add_le_add_iff_left.mpr s1
                 exact add_le_of_add_le_left this ih 
           · intro x
             simp [x] at n_ge_4
