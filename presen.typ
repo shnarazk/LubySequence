@@ -4,16 +4,16 @@
 #import themes.simple: *
 #import "@preview/pinit:0.2.2": *
 #set par(justify: true)
+#show: simple-theme.with(aspect-ratio: "16-9")
 #set text(
   font: ((name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
-  size: 12pt)
+  size: 20pt)
 #show raw: set text(font: "Monaspace Neon", size: 16pt)
 #set heading(numbering: "1.")
-#show: simple-theme.with(aspect-ratio: "16-9")
 #show raw: it => {
   if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]
 }
-#show math.equation: set text(font: "Euler Math", size: 20pt)
+#show math.equation: set text(font: "Euler Math", size: 18pt)
 // Luby implementation
 #let allone(n) = {
   if n < 2 { n == 1 }
@@ -29,9 +29,9 @@
 #let cetz-canvas = touying-reducer.with(reduce: cetz.canvas, cover: cetz.draw.hide.with(bounds: true))
 
 #let title = [An Online Algorithm for Luby Sequence]
-#align(center, text(32pt)[*#title*])
-#grid(columns: (1fr),align(center)[`shnarazk`])
-#grid(columns: (1fr),align(center)[2025-0X-XX])
+#align(center, text(30pt, [*#title*]))
+#grid(columns: (1fr),align(center, [`shnarazk`]))
+#grid(columns: (1fr),align(center, [2025-0X-XX]))
 
 = Luby sequence
 
