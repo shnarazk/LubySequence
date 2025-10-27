@@ -6,3 +6,4 @@ import LubySequence.Tree
 import LubySequence.Segment
 import LubySequence.State
 import LubySequence.Equivalence
+import LubySequence.WIP
