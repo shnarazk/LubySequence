@@ -119,14 +119,29 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                   have s1 : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
                     exact id (Eq.symm pow2_nsize_minus_1_divide)
                   rw (occs := .pos [2]) [←s1]
+                  have lower : 2 ^ (n.size - 1) ≤ n := by exact Nat.le_of_eq (id (Eq.symm n_is_pow2))
+                  have lower' : 2 ^ (n.size - 2) < n := by
+                    have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
+                      have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
+                        exact Eq.symm Nat.pow_succ'
+                      have s2 : n.size - 2 + 1 = n.size - 1 := by
+                        refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
+                        · refine Eq.symm (Nat.sub_add_cancel ?_)
+                          · exact le_of_add_left_le nsize_ge_3
+                      simp [s2] at s1
+                      exact s1
+                    simp [←this] at lower
+                    rw [mul_comm, mul_two] at lower
+                    replace : 0 < 2 ^ (n.size - 2) := by exact Nat.two_pow_pos (n.size - 2)
+                    replace : 1 ≤ 2 ^ (n.size - 2) := by exact this
+                    replace : 2 ^ (n.size - 2) + 1 ≤ n := by
+                      exact add_le_of_add_le_left lower this
+                    exact this
+                  have upper : n < 2 ^ n.size := by exact lt_size_self n
                   replace s1 : 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
                     have t1 : n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 1) := by
                       sorry
                     replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size < n.size := by
-                      have lower : 2 ^ (n.size - 2) ≤ n := by
-                        sorry
-                      have upper : n ≤ 2 ^ n.size := by
-                        sorry
                       sorry
                     replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size ≤ n.size - 1 := by
                       exact le_sub_one_of_lt t1
