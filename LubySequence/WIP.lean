@@ -126,16 +126,14 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                         exact Eq.symm Nat.pow_succ'
                       have s2 : n.size - 2 + 1 = n.size - 1 := by
                         refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
-                        · refine Eq.symm (Nat.sub_add_cancel ?_)
-                          · exact le_of_add_left_le nsize_ge_3
+                        · exact Eq.symm (Nat.sub_add_cancel (le_of_add_left_le nsize_ge_3))
                       simp [s2] at s1
                       exact s1
                     simp [←this] at lower
                     rw [mul_comm, mul_two] at lower
                     replace : 0 < 2 ^ (n.size - 2) := by exact Nat.two_pow_pos (n.size - 2)
                     replace : 1 ≤ 2 ^ (n.size - 2) := by exact this
-                    replace : 2 ^ (n.size - 2) + 1 ≤ n := by
-                      exact add_le_of_add_le_left lower this
+                    replace : 2 ^ (n.size - 2) + 1 ≤ n := by exact add_le_of_add_le_left lower this
                     exact this
                   have upper : n < 2 ^ n.size := by exact lt_size_self n
                   replace s1 : 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
@@ -143,9 +141,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                     have : n - (n - 1) + 1 = 2 := by
                       refine Eq.symm (Nat.eq_add_of_sub_eq ?_ ?_)
                       · exact NeZero.one_le
-                      · simp
-                        refine Eq.symm (Nat.sub_sub_self ?_)
-                        · exact one_le_of_lt n_ge_4
+                      · simp ; exact Eq.symm (Nat.sub_sub_self (one_le_of_lt n_ge_4))
                     simp [this]
                     exact le_pow (zero_lt_sub_of_lt nsize_ge_3)
                   exact Nat.add_le_add_iff_left.mpr s1
@@ -176,6 +172,21 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
               apply absurd odd even
             rw [segment]
             simp
+            -- Proof Strcture
+            -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
+            -- -1: n ≥ 4
+            --    +c0: (n + 0).is_pow2
+            --     have : ¬(n + 1).is_pow2 ∧ ¬(n + 0).is_pow2
+            --     split
+            --*   -c0: ¬(n + 0).is_pow2
+            --      +c1: (n + 1).is_pow2
+            --        have : ¬(n + 2).is_pow2
+            --        split
+            --      -c1: ¬(n + 1).is_pow2
+            --        +c2: (n + 2).is_pow2
+            --          split
+            --        -c2: (n + 2).is_pow2
+            --          split
             split <;> expose_names
             /-
             · replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by
@@ -192,21 +203,6 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             by_cases n2_is_pow2 : n + 2 = 2 ^ ((n + 2).size - 1)
             · sorry
             · sorry
-        -- Proof Strcture
-        -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
-        -- -1: n ≥ 4
-        --    +c0: (n + 0).is_pow2
-        --     have : ¬(n + 1).is_pow2 ∧ ¬(n + 0).is_pow2
-        --     split
-        --*   -c0: ¬(n + 0).is_pow2
-        --     +c1: (n + 1).is_pow2
-        --       have : ¬(n + 2).is_pow2
-        --       split
-        --     -c1: ¬(n + 1).is_pow2
-        --       +c2: (n + 2).is_pow2
-        --         split
-        --       -c2: (n + 2).is_pow2
-        --         split
 /-
         by_cases n2size_eq_n1_size : (n + 2).size = (n + 1).size
         · rw [segment]
