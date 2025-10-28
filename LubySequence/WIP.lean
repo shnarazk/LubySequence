@@ -171,34 +171,39 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
               replace even : ¬Odd (n + 2) := by exact not_odd_iff_even.mpr even
               apply absurd odd even
             rw [segment]
-            simp
-            -- Proof Strcture
-            -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
-            -- -1: n ≥ 4
-            --    +c0: (n + 0).is_pow2
-            --     have : ¬(n + 1).is_pow2 ∧ ¬(n + 0).is_pow2
-            --     split
-            --*   -c0: ¬(n + 0).is_pow2
-            --      +c1: (n + 1).is_pow2
-            --        have : ¬(n + 2).is_pow2
-            --        split
-            --      -c1: ¬(n + 1).is_pow2
-            --        +c2: (n + 2).is_pow2
-            --          split
-            --        -c2: (n + 2).is_pow2
-            --          split
-            split <;> expose_names
-            /-
-            · replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by
-                have s1 : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
-                  exact congrFun (congrArg HAdd.hAdd h) 2
-                have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
-                  refine Nat.sub_add_cancel ?_
-                  · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3))
-            -/
-            sorry
-            sorry
-            sorry
+            · simp
+              -- Proof Strcture
+              -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
+              -- -1: n ≥ 4
+              --    +c0: (n + 0).is_pow2
+              --     have : ¬(n + 1).is_pow2 ∧ ¬(n + 0).is_pow2
+              --     split
+              --*   -c0: ¬(n + 0).is_pow2
+              --      +c1: (n + 1).is_pow2
+              --        have : ¬(n + 2).is_pow2
+              --        split
+              --      -c1: ¬(n + 1).is_pow2
+              --        +c2: (n + 2).is_pow2
+              --          split
+              --        -c2: (n + 2).is_pow2
+              --          split
+              split <;> expose_names
+              /-
+              · replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by
+                  have s1 : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
+                    exact congrFun (congrArg HAdd.hAdd h) 2
+                  have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+                    refine Nat.sub_add_cancel ?_
+                    · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3))
+              -/
+              · sorry
+              · sorry
+            · intro n_eq_0
+              replace n_eq_0 : ¬n ≥ 4 := by
+                refine Nat.not_le_of_lt ?_
+                · refine lt_succ_of_le ?_
+                  · exact StrictMono.minimal_preimage_bot (fun ⦃a b⦄ a_1 ↦ a_1) n_eq_0 3
+              exact absurd n_ge_4 n_eq_0
           · rename' n1_is_pow2 => n1_ne_pow2
             by_cases n2_is_pow2 : n + 2 = 2 ^ ((n + 2).size - 1)
             · sorry
