@@ -139,20 +139,15 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                     exact this
                   have upper : n < 2 ^ n.size := by exact lt_size_self n
                   replace s1 : 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
-                    have t1 : n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 1) := by
-                      sorry
-                    replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size < n.size := by
-                      sorry
-                    replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size ≤ n.size - 1 := by
-                      exact le_sub_one_of_lt t1
-                    replace t1 : (n - (2 ^ (n.size - 1) - 1) + 1).size - 1 ≤ n.size - 1 - 1 := by
-                      exact Nat.sub_le_sub_right t1 1
-                    have t2 :
-                        2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
-                      exact
-                        Luby.pow2_le_pow2 ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) (n.size - 2)
-                          t1
-                    exact t2
+                    simp [←n_is_pow2]
+                    have : n - (n - 1) + 1 = 2 := by
+                      refine Eq.symm (Nat.eq_add_of_sub_eq ?_ ?_)
+                      · exact NeZero.one_le
+                      · simp
+                        refine Eq.symm (Nat.sub_sub_self ?_)
+                        · exact one_le_of_lt n_ge_4
+                    simp [this]
+                    exact le_pow (zero_lt_sub_of_lt nsize_ge_3)
                   exact Nat.add_le_add_iff_left.mpr s1
                 exact add_le_of_add_le_left this ih 
           · intro x
