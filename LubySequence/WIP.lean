@@ -188,15 +188,15 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
               --        -c2: (n + 2).is_pow2
               --          split
               split <;> expose_names
-              /-
-              · replace h : n + 2 = 2 ^ ((n + 2).size - 1) := by
-                  have s1 : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
-                    exact congrFun (congrArg HAdd.hAdd h) 2
-                  have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
-                    refine Nat.sub_add_cancel ?_
-                    · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3))
-              -/
-              · sorry
+              · replace h : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
+                  exact congrFun (congrArg HAdd.hAdd h) 2
+                have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+                  refine Nat.sub_add_cancel ?_
+                  · refine le_pow ?_
+                    · refine zero_lt_sub_of_lt ?_
+                      · exact lt_of_add_left_lt n2size_ge_3
+                simp [this] at h
+                exact absurd h n2_ne_pow2
               · sorry
             · intro n_eq_0
               replace n_eq_0 : ¬n ≥ 4 := by
