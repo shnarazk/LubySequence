@@ -10,6 +10,47 @@ import LubySequence.Segment
 namespace LubySegment
 
 open Nat
+
+theorem n_lower : ∀ n > 0, 2 ^ (n.size - 1) ≤ n := by
+  intro n n_gt_0
+  exact n_ge_subenvelope n_gt_0
+
+theorem n_lower' : ∀ n > 1, 2 ^ (n.size - 2) < n := by
+  intro n n_bound
+  replace n_bound : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_bound
+  rcases n_bound with n_eq_2|n_bound
+  · simp [n_eq_2]
+  · replace n_bound : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_bound
+    rcases n_bound with n_eq_3|n_bound
+    · simp [n_eq_3]
+    · replace n_bound : n ≥ 4 := by exact n_bound
+      rename' n_bound => n_gt_4
+      have nsize_ge_3 : n.size ≥ 3 := by exact size4_add_0_ge_2 n_gt_4
+      have lower : 2 ^ (n.size - 1) ≤ n := by
+        refine n_lower n ?_
+        · exact zero_lt_of_lt n_gt_4
+      have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
+        have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
+          exact Eq.symm Nat.pow_succ'
+        have s2 : n.size - 2 + 1 = n.size - 1 := by
+          refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
+          · exact Eq.symm (Nat.sub_add_cancel (le_of_add_left_le nsize_ge_3))
+        simp [s2] at s1
+        exact s1
+      simp [←this] at lower
+      rw [mul_comm, mul_two] at lower
+      replace : 0 < 2 ^ (n.size - 2) := by exact Nat.two_pow_pos (n.size - 2)
+      replace : 1 ≤ 2 ^ (n.size - 2) := by exact this
+      replace : 2 ^ (n.size - 2) + 1 ≤ n := by exact add_le_of_add_le_left lower this
+      exact this
+
+theorem n_upper : ∀n : ℕ, n < 2 ^ n.size := by
+  intro n
+  have : n.size < (2 ^ n.size).size := by
+    have : (2 ^ n.size).size = n.size + 1 := by exact size_pow
+    simp [this]
+  exact lt_size_self n
+
 -- open LubySegment
 -- abbrev segment := LubySegment.segment
 
@@ -197,7 +238,8 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                       · exact lt_of_add_left_lt n2size_ge_3
                 simp [this] at h
                 exact absurd h n2_ne_pow2
-              · sorry
+              · have : 
+                sorry
             · intro n_eq_0
               replace n_eq_0 : ¬n ≥ 4 := by
                 refine Nat.not_le_of_lt ?_
