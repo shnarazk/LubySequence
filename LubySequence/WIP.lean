@@ -11,10 +11,18 @@ namespace LubySegment
 
 open Nat
 
+/--
+Lower bound on n based on its bit size. For any positive natural number n,
+2^(n.size - 1) ≤ n. This provides a lower bound relating n to its bit length.
+-/
 theorem n_lower : ∀ n > 0, 2 ^ (n.size - 1) ≤ n := by
   intro n n_gt_0
   exact n_ge_subenvelope n_gt_0
 
+/--
+Stricter lower bound on n. For any natural number n > 1,
+2^(n.size - 2) < n. This is a tighter bound than n_lower.
+-/
 theorem n_lower' : ∀ n > 1, 2 ^ (n.size - 2) < n := by
   intro n n_bound
   replace n_bound : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_bound
@@ -44,6 +52,11 @@ theorem n_lower' : ∀ n > 1, 2 ^ (n.size - 2) < n := by
       replace : 2 ^ (n.size - 2) + 1 ≤ n := by exact add_le_of_add_le_left lower this
       exact this
 
+/--
+Upper bound on n based on its bit size. For any natural number n,
+n < 2^n.size. This shows that n is strictly less than the power of 2
+corresponding to its bit length.
+-/
 theorem n_upper : ∀n : ℕ, n < 2 ^ n.size := by
   intro n
   have : n.size < (2 ^ n.size).size := by
