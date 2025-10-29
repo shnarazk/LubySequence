@@ -238,7 +238,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                       · exact lt_of_add_left_lt n2size_ge_3
                 simp [this] at h
                 exact absurd h n2_ne_pow2
-              · have : 
+              · -- have : 
                 sorry
             · intro n_eq_0
               replace n_eq_0 : ¬n ≥ 4 := by
