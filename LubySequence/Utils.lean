@@ -1328,7 +1328,7 @@ theorem increase_size_iff_pow2' {n : ℕ} (h : n ≥ 4) :
       have even : Even (2 ^ ((n + 2).size - 1)) := by
         refine (even_pow' ?_).mpr ?_
         · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-          · exact lt_of_add_left_lt n2size_gt_3 
+          · exact lt_of_add_left_lt n2size_gt_3
         · exact even_iff.mpr rfl
       have odd : Odd (2 ^ ((n + 1).size - 1) + 1) := by
         refine Even.add_one ?_
@@ -1341,3 +1341,50 @@ theorem increase_size_iff_pow2' {n : ℕ} (h : n ≥ 4) :
       exact absurd even odd
   simp [←s2, s1]
 
+/--
+Lower bound on n based on its bit size. For any positive natural number n,
+2^(n.size - 1) ≤ n. This provides a lower bound relating n to its bit length.
+-/
+theorem n_lower {n : ℕ} (n_gt_0 : n > 0) : 2 ^ (n.size - 1) ≤ n := by
+  exact n_ge_subenvelope n_gt_0
+
+/--
+Stricter lower bound on n. For any natural number n > 1,
+2^(n.size - 2) < n. This is a tighter bound than n_lower.
+-/
+theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
+  replace n_bound : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_bound
+  rcases n_bound with n_eq_2|n_bound
+  · simp [n_eq_2]
+  · replace n_bound : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_bound
+    rcases n_bound with n_eq_3|n_bound
+    · simp [n_eq_3]
+    · replace n_bound : n ≥ 4 := by exact n_bound
+      rename' n_bound => n_gt_4
+      have nsize_ge_3 : n.size ≥ 3 := by exact size4_add_0_ge_2 n_gt_4
+      have lower : 2 ^ (n.size - 1) ≤ n := by exact n_lower (zero_lt_of_lt n_gt_4)
+      have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
+        have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
+          exact Eq.symm Nat.pow_succ'
+        have s2 : n.size - 2 + 1 = n.size - 1 := by
+          refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
+          · exact Eq.symm (Nat.sub_add_cancel (le_of_add_left_le nsize_ge_3))
+        simp [s2] at s1
+        exact s1
+      simp [←this] at lower
+      rw [mul_comm, mul_two] at lower
+      replace : 0 < 2 ^ (n.size - 2) := by exact Nat.two_pow_pos (n.size - 2)
+      replace : 1 ≤ 2 ^ (n.size - 2) := by exact this
+      replace : 2 ^ (n.size - 2) + 1 ≤ n := by exact add_le_of_add_le_left lower this
+      exact this
+
+/--
+Upper bound on n based on its bit size. For any natural number n,
+n < 2^n.size. This shows that n is strictly less than the power of 2
+corresponding to its bit length.
+-/
+theorem n_upper (n : ℕ) : n < 2 ^ n.size := by
+  have : n.size < (2 ^ n.size).size := by
+    have : (2 ^ n.size).size = n.size + 1 := by exact size_pow
+    simp [this]
+  exact lt_size_self n

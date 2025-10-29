@@ -11,57 +11,6 @@ namespace LubySegment
 
 open Nat
 
-/--
-Lower bound on n based on its bit size. For any positive natural number n,
-2^(n.size - 1) ≤ n. This provides a lower bound relating n to its bit length.
--/
-theorem n_lower {n : ℕ} (n_gt_0 : n > 0) : 2 ^ (n.size - 1) ≤ n := by
-  exact n_ge_subenvelope n_gt_0
-
-/--
-Stricter lower bound on n. For any natural number n > 1,
-2^(n.size - 2) < n. This is a tighter bound than n_lower.
--/
-theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
-  replace n_bound : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_bound
-  rcases n_bound with n_eq_2|n_bound
-  · simp [n_eq_2]
-  · replace n_bound : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_bound
-    rcases n_bound with n_eq_3|n_bound
-    · simp [n_eq_3]
-    · replace n_bound : n ≥ 4 := by exact n_bound
-      rename' n_bound => n_gt_4
-      have nsize_ge_3 : n.size ≥ 3 := by exact size4_add_0_ge_2 n_gt_4
-      have lower : 2 ^ (n.size - 1) ≤ n := by exact n_lower (zero_lt_of_lt n_gt_4)
-      have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
-        have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
-          exact Eq.symm Nat.pow_succ'
-        have s2 : n.size - 2 + 1 = n.size - 1 := by
-          refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
-          · exact Eq.symm (Nat.sub_add_cancel (le_of_add_left_le nsize_ge_3))
-        simp [s2] at s1
-        exact s1
-      simp [←this] at lower
-      rw [mul_comm, mul_two] at lower
-      replace : 0 < 2 ^ (n.size - 2) := by exact Nat.two_pow_pos (n.size - 2)
-      replace : 1 ≤ 2 ^ (n.size - 2) := by exact this
-      replace : 2 ^ (n.size - 2) + 1 ≤ n := by exact add_le_of_add_le_left lower this
-      exact this
-
-/--
-Upper bound on n based on its bit size. For any natural number n,
-n < 2^n.size. This shows that n is strictly less than the power of 2
-corresponding to its bit length.
--/
-theorem n_upper (n : ℕ) : n < 2 ^ n.size := by
-  have : n.size < (2 ^ n.size).size := by
-    have : (2 ^ n.size).size = n.size + 1 := by exact size_pow
-    simp [this]
-  exact lt_size_self n
-
--- open LubySegment
--- abbrev segment := LubySegment.segment
-
 -- #eval List.range 64 |>.all (fun n ↦ (segment  n ≤ 2 ^ ((n + 1).size - 1)))
 /--
 For n ≥ 2, the segment index is bounded by 2^((n+1).size - 1).
@@ -150,7 +99,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                   n - (2 ^ (n.size - 1) - 1) = 1 ∨  n - (2 ^ (n.size - 1) - 1) > 1 := by
                 exact LE.le.eq_or_lt' segment_arg_pos
               rcases segment_arg_pos with segment_arg_eq_1|segment_arg_ge_2
-              · simp [segment_arg_eq_1] 
+              · simp [segment_arg_eq_1]
                 simp [pow2_nsize_minus_1_divide]
                 exact le_pow (zero_lt_sub_of_lt nsize_ge_3)
               · replace segment_arg_ge_2 : n - (2 ^ (n.size - 1) - 1) ≥ 2 := by
@@ -168,23 +117,6 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                   have s1 : 2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
                     exact id (Eq.symm pow2_nsize_minus_1_divide)
                   rw (occs := .pos [2]) [←s1]
-                  have lower : 2 ^ (n.size - 1) ≤ n := by exact Nat.le_of_eq (id (Eq.symm n_is_pow2))
-                  have lower' : 2 ^ (n.size - 2) < n := by
-                    have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
-                      have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
-                        exact Eq.symm Nat.pow_succ'
-                      have s2 : n.size - 2 + 1 = n.size - 1 := by
-                        refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
-                        · exact Eq.symm (Nat.sub_add_cancel (le_of_add_left_le nsize_ge_3))
-                      simp [s2] at s1
-                      exact s1
-                    simp [←this] at lower
-                    rw [mul_comm, mul_two] at lower
-                    replace : 0 < 2 ^ (n.size - 2) := by exact Nat.two_pow_pos (n.size - 2)
-                    replace : 1 ≤ 2 ^ (n.size - 2) := by exact this
-                    replace : 2 ^ (n.size - 2) + 1 ≤ n := by exact add_le_of_add_le_left lower this
-                    exact this
-                  have upper : n < 2 ^ n.size := by exact lt_size_self n
                   replace s1 : 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤ 2 ^ (n.size - 2) := by
                     simp [←n_is_pow2]
                     have : n - (n - 1) + 1 = 2 := by
@@ -194,7 +126,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                     simp [this]
                     exact le_pow (zero_lt_sub_of_lt nsize_ge_3)
                   exact Nat.add_le_add_iff_left.mpr s1
-                exact add_le_of_add_le_left this ih 
+                exact add_le_of_add_le_left this ih
           · intro x
             simp [x] at n_ge_4
         · rename' n_is_pow2 => n_ne_pow2
@@ -246,7 +178,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                       · exact lt_of_add_left_lt n2size_ge_3
                 simp [this] at h
                 exact absurd h n2_ne_pow2
-              · -- have : 
+              · -- have :
                 sorry
             · intro n_eq_0
               replace n_eq_0 : ¬n ≥ 4 := by
@@ -295,4 +227,3 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             replace n_ge_4 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_4
             exact absurd x n_ge_4
 -/
-
