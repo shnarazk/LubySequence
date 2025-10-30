@@ -171,7 +171,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                 have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
                   exact increase_n1size_iff_pow2.mpr n1_is_pow2
                 have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
-                  sorry
+                  exact increase_n2size_if_pow2₁ n_ge_4 n1_is_pow2
                 have a1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
                   refine sub_lt ?_ ?_
                   · exact zero_lt_of_lt n_ge_4
