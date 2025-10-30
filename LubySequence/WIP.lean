@@ -162,7 +162,35 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             · intro n_eq_0 ; simp [n_eq_0] at n_ge_4
           · rename' n1_is_pow2 => n1_ne_pow2
             by_cases n2_is_pow2 : n + 2 = 2 ^ ((n + 2).size - 1)
-            · sorry
+            · have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp n1_ne_pow2
+              have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
+                exact increase_n2size_if_pow2₂ n_ge_4 n2_is_pow2
+              rw [segment.eq_def]
+              split <;> expose_names
+              · simp [size]
+              · split <;> expose_names
+                · simp [n1size_eq_nsize, n2size_eq_nsize_add_1] at *
+                · simp [←n2_is_pow2] at h_1
+            · rename' n2_is_pow2 => n2_ne_pow2
+              rw [segment.eq_def]
+              split <;> expose_names
+              · simp [size]
+              · split <;> expose_names
+                · rw (occs := .pos [1]) [h_1] at n2_ne_pow2
+                  have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+                    exact Nat.sub_add_cancel (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3)))
+                  simp [this] at n2_ne_pow2
+                · simp
+                  have n1size_eq_nsize : (n + 1).size = n.size := by
+                    exact same_n1size_iff_not_pow2.mp n1_ne_pow2
+                  have n2size_eq_nsize : (n + 2).size = n.size := by
+                    refine same_n1size_iff_not_pow2'.mp ?_
+                    · constructor
+                      · exact n2_ne_pow2
+                      · exact n1_ne_pow2
+                  simp [n1size_eq_nsize, n2size_eq_nsize] at *
+                  --
+                  sorry
               -- Proof Strcture
               -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
               -- -1: n ≥ 4
@@ -175,44 +203,6 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
               --        simplify
               --      -c1: ¬(n + 1).is_pow2
               --        +c2: (n + 2).is_pow2
-              --*         split
-              --        -c2: (n + 2).is_pow2
               --          split
-            · sorry
-/-
-        by_cases n2size_eq_n1_size : (n + 2).size = (n + 1).size
-        · rw [segment]
-          have n2_ne_pow2 : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
-            exact same_size_iff_not_pow2.mpr n2size_eq_n1_size
-          split <;> expose_names
-          · simp [n2size_eq_n1_size] at * ; exact le.intro (id (Eq.symm pow2_n2_minus_1_divide))
-          · -- 場合分けが必要
-            have s1 : n - (2 ^ ((n + 1).size - 1) - 1) < n := by
-              simp only [n2size_eq_n1_size] at *
-              refine sub_lt ?_ ?_
-              · exact zero_lt_of_lt n_ge_4
-              · refine zero_lt_sub_of_lt ?_
-                · refine Nat.one_lt_two_pow ?_
-                  · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_ge_3)
-            -- by_cases
-            have s2 : 2 ≤ n - (2 ^ ((n + 1).size - 1) - 1) := by
-              sorry
-            have ih' := ih (n - (2 ^ ((n + 1).size - 1) - 1)) s1 s2
-            have s3 : n - (2 ^ ((n + 1).size - 1) - 1) + 1 = n - 2 ^ ((n + 1).size - 1) + 2 := by
-              refine Nat.add_left_inj.mpr ?_
-              · sorry
-            sorry
-          · intro x
-            replace n_ge_4 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_4
-            exact absurd x n_ge_4
-        · rw [segment]
-          replace n2size_eq_n1_size : (n + 2).size = (n + 1).size + 1 := by
-            sorry
-          simp [n2size_eq_n1_size] at *
-          split <;> expose_names
-          · exact Nat.le_refl (2 ^ ((n + 1).size - 1))
-          · sorry
-          · intro x
-            replace n_ge_4 : ¬n = 0 := by exact Nat.ne_zero_of_lt n_ge_4
-            exact absurd x n_ge_4
--/
+              --        -c2: (n + 2).is_pow2
+              --*         split
