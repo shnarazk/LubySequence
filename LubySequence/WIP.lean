@@ -218,14 +218,52 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                       exact two_pow_succ (n.size - 2)
                     rw (occs := .pos [2]) [this]
                     refine Nat.add_le_add_iff_left.mpr ?_
-                    · replace : n - (2 ^ (n.size - 1) - 1) + 1 = n - 2 ^ (n.size - 1) + 2 := by
-                        sorry
-                      simp [this]
+                    · -- replace : n - (2 ^ (n.size - 1) - 1) + 1 = n - 2 ^ (n.size - 1) + 2 := by
+                      --  have : n - (2 ^ (n.size - 1) - 1) = n - 2 ^ (n.size - 1) + 1 := by
+                      --    refine tsub_tsub_assoc ?_ ?_
+                      --    · exact n_lower (zero_lt_of_ne_zero h)
+                      --    · exact Nat.one_le_two_pow
+                      --  simp [this]
+                      -- simp [this]
                       clear this ih arg1 arg2 h n1size_eq_nsize n2size_eq_nsize n1size_ge_3 n2size_ge_3
                       have s1 : n < 2 ^ n.size := by exact lt_size_self n
-
-                      --
-                      sorry
+                      replace s1 : n - (2 ^ (n.size - 1) - 1) ≤ 2 ^ n.size - 1 - (2 ^ (n.size - 1) - 1):= by
+                        exact Nat.sub_le_sub_right (le_sub_one_of_lt s1) (2 ^ (n.size - 1) - 1)
+                      have : 2 ^ n.size = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) := by
+                        have : n.size = n.size - 1 + 1 := by
+                          exact (Nat.sub_eq_iff_eq_add (one_le_of_lt nsize_ge_3)).mp rfl
+                        rw (occs := .pos [1]) [this]
+                        exact two_pow_succ (n.size - 1)
+                      rw [this] at s1
+                      replace : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 - (2 ^ (n.size - 1) - 1) =
+                          2 ^ (n.size - 1) := by
+                        have : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 =
+                            2 ^ (n.size - 1) + (2 ^ (n.size - 1) - 1) := by
+                          exact Nat.add_sub_assoc (Nat.one_le_two_pow) (2 ^ (n.size - 1))
+                        simp [this]
+                      rw [this] at s1
+                      replace s1 : n - (2 ^ (n.size - 1) - 1) + 1 ≤ 2 ^ (n.size - 1) + 1 := by
+                        exact Nat.add_le_add_right s1 1
+                      replace s1 : (n - (2 ^ (n.size - 1) - 1) + 1).size ≤ (2 ^ (n.size - 1) + 1).size := by
+                        exact size_le_size s1
+                      replace : (2 ^ (n.size - 1) + 1).size = n.size := by
+                        have t1 : (2 ^ (n.size - 1) + 1).size = n.size - 1 + 1 := by
+                          refine size_add Nat.one_pos ?_
+                          · refine size_le.mp ?_
+                            · simp ; exact le_sub_one_of_lt (lt_of_add_left_lt nsize_ge_3)
+                        have t2 : n.size - 1 + 1 = n.size := by grind
+                        simp [t2] at t1
+                        exact t1
+                      simp [this] at s1
+                      replace s1 : (n - (2 ^ (n.size - 1) - 1) + 1).size < n.size := by
+                        -- n2_ne_pow2 なのだから言えるのでは
+                        sorry
+                      replace s1 : (n - (2 ^ (n.size - 1) - 1) + 1).size ≤ n.size - 1 := by
+                        exact le_sub_one_of_lt s1
+                      replace s1 : (n - (2 ^ (n.size - 1) - 1) + 1).size - 1 ≤ n.size - 1 - 1 := by
+                        exact Nat.sub_le_sub_right s1 1
+                      exact
+                        Luby.pow2_le_pow2 ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) (n.size - 2) s1
                   exact add_le_of_add_le_left s1 ih
               -- Proof Strcture
               -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
