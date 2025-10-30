@@ -189,8 +189,44 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                       · exact n2_ne_pow2
                       · exact n1_ne_pow2
                   simp [n1size_eq_nsize, n2size_eq_nsize] at *
-                  --
-                  sorry
+                  have arg1 : (n - (2 ^ (n.size - 1) - 1)) < n := by
+                    refine sub_lt ?_ ?_
+                    · exact zero_lt_of_ne_zero h
+                    · refine zero_lt_sub_of_lt ?_
+                      · refine Nat.one_lt_two_pow ?_
+                        · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt nsize_ge_3)
+                  have arg2 : 2 ≤ (n - (2 ^ (n.size - 1) - 1)) := by
+                    have s1 : 2 ^ (n.size - 1) ≤ n := n_lower (zero_lt_of_ne_zero h)
+                    replace s1 : 2 ^ (n.size - 1) < n := by
+                      exact Nat.lt_of_le_of_ne s1 fun a ↦ n_ne_pow2 (id (Eq.symm a))
+                    replace s1 : 2 ^ (n.size - 1) + 1 ≤ n := s1
+                    refine le_sub_of_add_le ?_
+                    · have : 2 + (2 ^ (n.size - 1) - 1) = 2 ^ (n.size - 1) + 1 := by
+                        refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add' h).mp) ?_ rfl)
+                        · exact AtLeastTwo.prop
+                      simp [this]
+                      exact s1
+                  replace ih := ih (n - (2 ^ (n.size - 1) - 1)) arg1 arg2
+                  have s1 :
+                      2 ^ (n.size - 2) + 2 ^ ((n - (2 ^ (n.size - 1) - 1) + 1).size - 1) ≤
+                      2 ^ (n.size - 1) := by
+                    have : 2 ^ (n.size - 1) = 2 ^ (n.size - 2) + 2 ^ (n.size - 2) := by
+                      have : n.size - 1 = n.size - 2 + 1 := by
+                        refine (Nat.sub_eq_iff_eq_add ?_).mp rfl
+                        · exact le_sub_one_of_lt (lt_of_add_left_lt nsize_ge_3)
+                      simp [this]
+                      exact two_pow_succ (n.size - 2)
+                    rw (occs := .pos [2]) [this]
+                    refine Nat.add_le_add_iff_left.mpr ?_
+                    · replace : n - (2 ^ (n.size - 1) - 1) + 1 = n - 2 ^ (n.size - 1) + 2 := by
+                        sorry
+                      simp [this]
+                      clear this ih arg1 arg2 h n1size_eq_nsize n2size_eq_nsize n1size_ge_3 n2size_ge_3
+                      have s1 : n < 2 ^ n.size := by exact lt_size_self n
+
+                      --
+                      sorry
+                  exact add_le_of_add_le_left s1 ih
               -- Proof Strcture
               -- +1: n ≤ 3 の場合を個別撃破(n = 2 ∨ n = 3)
               -- -1: n ≥ 4
