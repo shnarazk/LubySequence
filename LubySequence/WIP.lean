@@ -71,9 +71,9 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                   exact le_sub_one_of_lt nsize_ge_3
             simp [this] at x
             simp [←n_is_pow2] at x
-          have n1size_eq_nsize : (n + 1).size = n.size := same_size_iff_not_pow2.mp n1_ne_pow2
+          have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp n1_ne_pow2
           have n2size_eq_nsize : (n + 2).size = n.size := by
-            exact same_size_iff_not_pow2'.mp ⟨n2_ne_pow2, n1_ne_pow2⟩
+            exact same_n1size_iff_not_pow2'.mp ⟨n2_ne_pow2, n1_ne_pow2⟩
           rw [segment]
           split <;> expose_names ; simp [n1size_eq_nsize, n2size_eq_nsize]
           · refine Nat.pow_le_pow_of_le ?_ ?_
@@ -169,11 +169,15 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                 --        -c2: (n + 2).is_pow2
                 --          split
                 have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
-                  sorry
+                  exact increase_n1size_iff_pow2.mpr n1_is_pow2
                 have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
                   sorry
                 have a1 : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
-                  sorry
+                  refine sub_lt ?_ ?_
+                  · exact zero_lt_of_lt n_ge_4
+                  · refine zero_lt_sub_of_lt ?_
+                    · refine Nat.one_lt_two_pow ?_
+                      · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_ge_3)
                 have a2 : n - (2 ^ ((n + 2).size - 1) - 1) ≥ 2 := by
                   sorry
                 replace ih := ih (n - (2 ^ ((n + 2).size - 1) - 1)) a1 a2

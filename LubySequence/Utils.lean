@@ -1203,7 +1203,7 @@ If incrementing n increases the size by 1, then n + 1 must be a power of 2.
 This is the converse of size_of_pow2_eq_size_of_envelope_add_1, showing that
 size increases happen if and only if we reach a power of 2.
 -/
-theorem increase_size_at_pow2 {n : ℕ} :
+theorem increase_n1size_at_pow2 {n : ℕ} :
     (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
   intro eq
   by_contra ne_pow2
@@ -1238,10 +1238,10 @@ theorem increase_size_at_pow2 {n : ℕ} :
 The size of `n + 1` increases by 1 if and only if `n + 1` is a power of 2.
 This characterizes exactly when the bit size increases.
 -/
-theorem increase_size_iff_pow2 {n : ℕ} :
+theorem increase_n1size_iff_pow2 {n : ℕ} :
     (n + 1).size = n.size + 1 ↔ n + 1 = 2 ^ ((n + 1).size - 1) := by
   constructor
-  · exact increase_size_at_pow2
+  · exact increase_n1size_at_pow2
   · intro h
     exact size_of_pow2_eq_size_of_envelope_add_1' (zero_lt_succ n) h
 
@@ -1249,13 +1249,13 @@ theorem increase_size_iff_pow2 {n : ℕ} :
 The size of `n + 1` stays the same as `n.size` if and only if `n + 1` is not a power of 2.
 This is the contrapositive of `increase_size_iff_pow2`.
 -/
-theorem same_size_iff_not_pow2 {n : ℕ} :
+theorem same_n1size_iff_not_pow2 {n : ℕ} :
     ¬n + 1 = 2 ^ ((n + 1).size - 1) ↔ (n + 1).size = n.size := by
   have it {a b : Prop} : (a → b) → (¬b → ¬a) := by exact fun a_1 a_2 a ↦ a_2 (a_1 a)
   constructor
   · intro p
     have : (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
-      exact fun a ↦ increase_size_at_pow2 a
+      exact fun a ↦ increase_n1size_at_pow2 a
     replace this := it this p
     have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
     rcases cases with q|q
@@ -1266,7 +1266,7 @@ theorem same_size_iff_not_pow2 {n : ℕ} :
     rcases cases with q|q
     · replace q : ¬(n + 1).size = n.size + 1 := by simp [p]
       have : n + 1 = 2 ^ ((n + 1).size - 1) → (n + 1).size = n.size + 1 := by
-        exact fun a ↦ increase_size_iff_pow2.mpr a
+        exact fun a ↦ increase_n1size_iff_pow2.mpr a
       replace this := it this q
       exact this
     · simp [q] at p
@@ -1275,24 +1275,24 @@ theorem same_size_iff_not_pow2 {n : ℕ} :
 The size of n + 2 equals n.size if and only if both n + 2 and n + 1 are not powers of 2.
 This is a two-step variant of same_size_iff_not_pow2.
 -/
-theorem same_size_iff_not_pow2' {n : ℕ} :
+theorem same_n1size_iff_not_pow2' {n : ℕ} :
     ¬n + 2 = 2 ^ ((n + 2).size - 1) ∧ ¬n + 1 = 2 ^ ((n + 1).size - 1)
     ↔ (n + 2).size = n.size := by
   constructor
   · intro ⟨h2, h1⟩
-    have s1 : (n + 1).size = n.size := by exact same_size_iff_not_pow2.mp h1
-    have s2 : (n + 2).size = (n + 1).size := by exact same_size_iff_not_pow2.mp h2
+    have s1 : (n + 1).size = n.size := by exact same_n1size_iff_not_pow2.mp h1
+    have s2 : (n + 2).size = (n + 1).size := by exact same_n1size_iff_not_pow2.mp h2
     simp [s2, s1]
   · intro h
     constructor
-    · refine same_size_iff_not_pow2.mpr ?_
+    · refine same_n1size_iff_not_pow2.mpr ?_
       · have : n + 1 + 1 = n + 2 := by exact rfl
         simp [this]
         have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
         have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
         replace s2 : (n + 1).size ≥ (n + 2).size := by simp only [←h] at s2 ; exact s2
         exact Nat.le_antisymm s2 s1
-    · refine same_size_iff_not_pow2.mpr ?_
+    · refine same_n1size_iff_not_pow2.mpr ?_
       · have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
         replace s1 : n.size ≥ (n + 1).size := by simp [h] at s1 ; exact s1
         have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
@@ -1302,44 +1302,46 @@ theorem same_size_iff_not_pow2' {n : ℕ} :
 For n ≥ 4, if `n + 2` is a power of 2, then its size is one more than `n.size`.
 This is a variant of `increase_size_iff_pow2` specialized for the case of adding 2.
 -/
-theorem increase_size_iff_pow2' {n : ℕ} (h : n ≥ 4) :
-    n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1 := by
+theorem increase_n2size_if_pow2 {n : ℕ} (h : n ≥ 4) :
+    n + 1 = 2 ^ ((n + 1).size - 1) ∨ n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1 := by
   intro h'
-  have s1 : (n + 1).size + 1 = (n + 2).size := by
-    exact Eq.symm ((fun {n} ↦ increase_size_iff_pow2.mpr) h')
-  have s2 : (n + 1).size = n.size := by
-    refine same_size_iff_not_pow2.mp ?_
-    · by_contra ch
-      have : n + 2 = n + 1 + 1 := by exact rfl
-      rewrite (occs := .pos [1]) [this] at h'
-      rw [ch] at h'
-      have n1size_gt_3 : (n + 1).size ≥ 3 := by
-        have s1 : (n + 1).size ≥ (4 + 1).size := by
-          exact size_le_size (Nat.add_le_add_right h 1)
-        have s2 : (4 + 1).size = 3 := by simp [size, binaryRec]
-        simp [s2] at s1
-        exact s1
-      have n2size_gt_3 : (n + 2).size ≥ 3 := by
-        have s1 : (n + 2).size ≥ (4 + 2).size := by
-          exact size_le_size (Nat.add_le_add_right h 2)
-        have s2 : (4 + 2).size = 3 := by simp [size, binaryRec]
-        simp [s2] at s1
-        exact s1
-      have even : Even (2 ^ ((n + 2).size - 1)) := by
-        refine (even_pow' ?_).mpr ?_
-        · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-          · exact lt_of_add_left_lt n2size_gt_3
-        · exact even_iff.mpr rfl
-      have odd : Odd (2 ^ ((n + 1).size - 1) + 1) := by
-        refine Even.add_one ?_
-        · refine (even_pow' ?_).mpr ?_
+  rcases h' with h1|h2
+  · sorry
+  · have s1 : (n + 1).size + 1 = (n + 2).size := by
+      exact Eq.symm ((fun {n} ↦ increase_n1size_iff_pow2.mpr) h2)
+    have s2 : (n + 1).size = n.size := by
+      refine same_n1size_iff_not_pow2.mp ?_
+      · by_contra ch
+        have : n + 2 = n + 1 + 1 := by exact rfl
+        rewrite (occs := .pos [1]) [this] at h2
+        rw [ch] at h2
+        have n1size_gt_3 : (n + 1).size ≥ 3 := by
+          have s1 : (n + 1).size ≥ (4 + 1).size := by
+            exact size_le_size (Nat.add_le_add_right h 1)
+          have s2 : (4 + 1).size = 3 := by simp [size, binaryRec]
+          simp [s2] at s1
+          exact s1
+        have n2size_gt_3 : (n + 2).size ≥ 3 := by
+          have s1 : (n + 2).size ≥ (4 + 2).size := by
+            exact size_le_size (Nat.add_le_add_right h 2)
+          have s2 : (4 + 2).size = 3 := by simp [size, binaryRec]
+          simp [s2] at s1
+          exact s1
+        have even : Even (2 ^ ((n + 2).size - 1)) := by
+          refine (even_pow' ?_).mpr ?_
           · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-            · exact lt_of_add_left_lt n1size_gt_3
+            · exact lt_of_add_left_lt n2size_gt_3
           · exact even_iff.mpr rfl
-      simp [h'] at odd
-      replace odd : ¬Even (2 ^ ((n + 2).size - 1)) := by exact not_even_iff_odd.mpr odd
-      exact absurd even odd
-  simp [←s2, s1]
+        have odd : Odd (2 ^ ((n + 1).size - 1) + 1) := by
+          refine Even.add_one ?_
+          · refine (even_pow' ?_).mpr ?_
+            · refine Nat.sub_ne_zero_iff_lt.mpr ?_
+              · exact lt_of_add_left_lt n1size_gt_3
+            · exact even_iff.mpr rfl
+        simp [h2] at odd
+        replace odd : ¬Even (2 ^ ((n + 2).size - 1)) := by exact not_even_iff_odd.mpr odd
+        exact absurd even odd
+    simp [←s2, s1]
 
 /--
 Lower bound on n based on its bit size. For any positive natural number n,
