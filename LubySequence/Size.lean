@@ -636,28 +636,16 @@ theorem same_n1size_iff_not_pow2' {n : ℕ} :
         exact Eq.symm (Nat.le_antisymm s2 s1)
 
 theorem increase_n2size_if_pow2₁ {n : ℕ} (h : n ≥ 4) :
-    n + 1 = 2 ^ ((n + 1).size - 1) → (n + 2).size = n.size + 1 := by
+    n + 1 = 2 ^ n.size → (n + 2).size = n.size + 1 := by
   intro h1
-  have s1 : n + 1 + 1 = 2 ^ ((n + 1).size - 1) + 1 := congrFun (congrArg HAdd.hAdd h1) 1
+  have s1 : n + 1 + 1 = 2 ^ n.size + 1 := congrFun (congrArg HAdd.hAdd h1) 1
   have : n + 1 + 1 = n + 2 := rfl
   simp only [this] at s1
   simp [s1]
-  replace : (2 ^ ((n + 1).size - 1) + 1).size = (n + 1).size - 1 + 1 := by
-    refine size_add ?_ ?_
-    · exact Nat.one_pos
-    · refine Nat.one_lt_two_pow ?_
-      · refine sub_ne_zero_of_lt ?_
-        · have s1 : n + 1 ≥ 5 := by exact le_add_of_sub_le h
-          replace s1 : (n + 1).size ≥ (5 : ℕ).size := by exact size_le_size s1
-          have s2 : (5 : ℕ).size = 3 := by simp [size, binaryRec]
-          simp [s2] at s1
-          exact lt_of_add_left_lt s1
-  simp [this]
-  refine Eq.symm (Nat.eq_sub_of_add_eq' ?_)
-  have { a b : ℕ } (h : a = b) : b = a := by exact id (Eq.symm h)
-  apply Eq.symm
-  rw (occs := .pos [2]) [add_comm]
-  exact increase_n1size_iff_pow2.mpr h1
+  replace : (2 ^ n.size + 1).size = n.size + 1 := by
+    refine size_add Nat.one_pos ?_
+    · exact Nat.one_lt_two_pow (Nat.pos_iff_ne_zero.mp (size_pos.mpr (zero_lt_of_lt h)))
+  exact this
 
 theorem increase_n2size_if_pow2₂ {n : ℕ} (h : n ≥ 4) :
     n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1 := by
