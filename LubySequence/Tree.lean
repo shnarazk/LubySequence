@@ -3,6 +3,7 @@ import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
+import LubySequence.Size
 import LubySequence.Utils
 
 namespace Tree

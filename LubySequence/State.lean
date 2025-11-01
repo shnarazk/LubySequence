@@ -6,6 +6,7 @@ import Mathlib.Data.Nat.Size
 import Mathlib.Data.Finset.Basic
 import LubySequence.Utils
 import LubySequence.Basic
+import LubySequence.TrailingZeros
 
 /-! A state-based Luby Implementation that compute Luby value in _O(1)_ and transite
 from state n to state n + 1 in _O(1)_.

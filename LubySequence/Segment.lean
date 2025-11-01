@@ -5,6 +5,7 @@ import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 import LubySequence.Utils
 import LubySequence.Basic
+import LubySequence.TrailingZeros
 
 /-!
 Segments are monotonic subsequences in the Luby sequence.
