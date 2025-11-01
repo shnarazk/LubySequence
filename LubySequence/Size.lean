@@ -589,25 +589,21 @@ theorem increase_n1size_iff_pow2 {n : ℕ} : (n + 1).size = n.size + 1 ↔ n + 1
 The size of `n + 1` stays the same as `n.size` if and only if `n + 1` is not a power of 2.
 This is the contrapositive of `increase_size_iff_pow2`.
 -/
-theorem same_n1size_iff_not_pow2 {n : ℕ} :
-    ¬n + 1 = 2 ^ ((n + 1).size - 1) ↔ (n + 1).size = n.size := by
-  have it {a b : Prop} : (a → b) → (¬b → ¬a) := by exact fun a_1 a_2 a ↦ a_2 (a_1 a)
+theorem same_n1size_iff_not_pow2 {n : ℕ} : ¬n + 1 = 2 ^ n.size ↔ (n + 1).size = n.size := by
+  have it {a b : Prop} : (a → b) → (¬b → ¬a) := fun a_1 a_2 a ↦ a_2 (a_1 a)
   constructor
   · intro p
-    have : (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
-      exact fun a ↦ increase_n1size_at_pow2 a
+    have : (n + 1).size = n.size + 1 → n + 1 = 2 ^ n.size := fun a ↦ increase_n1size_at_pow2 a
     replace this := it this p
-    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
     rcases cases with q|q
     · exact q
     · exact absurd q this
   · intro p
-    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
     rcases cases with q|q
     · replace q : ¬(n + 1).size = n.size + 1 := by simp [p]
-      have : n + 1 = 2 ^ ((n + 1).size - 1) → (n + 1).size = n.size + 1 := by
-        exact fun a ↦ increase_n1size_iff_pow2.mpr a
-      replace this := it this q
+      replace this := it increase_n1size_iff_pow2.mpr q
       exact this
     · simp [q] at p
 
@@ -616,26 +612,27 @@ The size of n + 2 equals n.size if and only if both n + 2 and n + 1 are not powe
 This is a two-step variant of same_size_iff_not_pow2.
 -/
 theorem same_n1size_iff_not_pow2' {n : ℕ} :
-    ¬n + 2 = 2 ^ ((n + 2).size - 1) ∧ ¬n + 1 = 2 ^ ((n + 1).size - 1)
-    ↔ (n + 2).size = n.size := by
+    ¬n + 2 = 2 ^ n.size ∧ ¬n + 1 = 2 ^ n.size ↔ (n + 2).size = n.size := by
   constructor
   · intro ⟨h2, h1⟩
-    have s1 : (n + 1).size = n.size := by exact same_n1size_iff_not_pow2.mp h1
-    have s2 : (n + 2).size = (n + 1).size := by exact same_n1size_iff_not_pow2.mp h2
+    have s1 : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp h1
+    have s2 : (n + 2).size = (n + 1).size := by
+      exact same_n1size_iff_not_pow2.mp (ne_of_ne_of_eq h2 (congrArg (HPow.hPow 2) (id (Eq.symm s1))))
     simp [s2, s1]
   · intro h
     constructor
+    · refine Nat.ne_of_lt ?_
+      · by_contra x
+        simp at x
+        replace x : (2 ^ n.size).size ≤ (n + 2).size := size_le_size x
+        rw [size_pow] at x
+        replace x : n.size < (n + 2).size := x
+        replace x : ¬(n + 2).size = n.size := Nat.ne_of_lt' x
+        exact absurd h x
     · refine same_n1size_iff_not_pow2.mpr ?_
-      · have : n + 1 + 1 = n + 2 := by exact rfl
-        simp [this]
-        have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
-        have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
-        replace s2 : (n + 1).size ≥ (n + 2).size := by simp only [←h] at s2 ; exact s2
-        exact Nat.le_antisymm s2 s1
-    · refine same_n1size_iff_not_pow2.mpr ?_
-      · have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
+      · have s1 : (n + 2).size ≥ (n + 1).size := size_le_size (le_succ (n + 1))
         replace s1 : n.size ≥ (n + 1).size := by simp [h] at s1 ; exact s1
-        have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
+        have s2 : (n + 1).size ≥ n.size := size_le_size (le_succ n)
         exact Eq.symm (Nat.le_antisymm s2 s1)
 
 theorem increase_n2size_if_pow2₁ {n : ℕ} (h : n ≥ 4) :
