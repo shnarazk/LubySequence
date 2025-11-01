@@ -173,9 +173,19 @@ theorem segment_limit' (n : ℕ) : segment n ≤ n + 1 := by
                 refine same_n1size_iff_not_pow2'.mp ?_
                 · exact Decidable.not_imp_iff_and_not.mp fun a ↦ n1_ne_pow2 (a n2_ne_pow2)
               have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp n1_ne_pow2
-              simp [n2size_eq_nsize, n1size_eq_nsize]
+              simp [n2size_eq_nsize]
+              have arg1 : n - (2 ^ (n.size - 1) - 1) < n := by sorry
+              replace ih := ih (n - (2 ^ (n.size - 1) - 1)) arg1
+              have s1 :
+                  2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1)) ≤
+                  2 ^ (n.size - 2) + (n - (2 ^ (n.size - 1) - 1) + 1) := by
+                exact Nat.add_le_add_iff_left.mpr ih
+              have s2 : 2 ^ (n.size - 2) + (n - (2 ^ (n.size - 1) - 1) + 1) ≤ 2 ^ (n.size - 1) := by
+                sorry
+              have s3 : 2 ^ (n.size - 1) ≤ n := n_lower (zero_lt_of_ne_zero h)
               --
-              sorry
+              replace s3 :  2 ^ (n.size - 1) ≤ n + 1 := by exact le_add_right_of_le s3
+              exact le_imp_le_of_le_of_le s1 s3 s2
 /-
             have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp n1_ne_pow2
             have n2size_eq_n1size : (n + 1 + 1).size = (n + 1).size := by
