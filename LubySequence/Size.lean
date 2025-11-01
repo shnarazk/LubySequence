@@ -546,7 +546,7 @@ This is the converse of size_of_pow2_eq_size_of_envelope_add_1, showing that
 size increases happen if and only if we reach a power of 2.
 -/
 theorem increase_n1size_at_pow2 {n : ℕ} :
-    (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
+    (n + 1).size = n.size + 1 → n + 1 = 2 ^ n.size := by
   intro eq
   by_contra ne_pow2
   by_cases n_eq_0 : n = 0
@@ -554,7 +554,7 @@ theorem increase_n1size_at_pow2 {n : ℕ} :
   · replace n_eq_0 : n > 0 := by exact zero_lt_of_ne_zero n_eq_0
     replace n_eq_0 : n ≥ 1 := by exact n_eq_0
     by_cases n_eq_1 : n = 1
-    · simp [n_eq_1, size, binaryRec] at ne_pow2
+    · simp [n_eq_1, size] at ne_pow2
     · have n_ge_2 : n ≥ 2 := by
         refine (two_le_iff n).mpr ?_
         · constructor
@@ -562,7 +562,7 @@ theorem increase_n1size_at_pow2 {n : ℕ} :
           · exact n_eq_1
       clear n_eq_0 n_eq_1
       have s1 : n + 1 < 2 ^ n.size := by
-        simp [eq] at ne_pow2
+        simp at ne_pow2
         have : n < 2 ^ n.size := by exact lt_size_self n
         replace : n + 1 ≤ 2 ^ n.size := by exact this
         replace : n + 1 < 2 ^ n.size ∨ n + 1 = 2 ^ n.size := by
@@ -580,12 +580,10 @@ theorem increase_n1size_at_pow2 {n : ℕ} :
 The size of `n + 1` increases by 1 if and only if `n + 1` is a power of 2.
 This characterizes exactly when the bit size increases.
 -/
-theorem increase_n1size_iff_pow2 {n : ℕ} :
-    (n + 1).size = n.size + 1 ↔ n + 1 = 2 ^ ((n + 1).size - 1) := by
+theorem increase_n1size_iff_pow2 {n : ℕ} : (n + 1).size = n.size + 1 ↔ n + 1 = 2 ^ n.size := by
   constructor
   · exact increase_n1size_at_pow2
-  · intro h
-    exact size_of_pow2_eq_size_of_envelope_add_1' (zero_lt_succ n) h
+  · intro h ; exact size_of_pow2_eq_size_of_envelope_add_1 (Nat.eq_sub_of_add_eq h)
 
 /--
 The size of `n + 1` stays the same as `n.size` if and only if `n + 1` is not a power of 2.
