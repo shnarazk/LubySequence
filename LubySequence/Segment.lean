@@ -1149,14 +1149,27 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
           simp [n1]
           have : n + 1 + 1 = 2 ^ ((n + 2).size - 1) - 1 + 1 := congrFun (congrArg HAdd.hAdd n1) 1
           replace : n + 1 + 1 = 2 ^ ((n + 2).size - 1) := by exact n_is_envelope'
-          -- have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by exact size_sub (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)) Nat.one_pos Nat.one_le_two_pow
           simp [←this]
           by_contra odd_and_even
-          have even : Even (n + 1) := by
-            sorry
-          have odd : Odd (n + 1) := by
-            sorry
-          replace odd : ¬Even (n + 1) := by exact not_even_iff_odd.mpr odd
+          have even : Even (n + 2) := by
+            have : Even (2 ^ ((n + 2).size - 1)) := by
+              refine (even_pow' ?_).mpr ?_
+              · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
+              · exact even_iff.mpr rfl
+            simp [←n_is_envelope'] at this
+            exact this
+          have odd : ¬Even (n + 2) := by
+            have : Even (n + 1) := by
+              have : Even (2 ^ n.size) := by
+                refine (even_pow' ?_).mpr ?_
+                · refine Nat.ne_zero_iff_zero_lt.mpr ?_
+                  · exact size_pos.mpr n_gt_0
+                · exact even_iff.mpr rfl
+              simp [←odd_and_even] at this
+              exact this
+            replace : Odd (n + 1 + 1) := Even.add_one this
+            simp at this 
+            exact not_even_iff_odd.mpr this
           exact absurd even odd
         exact same_n1size_iff_not_pow2.mp cond
       simp [n1size_eq_nsize] at n_ne_envelope_segment
