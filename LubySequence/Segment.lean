@@ -272,7 +272,10 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                   by_contra x
                   have : n = 2 ^ ((n + 2).size - 1) - 2 := by exact Nat.eq_sub_of_add_eq x
                   exact absurd this h_1
-                exact h_1
+                by_contra x
+                have : n + 1 + 1 = n + 2 := rfl
+                simp [this] at x
+                simp [x, size_pow] at h_1
             have n2size_ge_3 : (n + 2).size ≥ 3 := by
               have s1 : n + 2 ≥ 4 + 2 := by refine Nat.add_le_add n_ge_4 AtLeastTwo.prop
               replace s1 : (n + 2).size ≥ (4 + 2).size := by exact size_le_size s1
@@ -1140,12 +1143,34 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
           simp [odd_and_even] at odd
           replace odd : ¬Even (2 ^ ((n + 2).size - 1 - 1)) := by exact not_even_iff_odd.mpr odd
           exact absurd even odd
+        replace cond : ¬n + 1 = 2 ^ n.size := by
+          have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+            exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm n_is_envelope')))
+          simp [n1]
+          have : n + 1 + 1 = 2 ^ ((n + 2).size - 1) - 1 + 1 := congrFun (congrArg HAdd.hAdd n1) 1
+          replace : n + 1 + 1 = 2 ^ ((n + 2).size - 1) := by exact n_is_envelope'
+          -- have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by exact size_sub (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)) Nat.one_pos Nat.one_le_two_pow
+          simp [←this]
+          by_contra odd_and_even
+          have even : Even (n + 1) := by
+            sorry
+          have odd : Odd (n + 1) := by
+            sorry
+          replace odd : ¬Even (n + 1) := by exact not_even_iff_odd.mpr odd
+          exact absurd even odd
         exact same_n1size_iff_not_pow2.mp cond
       simp [n1size_eq_nsize] at n_ne_envelope_segment
       have : segment n = 2 ^ (n.size - 1) := by
         refine segment_prop1 ?_
         · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by
-            exact increase_n2size_if_pow2 n_gt_4 (Or.inr n_is_envelope')
+            have s1 : n.size = (2 ^ ((n + 2).size - 1) - 2).size := congrArg size n_is_envelope
+            have s2 : (2 ^ ((n + 2).size - 1) - 2).size = (n + 2).size - 1 := by
+              refine size_sub ?_ ?_ ?_
+              · exact zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)
+              · exact Nat.zero_lt_two
+              · exact le_pow (zero_lt_sub_of_lt (lt_sub_of_add_lt n2size_gt_3))
+            simp [s2] at s1
+            exact Nat.eq_add_of_sub_eq (one_le_of_lt n2size_gt_3) (id (Eq.symm s1))
           simp [n2size_eq_nsize] at n_is_envelope'
           exact Nat.eq_sub_of_add_eq n_is_envelope'
       exact absurd this n_ne_envelope_segment
