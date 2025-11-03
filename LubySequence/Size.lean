@@ -66,14 +66,13 @@ Every natural number is strictly less than 2 raised to the power of its size plu
 -/
 theorem self_ne_pow_two_succ_of_size (n : ℕ) : n < 2 ^ n.size.succ := by exact size_le.mp (by grind)
 
-
 /--
 The length of the bit representation equals the size of a natural number.
 -/
 theorem bitslength_eq_size (n : ℕ) : n.bits.length = n.size := by exact size_eq_bits_len n
 
 /--
-The bit representation of 2*n is false (0) prepended to the bit representation of n.
+The bit representation of `2 * n` is false (0) prepended to the bit representation of n.
 -/
 theorem bits_of_double_eq_cons_false_and_bits (n : ℕ) (h : n > 0) :
     (2 * n).bits = false :: n.bits := by
@@ -81,7 +80,7 @@ theorem bits_of_double_eq_cons_false_and_bits (n : ℕ) (h : n > 0) :
   exact bit0_bits n this
 
 /--
-The size of 2*n is one more than the size of n (for positive n).
+The size of `2 * n` is one more than the size of n (for positive n).
 -/
 theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.size + 1 := by
   have h : (2 * n).bits = false :: n.bits := by
@@ -94,8 +93,8 @@ theorem size_of_double_eq_self_add_one (n : ℕ) (h : n > 0) : (2 * n).size = n.
   exact t1
 
 /--
-For n ≥ 2 and k < 2^n, adding k to 2^n does not change the bit size.
-In other words, (2^n + k).size = (2^n).size when k is strictly less than 2^n.
+For `n ≥ 2` and `k < 2 ^ n`, adding k to `2 ^ n` does not change the bit size.
+In other words, `(2 ^ n + k).size = (2 ^ n).size` when k is strictly less than `2 ^ n`.
 -/
 theorem size_of_pow2 {k n : ℕ} (h2 : k < 2 ^ n) :
     (2 ^ n + k).size = (2 ^ n).size := by
@@ -113,20 +112,20 @@ theorem size_of_pow2 {k n : ℕ} (h2 : k < 2 ^ n) :
   exact Nat.le_antisymm s1 s3
 
 /--
-The bit representation of 2*n + 1 is true (1) prepended to the bit representation of n.
+The bit representation of `2 * n + 1` is true (1) prepended to the bit representation of n.
 -/
 example (n : ℕ) : (2 * n + 1).bits = true :: n.bits := by
   exact bit1_bits n
 
 /--
-The size of n*2 equals n.size + 1 (for positive n).
+The size of `n * 2` equals `n.size + 1` (for positive n).
 -/
 theorem size_of_two_mul_eq_aize_add_one (n : ℕ) (h : n > 0) :
     n.size + 1 = (n * 2).size := by
   simp [←size_eq_bits_len, mul_comm n 2, bits_of_double_eq_cons_false_and_bits n h]
 
 /--
-If 2*a < b, then the size of a is less than the size of b.
+If `2 * a < b`, then the size of a is less than the size of b.
 -/
 theorem size_lt {a b : ℕ} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   intro hg
@@ -155,7 +154,7 @@ theorem size_lt {a b : ℕ} (h : 0 < a) : 2 * a < b → a.size < b.size := by
   exact lt_of_lt_of_le tr1 tr2
 
 /--
-For positive n, 2^(n.size) ≤ 2*n.
+For positive n, `2 ^ n.size ≤ 2 * n`.
 -/
 theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := by
   refine lt_size.mp ?_
@@ -167,7 +166,7 @@ theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := 
   simp [s3]
 
 /--
-The bit representation length of 2^n equals n+1.
+The bit representation length of `2 ^ n` equals `n + 1`.
 -/
 theorem bitslength_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
   induction n with
@@ -181,14 +180,14 @@ theorem bitslength_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).bits.length = n 
     exact hn
 
 /--
-The size of 2^n equals n+1.
+The size of `2 ^ n` equals `n + 1`.
 -/
 theorem size_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_of_pow2_eq_self_add_one n
 
 /--
-The bit representation of 2^n consists of n false bits followed by one true bit.
+The bit representation of `2 ^ n` consists of n false bits followed by one true bit.
 -/
 theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
   induction n with
@@ -199,7 +198,7 @@ theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] 
     exact hn
 
 /--
-The bit representation of 2^n - 1 consists of n true bits.
+The bit representation of `2 ^ n - 1` consists of n true bits.
 -/
 theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := by
   induction n with
@@ -221,7 +220,7 @@ theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := 
 
 /--
 Deprecated: Use `size_add` instead.
-For 0 < k < 2^n, the bit length of 2^n + k equals n+1.
+For `0 < k < 2 ^ n`, the bit length of `2 ^ n + k` equals `n + 1`.
 -/
 @[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
 theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
@@ -270,7 +269,7 @@ theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
   exact le_antisymm p2' p1'
 
 /--
-For 0 < k < 2^n, the size of 2^n + k equals n+1.
+For `0 < k < 2 ^ n`, the size of `2 ^ n + k` equals `n + 1`.
 -/
 theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
   simp [←bitslength_eq_size]
@@ -306,7 +305,7 @@ theorem size_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n
 
 /--
 Deprecated: Use `size_sub` instead.
-For n > 0 and 0 < k ≤ 2^(n-1), the bit length of 2^n - k equals n.
+For `n > 0` and `0 < k ≤ 2 ^ (n - 1)`, the bit length of `2 ^ n - k` equals n.
 -/
 @[deprecated "Use `size_sub` instead of `bitslength_sub`" (since := "2025-08-10")]
 theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
@@ -371,7 +370,7 @@ theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n -
   exact le_antisymm t1 t2
 
 /--
-For n > 0 and 0 < k ≤ 2^(n-1), the size of 2^n - k equals n.
+For `n > 0` and `0 < k ≤ 2 ^ (n - 1)`, the size of `2 ^ n - k` equals n.
 -/
 theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
       (2 ^ n - k).size = n := by
@@ -380,7 +379,7 @@ theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
 
 /--
 Deprecated: Use `size_div` instead.
-For n ≥ 1 divisible by 2, the bit length of n/2 is one less than the bit length of n.
+For `n ≥ 1` divisible by 2, the bit length of `n / 2` is one less than the bit length of n.
 -/
 @[deprecated "Use `size_div` instead of `bitslength_div`" (since := "2025-08-10")]
 theorem bitslength_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
@@ -400,7 +399,7 @@ theorem bitslength_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
   exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
 /--
-For n ≥ 1 divisible by 2, the size of n/2 is one less than the size of n.
+For `n ≥ 1` divisible by 2, the size of `n / 2` is one less than the size of n.
 -/
 theorem size_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
   simp [←bitslength_eq_size]
@@ -449,7 +448,7 @@ theorem size_limit (n : ℕ) : (n + 1).size = n.size ∨ (n + 1).size = n.size +
     exact absurd c1 c2''
 
 /--
-Every natural number less than 2^k has size at most k.
+Every natural number less than `2 ^ k` has size at most k.
 -/
 theorem pow2_is_minimum (k : ℕ) : ∀ n < 2 ^ k, n.size ≤ k := by
   intro n hn
@@ -459,7 +458,7 @@ theorem pow2_is_minimum (k : ℕ) : ∀ n < 2 ^ k, n.size ≤ k := by
   exact size_le.mpr hn
 
 /--
-If n is an "envelope" (n = 2^(n.size) - 1), then incrementing n increases the size by exactly 1.
+If n is an "envelope" (`n = 2 ^ n.size - 1`), then incrementing n increases the size by exactly 1.
 This characterizes when the bit size increases: it happens precisely at powers of 2 minus 1.
 -/
 theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
@@ -474,7 +473,7 @@ theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
   simp [this]
 
 /--
-For positive n equal to 2^(n.size - 1), the size of n is one more than the size of n - 1.
+For positive n equal to `2 ^ (n.size - 1)`, the size of n is one more than the size of `n - 1`.
 This is a variant characterization showing when a number is exactly a power of 2.
 -/
 theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
@@ -505,7 +504,7 @@ theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
     exact gt
 
 /--
-For n ≥ 1, n is at least 2^(n.size - 1).
+For `n ≥ 1`, n is at least `2 ^ (n.size - 1)`.
 -/
 theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
   have tf : 1 = n ∨ 1 < n := by exact eq_or_lt_of_le h
@@ -536,7 +535,7 @@ theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
     exact le_of_pred_lt this
 
 /--
-For positive n, 2^(n.size) ≤ 2*n.
+For positive n, `2 ^ n.size ≤ 2 * n`.
 -/
 theorem pow2size_has_upper_bound : ∀ n > 0, 2 ^ n.size ≤ 2 * n := by
   exact fun n a ↦ pow_two_of_size_le_self a
@@ -547,7 +546,7 @@ This is the converse of size_of_pow2_eq_size_of_envelope_add_1, showing that
 size increases happen if and only if we reach a power of 2.
 -/
 theorem increase_n1size_at_pow2 {n : ℕ} :
-    (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
+    (n + 1).size = n.size + 1 → n + 1 = 2 ^ n.size := by
   intro eq
   by_contra ne_pow2
   by_cases n_eq_0 : n = 0
@@ -555,7 +554,7 @@ theorem increase_n1size_at_pow2 {n : ℕ} :
   · replace n_eq_0 : n > 0 := by exact zero_lt_of_ne_zero n_eq_0
     replace n_eq_0 : n ≥ 1 := by exact n_eq_0
     by_cases n_eq_1 : n = 1
-    · simp [n_eq_1, size, binaryRec] at ne_pow2
+    · simp [n_eq_1, size] at ne_pow2
     · have n_ge_2 : n ≥ 2 := by
         refine (two_le_iff n).mpr ?_
         · constructor
@@ -563,7 +562,7 @@ theorem increase_n1size_at_pow2 {n : ℕ} :
           · exact n_eq_1
       clear n_eq_0 n_eq_1
       have s1 : n + 1 < 2 ^ n.size := by
-        simp [eq] at ne_pow2
+        simp at ne_pow2
         have : n < 2 ^ n.size := by exact lt_size_self n
         replace : n + 1 ≤ 2 ^ n.size := by exact this
         replace : n + 1 < 2 ^ n.size ∨ n + 1 = 2 ^ n.size := by
@@ -581,36 +580,30 @@ theorem increase_n1size_at_pow2 {n : ℕ} :
 The size of `n + 1` increases by 1 if and only if `n + 1` is a power of 2.
 This characterizes exactly when the bit size increases.
 -/
-theorem increase_n1size_iff_pow2 {n : ℕ} :
-    (n + 1).size = n.size + 1 ↔ n + 1 = 2 ^ ((n + 1).size - 1) := by
+theorem increase_n1size_iff_pow2 {n : ℕ} : (n + 1).size = n.size + 1 ↔ n + 1 = 2 ^ n.size := by
   constructor
   · exact increase_n1size_at_pow2
-  · intro h
-    exact size_of_pow2_eq_size_of_envelope_add_1' (zero_lt_succ n) h
+  · intro h ; exact size_of_pow2_eq_size_of_envelope_add_1 (Nat.eq_sub_of_add_eq h)
 
 /--
 The size of `n + 1` stays the same as `n.size` if and only if `n + 1` is not a power of 2.
 This is the contrapositive of `increase_size_iff_pow2`.
 -/
-theorem same_n1size_iff_not_pow2 {n : ℕ} :
-    ¬n + 1 = 2 ^ ((n + 1).size - 1) ↔ (n + 1).size = n.size := by
-  have it {a b : Prop} : (a → b) → (¬b → ¬a) := by exact fun a_1 a_2 a ↦ a_2 (a_1 a)
+theorem same_n1size_iff_not_pow2 {n : ℕ} : ¬n + 1 = 2 ^ n.size ↔ (n + 1).size = n.size := by
+  have it {a b : Prop} : (a → b) → (¬b → ¬a) := fun a_1 a_2 a ↦ a_2 (a_1 a)
   constructor
   · intro p
-    have : (n + 1).size = n.size + 1 → n + 1 = 2 ^ ((n + 1).size - 1) := by
-      exact fun a ↦ increase_n1size_at_pow2 a
+    have : (n + 1).size = n.size + 1 → n + 1 = 2 ^ n.size := fun a ↦ increase_n1size_at_pow2 a
     replace this := it this p
-    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
     rcases cases with q|q
     · exact q
     · exact absurd q this
   · intro p
-    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
     rcases cases with q|q
     · replace q : ¬(n + 1).size = n.size + 1 := by simp [p]
-      have : n + 1 = 2 ^ ((n + 1).size - 1) → (n + 1).size = n.size + 1 := by
-        exact fun a ↦ increase_n1size_iff_pow2.mpr a
-      replace this := it this q
+      replace this := it increase_n1size_iff_pow2.mpr q
       exact this
     · simp [q] at p
 
@@ -619,111 +612,66 @@ The size of n + 2 equals n.size if and only if both n + 2 and n + 1 are not powe
 This is a two-step variant of same_size_iff_not_pow2.
 -/
 theorem same_n1size_iff_not_pow2' {n : ℕ} :
-    ¬n + 2 = 2 ^ ((n + 2).size - 1) ∧ ¬n + 1 = 2 ^ ((n + 1).size - 1)
-    ↔ (n + 2).size = n.size := by
+    ¬n + 2 = 2 ^ n.size ∧ ¬n + 1 = 2 ^ n.size ↔ (n + 2).size = n.size := by
   constructor
   · intro ⟨h2, h1⟩
-    have s1 : (n + 1).size = n.size := by exact same_n1size_iff_not_pow2.mp h1
-    have s2 : (n + 2).size = (n + 1).size := by exact same_n1size_iff_not_pow2.mp h2
+    have s1 : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp h1
+    have s2 : (n + 2).size = (n + 1).size := by
+      exact same_n1size_iff_not_pow2.mp (ne_of_ne_of_eq h2 (congrArg (HPow.hPow 2) (id (Eq.symm s1))))
     simp [s2, s1]
   · intro h
     constructor
+    · refine Nat.ne_of_lt ?_
+      · by_contra x
+        simp at x
+        replace x : (2 ^ n.size).size ≤ (n + 2).size := size_le_size x
+        rw [size_pow] at x
+        replace x : n.size < (n + 2).size := x
+        replace x : ¬(n + 2).size = n.size := Nat.ne_of_lt' x
+        exact absurd h x
     · refine same_n1size_iff_not_pow2.mpr ?_
-      · have : n + 1 + 1 = n + 2 := by exact rfl
-        simp [this]
-        have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
-        have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
-        replace s2 : (n + 1).size ≥ (n + 2).size := by simp only [←h] at s2 ; exact s2
-        exact Nat.le_antisymm s2 s1
-    · refine same_n1size_iff_not_pow2.mpr ?_
-      · have s1 : (n + 2).size ≥ (n + 1).size := by exact size_le_size (le_succ (n + 1))
+      · have s1 : (n + 2).size ≥ (n + 1).size := size_le_size (le_succ (n + 1))
         replace s1 : n.size ≥ (n + 1).size := by simp [h] at s1 ; exact s1
-        have s2 : (n + 1).size ≥ n.size := by exact size_le_size (le_succ n)
+        have s2 : (n + 1).size ≥ n.size := size_le_size (le_succ n)
         exact Eq.symm (Nat.le_antisymm s2 s1)
 
 theorem increase_n2size_if_pow2₁ {n : ℕ} (h : n ≥ 4) :
-    n + 1 = 2 ^ ((n + 1).size - 1) → (n + 2).size = n.size + 1 := by
+    n + 1 = 2 ^ n.size → (n + 2).size = n.size + 1 := by
   intro h1
-  have s1 : n + 1 + 1 = 2 ^ ((n + 1).size - 1) + 1 := congrFun (congrArg HAdd.hAdd h1) 1
+  have s1 : n + 1 + 1 = 2 ^ n.size + 1 := congrFun (congrArg HAdd.hAdd h1) 1
   have : n + 1 + 1 = n + 2 := rfl
   simp only [this] at s1
   simp [s1]
-  replace : (2 ^ ((n + 1).size - 1) + 1).size = (n + 1).size - 1 + 1 := by
-    refine size_add ?_ ?_
-    · exact Nat.one_pos
-    · refine Nat.one_lt_two_pow ?_
-      · refine sub_ne_zero_of_lt ?_
-        · have s1 : n + 1 ≥ 5 := by exact le_add_of_sub_le h
-          replace s1 : (n + 1).size ≥ (5 : ℕ).size := by exact size_le_size s1
-          have s2 : (5 : ℕ).size = 3 := by simp [size, binaryRec]
-          simp [s2] at s1
-          exact lt_of_add_left_lt s1
-  simp [this]
-  refine Eq.symm (Nat.eq_sub_of_add_eq' ?_)
-  have { a b : ℕ } (h : a = b) : b = a := by exact id (Eq.symm h)
-  apply Eq.symm
-  rw (occs := .pos [2]) [add_comm]
-  exact increase_n1size_iff_pow2.mpr h1
+  replace : (2 ^ n.size + 1).size = n.size + 1 := by
+    refine size_add Nat.one_pos ?_
+    · exact Nat.one_lt_two_pow (Nat.pos_iff_ne_zero.mp (size_pos.mpr (zero_lt_of_lt h)))
+  exact this
 
-theorem increase_n2size_if_pow2₂ {n : ℕ} (h : n ≥ 4) :
-    n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1 := by
+theorem increase_n2size_if_pow2₂ (n : ℕ) : n + 2 = 2 ^ n.size → (n + 2).size = n.size + 1 := by
   intro h2
-  have s1 : (n + 1).size + 1 = (n + 2).size := by
-    exact Eq.symm ((fun {n} ↦ increase_n1size_iff_pow2.mpr) h2)
-  have s2 : (n + 1).size = n.size := by
-    refine same_n1size_iff_not_pow2.mp ?_
-    · by_contra ch
-      have : n + 2 = n + 1 + 1 := by exact rfl
-      rewrite (occs := .pos [1]) [this] at h2
-      rw [ch] at h2
-      have n1size_gt_3 : (n + 1).size ≥ 3 := by
-        have s1 : (n + 1).size ≥ (4 + 1).size := by
-          exact size_le_size (Nat.add_le_add_right h 1)
-        have s2 : (4 + 1).size = 3 := by simp [size, binaryRec]
-        simp [s2] at s1
-        exact s1
-      have n2size_gt_3 : (n + 2).size ≥ 3 := by
-        have s1 : (n + 2).size ≥ (4 + 2).size := by
-          exact size_le_size (Nat.add_le_add_right h 2)
-        have s2 : (4 + 2).size = 3 := by simp [size, binaryRec]
-        simp [s2] at s1
-        exact s1
-      have even : Even (2 ^ ((n + 2).size - 1)) := by
-        refine (even_pow' ?_).mpr ?_
-        · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-          · exact lt_of_add_left_lt n2size_gt_3
-        · exact even_iff.mpr rfl
-      have odd : Odd (2 ^ ((n + 1).size - 1) + 1) := by
-        refine Even.add_one ?_
-        · refine (even_pow' ?_).mpr ?_
-          · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-            · exact lt_of_add_left_lt n1size_gt_3
-          · exact even_iff.mpr rfl
-      simp [h2] at odd
-      replace odd : ¬Even (2 ^ ((n + 2).size - 1)) := by exact not_even_iff_odd.mpr odd
-      exact absurd even odd
-  simp [←s2, s1]
+  simp [h2, size_pow]
 
 /--
 For n ≥ 4, if `n + 2` is a power of 2, then its size is one more than `n.size`.
 This is a variant of `increase_size_iff_pow2` specialized for the case of adding 2.
 -/
 theorem increase_n2size_if_pow2 {n : ℕ} (h : n ≥ 4) :
-    n + 1 = 2 ^ ((n + 1).size - 1) ∨ n + 2 = 2 ^ ((n + 2).size - 1) → (n + 2).size = n.size + 1 := by
+    n + 1 = 2 ^ n.size ∨ n + 2 = 2 ^ n.size → (n + 2).size = n.size + 1 := by
   intro h'
   rcases h' with h1|h2
   · exact increase_n2size_if_pow2₁ h h1
-  · exact increase_n2size_if_pow2₂ h h2
+  · exact increase_n2size_if_pow2₂ n h2
+
 /--
 Lower bound on n based on its bit size. For any positive natural number n,
-2^(n.size - 1) ≤ n. This provides a lower bound relating n to its bit length.
+`2 ^ (n.size - 1) ≤ n`. This provides a lower bound relating n to its bit length.
 -/
 theorem n_lower {n : ℕ} (n_gt_0 : n > 0) : 2 ^ (n.size - 1) ≤ n := by
   exact n_ge_subenvelope n_gt_0
 
 /--
-Stricter lower bound on n. For any natural number n > 1,
-2^(n.size - 2) < n. This is a tighter bound than n_lower.
+Stricter lower bound on n. For any natural number `n > 1`,
+`2 ^ (n.size - 2) < n`. This is a tighter bound than n_lower.
 -/
 theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
   replace n_bound : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_bound
@@ -753,7 +701,7 @@ theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
 
 /--
 Upper bound on n based on its bit size. For any natural number n,
-n < 2^n.size. This shows that n is strictly less than the power of 2
+`n < 2 ^ sn.size`. This shows that n is strictly less than the power of 2
 corresponding to its bit length.
 -/
 theorem n_upper (n : ℕ) : n < 2 ^ n.size := by
