@@ -1268,10 +1268,29 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
               rw [add_comm]
               have : trailing_zeros (1 + 2 ^ (n.size - 1)) = trailing_zeros 1 := by
                 refine trailing_zeros_prop7 (n.size - 1) 1 ?_ ?_
-                · exact Nat.one_lt_two_pow_iff.mpr (Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3)
+                · exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3)
                 · exact Nat.one_ne_zero
               simp [this]
-            · have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp at_seg_beg
+            · have n1size_eq_nsize : (n + 1).size = n.size := by
+                have : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+                rcases this with eq|add1
+                · exact eq
+                · have n_ne_pow2 : ¬n = 2 ^ (n.size - 1) := by
+                    by_contra x
+                    replace x : (n + 1).size = (2 ^ (n.size - 1) + 1).size := by simp [←x]
+                    replace x : (n + 1).size = n.size := by
+                      have : (2 ^ (n.size - 1) + 1).size = n.size - 1 + 1 := by
+                        refine size_add ?_ ?_
+                        · exact Nat.one_pos
+                        · exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt nsize_ge_4))
+                      simp [this] at x
+                      replace : n.size - 1 + 1 = n.size := by grind
+                      simp [this] at x
+                      exact x
+                    simp [x] at add1
+                  refine same_n1size_iff_not_pow2.mp ?_
+                  · simp [add1] at at_seg_beg
+                    exact at_seg_beg
               have n2size_eq_nsize : (n + 2).size = n.size := by
                 have : (n + 2).size = (n + 1).size := same_n1size_iff_not_pow2.mp n_ne_envelope'
                 simp [this]
