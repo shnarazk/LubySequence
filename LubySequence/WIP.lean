@@ -145,13 +145,18 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             rw [segment]
             · simp
               split <;> expose_names
-              · replace h : n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := by
-                  exact congrFun (congrArg HAdd.hAdd h) 2
-                have : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
-                  refine Nat.sub_add_cancel ?_
-                  · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3))
-                simp [this] at h
-                exact absurd h n2_ne_pow2
+              · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
+                  exact increase_n1size_iff_pow2.mpr n1_is_pow2
+                have n2size_eq_n1size : (n + 2).size = (n + 1).size := by
+                  have : n + 1 + 1 = 2 ^ n.size + 1 := congrFun (congrArg HAdd.hAdd n1_is_pow2) 1
+                  replace : n + 2 = 2 ^ n.size + 1 := this
+                  replace : (n + 2).size = (2 ^ n.size + 1).size := by exact congrArg size this
+                  replace : (n + 2).size = n.size + 1 := increase_n2size_if_pow2₁ n_ge_4 n1_is_pow2
+                  simp [←n1size_eq_nsize_add_1] at this
+                  exact this
+                simp [n1size_eq_nsize_add_1, n2size_eq_n1size] at *
+                refine Luby.pow2_le_pow2 (n.size - 1) n.size ?_
+                · exact sub_le n.size 1
               · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
                   exact increase_n1size_iff_pow2.mpr n1_is_pow2
                 have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
@@ -164,7 +169,22 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             by_cases n2_is_pow2 : n + 2 = 2 ^ ((n + 2).size - 1)
             · have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp n1_ne_pow2
               have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
-                exact increase_n2size_if_pow2₂ n_ge_4 n2_is_pow2
+                replace n2_is_pow2 : n + 2 - 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+                  exact congrFun (congrArg HSub.hSub n2_is_pow2) 1
+                replace n2_is_pow2 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by exact n2_is_pow2
+                replace n2_is_pow2 : (n + 1).size = (2 ^ ((n + 2).size - 1) - 1).size := by
+                  exact congrArg size n2_is_pow2
+                replace n2_is_pow2 : (n + 1).size = (n + 2).size - 1 := by
+                  have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by
+                    refine size_sub ?_ ?_ ?_
+                    · exact zero_lt_sub_of_lt (lt_of_add_left_lt n2size_ge_3)
+                    · exact Nat.one_pos
+                    · exact Nat.one_le_two_pow
+                  simp [this] at n2_is_pow2
+                  exact n2_is_pow2
+                simp [n2_is_pow2] at n1size_eq_nsize
+                refine (Nat.sub_eq_iff_eq_add ?_).mp n1size_eq_nsize
+                · exact one_le_of_lt n2size_ge_3
               rw [segment.eq_def]
               split <;> expose_names
               · simp [size]
