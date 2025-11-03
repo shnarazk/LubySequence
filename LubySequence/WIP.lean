@@ -68,16 +68,18 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
             simp [this] at n_is_pow2
             simp [←n_is_pow2, mul_two] at x
             simp [←x] at n_ge_4
-          have n1size_eq_nsize : (n + 1).size = n.size := by -- same_n1size_iff_not_pow2.mp n1_ne_pow2
+          have n1size_eq_nsize : (n + 1).size = n.size := by
             refine same_n1size_iff_not_pow2.mp ?_
             · by_contra x 
-              have even : Even n := by sorry
-              have odd : Odd n := by sorry
-              replace odd : ¬Even n := by exact not_even_iff_odd.mpr odd
+              have odd : Odd (n + 1) := by exact False.elim (n1_ne_pow2 x)
+              have even : Even (n + 1) := by
+                have : Even (2 ^ n.size) := by exact False.elim (n1_ne_pow2 x)
+                simp [←x] at this
+                exact this
+              replace odd : ¬Even (n + 1) := by exact not_even_iff_odd.mpr odd
               exact absurd even odd
           have n2size_eq_nsize : (n + 2).size = n.size := by
             exact same_n1size_iff_not_pow2'.mp ⟨n2_ne_pow2, n1_ne_pow2⟩
-          -- sorry
           rw [segment]
           split <;> expose_names ; simp [n1size_eq_nsize, n2size_eq_nsize]
           · refine Nat.pow_le_pow_of_le ?_ ?_
@@ -298,24 +300,40 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                             · refine n_lower ?_
                               · exact zero_lt_of_lt n_ge_4
                           --
-                          have aux : 2 ^ n.size - 2 ^ (n.size - 1) = 2 ^ (n.size - 1) := by sorry
+                          have aux : 2 ^ n.size - 2 ^ (n.size - 1) = 2 ^ (n.size - 1) := by
+                            replace : 2 ^ n.size = 2 ^ (n.size - 1) * 2 := by
+                              refine Eq.symm (Nat.pow_pred_mul ?_)
+                              · exact zero_lt_of_lt nsize_ge_3
+                            simp [this]
+                            rw [mul_two]
+                            simp
                           simp [aux] at this
                           replace : n - 2 ^ (n.size - 1) + 1 ≤ 2 ^ (n.size - 1) := this
                           replace aux : ¬n - 2 ^ (n.size - 1) + 1 = 2 ^ (n.size - 1) := by 
                             by_contra x
-                            have : n + 1 = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) := by
+                            replace : n + 1 = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) := by
                               refine Nat.eq_add_of_sub_eq ?_ ?_
-                              · have : 2 ^ (n.size - 1) ≤ n := by
-                                  refine n_lower ?_
-                                  · exact zero_lt_of_lt n_ge_4
+                              · have : 2 ^ (n.size - 1) ≤ n := n_lower (zero_lt_of_lt n_ge_4)
                                 exact le_add_right_of_le this
                               · rw (occs := .pos [2]) [←x] ; grind
-                            replace : n + 1 = 2 ^ n.size := by sorry
-                            replace : n = 2 ^ n.size - 1 := by sorry
-                            sorry
-                            --
+                            replace : n + 1 = 2 ^ n.size := by 
+                              have s : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ n.size := by
+                                have s1 : 2 ^ (n.size - 1) + 2 ^ (n.size - 1) = 2 ^ (n.size - 1 + 1) := by
+                                  exact Eq.symm (two_pow_succ (n.size - 1))
+                                have s2 : n.size - 1 + 1 = n.size := by grind
+                                simp [s2] at s1
+                                exact s1
+                              simp [s] at this
+                              exact this
+                            simp [this] at n1_ne_pow2
                           --
-                          sorry
+                          replace :
+                              n - 2 ^ (n.size - 1) + 1 = 2 ^ (n.size - 1) ∨
+                              n - 2 ^ (n.size - 1) + 1 < 2 ^ (n.size - 1) := by
+                            exact Nat.eq_or_lt_of_le this
+                          rcases this with eq|gt
+                          · exact absurd eq aux
+                          · sorry
                         replace : (n - (2 ^ (n.size - 1) - 1) + 1).size ≤ n.size - 1 := by
                           exact size_le.mpr this
                         replace : (n - (2 ^ (n.size - 1) - 1) + 1).size < n.size - 1 + 1 := by
