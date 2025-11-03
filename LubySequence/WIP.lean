@@ -204,10 +204,24 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                   have n1size_eq_nsize : (n + 1).size = n.size := by
                     exact same_n1size_iff_not_pow2.mp n1_ne_pow2
                   have n2size_eq_nsize : (n + 2).size = n.size := by
-                    refine same_n1size_iff_not_pow2'.mp ?_
-                    · constructor
-                      · exact n2_ne_pow2
-                      · exact n1_ne_pow2
+                    by_contra x
+                    replace x : (n + 2).size = n.size + 1 := by
+                      have : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
+                        exact size_limit (n + 1)
+                      simp [n1size_eq_nsize] at this
+                      rcases this with eq|gt
+                      · exact absurd eq x
+                      · exact gt
+                    have : (n + 2).size = (n + 1).size + 1 := by
+                      simp [←n1size_eq_nsize] at x
+                      exact x
+                    replace : (n + 1 + 1).size = (n + 1).size + 1 := this
+                    replace : n + 1 + 1 = 2 ^ (n + 1).size := increase_n1size_iff_pow2.mp this
+                    simp [x] at h_1
+                    simp [n1size_eq_nsize] at this
+                    replace : n + 2 = 2 ^ n.size := this
+                    replace : n = 2 ^ n.size - 2 := by exact Nat.eq_sub_of_add_eq this
+                    exact absurd this h_1
                   simp [n1size_eq_nsize, n2size_eq_nsize] at *
                   have arg1 : (n - (2 ^ (n.size - 1) - 1)) < n := by
                     refine sub_lt ?_ ?_
