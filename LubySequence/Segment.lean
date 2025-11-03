@@ -338,7 +338,9 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                   have : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
                   rcases this with c|c
                   · simp [c] at nsize_ne_n1size
-                  · have : n + 1 = 2 ^ ((n + 1).size - 1) := increase_n1size_at_pow2 c
+                  · have : n + 1 = 2 ^ ((n + 1).size - 1) := by
+                      simp [c]
+                      exact increase_n1size_iff_pow2.mp c
                     replace : n = 2 ^ ((n + 1).size - 1) - 1 := Nat.eq_sub_of_add_eq this
                     simp [←n2size_eq_n1size] at this
                     exact absurd this with_carry
@@ -609,7 +611,10 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
             have n3size_eq_n2size : (n + 2 + 1).size = (n + 2).size := by
               have ordering : n + 1 + 2 = n + 2 + 1 := by exact rfl
               simp [ordering] at *
-              exact same_n1size_iff_not_pow2.mp h_3
+              refine same_n1size_iff_not_pow2.mp ?_
+              · by_contra x
+                have : (n + 2 + 1).size = (n + 2).size + 1 := increase_n1size_iff_pow2.mpr x
+                simp [this, ←x] at h_3
             simp [n3size_eq_n2size]
             have : n + 1 - (2 ^ ((n + 2).size - 1) - 1) = n - (2 ^ ((n + 2).size - 1) - 1) + 1 := by
               refine Nat.sub_add_comm ?_
