@@ -545,8 +545,7 @@ If incrementing n increases the size by 1, then n + 1 must be a power of 2.
 This is the converse of size_of_pow2_eq_size_of_envelope_add_1, showing that
 size increases happen if and only if we reach a power of 2.
 -/
-theorem increase_n1size_at_pow2 {n : ℕ} :
-    (n + 1).size = n.size + 1 → n + 1 = 2 ^ n.size := by
+theorem increase_n1size_at_pow2 {n : ℕ} : (n + 1).size = n.size + 1 → n + 1 = 2 ^ n.size := by
   intro eq
   by_contra ne_pow2
   by_cases n_eq_0 : n = 0
@@ -662,6 +661,22 @@ theorem increase_n2size_if_pow2 {n : ℕ} (h : n ≥ 4) :
   · exact increase_n2size_if_pow2₁ h h1
   · exact increase_n2size_if_pow2₂ n h2
 
+theorem increase_n2size_iff_pow2 {n : ℕ} (h : n ≥ 4) :
+    n + 1 = 2 ^ n.size ∨ n + 2 = 2 ^ n.size ↔ (n + 2).size = n.size + 1 := by
+  constructor
+  · exact fun a ↦ increase_n2size_if_pow2 h a
+  · intro n2size_eq_nsize_add_1
+    by_cases n1_is_pow2 : n + 1 = 2 ^ n.size
+    · left ; exact n1_is_pow2
+    · have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp n1_is_pow2
+      rw [←n1size_eq_nsize] at n2size_eq_nsize_add_1
+      have n2 : n + 2 = n + 1 + 1 := rfl
+      simp [n2] at n2size_eq_nsize_add_1
+      have : n + 1 + 1 = 2 ^ (n + 1).size := increase_n1size_iff_pow2.mp n2size_eq_nsize_add_1
+      rw [n1size_eq_nsize, ←n2] at this
+      right
+      exact this
+    
 /--
 Lower bound on n based on its bit size. For any positive natural number n,
 `2 ^ (n.size - 1) ≤ n`. This provides a lower bound relating n to its bit length.
