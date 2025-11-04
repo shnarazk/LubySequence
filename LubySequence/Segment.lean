@@ -171,7 +171,7 @@ theorem segment_limit' (n : ℕ) : segment n ≤ n + 1 := by
               exact n_lower (zero_lt_of_ne_zero h)
             · rename' n2_is_pow2 => n2_ne_pow2
               have n2size_eq_nsize : (n + 2).size = n.size := by
-                refine same_n1size_iff_not_pow2'.mp ?_
+                refine same_n2size_iff_not_pow2'.mp ?_
                 · exact Decidable.not_imp_iff_and_not.mp fun a ↦ n1_ne_pow2 (a n2_ne_pow2)
               have n1size_eq_nsize : (n + 1).size = n.size := same_n1size_iff_not_pow2.mp n1_ne_pow2
               simp [n2size_eq_nsize]

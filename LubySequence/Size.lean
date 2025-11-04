@@ -611,7 +611,7 @@ theorem same_n1size_iff_not_pow2 {n : ℕ} : ¬n + 1 = 2 ^ n.size ↔ (n + 1).si
 The size of n + 2 equals n.size if and only if both n + 2 and n + 1 are not powers of 2.
 This is a two-step variant of same_size_iff_not_pow2.
 -/
-theorem same_n1size_iff_not_pow2' {n : ℕ} :
+theorem same_n2size_iff_not_pow2' {n : ℕ} :
     ¬n + 2 = 2 ^ n.size ∧ ¬n + 1 = 2 ^ n.size ↔ (n + 2).size = n.size := by
   constructor
   · intro ⟨h2, h1⟩

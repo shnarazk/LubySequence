@@ -78,7 +78,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
               replace odd : ¬Even (n + 1) := not_even_iff_odd.mpr odd
               exact absurd even odd
           have n2size_eq_nsize : (n + 2).size = n.size := by
-            exact same_n1size_iff_not_pow2'.mp ⟨n2_ne_pow2, n1_ne_pow2⟩
+            exact same_n2size_iff_not_pow2'.mp ⟨n2_ne_pow2, n1_ne_pow2⟩
           rw [segment]
           split <;> expose_names ; simp [n1size_eq_nsize, n2size_eq_nsize]
           · exact Nat.pow_le_pow_of_le (Nat.one_lt_two) (sub_le_succ_sub n.size 2)
@@ -223,7 +223,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                     replace : n = 2 ^ n.size - 2 := by exact Nat.eq_sub_of_add_eq this
                     exact absurd this h_1
                   have z : ¬n + 2 = 2 ^ n.size ∧ ¬n + 1 = 2 ^ n.size := by
-                    exact same_n1size_iff_not_pow2'.mpr n2size_eq_nsize
+                    exact same_n2size_iff_not_pow2'.mpr n2size_eq_nsize
                   replace n2_ne_pow2 := z.left
                   simp [n1size_eq_nsize, n2size_eq_nsize] at *
                   -- have : ¬n + 2 = 2 ^ n.size := by apply?
