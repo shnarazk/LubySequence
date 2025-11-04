@@ -1539,7 +1539,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
               simp [←odd_and_even] at this
               exact this
             replace : Odd (n + 1 + 1) := Even.add_one this
-            simp at this 
+            simp at this
             exact not_even_iff_odd.mpr this
           exact absurd even odd
         exact same_n1size_iff_not_pow2.mp cond
@@ -1701,11 +1701,38 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                           simp
                           exact nsize_ge_4
                     simp [this]
-                  · have : trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) = trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
+                  · have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
+                      have s1 : n - (2 ^ (n.size - 1) - 1) ≤ 2 ^ (n.size - 2) := by
+                        -- 最後のsegmentはn.size - 1 bit目に対応しているので成立するのはおかしくない
+                        sorry
+                      have s2 : segment (2 ^ (n.size - 2)) ≤ 2 ^ ((2 ^ (n.size - 2) + 1).size - 1) := by
+                        exact segment_limit2 (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
+                      have s3 : (2 ^ (n.size - 2) + 1).size = n.size - 2 + 1 := by
+                         refine size_add ?_ ?_  
+                         · exact Nat.one_pos
+                         · refine Nat.one_lt_two_pow_iff.mpr ?_
+                           · refine Nat.sub_ne_zero_iff_lt.mpr ?_
+                             · exact lt_of_add_left_lt n2size_gt_3
+                      simp [s3] at s2
+                      replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (2 ^ (n.size - 2)) := by
+                        exact segment_is_monotone' s1
+                      replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ 2 ^ (n.size - 2) := by 
+                        exact Nat.le_trans s1 s2
+                      replace s1 :
+                          segment (n - (2 ^ (n.size - 1) - 1)) = 2 ^ (n.size - 2) ∨
+                          segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
+                        exact Nat.eq_or_lt_of_le s1
+                      rcases s1 with eq|gt
+                      · simp [eq] at n_ne_envelope_segment 
+                        rw [←mul_two, ←pow_succ] at n_ne_envelope_segment
+                        have : n.size - 2 + 1 = n.size - 1 := by grind
+                        simp [this] at n_ne_envelope_segment
+                      · exact gt
+                    have : trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) = trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
                       rw [add_comm]
-                      refine
-                        trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) ?_ ?_
-                      · have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ n - (2 ^ (n.size - 1) - 1) := by
+                      refine trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) ?_ ?_
+                      · exact seg_limit
+                        /- have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ n - (2 ^ (n.size - 1) - 1) := by
                           -- envelope_segmentでないことを使ってない
                           refine segment_limit ?_
                           · refine (Nat.le_sub_iff_add_le' ?_).mpr ?_
@@ -1729,11 +1756,10 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                         have s2 : n - (2 ^ (n.size - 1) - 1) < 2 ^ (n.size - 2) := by
                           sorry
                         exact Nat.lt_of_le_of_lt s1 s2
-                      refine Nat.ne_zero_iff_zero_lt.mpr ?_
-                      · exact segment_is_pos (n - (2 ^ (n.size - 1) - 1))
+                        -/
+                      · exact Nat.ne_zero_iff_zero_lt.mpr (segment_is_pos (n - (2 ^ (n.size - 1) - 1)))
                     simp [this]
-                  --
-          --
-    · sorry
+    · intro x
+      simp [x] at n_ge_3
 
 end LubySegment
