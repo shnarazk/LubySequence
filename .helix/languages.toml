@@ -1,0 +1,10 @@
+[[language]]
+name = "lean"
+auto-format = true
+formatter = { command = "lucr", args = [] }
+
+[[language]]
+name = "typst"
+auto-format = true
+formatter = { command = "lucr", args = [] }
+
