@@ -1746,14 +1746,19 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             exact t2
                           · replace t1 : n = 2 * (n / 2) + 1 := by grind
                             rw (occs := .pos [1]) [t1]
-                            replace t1 :  (2 * (n / 2) + 1).size =  (2 * (n / 2)).size := by
-                              sorry
+                            replace t1 :  (2 * (n / 2) + 1).size = (2 * (n / 2)).size := by
+                              refine Eq.symm (size_of_even_add_one_eq_size_of_self (n / 2) ?_)
+                              · refine Nat.div_pos ?_ ?_
+                                · exact le_of_add_left_le n_ge_8
+                                · exact Nat.zero_lt_two
                             simp [t1, t2]
                         simp [s2] at s1
                         exact s1
                       have : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
                         have : n - (2 ^ (n.size - 1) - 1) = n - 2 ^ (n.size - 1) + 1 := by
-                          sorry
+                          refine tsub_tsub_assoc ?_ ?_
+                          · exact n_ge_subenvelope n_gt_0
+                          · exact Nat.one_le_two_pow
                         simp [this]
                         replace : n - 2 ^ (n.size - 1) ≤ n / 2 - 2 := by
                           sorry
