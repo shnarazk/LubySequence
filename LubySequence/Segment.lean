@@ -1776,13 +1776,10 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                           simp [t1] at this 
                           exact this
                         exact tmp
-                      have s1 : n - (2 ^ (n.size - 1) - 1) ≤ 2 ^ (n.size - 2) := by
-                        -- これは間違い。segment_limit2はもっと緩い。
-                        sorry
-                      replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (2 ^ (n.size - 2)) := by
-                        exact segment_is_monotone' s1
+                      replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (n / 2 - 1) := by
+                        exact segment_is_monotone' this
                       replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ 2 ^ (n.size - 2) := by 
-                        exact Nat.le_trans s1 s2
+                        exact Nat.le_trans s1 concept1
                       replace s1 :
                           segment (n - (2 ^ (n.size - 1) - 1)) = 2 ^ (n.size - 2) ∨
                           segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
