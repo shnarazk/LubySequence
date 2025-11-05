@@ -1751,6 +1751,26 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             simp [t1, t2]
                         simp [s2] at s1
                         exact s1
+                      have : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                        have : n - (2 ^ (n.size - 1) - 1) = n - 2 ^ (n.size - 1) + 1 := by
+                          sorry
+                        simp [this]
+                        replace : n - 2 ^ (n.size - 1) ≤ n / 2 - 2 := by
+                          sorry
+                        replace : n - 2 ^ (n.size - 1) + 1 ≤ n / 2 - 2 + 1 := by
+                          exact Nat.add_le_add_right this 1
+                        replace tmp : n - 2 ^ (n.size - 1) + 1 ≤ n / 2 - 1 := by
+                          have t1 : n / 2 - 2 + 1 = n / 2 - 1 := by
+                            refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ rfl)
+                            · refine le_sub_one_of_lt ?_
+                              · have : 2 ≤ n / 2 := by
+                                  refine (Nat.le_div_iff_mul_le ?_).mpr ?_
+                                  · exact Nat.zero_lt_two
+                                  · exact le_of_add_left_le n_ge_8
+                                exact this
+                          simp [t1] at this 
+                          exact this
+                        exact tmp
                       have s1 : n - (2 ^ (n.size - 1) - 1) ≤ 2 ^ (n.size - 2) := by
                         -- これは間違い。segment_limit2はもっと緩い。
                         sorry
