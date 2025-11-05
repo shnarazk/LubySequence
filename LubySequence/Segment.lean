@@ -443,7 +443,7 @@ theorem segment_limit {n : ℕ} (n_ge_2 : n ≥ 2) : segment n ≤ n := by
                           · exact Nat.two_pow_pos (n.size - 2)
                   exact add_le_of_add_le_left this (ih (n - (2 ^ (n.size - 1) - 1)) cond1 cond2)
 
--- #eval List.range 64 |>.all (fun n ↦ (segment  n ≤ 2 ^ ((n + 1).size - 1)))
+-- #eval List.range 64 |>.map (fun n ↦ (n, segment n, 2 ^ ((n + 1).size - 1)))
 /--
 For n ≥ 2, the segment index is bounded by 2^((n+1).size - 1).
 This provides a logarithmic upper bound on segment indices.
@@ -1701,19 +1701,21 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                           simp
                           exact nsize_ge_4
                     simp [this]
-                  · have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
+                  · 
+                    have s2 : segment (2 ^ (n.size - 2)) ≤ 2 ^ ((2 ^ (n.size - 2) + 1).size - 1) := by
+                      exact segment_limit2 (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
+                    have s3 : (2 ^ (n.size - 2) + 1).size = n.size - 2 + 1 := by
+                       refine size_add ?_ ?_  
+                       · exact Nat.one_pos
+                       · refine Nat.one_lt_two_pow_iff.mpr ?_
+                         · refine Nat.sub_ne_zero_iff_lt.mpr ?_
+                           · exact lt_of_add_left_lt n2size_gt_3
+                    simp [s3] at s2
+
+                    have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
                       have s1 : n - (2 ^ (n.size - 1) - 1) ≤ 2 ^ (n.size - 2) := by
-                        -- 最後のsegmentはn.size - 1 bit目に対応しているので成立するのはおかしくない
+                        -- これは間違い。segment_limit2はもっと緩い。
                         sorry
-                      have s2 : segment (2 ^ (n.size - 2)) ≤ 2 ^ ((2 ^ (n.size - 2) + 1).size - 1) := by
-                        exact segment_limit2 (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
-                      have s3 : (2 ^ (n.size - 2) + 1).size = n.size - 2 + 1 := by
-                         refine size_add ?_ ?_  
-                         · exact Nat.one_pos
-                         · refine Nat.one_lt_two_pow_iff.mpr ?_
-                           · refine Nat.sub_ne_zero_iff_lt.mpr ?_
-                             · exact lt_of_add_left_lt n2size_gt_3
-                      simp [s3] at s2
                       replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (2 ^ (n.size - 2)) := by
                         exact segment_is_monotone' s1
                       replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ 2 ^ (n.size - 2) := by 
