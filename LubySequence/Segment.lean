@@ -1711,7 +1711,6 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                          · refine Nat.sub_ne_zero_iff_lt.mpr ?_
                            · exact lt_of_add_left_lt n2size_gt_3
                     simp [s3] at s2
-
                     have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
                       have concept1 : segment (n / 2 - 1) ≤ 2 ^ (n.size - 2) := by
                         have s1 : segment (n / 2 - 1) ≤ 2 ^ ((n / 2 - 1 + 1).size - 1) := by
@@ -1736,21 +1735,22 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                                   · exact Nat.zero_lt_two
                                   · exact le_of_add_left_le n_ge_8
                           simp [t1]
+                          replace t2 : (2 * (n / 2)).size = (n / 2).size + 1 := by
+                            refine size_of_double_eq_self_add_one (n / 2) ?_
+                            · refine Nat.div_pos ?_ ?_
+                              · exact le_of_add_left_le n_ge_8
+                              · exact Nat.zero_lt_two
                           by_cases even : Even n
                           · replace t1 : n = 2 * (n / 2) := by exact Eq.symm (two_mul_div_two_of_even even)
                             rw (occs := .pos [1]) [t1]
-                            replace t1 : (2 * (n / 2)).size = (n / 2).size + 1 := by
-                              refine size_of_double_eq_self_add_one (n / 2) ?_
-                              · refine Nat.div_pos ?_ ?_
-                                · exact le_of_add_left_le n_ge_8
-                                · exact Nat.zero_lt_two
-                            exact t1
-                          · replace t1 : n = 2 * ((n - 1) / 2) + 1 := by grind
+                            exact t2
+                          · replace t1 : n = 2 * (n / 2) + 1 := by grind
                             rw (occs := .pos [1]) [t1]
-                            --
-                            sorry
-                        sorry
-                      --
+                            replace t1 :  (2 * (n / 2) + 1).size =  (2 * (n / 2)).size := by
+                              sorry
+                            simp [t1, t2]
+                        simp [s2] at s1
+                        exact s1
                       have s1 : n - (2 ^ (n.size - 1) - 1) ≤ 2 ^ (n.size - 2) := by
                         -- これは間違い。segment_limit2はもっと緩い。
                         sorry
