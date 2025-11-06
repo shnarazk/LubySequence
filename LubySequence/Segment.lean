@@ -1468,6 +1468,13 @@ increases when crossing to a new envelope.
 theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
     segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope_segment
+  have nsize_add1_minus1 : n.size - 1 + 1 = n.size := by
+    refine Nat.sub_add_cancel ?_
+    · have s1 : n ≥ 1 := by exact n_gt_0
+      replace s1 : n.size ≥ (1 : ℕ).size := by exact size_le_size n_gt_0
+      have s2 : (1 : ℕ).size = 1 := by simp [size]
+      simp [s2] at s1
+      exact s1
   induction n using Nat.strong_induction_on with
   | h n ih =>
     have n_ge_3 : n ≥ 3 := by
@@ -1558,6 +1565,13 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
           simp [n2size_eq_nsize] at n_is_envelope'
           exact Nat.eq_sub_of_add_eq n_is_envelope'
       exact absurd this n_ne_envelope_segment
+    have n2_ne_pow2 : ¬n + 2 = 2 ^ n.size := by
+      by_contra x
+      have x' : n = 2 ^ n.size - 2 := Nat.eq_sub_of_add_eq x
+      simp [x] at n_ne_envelope
+      rw [size_pow] at n_ne_envelope
+      simp at n_ne_envelope
+      exact absurd x' n_ne_envelope
     simp [segment_length]
     rw (occs := .pos [1]) [segment]
     · split
@@ -1662,6 +1676,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                   refine same_n1size_iff_not_pow2.mp ?_
                   · simp [add1] at at_seg_beg
                     exact at_seg_beg
+              have n1_is_pow2 : ¬n + 1 = 2 ^ n.size := same_n1size_iff_not_pow2.mpr n1size_eq_nsize
               have n2size_eq_nsize : (n + 2).size = n.size := by
                 have : (n + 2).size = (n + 1).size := by
                   by_contra x
@@ -1701,7 +1716,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                           simp
                           exact nsize_ge_4
                     simp [this]
-                  · 
+                  · rename' eq => n_ne_pow2 
                     have s2 : segment (2 ^ (n.size - 2)) ≤ 2 ^ ((2 ^ (n.size - 2) + 1).size - 1) := by
                       exact segment_limit2 (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
                     have s3 : (2 ^ (n.size - 2) + 1).size = n.size - 2 + 1 := by
@@ -1719,14 +1734,17 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             · exact Nat.zero_lt_two
                             · exact le_of_add_left_le n_ge_8
                         have s2 : (n / 2 + 1).size = n.size - 1 := by
+                          have : n / 2 < 2 ^ (n.size - 1) := by
+                            sorry
                           by_cases even : Even n
                           · replace t1 : n = 2 * (n / 2) := by exact Eq.symm (two_mul_div_two_of_even even)
                             rw (occs := .pos [1]) [t1]
+                            simp [←t1]
                             -- exact t2
                             sorry
                           · replace t1 : n = 2 * (n / 2) + 1 := by grind
-                            rw (occs := .pos [1]) [t1]
-                            replace t1 :  (2 * (n / 2) + 1).size = (2 * (n / 2)).size := by
+                            -- rw (occs := .pos [1]) [t1]
+                            replace t1 : (2 * (n / 2) + 1).size = (2 * (n / 2)).size := by
                               refine Eq.symm (size_of_even_add_one_eq_size_of_self (n / 2) ?_)
                               · refine Nat.div_pos ?_ ?_
                                 · exact le_of_add_left_le n_ge_8
