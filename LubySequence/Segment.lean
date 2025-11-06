@@ -1755,13 +1755,37 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                         simp [s2] at s1
                         exact s1
                       have : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                        have pow2nsize_halve : 2 ^ n.size = 2 ^ (n.size - 1) * 2 := by
+                          sorry
                         have : n - (2 ^ (n.size - 1) - 1) = n - 2 ^ (n.size - 1) + 1 := by
                           refine tsub_tsub_assoc ?_ ?_
                           · exact n_ge_subenvelope n_gt_0
                           · exact Nat.one_le_two_pow
                         simp [this]
                         replace : n - 2 ^ (n.size - 1) ≤ n / 2 - 2 := by
-                          sorry
+                          have s1 : n - 2 ^ (n.size - 1) < n / 2 := by
+                            have t1 : n / 2 < 2 ^ (n.size - 1) := by
+                              have : n < 2 ^ n.size := by exact lt_size_self n
+                              simp only [pow2nsize_halve] at this
+                              exact nat_repr_len_aux n 2 (n.size - 1) Nat.zero_lt_two this
+                            by_cases even : Even n
+                            · replace t1 : n - 2 ^ (n.size - 1) < n - n / 2 := by
+                                refine Nat.sub_lt_sub_left (bitwise_rec_lemma h_1) t1 
+                              have t2 : n = n / 2 + n / 2 := by
+                                rw [←mul_two]
+                                exact Eq.symm (div_two_mul_two_of_even even)
+                              replace t2 : n - n / 2 = n / 2 := Nat.sub_eq_of_eq_add t2
+                              rw [t2] at t1
+                              exact t1
+                            · --
+                              sorry
+                          replace s1 : n - 2 ^ (n.size - 1) ≤ n / 2 - 1 := le_sub_one_of_lt s1
+                          replace s1 :
+                              n - 2 ^ (n.size - 1) = n / 2 - 1 ∨ n - 2 ^ (n.size - 1) < n / 2 - 1 := by
+                            exact Nat.eq_or_lt_of_le s1
+                          rcases s1 with eq|lt
+                          · sorry
+                          · sorry
                         replace : n - 2 ^ (n.size - 1) + 1 ≤ n / 2 - 2 + 1 := by
                           exact Nat.add_le_add_right this 1
                         replace tmp : n - 2 ^ (n.size - 1) + 1 ≤ n / 2 - 1 := by
@@ -1790,7 +1814,9 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                         have : n.size - 2 + 1 = n.size - 1 := by grind
                         simp [this] at n_ne_envelope_segment
                       · exact gt
-                    have : trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) = trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
+                    have : 
+                        trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) =
+                        trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
                       rw [add_comm]
                       refine trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) ?_ ?_
                       · exact seg_limit
