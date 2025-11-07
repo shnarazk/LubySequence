@@ -305,6 +305,15 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                           · refine (Nat.le_div_iff_mul_le ?_).mpr ?_
                             · exact Nat.zero_lt_two
                             · exact le_of_add_left_le n_ge_8
+                        have : (n / 2 + 1).size ≤ ((2 ^ n.size - 2) / 2 + 1).size := by
+                          have : n / 2 < (2 ^ n.size - 2) / 2 := by
+                            refine div_lt_div_of_lt_of_dvd ?_ n_lt_pow2_minus_2
+                            · refine Nat.dvd_sub ?_ ?_
+                              · exact Dvd.intro_left (2 ^ (n.size - 1)) (id (Eq.symm nsize_divide))
+                              · exact (minFac_eq_two_iff 2).mp rfl
+                          replace : n / 2 + 1 < (2 ^ n.size - 2) / 2 + 1 := Nat.add_lt_add_right this 1
+                          exact size_le_size (le_of_succ_le this)
+                        -- ここまでOK
                         have s2 : (n / 2 + 1).size = n.size - 1 := by
                           have : n / 2 < 2 ^ (n.size - 1) := by
                             have : n < 2 ^ n.size := by exact lt_size_self n
@@ -321,7 +330,6 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                               apply?
                               refine size_le_size ?_
                               · apply?
-                          -- ここまでOK
                           · replace t1 : n = 2 * (n / 2) := by exact Eq.symm (two_mul_div_two_of_even even)
                             rw (occs := .pos [1]) [t1]
                             simp [←t1]
