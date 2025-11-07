@@ -319,13 +319,31 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                         · exact size_div n_gt_0 (even_iff_two_dvd.mp even)
                         · rename' even => odd
                           replace odd : Odd n := by exact not_even_iff_odd.mp odd
-                          have s : ((n + 1) / 2).size = (n + 1).size - 1 := by
+                          have s : ((n - 1) / 2).size = (n - 1).size - 1 := by
                             refine size_div ?_ ?_
-                            · exact le_add_right_of_le n_gt_0
-                            · have : Even (n + 1) := by exact Odd.add_one odd
-                              exact even_iff_two_dvd.mp this
-                          have right : (n + 1).size = n.size := by sorry
-                          have left : ((n + 1) / 2).size = (n / 2).size := by sorry
+                            · exact le_sub_one_of_lt (lt_of_add_left_lt n_ge_8)
+                            · refine dvd_of_mod_eq_zero ?_
+                              · replace odd : Even (n - 1) := Odd.tsub_odd odd (odd_iff.mpr rfl)
+                                exact even_iff.mp odd
+                          have right : (n - 1).size = n.size := by
+                            sorry
+                          have left : ((n - 1) / 2).size = (n / 2).size := by
+                            let m := n / 2
+                            have m_def : m = value_of% m := rfl
+                            have n1_bits : (2 * m).bits = false :: m.bits := by
+                              refine bits_of_double_eq_cons_false_and_bits m ?_
+                              · exact Nat.lt_of_sub_eq_succ (id (Eq.symm s4))
+                            replace n1_bits : (n - 1).bits = false :: m.bits := by
+                              have : n - 1 = 2 * m := by grind
+                              simp [←this] at n1_bits
+                              exact n1_bits
+                            replace n1_bits : (n - 1).div2.bits = (n - 1).bits.tail := by
+                              exact div2_bits_eq_tail (n - 1)
+                            have t1 : (n - 1) / 2 = (n - 1).div2 := by
+                              exact Eq.symm (div2_val (n - 1))
+                            simp [←t1] at n1_bits
+                            -- こんな感じでもっと色々
+                            sorry
                           simp [left, right] at s
                           exact s
                       -- 
