@@ -383,8 +383,11 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             exact n1_bits
                           simp [left, right] at s
                           exact s
-                      -- 
-                      sorry
+                      simp [s4] at s1
+                      have : n.size - 1 - 1 = n.size - 2 := rfl
+                      simp [this] at s1
+                      exact s1
+                    -- ここまでOK
                     have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
                       have concept1 : segment (n / 2) ≤ 2 ^ (n.size - 2) := by
                         have s1 : segment (n / 2) ≤ 2 ^ ((n / 2 + 1).size - 1) := by
