@@ -326,6 +326,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                               · replace odd : Even (n - 1) := Odd.tsub_odd odd (odd_iff.mpr rfl)
                                 exact even_iff.mp odd
                           have right : (n - 1).size = n.size := by
+                            -- TODO
                             sorry
                           have left : ((n - 1) / 2).size = (n / 2).size := by
                             let m := n / 2
@@ -342,8 +343,24 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             have t1 : (n - 1) / 2 = (n - 1).div2 := by
                               exact Eq.symm (div2_val (n - 1))
                             simp [←t1] at n1_bits
-                            -- こんな感じでもっと色々
-                            sorry
+                            replace n1_bits : ((n - 1) / 2).bits.length = (n - 1).bits.tail.length := by
+                              exact congrArg List.length n1_bits
+                            rw [List.length_tail] at n1_bits
+                            simp only [bitslength_eq_size, right] at n1_bits
+                            have n_bits : n.bits = (2 * m + 1).bits := by
+                              have : n = 2 * m + 1 := Eq.symm (two_mul_div_two_add_one_of_odd odd)
+                              exact congrArg bits this
+                            simp at n_bits
+                            replace n_bits : (n / 2).bits = n.bits.tail := by
+                              have : (n / 2).bits = (true :: m.bits).tail := rfl
+                              simp [←n_bits] at this
+                              exact this
+                            replace n_bits : (n / 2).bits.length = n.bits.tail.length := by
+                              exact congrArg List.length n_bits
+                            rw [List.length_tail] at n_bits
+                            simp only [bitslength_eq_size] at n_bits
+                            simp [←n_bits] at n1_bits
+                            exact n1_bits
                           simp [left, right] at s
                           exact s
                       -- 
