@@ -11,4 +11,5 @@ namespace LubySegment
 
 open Nat
 
+attribute [local simp] binaryRec
 
