@@ -326,8 +326,28 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                               · replace odd : Even (n - 1) := Odd.tsub_odd odd (odd_iff.mpr rfl)
                                 exact even_iff.mp odd
                           have right : (n - 1).size = n.size := by
-                            -- TODO
-                            sorry
+                            let m := n / 2
+                            have m_def : m = value_of% m := rfl
+                            have n_to_m : n = 2 * m + 1 := by grind
+                            have n_bits : (2 * m + 1).bits = true :: m.bits := bit1_bits m
+                            simp [←n_to_m] at n_bits
+                            replace n_bits : n.bits.length = (true :: m.bits).length := by
+                              exact congrArg List.length n_bits
+                            replace n_bits : n.bits.length = m.bits.length + 1 := n_bits
+                            simp [bitslength_eq_size] at n_bits
+                            have n1_bits : (2 * m).bits = false :: m.bits := by
+                              refine bit0_bits m ?_
+                              · refine Nat.div_ne_zero_iff.mpr ?_
+                                · constructor
+                                  · exact Ne.symm (zero_ne_add_one 1)
+                                  · exact le_of_add_left_le n_ge_8
+                            replace n_to_m : n - 1 = 2 * m := by grind
+                            simp [←n_to_m] at n1_bits
+                            replace n1_bits : (n - 1).bits.length = (false :: m.bits).length := by
+                              exact congrArg List.length n1_bits
+                            replace n1_bits : (n - 1).bits.length = m.bits.length + 1 := n1_bits
+                            simp [bitslength_eq_size] at n1_bits
+                            simp [n1_bits, n_bits]
                           have left : ((n - 1) / 2).size = (n / 2).size := by
                             let m := n / 2
                             have m_def : m = value_of% m := rfl
