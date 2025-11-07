@@ -298,7 +298,6 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             · exact le_pow (size_pos.mpr n_gt_0)
                           exact absurd eq n2_ne_pow2
                         · exact lt
-                    -- ここまでOK
                     have peel_segment : segment (n / 2 - 1) ≤ 2 ^ (n.size - 2) := by
                       have s1 : segment (n / 2 - 1) ≤ 2 ^ ((n / 2 - 1 + 1).size - 1) := by
                         refine segment_limit2 ?_
@@ -388,6 +387,10 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                       simp [this] at s1
                       exact s1
                     -- ここまでOK
+                    have : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                      have : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
+                        sorry -- TODO
+                      sorry
                     have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
                       have concept1 : segment (n / 2) ≤ 2 ^ (n.size - 2) := by
                         have s1 : segment (n / 2) ≤ 2 ^ ((n / 2 + 1).size - 1) := by
