@@ -294,7 +294,6 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             · exact le_pow (size_pos.mpr n_gt_0)
                           exact absurd eq n2_ne_pow2
                         · exact lt
-                      --
                     -- TODO: ここでパリティ分岐しなければ！
                     by_cases parity : Even n
                     · have peel_segment : segment (n / 2 - 1) ≤ 2 ^ (n.size - 2) := by
@@ -490,7 +489,11 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                           segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
                         exact Nat.eq_or_lt_of_le s1
                       rcases s1 with eq|lt
-                      · sorry
+                      · simp [n1size_eq_nsize, n2size_eq_nsize] at n_ne_envelope_segment
+                        simp [eq] at n_ne_envelope_segment
+                        rw [←mul_two, ←pow_succ] at n_ne_envelope_segment
+                        have aux : n.size - 2 + 1 = n.size - 1 := by grind
+                        simp [aux] at n_ne_envelope_segment
                       · have s4 :
                             trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) =
                             trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
@@ -498,5 +501,6 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                           refine trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) lt ?_
                           · exact Nat.pos_iff_ne_zero.mp (segment_is_pos (n - (2 ^ (n.size - 1) - 1)))
                         simp [s4]
+                      -- odd path
                     · sorry
-    · sorry --
+    · intro x; simp [x] at n_gt_0
