@@ -22,6 +22,7 @@ increases when crossing to a new envelope.
 theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
     segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope_segment
+  have n_add1_add1 : n + 1 + 1 = n + 2 := rfl
   have nsize_add1_minus1 : n.size - 1 + 1 = n.size := by
     refine Nat.sub_add_cancel ?_
     · have s1 : n ≥ 1 := by exact n_gt_0
@@ -258,7 +259,8 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                 · simp [n1size_eq_nsize, n2size_eq_nsize] at *
                   exact absurd h_2 n_ne_envelope
                 · simp at n_ne_envelope_segment
-                  simp [n1size_eq_nsize, n2size_eq_nsize] at *
+                  simp [n1size_eq_nsize, n2size_eq_nsize]
+                  simp [n1size_eq_nsize, n2size_eq_nsize] at n2size_gt_3
                   by_cases eq : 2 ^ (n.size - 1) = n
                   · simp [eq]
                     have : n - (n - 1) = 1 := by exact Nat.sub_sub_self n_gt_0
@@ -389,8 +391,41 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                     -- ここまでOK
                     have : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
                       have : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
-                        sorry -- TODO
+                        have : n < 2 ^ n.size := by exact lt_size_self n
+                        replace : n + 1 ≤ 2 ^ n.size := this
+                        replace : n + 1 = 2 ^ n.size ∨ n + 1 < 2 ^ n.size := Nat.eq_or_lt_of_le this
+                        rcases this with eq|lt
+                        · exact absurd eq n1_ne_pow2
+                        · replace eq : n + 1 + 1 ≤ 2 ^ n.size := lt
+                          simp [n_add1_add1] at eq
+                          replace eq : n + 2 = 2 ^ n.size ∨ n + 2 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
+                          rcases eq with eq|lt
+                          · exact absurd eq n2_ne_pow2
+                          · replace lt : n + 3 ≤ 2 ^ n.size := by grind
+                            replace lt : n + 3 = 2 ^ n.size ∨ n + 3 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
+                            rcases lt with eq|lt
+                            · replace lt : n = 2 ^ n.size - 3 := Nat.eq_sub_of_add_eq eq
+                              rw (occs := .pos [1]) [lt]
+                              have s1 : (2 * (2 ^ (n.size - 1) - 2) + 1).div2 = 2 ^ (n.size - 1) - 2 := by
+                                sorry
+                                -- Nat.div2_bit1
+                              have s2 :  2 * (2 ^ (n.size - 1) - 2) + 1 = 2 ^ n.size - 3 := by
+                                sorry
+                              simp [s2] at s1
+                              replace s2 : (2 ^ n.size - 3).div2 = (2 ^ n.size - 3) / 2 := by sorry
+                              simp [s2] at s1
+                              replace s1 : (2 ^ n.size - 3) / 2 + 2 = 2 ^ (n.size - 1) := by sorry
+                              exact Nat.le_of_eq s1
+                            · replace lt : n + 4 ≤ 2 ^ n.size := lt
+                              replace lt : (n + 4) / 2 ≤ 2 ^ n.size / 2 := Nat.div_le_div_right lt
+                              replace lt : n / 2 + 2 ≤ 2 ^ n.size / 2 := by grind
+                              replace lt : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
+                                have : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by grind
+                                simp [this] at lt
+                                exact lt
+                              exact lt
                       sorry
+                    /-
                     have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
                       have concept1 : segment (n / 2) ≤ 2 ^ (n.size - 2) := by
                         have s1 : segment (n / 2) ≤ 2 ^ ((n / 2 + 1).size - 1) := by
@@ -417,7 +452,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             exact Nat.sub_add_cancel (le_pow (size_pos.mpr n_gt_0))
                           simp [this]
                         simp only [aux] at this
-                        have x : (2 ^ n.size / 2).size ≤ n.size - 1 := by 
+                        have x : (2 ^ n.size / 2).size ≤ n.size - 1 := by
                           sorry
                         have s2 : (n / 2 + 1).size = n.size - 1 := by
                           have : n / 2 < 2 ^ (n.size - 1) := by
@@ -475,6 +510,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                         have : n.size - 2 + 1 = n.size - 1 := by grind
                         simp [this] at n_ne_envelope_segment
                       · exact gt
+                    -/
                     have :
                         trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) =
                         trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
