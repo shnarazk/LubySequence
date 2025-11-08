@@ -552,9 +552,20 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             simp [n1_bits, n_bits]
                           simp [odd'', right] at s
                           have aux : (n / 2 + 1).size = (n / 2).size := by
-                            rw (occs := .pos [1]) [←odd'']
-                            --
-                            sorry
+                            have : (n + 2).size - 1 = n.size - 1 := congrFun (congrArg HSub.hSub n2size_eq_nsize) 1
+                            -- n + 1 と n + 3で挟み込む？
+                            have left : (n + 1).size - 1 = ((n + 1) / 2).size := by
+                              refine Eq.symm (size_div ?_ ?_)
+                              · exact le_add_right_of_le n_gt_0
+                              · have even : Even (n + 1) := by exact Odd.add_one odd
+                                exact dvd_of_mod_eq_zero (even_iff.mp even)
+                            have left : (n + 2).size - 1 = ((n + 2) / 2).size := by
+                              -- apply?
+                              sorry
+                            have right : n.size - 1 = (n / 2).size := by
+                              exact id (Eq.symm s)
+                            simp [left, right] at this
+                            exact this
                           simp [aux]
                           exact s
                         simp [s4] at s1
