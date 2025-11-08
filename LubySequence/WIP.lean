@@ -30,6 +30,7 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
       have s2 : (1 : ℕ).size = 1 := by simp [size]
       simp [s2] at s1
       exact s1
+  have nsize_minus1_add1 : n.size - 1 + 1 = n.size := by grind
   have nsize_divide : 2 ^ n.size = 2 ^ (n.size - 1) * 2 := by
     refine Eq.symm (Nat.pow_pred_mul ?_)
     · exact size_pos.mpr n_gt_0
@@ -407,14 +408,27 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                             · replace lt : n = 2 ^ n.size - 3 := Nat.eq_sub_of_add_eq eq
                               rw (occs := .pos [1]) [lt]
                               have s1 : (2 * (2 ^ (n.size - 1) - 2) + 1).div2 = 2 ^ (n.size - 1) - 2 := by
-                                sorry
-                                -- Nat.div2_bit1
-                              have s2 :  2 * (2 ^ (n.size - 1) - 2) + 1 = 2 ^ n.size - 3 := by
-                                sorry
+                                exact div2_bit1 (2 ^ (n.size - 1) - 2)
+                              have s2 : 2 * (2 ^ (n.size - 1) - 2) + 1 = 2 ^ n.size - 3 := by
+                                have : 2 * (2 ^ (n.size - 1) - 2) = 2 * 2 ^ (n.size - 1) - 2 * 2 := by
+                                  exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 2
+                                simp at this
+                                rw [this, mul_comm, ←pow_succ, nsize_minus1_add1]
+                                refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
+                                · refine le_sub_of_add_le ?_
+                                  · have : 1 + 3 = 2 ^ 2 := rfl
+                                    simp only [this]
+                                    exact Luby.pow2_le_pow2 2 n.size (le_of_add_left_le nsize_ge_4)
                               simp [s2] at s1
-                              replace s2 : (2 ^ n.size - 3).div2 = (2 ^ n.size - 3) / 2 := by sorry
+                              replace s2 : (2 ^ n.size - 3).div2 = (2 ^ n.size - 3) / 2 := by
+                                exact div2_val (2 ^ n.size - 3)
                               simp [s2] at s1
-                              replace s1 : (2 ^ n.size - 3) / 2 + 2 = 2 ^ (n.size - 1) := by sorry
+                              replace s1 : (2 ^ n.size - 3) / 2 + 2 = 2 ^ (n.size - 1) := by
+                                refine
+                                  Eq.symm
+                                    ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_
+                                      (id (Eq.symm s1)))
+                                · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt nsize_ge_4))
                               exact Nat.le_of_eq s1
                             · replace lt : n + 4 ≤ 2 ^ n.size := lt
                               replace lt : (n + 4) / 2 ≤ 2 ^ n.size / 2 := Nat.div_le_div_right lt
@@ -424,7 +438,23 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                                 simp [this] at lt
                                 exact lt
                               exact lt
-                      sorry
+                      replace : n / 2 + 2 - 1 ≤ 2 ^ (n.size - 1) - 1 := Nat.sub_le_sub_right this 1
+                      replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 2 - 1) := by
+                        exact Nat.sub_le_sub_left this n
+                      replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                        by_cases even : Even n
+                        · replace even : n = n / 2 + n / 2 := by sorry
+                          replace : n / 2 + 1 ≤ 2 ^ (n.size - 1) - 1 := by sorry
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 1) := by sorry
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by sorry
+                          exact this
+                        · replace even : n = n / 2 + n / 2 + 1 := by sorry
+                          replace : n / 2 + 2 ≤ 2 ^ (n.size - 1) - 1 := by sorry
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 2) := by sorry
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 + 1 - 2 := by sorry
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by sorry
+                          exact this
+                      exact this
                     /-
                     have seg_limit : segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
                       have concept1 : segment (n / 2) ≤ 2 ^ (n.size - 2) := by
