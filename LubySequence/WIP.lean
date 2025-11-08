@@ -443,12 +443,51 @@ theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
                         exact Nat.sub_le_sub_left this n
                       replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
                         by_cases even : Even n
-                        · replace even : n = n / 2 + n / 2 := by sorry
-                          replace : n / 2 + 1 ≤ 2 ^ (n.size - 1) - 1 := by sorry
-                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 1) := by sorry
-                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by sorry
+                        · replace even : n = n / 2 + n / 2 := by
+                            rw [←mul_two]
+                            exact Eq.symm (div_two_mul_two_of_even even)
+                          replace : n / 2 + 1 ≤ 2 ^ (n.size - 1) - 1 := by
+                            replace : n < 2 ^ n.size := by exact lt_size_self n
+                            replace : n / 2 < 2 ^ n.size / 2 := by
+                              refine div_lt_div_of_lt_of_dvd ?_ this
+                              · exact Dvd.intro_left (2 ^ (n.size - 1)) (id (Eq.symm nsize_divide))
+                            replace : n / 2 < 2 ^ (n.size - 1) := by
+                              have aux : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
+                                refine Nat.div_eq_of_eq_mul_right ?_ ?_
+                                · exact Nat.zero_lt_two
+                                · rw [mul_comm, ←pow_succ, nsize_minus1_add1]
+                              simp [aux] at this
+                              exact this
+                            replace : n / 2 ≤ 2 ^ (n.size - 1) - 1 := le_sub_one_of_lt this
+                            replace : n / 2 = 2 ^ (n.size - 1) - 1 ∨ n / 2 < 2 ^ (n.size - 1) - 1 := by
+                              exact Nat.eq_or_lt_of_le this
+                            rcases this with eq|gt
+                            · replace eq : n / 2 * 2 = (2 ^ (n.size - 1) - 1) * 2 := by
+                                exact congrFun (congrArg HMul.hMul eq) 2
+                              rw [mul_two, ←even, mul_comm] at eq
+                              have : 2 * (2 ^ (n.size - 1) - 1) = 2 * 2 ^ (n.size - 1) - 2 * 1 := by
+                                exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 1
+                              rw [this, mul_comm, ←pow_succ, nsize_minus1_add1] at eq
+                              simp at eq
+                              replace eq : n + 2 = 2 ^ n.size := by
+                                refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm eq)))
+                                · exact le_pow (size_pos.mpr n_gt_0)
+                              exact absurd eq n2_ne_pow2
+                            · exact gt
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 1) := by
+                            exact Nat.sub_le_sub_left this n
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                            have t1 : n - (n / 2 + 1) = n / 2 - 1 := by
+                              have : n - (n / 2 + 1) = n - n / 2 - 1 := rfl
+                              rw (occs := .pos [3]) [even] at this
+                              simp at this
+                              exact this
+                            simp [t1] at this
+                            exact sub_le_of_le_add this
                           exact this
-                        · replace even : n = n / 2 + n / 2 + 1 := by sorry
+                        · replace even : Odd n := by exact not_even_iff_odd.mp even
+                          replace even : n = n / 2 + n / 2 + 1 := by
+                            rw [←mul_two, mul_comm, two_mul_div_two_add_one_of_odd even]
                           replace : n / 2 + 2 ≤ 2 ^ (n.size - 1) - 1 := by sorry
                           replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 2) := by sorry
                           replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 + 1 - 2 := by sorry
