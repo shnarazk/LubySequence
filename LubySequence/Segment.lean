@@ -1356,7 +1356,7 @@ when jumping to the next envelope: `segment_length (2 ^ (n + 2).size - 2) = 1 + 
 This reflects the fact that each new envelope level in the Luby tree adds one more element
 to the maximum segment height.
 -/
-theorem segment_length_prop1_ : ∀ n > 0, n = 2 ^ n.size - 2 →
+theorem segment_length_prop2 : ∀ n > 0, n = 2 ^ n.size - 2 →
     segment_length (2 ^ (n + 2).size - 2) = 1 + segment_length n := by
   intro n n_gt_0 n_is_envelope
   have n_gt_2 : n ≥ 2 := by
@@ -1466,7 +1466,7 @@ theorem segment_length_prop1_ : ∀ n > 0, n = 2 ^ n.size - 2 →
   This shows that within an envelope level, all segments have the same length, which only
   increases when crossing to a new envelope.
   -/
-  theorem segment_length_prop2 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
+  theorem segment_length_prop3 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
       segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
     intro n n_gt_0 n_ne_envelope_segment
     have n_add1_add1 : n + 1 + 1 = n + 2 := rfl
