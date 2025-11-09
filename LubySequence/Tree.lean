@@ -128,7 +128,7 @@ def LubyTree.size (self : LubyTree) : ℕ := match self with
   | .leaf => 1
   | wrap tree => tree.size * 2 + 1
 
-#eval List.range 5 |>.map (fun n ↦ (LubyTree.mk n).size)
+-- #eval List.range 5 |>.map (fun n ↦ (LubyTree.mk n).size)
 
 theorem LubyTree.size_ge_one (t : LubyTree) : t.size ≥ 1 := by
   induction t <;> simp [LubyTree.size]
@@ -164,8 +164,8 @@ def LubyTree.is_envelope (s : ℕ) : Bool := LubyTree.envelopeSize s = s
 def LubyTree.quotientOfSize (s : ℕ) (e : ℕ) := (s - 1) % ((e - 1) / 2) + 1
 def LubyTree.quotient (s : ℕ) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 
-#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeDepth (n + 1)))
-#eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeSize (n + 1), LubyTree.is_envelope (n + 1)))
+-- #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeDepth (n + 1)))
+-- #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeSize (n + 1), LubyTree.is_envelope (n + 1)))
 -- #eval LubyTree.quotientOfSize 2 3
 -- #eval LubyTree.is_envelope 2
 -- #eval LubyTree.envelopeSize 2
@@ -275,9 +275,9 @@ theorem LubyTree.envelop_of_quotient_is_decreasing :
   clear t0
   exact t2'
 
-#eval List.range 28 |>.map (· + 2) |>.map (fun n ↦ (n, LubyTree.is_envelope n, LubyTree.envelopeSize n, LubyTree.envelopeSize (LubyTree.quotient n)))
+-- #eval List.range 28 |>.map (· + 2) |>.map (fun n ↦ (n, LubyTree.is_envelope n, LubyTree.envelopeSize n, LubyTree.envelopeSize (LubyTree.quotient n)))
 
-#eval List.range 28 |>.map (· + 2) |>.map (fun n ↦ (2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1), ((2 ^ n.size - 1 - 1) / 2), n))
+-- #eval List.range 28 |>.map (· + 2) |>.map (fun n ↦ (2 * ((n - 1) % ((2 ^ n.size - 1 - 1) / 2) + 1), ((2 ^ n.size - 1 - 1) / 2), n))
 
 theorem LubyTree.envelop_of_quotient_is_decreasing':
     ∀ n ≥ 2, ¬LubyTree.is_envelope n → LubyTree.envelopeSize n > LubyTree.envelopeSize (LubyTree.quotient n) := by
@@ -450,8 +450,8 @@ termination_by LubyTree.envelopeSize s
 
 def LubyTree.valueAt (s : ℕ) : ℕ := (LubyTree.mk (s.succ.size - 1)).valueAtSize s
 
-#eval! List.range 28 |>.map (fun n ↦ LubyTree.luby n.succ)
-#eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
+-- #eval! List.range 28 |>.map (fun n ↦ LubyTree.luby n.succ)
+-- #eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
 theorem level_to_size (n : ℕ) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
   induction n with
