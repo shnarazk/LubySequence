@@ -36,20 +36,19 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       let j := 2 ^ ((k + 1).size - 1 - 1)
       have hj : j = value_of% j := rfl
       have k3 : k ≥ 3 := by
-        have k1 : k ≥ 1 := by exact kp
-        have k2 : k ≥ 2 := by
-          by_contra not_k2
+        have k_ge_2 : k ≥ 2 := by
+          by_contra k_lt_2
           have k_eq_1 : k = 1 := by
-            have : k < 2 := by exact gt_of_not_le not_k2
-            have : k = 1 := by exact Nat.eq_of_le_of_lt_succ kp this
+            have : k < 2 := by exact gt_of_not_le k_lt_2
+            replace : k = 1 := by exact Nat.eq_of_le_of_lt_succ kp this
             exact this
           rewrite (occs := .pos [2]) [k_eq_1] at h2'
           simp [size] at h2'
           have : ¬k > 0 := by exact Eq.not_gt h2'
           exact absurd kp this
-        by_contra not_k3
-        simp at not_k3
-        have k_eq_2 : k = 2 := by exact Nat.eq_of_le_of_lt_succ k2 not_k3
+        by_contra k_lt_3
+        simp at k_lt_3
+        have k_eq_2 : k = 2 := by exact Nat.eq_of_le_of_lt_succ k_ge_2 k_lt_3
         rewrite (occs := .pos [2]) [k_eq_2] at h2'
         simp [size] at h2'
         have : ¬k > 0 := by exact Eq.not_gt h2'
@@ -70,18 +69,13 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
         rw [←mul_two]
         refine Eq.symm (two_pow_pred_mul_two ?_)
         · have t1 : 2 ≤ k + 1 := by exact le_add_of_sub_le kp
-          have t2 : (2 : ℕ).size ≤ (k + 1).size := size_le_size t1
-          have t3 : (2 : ℕ).size = 2 := by simp [size]
-          simp [t3] at t2
-          refine zero_lt_sub_of_lt t2
+          replace t1 : (2 : ℕ).size ≤ (k + 1).size := size_le_size t1
+          simp at t1
+          refine zero_lt_sub_of_lt t1
       simp [j2] at h2'
       have h3 : k = 2 * (j - 1) := by omega
       simp [h3]
-      have : (2 * (j - 1) + 1).size = (2 * (j - 1)).size := by
-        exact Eq.symm (size_of_even_add_one_eq_size_of_self (j - 1) (zero_lt_sub_of_lt j_ge_2))
-      simp [this]
-      replace : (2 * (j - 1)).size = (j - 1).size + 1 := by
-        exact size_of_double_eq_self_add_one (j - 1) (zero_lt_sub_of_lt j_ge_2)
-      simp [this]
+      rw [Eq.symm (size_of_even_add_one_eq_size_of_self (j - 1) (zero_lt_sub_of_lt j_ge_2))]
+      rw [size_of_double_eq_self_add_one (j - 1) (zero_lt_sub_of_lt j_ge_2)]
       -- 2 * (j - 1) はihの前提条件を満たしているのでは?
       sorry
