@@ -44,34 +44,34 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
             have : k = 1 := by exact Nat.eq_of_le_of_lt_succ kp this
             exact this
           rewrite (occs := .pos [2]) [k_eq_1] at h2'
-          simp [size, binaryRec] at h2'
+          simp [size] at h2'
           have : ¬k > 0 := by exact Eq.not_gt h2'
           exact absurd kp this
         by_contra not_k3
         simp at not_k3
         have k_eq_2 : k = 2 := by exact Nat.eq_of_le_of_lt_succ k2 not_k3
         rewrite (occs := .pos [2]) [k_eq_2] at h2'
-        simp [size, binaryRec] at h2'
+        simp [size] at h2'
         have : ¬k > 0 := by exact Eq.not_gt h2'
         exact absurd kp this
       have j_ge_2 : j ≥ 2 := by
         have t1 : 3 + 1 ≤ k + 1 := by exact Nat.add_le_add_right k3 1
-        have t2 : (3 + 1).size ≤ (k + 1).size := by exact size_le_size t1
-        have t3 : (3 + 1).size = 3 := by simp [size, binaryRec]
-        simp [t3] at t2
-        have t3 : 3 - 1 ≤ (k + 1).size - 1 := by exact Nat.sub_le_sub_right t2 1
-        have t4 : 3 - 1 - 1 ≤ (k + 1).size - 1 - 1 := by exact Nat.sub_le_sub_right t3 1
-        simp at t4
-        have t5 : 2 ^ 1 ≤ 2 ^ ((k + 1).size - 1 - 1) := Luby.pow2_le_pow2 1 ((k + 1).size - 1 - 1) t4
-        simp at t5
-        exact t5
+        replace t1 : (3 + 1).size ≤ (k + 1).size := by exact size_le_size t1
+        have t3 : (3 + 1).size = 3 := by simp [size]
+        simp [t3] at t1
+        replace t1 : 3 - 1 ≤ (k + 1).size - 1 := by exact Nat.sub_le_sub_right t1 1
+        replace t1 : 3 - 1 - 1 ≤ (k + 1).size - 1 - 1 := by exact Nat.sub_le_sub_right t1 1
+        simp at t1
+        replace t1 : 2 ^ 1 ≤ 2 ^ ((k + 1).size - 1 - 1) := Luby.pow2_le_pow2 1 ((k + 1).size - 1 - 1) t1
+        simp at t1
+        exact t1
       have j2 : 2 ^ ((k + 1).size - 1) = j + j := by
         simp [hj]
         rw [←mul_two]
         refine Eq.symm (two_pow_pred_mul_two ?_)
         · have t1 : 2 ≤ k + 1 := by exact le_add_of_sub_le kp
           have t2 : (2 : ℕ).size ≤ (k + 1).size := size_le_size t1
-          have t3 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
+          have t3 : (2 : ℕ).size = 2 := by simp [size]
           simp [t3] at t2
           refine zero_lt_sub_of_lt t2
       simp [j2] at h2'
@@ -80,10 +80,8 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       have : (2 * (j - 1) + 1).size = (2 * (j - 1)).size := by
         exact Eq.symm (size_of_even_add_one_eq_size_of_self (j - 1) (zero_lt_sub_of_lt j_ge_2))
       simp [this]
-      have : (2 * (j - 1)).size = (j - 1).size + 1 := by
+      replace : (2 * (j - 1)).size = (j - 1).size + 1 := by
         exact size_of_double_eq_self_add_one (j - 1) (zero_lt_sub_of_lt j_ge_2)
       simp [this]
-      -- envelope の計算にこういうのなかったか？
-      simp [segment_height]
-      --
+      -- 2 * (j - 1) はihの前提条件を満たしているのでは?
       sorry
