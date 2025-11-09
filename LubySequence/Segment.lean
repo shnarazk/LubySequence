@@ -1460,513 +1460,305 @@ theorem segment_length_prop2 : ∀ n > 0, n = 2 ^ n.size - 2 →
   |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 1).size - 1) - 1)), segment_length n))
 
 
-  /--
-  For positions not at envelope boundaries, the segment length remains invariant under
-  the recursive step: `segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment_length n`.
-  This shows that within an envelope level, all segments have the same length, which only
-  increases when crossing to a new envelope.
-  -/
-  theorem segment_length_prop3 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
-      segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
-    intro n n_gt_0 n_ne_envelope_segment
-    have n_add1_add1 : n + 1 + 1 = n + 2 := rfl
-    have nsize_add1_minus1 : n.size - 1 + 1 = n.size := by
-      refine Nat.sub_add_cancel ?_
-      · have s1 : n ≥ 1 := by exact n_gt_0
-        replace s1 : n.size ≥ (1 : ℕ).size := by exact size_le_size n_gt_0
-        have s2 : (1 : ℕ).size = 1 := by simp [size]
-        simp [s2] at s1
-        exact s1
-    have nsize_minus1_add1 : n.size - 1 + 1 = n.size := by grind
-    have nsize_divide : 2 ^ n.size = 2 ^ (n.size - 1) * 2 := by
-      refine Eq.symm (Nat.pow_pred_mul ?_)
-      · exact size_pos.mpr n_gt_0
-    induction n using Nat.strong_induction_on with
-    | h n ih =>
-      have n_ge_3 : n ≥ 3 := by
-        replace n_gt_0 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' n_gt_0
-        rcases n_gt_0 with eq|n_gt_1
-        · simp [eq] at n_ne_envelope_segment
-        · replace n_gt_1 : n ≥ 2 := by exact n_gt_1
-          replace n_gt_1 : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_gt_1
-          rcases n_gt_1 with eq|n_gt_2
-          · simp [eq, segment] at n_ne_envelope_segment
-          · replace n_gt_2 : n ≥ 3 := by exact n_gt_2
-            exact n_gt_2
-      have n2size_gt_3 : (n + 2).size ≥ 3 := by
-        have s1 : n + 2 ≥ 3 + 2 := by exact Nat.add_le_add_right n_ge_3 2
-        replace s1 : (n + 2).size ≥ (3 + 2).size := by exact size_le_size s1
-        have s2 : (3 + 2).size = 3 := by simp [size]
-        simp [s2] at s1
-        exact s1
-      have n_ne_envelope : ¬n = 2 ^ ((n + 2).size - 1) - 2 := by
-        by_contra n_is_envelope
-        have n_is_envelope' : n + 2 = 2 ^ ((n + 2).size - 1) := by
-          refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm n_is_envelope)))
-          · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3))
-        have n_gt_4 : n ≥ 4 := by
-          replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
-          rcases n_ge_3 with eq|gt
-          · simp [eq, size] at n_is_envelope'
-          · exact (by exact gt : n ≥ 4)
-        have n1size_eq_nsize : (n + 1).size = n.size := by
-          have cond : ¬n + 1 = 2 ^ ((n + 1).size - 1) := by
-            have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
-              exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm n_is_envelope')))
-            simp [n1]
-            have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by
-              exact size_sub (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)) Nat.one_pos Nat.one_le_two_pow
-            simp [this]
-            by_contra odd_and_even
-            have even : Even (2 ^ ((n + 2).size - 1 - 1)) := by
-              exact (even_pow' (Nat.sub_ne_zero_iff_lt.mpr (lt_sub_of_add_lt n2size_gt_3))).mpr (even_iff.mpr rfl)
-            have odd : Odd (2 ^ ((n + 2).size - 1) - 1) := by
-              refine Nat.Even.sub_odd Nat.one_le_two_pow ?_ (odd_iff.mpr rfl)
-              · refine (even_pow' ?_).mpr (even_iff.mpr rfl)
-                · refine Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
-            simp [odd_and_even] at odd
-            replace odd : ¬Even (2 ^ ((n + 2).size - 1 - 1)) := by exact not_even_iff_odd.mpr odd
-            exact absurd even odd
-          replace cond : ¬n + 1 = 2 ^ n.size := by
-            have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
-              exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm n_is_envelope')))
-            simp [n1]
-            have : n + 1 + 1 = 2 ^ ((n + 2).size - 1) - 1 + 1 := congrFun (congrArg HAdd.hAdd n1) 1
-            replace : n + 1 + 1 = 2 ^ ((n + 2).size - 1) := by exact n_is_envelope'
-            simp [←this]
-            by_contra odd_and_even
-            have even : Even (n + 2) := by
-              have : Even (2 ^ ((n + 2).size - 1)) := by
+/--
+For positions not at envelope boundaries, the segment length remains invariant under
+the recursive step: `segment_length (n - (2 ^ ((n + 2).size - 1) - 1)) = segment_length n`.
+This shows that within an envelope level, all segments have the same length, which only
+increases when crossing to a new envelope.
+-/
+theorem segment_length_prop3 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) →
+    segment_length n = segment_length (n - (2 ^ ((n + 1).size - 1) - 1)) := by
+  intro n n_gt_0 n_ne_envelope_segment
+  have n_add1_add1 : n + 1 + 1 = n + 2 := rfl
+  have nsize_add1_minus1 : n.size - 1 + 1 = n.size := by
+    refine Nat.sub_add_cancel ?_
+    · have s1 : n ≥ 1 := by exact n_gt_0
+      replace s1 : n.size ≥ (1 : ℕ).size := by exact size_le_size n_gt_0
+      have s2 : (1 : ℕ).size = 1 := by simp [size]
+      simp [s2] at s1
+      exact s1
+  have nsize_minus1_add1 : n.size - 1 + 1 = n.size := by grind
+  have nsize_divide : 2 ^ n.size = 2 ^ (n.size - 1) * 2 := by
+    refine Eq.symm (Nat.pow_pred_mul ?_)
+    · exact size_pos.mpr n_gt_0
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    have n_ge_3 : n ≥ 3 := by
+      replace n_gt_0 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' n_gt_0
+      rcases n_gt_0 with eq|n_gt_1
+      · simp [eq] at n_ne_envelope_segment
+      · replace n_gt_1 : n ≥ 2 := by exact n_gt_1
+        replace n_gt_1 : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_gt_1
+        rcases n_gt_1 with eq|n_gt_2
+        · simp [eq, segment] at n_ne_envelope_segment
+        · replace n_gt_2 : n ≥ 3 := by exact n_gt_2
+          exact n_gt_2
+    have n2size_gt_3 : (n + 2).size ≥ 3 := by
+      have s1 : n + 2 ≥ 3 + 2 := by exact Nat.add_le_add_right n_ge_3 2
+      replace s1 : (n + 2).size ≥ (3 + 2).size := by exact size_le_size s1
+      have s2 : (3 + 2).size = 3 := by simp [size]
+      simp [s2] at s1
+      exact s1
+    have n_ne_envelope : ¬n = 2 ^ ((n + 2).size - 1) - 2 := by
+      by_contra n_is_envelope
+      have n_is_envelope' : n + 2 = 2 ^ ((n + 2).size - 1) := by
+        refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm n_is_envelope)))
+        · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3))
+      have n_gt_4 : n ≥ 4 := by
+        replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
+        rcases n_ge_3 with eq|gt
+        · simp [eq, size] at n_is_envelope'
+        · exact (by exact gt : n ≥ 4)
+      have n1size_eq_nsize : (n + 1).size = n.size := by
+        have cond : ¬n + 1 = 2 ^ ((n + 1).size - 1) := by
+          have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+            exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm n_is_envelope')))
+          simp [n1]
+          have : (2 ^ ((n + 2).size - 1) - 1).size = (n + 2).size - 1 := by
+            exact size_sub (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)) Nat.one_pos Nat.one_le_two_pow
+          simp [this]
+          by_contra odd_and_even
+          have even : Even (2 ^ ((n + 2).size - 1 - 1)) := by
+            exact (even_pow' (Nat.sub_ne_zero_iff_lt.mpr (lt_sub_of_add_lt n2size_gt_3))).mpr (even_iff.mpr rfl)
+          have odd : Odd (2 ^ ((n + 2).size - 1) - 1) := by
+            refine Nat.Even.sub_odd Nat.one_le_two_pow ?_ (odd_iff.mpr rfl)
+            · refine (even_pow' ?_).mpr (even_iff.mpr rfl)
+              · refine Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
+          simp [odd_and_even] at odd
+          replace odd : ¬Even (2 ^ ((n + 2).size - 1 - 1)) := by exact not_even_iff_odd.mpr odd
+          exact absurd even odd
+        replace cond : ¬n + 1 = 2 ^ n.size := by
+          have n1 : n + 1 = 2 ^ ((n + 2).size - 1) - 1 := by
+            exact Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) (id (Eq.symm n_is_envelope')))
+          simp [n1]
+          have : n + 1 + 1 = 2 ^ ((n + 2).size - 1) - 1 + 1 := congrFun (congrArg HAdd.hAdd n1) 1
+          replace : n + 1 + 1 = 2 ^ ((n + 2).size - 1) := by exact n_is_envelope'
+          simp [←this]
+          by_contra odd_and_even
+          have even : Even (n + 2) := by
+            have : Even (2 ^ ((n + 2).size - 1)) := by
+              refine (even_pow' ?_).mpr ?_
+              · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
+              · exact even_iff.mpr rfl
+            simp [←n_is_envelope'] at this
+            exact this
+          have odd : ¬Even (n + 2) := by
+            have : Even (n + 1) := by
+              have : Even (2 ^ n.size) := by
                 refine (even_pow' ?_).mpr ?_
-                · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
+                · exact Nat.ne_zero_iff_zero_lt.mpr (size_pos.mpr n_gt_0)
                 · exact even_iff.mpr rfl
-              simp [←n_is_envelope'] at this
+              simp [←odd_and_even] at this
               exact this
-            have odd : ¬Even (n + 2) := by
-              have : Even (n + 1) := by
-                have : Even (2 ^ n.size) := by
-                  refine (even_pow' ?_).mpr ?_
-                  · exact Nat.ne_zero_iff_zero_lt.mpr (size_pos.mpr n_gt_0)
-                  · exact even_iff.mpr rfl
-                simp [←odd_and_even] at this
-                exact this
-              replace : Odd (n + 1 + 1) := Even.add_one this
-              simp at this
-              exact not_even_iff_odd.mpr this
-            exact absurd even odd
-          exact same_n1size_iff_not_pow2.mp cond
-        simp [n1size_eq_nsize] at n_ne_envelope_segment
-        have : segment n = 2 ^ (n.size - 1) := by
-          refine segment_prop1 ?_
-          · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by
-              have s1 : n.size = (2 ^ ((n + 2).size - 1) - 2).size := congrArg size n_is_envelope
-              have s2 : (2 ^ ((n + 2).size - 1) - 2).size = (n + 2).size - 1 := by
-                refine size_sub ?_ ?_ ?_
-                · exact zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)
-                · exact Nat.zero_lt_two
-                · exact le_pow (zero_lt_sub_of_lt (lt_sub_of_add_lt n2size_gt_3))
-              simp [s2] at s1
-              exact Nat.eq_add_of_sub_eq (one_le_of_lt n2size_gt_3) (id (Eq.symm s1))
-            simp [n2size_eq_nsize] at n_is_envelope'
-            exact Nat.eq_sub_of_add_eq n_is_envelope'
-        exact absurd this n_ne_envelope_segment
-      have n2_ne_pow2 : ¬n + 2 = 2 ^ n.size := by
-        by_contra x
-        have x' : n = 2 ^ n.size - 2 := Nat.eq_sub_of_add_eq x
-        simp [x] at n_ne_envelope
-        rw [size_pow] at n_ne_envelope
-        simp at n_ne_envelope
-        exact absurd x' n_ne_envelope
-      simp [segment_length]
-      rw (occs := .pos [1]) [segment]
-      · split <;> expose_names
-        · exact absurd h n_ne_envelope
-        · simp
-          have n_ne_envelope' : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
-            have s1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := (add_ne_add_left 2).mpr n_ne_envelope
-            have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
-              exact Nat.sub_add_cancel (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
+            replace : Odd (n + 1 + 1) := Even.add_one this
+            simp at this
+            exact not_even_iff_odd.mpr this
+          exact absurd even odd
+        exact same_n1size_iff_not_pow2.mp cond
+      simp [n1size_eq_nsize] at n_ne_envelope_segment
+      have : segment n = 2 ^ (n.size - 1) := by
+        refine segment_prop1 ?_
+        · have n2size_eq_nsize : (n + 2).size = n.size + 1 := by
+            have s1 : n.size = (2 ^ ((n + 2).size - 1) - 2).size := congrArg size n_is_envelope
+            have s2 : (2 ^ ((n + 2).size - 1) - 2).size = (n + 2).size - 1 := by
+              refine size_sub ?_ ?_ ?_
+              · exact zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)
+              · exact Nat.zero_lt_two
+              · exact le_pow (zero_lt_sub_of_lt (lt_sub_of_add_lt n2size_gt_3))
             simp [s2] at s1
-            exact s1
-          replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
-          rcases n_ge_3 with n_eq_3|n_ge_4
-          · simp [n_eq_3] at *
-            simp [size, trailing_zeros]
-          · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
-            have n_ge_7 : n ≥ 7 := by
-              have n_lower : n = 4 ∨ n > 4 := by exact LE.le.eq_or_lt' n_ge_4
+            exact Nat.eq_add_of_sub_eq (one_le_of_lt n2size_gt_3) (id (Eq.symm s1))
+          simp [n2size_eq_nsize] at n_is_envelope'
+          exact Nat.eq_sub_of_add_eq n_is_envelope'
+      exact absurd this n_ne_envelope_segment
+    have n2_ne_pow2 : ¬n + 2 = 2 ^ n.size := by
+      by_contra x
+      have x' : n = 2 ^ n.size - 2 := Nat.eq_sub_of_add_eq x
+      simp [x] at n_ne_envelope
+      rw [size_pow] at n_ne_envelope
+      simp at n_ne_envelope
+      exact absurd x' n_ne_envelope
+    simp [segment_length]
+    rw (occs := .pos [1]) [segment]
+    · split <;> expose_names
+      · exact absurd h n_ne_envelope
+      · simp
+        have n_ne_envelope' : ¬n + 2 = 2 ^ ((n + 2).size - 1) := by
+          have s1 : ¬n + 2 = 2 ^ ((n + 2).size - 1) - 2 + 2 := (add_ne_add_left 2).mpr n_ne_envelope
+          have s2 : 2 ^ ((n + 2).size - 1) - 2 + 2 = 2 ^ ((n + 2).size - 1) := by
+            exact Nat.sub_add_cancel (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
+          simp [s2] at s1
+          exact s1
+        replace n_ge_3 : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_ge_3
+        rcases n_ge_3 with n_eq_3|n_ge_4
+        · simp [n_eq_3] at *
+          simp [size, trailing_zeros]
+        · replace n_ge_4 : n ≥ 4 := by exact n_ge_4
+          have n_ge_7 : n ≥ 7 := by
+            have n_lower : n = 4 ∨ n > 4 := by exact LE.le.eq_or_lt' n_ge_4
+            rcases n_lower with eq|gt
+            · simp [eq, segment, size] at n_ne_envelope_segment
+            · replace gt : n ≥ 5 := by exact gt
+              replace n_lower : n = 5 ∨ n > 5 := by exact LE.le.eq_or_lt' gt
               rcases n_lower with eq|gt
               · simp [eq, segment, size] at n_ne_envelope_segment
-              · replace gt : n ≥ 5 := by exact gt
-                replace n_lower : n = 5 ∨ n > 5 := by exact LE.le.eq_or_lt' gt
+              · replace gt : n ≥ 6 := by exact gt
+                replace n_lower : n = 6 ∨ n > 6 := by exact LE.le.eq_or_lt' gt
                 rcases n_lower with eq|gt
                 · simp [eq, segment, size] at n_ne_envelope_segment
-                · replace gt : n ≥ 6 := by exact gt
-                  replace n_lower : n = 6 ∨ n > 6 := by exact LE.le.eq_or_lt' gt
-                  rcases n_lower with eq|gt
-                  · simp [eq, segment, size] at n_ne_envelope_segment
-                  · replace gt : n ≥ 7 := by exact gt
-                    exact gt
-            clear n_ge_4
-            replace n_ge_7 : n = 7 ∨ n > 7 := by exact LE.le.eq_or_lt' n_ge_7
-            rcases n_ge_7 with n_eq_7|n_ge_8
-            · simp [n_eq_7, size, trailing_zeros]
-            · replace n_ge_8 : n ≥ 8 := by exact n_ge_8
-              have nsize_ge_4 : n.size ≥ 4 := by
-                have s1 : n.size ≥ (8 : ℕ).size := by exact size_le_size n_ge_8
-                have s2 : (8 : ℕ).size = 4 := by simp [size]
-                simp [s2] at s1
-                exact s1
-              have n1size_ge_4 : (n + 1).size ≥ 4 := by
-                have : (n + 1).size ≥ n.size := size_le_size (Nat.le_add_right n 1)
-                exact Nat.le_trans nsize_ge_4 this
-              by_cases at_seg_beg : n + 1 = 2 ^ ((n + 1).size - 1)
-              · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
-                  have s1 : n = 2 ^ ((n + 1).size - 1) - 1 := Nat.eq_sub_of_add_eq at_seg_beg
-                  replace s1 : n.size = (2 ^ ((n + 1).size - 1) - 1).size := congrArg size s1
-                  have : (2 ^ ((n + 1).size - 1) - 1).size = (n + 1).size - 1 := by
-                    refine size_sub ?_ ?_ ?_
-                    · refine zero_lt_sub_of_lt ?_
-                      · refine one_lt_iff_ne_zero_and_ne_one.mpr ?_
-                        · constructor
-                          · exact Nat.ne_zero_iff_zero_lt.mpr (size_pos.mpr (Nat.add_pos_left n_gt_0 1))
-                          · exact Ne.symm (Nat.ne_of_lt (lt_of_add_left_lt n1size_ge_4))
-                    · exact Nat.one_pos
-                    · exact Nat.one_le_two_pow
-                  simp [this] at s1
-                  exact (Nat.sub_eq_iff_eq_add (one_le_of_lt n1size_ge_4)).mp (id (Eq.symm s1))
-                have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
-                  have : n + 1 + 1 = 2 ^ ((n + 1).size - 1) + 1 := by
-                    exact congrFun (congrArg HAdd.hAdd at_seg_beg) 1
-                  replace : (n + 1 + 1).size = (2 ^ ((n + 1).size - 1) + 1).size := congrArg size this
-                  simp [n1size_eq_nsize_add_1] at this
-                  replace s1 : (2 ^ n.size + 1).size = n.size + 1 := by
-                    exact size_add (Nat.one_pos) (Nat.one_lt_two_pow (Nat.ne_zero_of_lt nsize_ge_4))
-                  simp [s1] at this
-                  exact this
-                simp [n2size_eq_nsize_add_1, n1size_eq_nsize_add_1] at *
-                have : n - (2 ^ n.size - 1) = 0 := by
-                  exact Nat.sub_eq_zero_of_le (le_sub_of_add_le (Nat.le_of_eq at_seg_beg))
-                simp [this]
-                rw [add_comm]
-                have : trailing_zeros (1 + 2 ^ (n.size - 1)) = trailing_zeros 1 := by
-                  refine trailing_zeros_prop7 (n.size - 1) 1 ?_ ?_
-                  · exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3)
-                  · exact Nat.one_ne_zero
-                simp [this]
-              · have n1size_eq_nsize : (n + 1).size = n.size := by
-                  have : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
-                  rcases this with eq|add1
-                  · exact eq
-                  · have n_ne_pow2 : ¬n = 2 ^ (n.size - 1) := by
-                      by_contra x
-                      replace x : (n + 1).size = (2 ^ (n.size - 1) + 1).size := by simp [←x]
-                      replace x : (n + 1).size = n.size := by
-                        have : (2 ^ (n.size - 1) + 1).size = n.size - 1 + 1 := by
-                          refine size_add ?_ ?_
-                          · exact Nat.one_pos
-                          · exact
-                              Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt nsize_ge_4))
-                        simp [this] at x
-                        replace : n.size - 1 + 1 = n.size := by grind
-                        simp [this] at x
-                        exact x
-                      simp [x] at add1
-                    refine same_n1size_iff_not_pow2.mp ?_
-                    · simp [add1] at at_seg_beg
-                      exact at_seg_beg
-                have n1_ne_pow2 : ¬n + 1 = 2 ^ n.size := same_n1size_iff_not_pow2.mpr n1size_eq_nsize
-                have n2size_eq_nsize : (n + 2).size = n.size := by
-                  have : (n + 2).size = (n + 1).size := by
+                · replace gt : n ≥ 7 := by exact gt
+                  exact gt
+          clear n_ge_4
+          replace n_ge_7 : n = 7 ∨ n > 7 := by exact LE.le.eq_or_lt' n_ge_7
+          rcases n_ge_7 with n_eq_7|n_ge_8
+          · simp [n_eq_7, size, trailing_zeros]
+          · replace n_ge_8 : n ≥ 8 := by exact n_ge_8
+            have nsize_ge_4 : n.size ≥ 4 := by
+              have s1 : n.size ≥ (8 : ℕ).size := by exact size_le_size n_ge_8
+              have s2 : (8 : ℕ).size = 4 := by simp [size]
+              simp [s2] at s1
+              exact s1
+            have n1size_ge_4 : (n + 1).size ≥ 4 := by
+              have : (n + 1).size ≥ n.size := size_le_size (Nat.le_add_right n 1)
+              exact Nat.le_trans nsize_ge_4 this
+            by_cases at_seg_beg : n + 1 = 2 ^ ((n + 1).size - 1)
+            · have n1size_eq_nsize_add_1 : (n + 1).size = n.size + 1 := by
+                have s1 : n = 2 ^ ((n + 1).size - 1) - 1 := Nat.eq_sub_of_add_eq at_seg_beg
+                replace s1 : n.size = (2 ^ ((n + 1).size - 1) - 1).size := congrArg size s1
+                have : (2 ^ ((n + 1).size - 1) - 1).size = (n + 1).size - 1 := by
+                  refine size_sub ?_ ?_ ?_
+                  · refine zero_lt_sub_of_lt ?_
+                    · refine one_lt_iff_ne_zero_and_ne_one.mpr ?_
+                      · constructor
+                        · exact Nat.ne_zero_iff_zero_lt.mpr (size_pos.mpr (Nat.add_pos_left n_gt_0 1))
+                        · exact Ne.symm (Nat.ne_of_lt (lt_of_add_left_lt n1size_ge_4))
+                  · exact Nat.one_pos
+                  · exact Nat.one_le_two_pow
+                simp [this] at s1
+                exact (Nat.sub_eq_iff_eq_add (one_le_of_lt n1size_ge_4)).mp (id (Eq.symm s1))
+              have n2size_eq_nsize_add_1 : (n + 2).size = n.size + 1 := by
+                have : n + 1 + 1 = 2 ^ ((n + 1).size - 1) + 1 := congrFun (congrArg HAdd.hAdd at_seg_beg) 1
+                replace : (n + 1 + 1).size = (2 ^ ((n + 1).size - 1) + 1).size := congrArg size this
+                simp [n1size_eq_nsize_add_1] at this
+                replace s1 : (2 ^ n.size + 1).size = n.size + 1 := by
+                  exact size_add (Nat.one_pos) (Nat.one_lt_two_pow (Nat.ne_zero_of_lt nsize_ge_4))
+                simp [s1] at this
+                exact this
+              simp [n2size_eq_nsize_add_1, n1size_eq_nsize_add_1] at *
+              have : n - (2 ^ n.size - 1) = 0 := by
+                exact Nat.sub_eq_zero_of_le (le_sub_of_add_le (Nat.le_of_eq at_seg_beg))
+              simp [this]
+              rw [add_comm]
+              have : trailing_zeros (1 + 2 ^ (n.size - 1)) = trailing_zeros 1 := by
+                refine trailing_zeros_prop7 (n.size - 1) 1 ?_ ?_
+                · exact Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr n2size_gt_3)
+                · exact Nat.one_ne_zero
+              simp [this]
+            · have n1size_eq_nsize : (n + 1).size = n.size := by
+                have : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by exact size_limit n
+                rcases this with eq|add1
+                · exact eq
+                · have n_ne_pow2 : ¬n = 2 ^ (n.size - 1) := by
                     by_contra x
-                    have : n + 1 + 1 = 2 ^ (n + 1).size := by
-                      refine increase_n1size_at_pow2 ?_
-                      · have : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
-                          exact size_limit (n + 1)
-                        rcases this with eq|gt
-                        · exact absurd eq x
-                        · exact gt
-                    replace : n + 2 = 2 ^ (n + 1).size := this
-                    simp [this] at n_ne_envelope'
-                    rw [size_pow] at n_ne_envelope'
-                    replace : (n + 1).size + 1 - 1 = (n + 1).size := rfl
-                    simp [this] at n_ne_envelope'
-                  simp [this]
-                  exact n1size_eq_nsize
-                rw [segment.eq_def] at n_ne_envelope_segment
-                split at n_ne_envelope_segment
-                · contradiction
-                · split at n_ne_envelope_segment <;> expose_names
-                  · simp [n1size_eq_nsize, n2size_eq_nsize] at *
-                    exact absurd h_2 n_ne_envelope
-                  · simp at n_ne_envelope_segment
-                    simp [n1size_eq_nsize, n2size_eq_nsize]
-                    simp [n2size_eq_nsize] at n2size_gt_3
-                    by_cases eq : 2 ^ (n.size - 1) = n
-                    · simp [eq]
-                      have : n - (n - 1) = 1 := by exact Nat.sub_sub_self n_gt_0
-                      simp [this]
-                      have : trailing_zeros (2 ^ (n.size - 2) + 2) = trailing_zeros 2 := by
-                        rw [add_comm]
-                        refine trailing_zeros_prop1' 2 ?_ (n.size - 2) ?_
-                        · exact Nat.zero_lt_two
-                        · refine size_le.mp ?_
-                          · refine le_sub_of_add_le ?_
-                            · simp ; exact nsize_ge_4
-                      simp [this]
-                    · rename' eq => n_ne_pow2
-                      have s2 : segment (2 ^ (n.size - 2)) ≤ 2 ^ ((2 ^ (n.size - 2) + 1).size - 1) := by
-                        exact segment_limit2 (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
-                      have s3 : (2 ^ (n.size - 2) + 1).size = n.size - 2 + 1 := by
-                         refine size_add ?_ ?_
-                         · exact Nat.one_pos
-                         · refine Nat.one_lt_two_pow_iff.mpr ?_
-                           · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
-                      simp [s3] at s2
-                      have n_lt_pow2_minus_2 : n < 2 ^ n.size - 2 := by
-                        have : n < 2 ^ n.size := lt_size_self n
-                        replace : n ≤ 2 ^ n.size - 1 := le_sub_one_of_lt this
-                        replace : n = 2 ^ n.size - 1 ∨ n < 2 ^ n.size - 1 := Nat.eq_or_lt_of_le this
-                        rcases this with eq|lt
-                        · replace eq : n + 1 = 2 ^ n.size := by
-                            refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ (id (Eq.symm eq)))
-                            · exact Nat.one_le_two_pow
-                          exact absurd eq n1_ne_pow2
-                        · replace lt : n ≤ 2 ^ n.size - 1 - 1 := by exact le_sub_one_of_lt lt
-                          replace lt : n ≤ 2 ^ n.size - 2 := by grind
-                          replace lt : n = 2 ^ n.size - 2 ∨ n < 2 ^ n.size - 2 := Nat.eq_or_lt_of_le lt
-                          rcases lt with eq|lt
-                          · replace eq : n + 2 = 2 ^ n.size := by
-                              refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm eq)))
-                              · exact le_pow (size_pos.mpr n_gt_0)
-                            exact absurd eq n2_ne_pow2
-                          · exact lt
-                      by_cases parity : Even n
-                      · have unsegment : segment (n / 2 - 1) ≤ 2 ^ (n.size - 2) := by
-                          have s1 : segment (n / 2 - 1) ≤ 2 ^ ((n / 2 - 1 + 1).size - 1) := by
-                            refine segment_limit2 ?_
-                            · refine le_sub_one_of_lt ?_
-                              · replace : 2 < n / 2 := by
-                                  refine (Nat.lt_div_iff_mul_lt ?_).mpr ?_
-                                  · exact Nat.zero_lt_two
-                                  · simp ; grind
-                                exact this
-                          have s4 : n / 2 - 1 + 1 = n / 2 := by
-                            refine Nat.sub_add_cancel ?_
-                            · refine (Nat.one_le_div_iff ?_).mpr ?_
-                              · exact Nat.zero_lt_two
-                              · exact le_of_add_left_le n_ge_8
-                          simp [s4] at s1
-                          replace s4 : (n / 2).size = n.size - 1 := by
-                            by_cases even : Even n
-                            · exact size_div n_gt_0 (even_iff_two_dvd.mp even)
-                            · rename' even => odd
-                              replace odd : Odd n := by exact not_even_iff_odd.mp odd
-                              have s : ((n - 1) / 2).size = (n - 1).size - 1 := by
-                                refine size_div ?_ ?_
-                                · exact le_sub_one_of_lt (lt_of_add_left_lt n_ge_8)
-                                · refine dvd_of_mod_eq_zero ?_
-                                  · replace odd : Even (n - 1) := Odd.tsub_odd odd (odd_iff.mpr rfl)
-                                    exact even_iff.mp odd
-                              have right : (n - 1).size = n.size := by
-                                let m := n / 2
-                                have m_def : m = value_of% m := rfl
-                                have n_to_m : n = 2 * m + 1 := by grind
-                                have n_bits : (2 * m + 1).bits = true :: m.bits := bit1_bits m
-                                simp [←n_to_m] at n_bits
-                                replace n_bits : n.bits.length = (true :: m.bits).length := by
-                                  exact congrArg List.length n_bits
-                                replace n_bits : n.bits.length = m.bits.length + 1 := n_bits
-                                simp [bitslength_eq_size] at n_bits
-                                have n1_bits : (2 * m).bits = false :: m.bits := by
-                                  refine bit0_bits m ?_
-                                  · refine Nat.div_ne_zero_iff.mpr ?_
-                                    · constructor
-                                      · exact Ne.symm (zero_ne_add_one 1)
-                                      · exact le_of_add_left_le n_ge_8
-                                replace n_to_m : n - 1 = 2 * m := by grind
-                                simp [←n_to_m] at n1_bits
-                                replace n1_bits : (n - 1).bits.length = (false :: m.bits).length := by
-                                  exact congrArg List.length n1_bits
-                                replace n1_bits : (n - 1).bits.length = m.bits.length + 1 := n1_bits
-                                simp [bitslength_eq_size] at n1_bits
-                                simp [n1_bits, n_bits]
-                              have left : ((n - 1) / 2).size = (n / 2).size := by
-                                let m := n / 2
-                                have m_def : m = value_of% m := rfl
-                                have n1_bits : (2 * m).bits = false :: m.bits := by
-                                  refine bits_of_double_eq_cons_false_and_bits m ?_
-                                  · exact Nat.lt_of_sub_eq_succ (id (Eq.symm s4))
-                                replace n1_bits : (n - 1).bits = false :: m.bits := by
-                                  have : n - 1 = 2 * m := by grind
-                                  simp [←this] at n1_bits
-                                  exact n1_bits
-                                replace n1_bits : (n - 1).div2.bits = (n - 1).bits.tail := by
-                                  exact div2_bits_eq_tail (n - 1)
-                                have t1 : (n - 1) / 2 = (n - 1).div2 := by
-                                  exact Eq.symm (div2_val (n - 1))
-                                simp [←t1] at n1_bits
-                                replace n1_bits : ((n - 1) / 2).bits.length = (n - 1).bits.tail.length := by
-                                  exact congrArg List.length n1_bits
-                                rw [List.length_tail] at n1_bits
-                                simp only [bitslength_eq_size, right] at n1_bits
-                                have n_bits : n.bits = (2 * m + 1).bits := by
-                                  have : n = 2 * m + 1 := Eq.symm (two_mul_div_two_add_one_of_odd odd)
-                                  exact congrArg bits this
-                                simp at n_bits
-                                replace n_bits : (n / 2).bits = n.bits.tail := by
-                                  have : (n / 2).bits = (true :: m.bits).tail := rfl
-                                  simp [←n_bits] at this
-                                  exact this
-                                replace n_bits : (n / 2).bits.length = n.bits.tail.length := by
-                                  exact congrArg List.length n_bits
-                                rw [List.length_tail] at n_bits
-                                simp only [bitslength_eq_size] at n_bits
-                                simp [←n_bits] at n1_bits
-                                exact n1_bits
-                              simp [left, right] at s
-                              exact s
-                          simp [s4] at s1
-                          have : n.size - 1 - 1 = n.size - 2 := rfl
-                          simp [this] at s1
-                          exact s1
-                        have segment_arg_order : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
-                          have : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
-                            have : n < 2 ^ n.size := by exact lt_size_self n
-                            replace : n + 1 ≤ 2 ^ n.size := this
-                            replace : n + 1 = 2 ^ n.size ∨ n + 1 < 2 ^ n.size := Nat.eq_or_lt_of_le this
-                            rcases this with eq|lt
-                            · exact absurd eq n1_ne_pow2
-                            · replace eq : n + 1 + 1 ≤ 2 ^ n.size := lt
-                              simp [n_add1_add1] at eq
-                              replace eq : n + 2 = 2 ^ n.size ∨ n + 2 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
-                              rcases eq with eq|lt
-                              · exact absurd eq n2_ne_pow2
-                              · replace lt : n + 3 ≤ 2 ^ n.size := by grind
-                                replace lt : n + 3 = 2 ^ n.size ∨ n + 3 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
-                                rcases lt with eq|lt
-                                · replace lt : n = 2 ^ n.size - 3 := Nat.eq_sub_of_add_eq eq
-                                  rw (occs := .pos [1]) [lt]
-                                  have s1 : (2 * (2 ^ (n.size - 1) - 2) + 1).div2 = 2 ^ (n.size - 1) - 2 := by
-                                    exact div2_bit1 (2 ^ (n.size - 1) - 2)
-                                  have s2 : 2 * (2 ^ (n.size - 1) - 2) + 1 = 2 ^ n.size - 3 := by
-                                    have : 2 * (2 ^ (n.size - 1) - 2) = 2 * 2 ^ (n.size - 1) - 2 * 2 := by
-                                      exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 2
-                                    simp at this
-                                    rw [this, mul_comm, ←pow_succ, nsize_minus1_add1]
-                                    refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
-                                    · refine le_sub_of_add_le ?_
-                                      · have : 1 + 3 = 2 ^ 2 := rfl
-                                        simp only [this]
-                                        exact Luby.pow2_le_pow2 2 n.size (le_of_add_left_le nsize_ge_4)
-                                  simp [s2] at s1
-                                  replace s2 : (2 ^ n.size - 3).div2 = (2 ^ n.size - 3) / 2 := by
-                                    exact div2_val (2 ^ n.size - 3)
-                                  simp [s2] at s1
-                                  replace s1 : (2 ^ n.size - 3) / 2 + 2 = 2 ^ (n.size - 1) := by
-                                    refine
-                                      Eq.symm
-                                        ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_
-                                          (id (Eq.symm s1)))
-                                    · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt nsize_ge_4))
-                                  exact Nat.le_of_eq s1
-                                · replace lt : n + 4 ≤ 2 ^ n.size := lt
-                                  replace lt : (n + 4) / 2 ≤ 2 ^ n.size / 2 := Nat.div_le_div_right lt
-                                  replace lt : n / 2 + 2 ≤ 2 ^ n.size / 2 := by grind
-                                  replace lt : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
-                                    have : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by grind
-                                    simp [this] at lt
-                                    exact lt
-                                  exact lt
-                          replace : n / 2 + 2 - 1 ≤ 2 ^ (n.size - 1) - 1 := Nat.sub_le_sub_right this 1
-                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 2 - 1) := by
-                            exact Nat.sub_le_sub_left this n
-                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
-                            have even : Even n := parity
-                            replace even : n = n / 2 + n / 2 := by
-                              rw [←mul_two]
-                              exact Eq.symm (div_two_mul_two_of_even even)
-                            replace : n / 2 + 1 ≤ 2 ^ (n.size - 1) - 1 := by
-                              replace : n < 2 ^ n.size := by exact lt_size_self n
-                              replace : n / 2 < 2 ^ n.size / 2 := by
-                                refine div_lt_div_of_lt_of_dvd ?_ this
-                                · exact Dvd.intro_left (2 ^ (n.size - 1)) (id (Eq.symm nsize_divide))
-                              replace : n / 2 < 2 ^ (n.size - 1) := by
-                                have aux : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
-                                  refine Nat.div_eq_of_eq_mul_right ?_ ?_
-                                  · exact Nat.zero_lt_two
-                                  · rw [mul_comm, ←pow_succ, nsize_minus1_add1]
-                                simp [aux] at this
-                                exact this
-                              replace : n / 2 ≤ 2 ^ (n.size - 1) - 1 := le_sub_one_of_lt this
-                              replace : n / 2 = 2 ^ (n.size - 1) - 1 ∨ n / 2 < 2 ^ (n.size - 1) - 1 := by
-                                exact Nat.eq_or_lt_of_le this
-                              rcases this with eq|gt
-                              · replace eq : n / 2 * 2 = (2 ^ (n.size - 1) - 1) * 2 := by
-                                  exact congrFun (congrArg HMul.hMul eq) 2
-                                rw [mul_two, ←even, mul_comm] at eq
-                                have : 2 * (2 ^ (n.size - 1) - 1) = 2 * 2 ^ (n.size - 1) - 2 * 1 := by
-                                  exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 1
-                                rw [this, mul_comm, ←pow_succ, nsize_minus1_add1] at eq
-                                simp at eq
-                                replace eq : n + 2 = 2 ^ n.size := by
-                                  refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm eq)))
-                                  · exact le_pow (size_pos.mpr n_gt_0)
-                                exact absurd eq n2_ne_pow2
-                              · exact gt
-                            replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 1) := by
-                              exact Nat.sub_le_sub_left this n
-                            replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
-                              have t1 : n - (n / 2 + 1) = n / 2 - 1 := by
-                                have : n - (n / 2 + 1) = n - n / 2 - 1 := rfl
-                                rw (occs := .pos [3]) [even] at this
-                                simp at this
-                                exact this
-                              simp [t1] at this
-                              exact sub_le_of_le_add this
-                            exact this
-                          exact this
-                        have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (n / 2 - 1) := by
-                          exact segment_is_monotone' segment_arg_order
-                        replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ 2 ^ (n.size - 2) := by
-                          exact Nat.le_trans s1 unsegment
-                        replace s1 :
-                            segment (n - (2 ^ (n.size - 1) - 1)) = 2 ^ (n.size - 2) ∨
-                            segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
-                          exact Nat.eq_or_lt_of_le s1
-                        rcases s1 with eq|lt
-                        · simp [n1size_eq_nsize, n2size_eq_nsize] at n_ne_envelope_segment
-                          simp [eq] at n_ne_envelope_segment
-                          rw [←mul_two, ←pow_succ] at n_ne_envelope_segment
-                          have aux : n.size - 2 + 1 = n.size - 1 := by grind
-                          simp [aux] at n_ne_envelope_segment
-                        · have s4 :
-                              trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) =
-                              trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
-                            rw [add_comm]
-                            refine trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) lt ?_
-                            · exact Nat.pos_iff_ne_zero.mp (segment_is_pos (n - (2 ^ (n.size - 1) - 1)))
-                          simp [s4]
-                        -- odd path
-                      · have odd : Odd n := by exact not_even_iff_odd.mp parity
-                        have odd' : n = n / 2 + n / 2 + 1 := by rw [←mul_two, div_two_mul_two_add_one_of_odd odd]
-                        have odd'' : (n - 1) / 2 = n / 2 := by
-                          refine Nat.div_eq_of_eq_mul_right ?_ ?_
-                          · exact Nat.zero_lt_two
-                          · refine Eq.symm (two_mul_odd_div_two ?_)
-                            · exact not_even_iff.mp parity
-                        have unsegment : segment (n / 2) ≤ 2 ^ (n.size - 2) := by
-                          have s1 : segment (n / 2) ≤ 2 ^ ((n / 2 + 1).size - 1) := by
-                            refine segment_limit2 ?_
-                            · have : (n - 1) / 2 ≥ 2 := by
-                                have : n ≥ 5 := by exact le_of_add_left_le n_ge_8
-                                replace : n - 1 ≥ 4 := by exact (Nat.le_sub_one_iff_lt n_gt_0).mpr this
-                                replace : (n - 1) / 2 ≥ 4 / 2 := by exact Nat.div_le_div_right this
-                                simp at this
-                                exact this
-                              simp [odd''] at this
+                    replace x : (n + 1).size = (2 ^ (n.size - 1) + 1).size := by simp [←x]
+                    replace x : (n + 1).size = n.size := by
+                      have : (2 ^ (n.size - 1) + 1).size = n.size - 1 + 1 := by
+                        refine size_add ?_ ?_
+                        · exact Nat.one_pos
+                        · exact
+                            Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt nsize_ge_4))
+                      simp [this] at x
+                      replace : n.size - 1 + 1 = n.size := by grind
+                      simp [this] at x
+                      exact x
+                    simp [x] at add1
+                  refine same_n1size_iff_not_pow2.mp ?_
+                  · simp [add1] at at_seg_beg
+                    exact at_seg_beg
+              have n1_ne_pow2 : ¬n + 1 = 2 ^ n.size := same_n1size_iff_not_pow2.mpr n1size_eq_nsize
+              have n2size_eq_nsize : (n + 2).size = n.size := by
+                have : (n + 2).size = (n + 1).size := by
+                  by_contra x
+                  have : n + 1 + 1 = 2 ^ (n + 1).size := by
+                    refine increase_n1size_at_pow2 ?_
+                    · have : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
+                        exact size_limit (n + 1)
+                      rcases this with eq|gt
+                      · exact absurd eq x
+                      · exact gt
+                  replace : n + 2 = 2 ^ (n + 1).size := this
+                  simp [this] at n_ne_envelope'
+                  rw [size_pow] at n_ne_envelope'
+                  replace : (n + 1).size + 1 - 1 = (n + 1).size := rfl
+                  simp [this] at n_ne_envelope'
+                simp [this]
+                exact n1size_eq_nsize
+              rw [segment.eq_def] at n_ne_envelope_segment
+              split at n_ne_envelope_segment
+              · contradiction
+              · split at n_ne_envelope_segment <;> expose_names
+                · simp [n1size_eq_nsize, n2size_eq_nsize] at *
+                  exact absurd h_2 n_ne_envelope
+                · simp at n_ne_envelope_segment
+                  simp [n1size_eq_nsize, n2size_eq_nsize]
+                  simp [n2size_eq_nsize] at n2size_gt_3
+                  by_cases eq : 2 ^ (n.size - 1) = n
+                  · simp [eq]
+                    have : n - (n - 1) = 1 := by exact Nat.sub_sub_self n_gt_0
+                    simp [this]
+                    have : trailing_zeros (2 ^ (n.size - 2) + 2) = trailing_zeros 2 := by
+                      rw [add_comm]
+                      refine trailing_zeros_prop1' 2 ?_ (n.size - 2) ?_
+                      · exact Nat.zero_lt_two
+                      · refine size_le.mp ?_
+                        · refine le_sub_of_add_le ?_
+                          · simp ; exact nsize_ge_4
+                    simp [this]
+                  · rename' eq => n_ne_pow2
+                    have s2 : segment (2 ^ (n.size - 2)) ≤ 2 ^ ((2 ^ (n.size - 2) + 1).size - 1) := by
+                      exact segment_limit2 (le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt n2size_gt_3)))
+                    have s3 : (2 ^ (n.size - 2) + 1).size = n.size - 2 + 1 := by
+                       refine size_add ?_ ?_
+                       · exact Nat.one_pos
+                       · refine Nat.one_lt_two_pow_iff.mpr ?_
+                         · exact Nat.sub_ne_zero_iff_lt.mpr (lt_of_add_left_lt n2size_gt_3)
+                    simp [s3] at s2
+                    have n_lt_pow2_minus_2 : n < 2 ^ n.size - 2 := by
+                      have : n < 2 ^ n.size := lt_size_self n
+                      replace : n ≤ 2 ^ n.size - 1 := le_sub_one_of_lt this
+                      replace : n = 2 ^ n.size - 1 ∨ n < 2 ^ n.size - 1 := Nat.eq_or_lt_of_le this
+                      rcases this with eq|lt
+                      · replace eq : n + 1 = 2 ^ n.size := by
+                          refine Eq.symm ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_ (id (Eq.symm eq)))
+                          · exact Nat.one_le_two_pow
+                        exact absurd eq n1_ne_pow2
+                      · replace lt : n ≤ 2 ^ n.size - 1 - 1 := by exact le_sub_one_of_lt lt
+                        replace lt : n ≤ 2 ^ n.size - 2 := by grind
+                        replace lt : n = 2 ^ n.size - 2 ∨ n < 2 ^ n.size - 2 := Nat.eq_or_lt_of_le lt
+                        rcases lt with eq|lt
+                        · replace eq : n + 2 = 2 ^ n.size := by
+                            refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm eq)))
+                            · exact le_pow (size_pos.mpr n_gt_0)
+                          exact absurd eq n2_ne_pow2
+                        · exact lt
+                    by_cases parity : Even n
+                    · have unsegment : segment (n / 2 - 1) ≤ 2 ^ (n.size - 2) := by
+                        have s1 : segment (n / 2 - 1) ≤ 2 ^ ((n / 2 - 1 + 1).size - 1) := by
+                          refine segment_limit2 ?_
+                          · refine le_sub_one_of_lt ?_
+                            · replace : 2 < n / 2 := by
+                                refine (Nat.lt_div_iff_mul_lt ?_).mpr ?_
+                                · exact Nat.zero_lt_two
+                                · simp ; grind
                               exact this
-                          replace s4 : (n / 2 + 1).size = n.size - 1 := by
+                        have s4 : n / 2 - 1 + 1 = n / 2 := by
+                          refine Nat.sub_add_cancel ?_
+                          · exact (Nat.one_le_div_iff Nat.zero_lt_two).mpr (le_of_add_left_le n_ge_8)
+                        simp [s4] at s1
+                        replace s4 : (n / 2).size = n.size - 1 := by
+                          by_cases even : Even n
+                          · exact size_div n_gt_0 (even_iff_two_dvd.mp even)
+                          · rename' even => odd
+                            replace odd : Odd n := by exact not_even_iff_odd.mp odd
                             have s : ((n - 1) / 2).size = (n - 1).size - 1 := by
                               refine size_div ?_ ?_
                               · exact le_sub_one_of_lt (lt_of_add_left_lt n_ge_8)
@@ -1996,142 +1788,346 @@ theorem segment_length_prop2 : ∀ n > 0, n = 2 ^ n.size - 2 →
                               replace n1_bits : (n - 1).bits.length = m.bits.length + 1 := n1_bits
                               simp [bitslength_eq_size] at n1_bits
                               simp [n1_bits, n_bits]
-                            simp [odd'', right] at s
-                            have aux : (n / 2 + 1).size = (n / 2).size := by
-                              have : (n + 1) / 2 = (n + 2) / 2 := by
-                                have : n + 2 = n + 1 + 1 := rfl
-                                simp [this]
-                                replace : (n + 1 + 1) / 2 = (n + 1) / 2 + 1 / 2 := by
-                                  refine add_div_of_dvd_add_add_one ?_
-                                  · refine (mod_eq_sub_iff ?_ ?_).mp ?_
-                                    · exact Nat.one_pos
-                                    · exact NeZero.one_le
-                                    . simp
-                                      have : Odd (n + 2) := by
-                                        refine odd_add_one.mpr ?_
-                                        · have : Even (n + 1) := Odd.add_one odd
-                                          exact not_odd_iff_even.mpr this
-                                      exact odd_iff.mp this
-                                simp [this]
-                              replace : (n + 1) / 2 = n / 2 + 1 := by
-                                have aux : (n + 2) / 2 = n / 2 + 1 := by grind
-                                simp [aux] at this
+                            have left : ((n - 1) / 2).size = (n / 2).size := by
+                              let m := n / 2
+                              have m_def : m = value_of% m := rfl
+                              have n1_bits : (2 * m).bits = false :: m.bits := by
+                                refine bits_of_double_eq_cons_false_and_bits m ?_
+                                · exact Nat.lt_of_sub_eq_succ (id (Eq.symm s4))
+                              replace n1_bits : (n - 1).bits = false :: m.bits := by
+                                have : n - 1 = 2 * m := by grind
+                                simp [←this] at n1_bits
+                                exact n1_bits
+                              replace n1_bits : (n - 1).div2.bits = (n - 1).bits.tail := by
+                                exact div2_bits_eq_tail (n - 1)
+                              have t1 : (n - 1) / 2 = (n - 1).div2 := Eq.symm (div2_val (n - 1))
+                              simp [←t1] at n1_bits
+                              replace n1_bits : ((n - 1) / 2).bits.length = (n - 1).bits.tail.length := by
+                                exact congrArg List.length n1_bits
+                              rw [List.length_tail] at n1_bits
+                              simp only [bitslength_eq_size, right] at n1_bits
+                              have n_bits : n.bits = (2 * m + 1).bits := by
+                                have : n = 2 * m + 1 := Eq.symm (two_mul_div_two_add_one_of_odd odd)
+                                exact congrArg bits this
+                              simp at n_bits
+                              replace n_bits : (n / 2).bits = n.bits.tail := by
+                                have : (n / 2).bits = (true :: m.bits).tail := rfl
+                                simp [←n_bits] at this
                                 exact this
-                              simp [←this]
-                              replace : ((n + 1) / 2).size = (n + 1).size - 1 := by
-                                refine size_div ?_ ?_
-                                · exact le_add_right_of_le n_gt_0
-                                · have : Even (n + 1) := by exact Odd.add_one odd
-                                  refine dvd_of_mod_eq_zero ?_
-                                  · exact even_iff.mp this
-                              simp [this, n1size_eq_nsize]
-                              exact id (Eq.symm s)
-                            simp [aux]
+                              replace n_bits : (n / 2).bits.length = n.bits.tail.length := by
+                                exact congrArg List.length n_bits
+                              rw [List.length_tail] at n_bits
+                              simp only [bitslength_eq_size] at n_bits
+                              simp [←n_bits] at n1_bits
+                              exact n1_bits
+                            simp [left, right] at s
                             exact s
-                          simp [s4] at s1
-                          have : n.size - 1 - 1 = n.size - 2 := rfl
-                          simp [this] at s1
-                          exact s1
-                        rw [add_comm]
-                        have segment_arg_order : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 := by
-                          have : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
-                            have : n < 2 ^ n.size := by exact lt_size_self n
-                            replace : n + 1 ≤ 2 ^ n.size := this
-                            replace : n + 1 = 2 ^ n.size ∨ n + 1 < 2 ^ n.size := Nat.eq_or_lt_of_le this
-                            rcases this with eq|lt
-                            · exact absurd eq n1_ne_pow2
-                            · replace eq : n + 1 + 1 ≤ 2 ^ n.size := lt
-                              simp [n_add1_add1] at eq
-                              replace eq : n + 2 = 2 ^ n.size ∨ n + 2 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
-                              rcases eq with eq|lt
-                              · exact absurd eq n2_ne_pow2
-                              · replace lt : n + 3 ≤ 2 ^ n.size := by grind
-                                replace lt : n + 3 = 2 ^ n.size ∨ n + 3 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
-                                rcases lt with eq|lt
-                                · replace lt : n = 2 ^ n.size - 3 := Nat.eq_sub_of_add_eq eq
-                                  rw (occs := .pos [1]) [lt]
-                                  have s1 : (2 * (2 ^ (n.size - 1) - 2) + 1).div2 = 2 ^ (n.size - 1) - 2 := by
-                                    exact div2_bit1 (2 ^ (n.size - 1) - 2)
-                                  have s2 : 2 * (2 ^ (n.size - 1) - 2) + 1 = 2 ^ n.size - 3 := by
-                                    have : 2 * (2 ^ (n.size - 1) - 2) = 2 * 2 ^ (n.size - 1) - 2 * 2 := by
-                                      exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 2
-                                    simp at this
-                                    rw [this, mul_comm, ←pow_succ, nsize_minus1_add1]
-                                    refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
-                                    · refine le_sub_of_add_le ?_
-                                      · have : 1 + 3 = 2 ^ 2 := rfl
-                                        simp only [this]
-                                        exact Luby.pow2_le_pow2 2 n.size (le_of_add_left_le nsize_ge_4)
-                                  simp [s2] at s1
-                                  replace s2 : (2 ^ n.size - 3).div2 = (2 ^ n.size - 3) / 2 := by
-                                    exact div2_val (2 ^ n.size - 3)
-                                  simp [s2] at s1
-                                  replace s1 : (2 ^ n.size - 3) / 2 + 2 = 2 ^ (n.size - 1) := by
-                                    refine
-                                      Eq.symm
-                                        ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_
-                                          (id (Eq.symm s1)))
-                                    · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt nsize_ge_4))
-                                  exact Nat.le_of_eq s1
-                                · replace lt : n + 4 ≤ 2 ^ n.size := lt
-                                  replace lt : (n + 4) / 2 ≤ 2 ^ n.size / 2 := Nat.div_le_div_right lt
-                                  replace lt : n / 2 + 2 ≤ 2 ^ n.size / 2 := by grind
-                                  replace lt : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
-                                    have : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by grind
-                                    simp [this] at lt
-                                    exact lt
+                        simp [s4] at s1
+                        have : n.size - 1 - 1 = n.size - 2 := rfl
+                        simp [this] at s1
+                        exact s1
+                      have segment_arg_order : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                        have : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
+                          have : n < 2 ^ n.size := by exact lt_size_self n
+                          replace : n + 1 ≤ 2 ^ n.size := this
+                          replace : n + 1 = 2 ^ n.size ∨ n + 1 < 2 ^ n.size := Nat.eq_or_lt_of_le this
+                          rcases this with eq|lt
+                          · exact absurd eq n1_ne_pow2
+                          · replace eq : n + 1 + 1 ≤ 2 ^ n.size := lt
+                            simp [n_add1_add1] at eq
+                            replace eq : n + 2 = 2 ^ n.size ∨ n + 2 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
+                            rcases eq with eq|lt
+                            · exact absurd eq n2_ne_pow2
+                            · replace lt : n + 3 ≤ 2 ^ n.size := by grind
+                              replace lt : n + 3 = 2 ^ n.size ∨ n + 3 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
+                              rcases lt with eq|lt
+                              · replace lt : n = 2 ^ n.size - 3 := Nat.eq_sub_of_add_eq eq
+                                rw (occs := .pos [1]) [lt]
+                                have s1 : (2 * (2 ^ (n.size - 1) - 2) + 1).div2 = 2 ^ (n.size - 1) - 2 := by
+                                  exact div2_bit1 (2 ^ (n.size - 1) - 2)
+                                have s2 : 2 * (2 ^ (n.size - 1) - 2) + 1 = 2 ^ n.size - 3 := by
+                                  have : 2 * (2 ^ (n.size - 1) - 2) = 2 * 2 ^ (n.size - 1) - 2 * 2 := by
+                                    exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 2
+                                  simp at this
+                                  rw [this, mul_comm, ←pow_succ, nsize_minus1_add1]
+                                  refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
+                                  · refine le_sub_of_add_le ?_
+                                    · have : 1 + 3 = 2 ^ 2 := rfl
+                                      simp only [this]
+                                      exact Luby.pow2_le_pow2 2 n.size (le_of_add_left_le nsize_ge_4)
+                                simp [s2] at s1
+                                replace s2 : (2 ^ n.size - 3).div2 = (2 ^ n.size - 3) / 2 := by
+                                  exact div2_val (2 ^ n.size - 3)
+                                simp [s2] at s1
+                                replace s1 : (2 ^ n.size - 3) / 2 + 2 = 2 ^ (n.size - 1) := by
+                                  refine
+                                    Eq.symm
+                                      ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_
+                                        (id (Eq.symm s1)))
+                                  · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt nsize_ge_4))
+                                exact Nat.le_of_eq s1
+                              · replace lt : n + 4 ≤ 2 ^ n.size := lt
+                                replace lt : (n + 4) / 2 ≤ 2 ^ n.size / 2 := Nat.div_le_div_right lt
+                                replace lt : n / 2 + 2 ≤ 2 ^ n.size / 2 := by grind
+                                replace lt : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
+                                  have : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by grind
+                                  simp [this] at lt
                                   exact lt
-                          replace : n / 2 + 2 - 1 ≤ 2 ^ (n.size - 1) - 1 := Nat.sub_le_sub_right this 1
-                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 2 - 1) := by
+                                exact lt
+                        replace : n / 2 + 2 - 1 ≤ 2 ^ (n.size - 1) - 1 := Nat.sub_le_sub_right this 1
+                        replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 2 - 1) := by
+                          exact Nat.sub_le_sub_left this n
+                        replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                          have even : Even n := parity
+                          replace even : n = n / 2 + n / 2 := by
+                            rw [←mul_two]
+                            exact Eq.symm (div_two_mul_two_of_even even)
+                          replace : n / 2 + 1 ≤ 2 ^ (n.size - 1) - 1 := by
+                            replace : n < 2 ^ n.size := by exact lt_size_self n
+                            replace : n / 2 < 2 ^ n.size / 2 := by
+                              refine div_lt_div_of_lt_of_dvd ?_ this
+                              · exact Dvd.intro_left (2 ^ (n.size - 1)) (id (Eq.symm nsize_divide))
+                            replace : n / 2 < 2 ^ (n.size - 1) := by
+                              have aux : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
+                                refine Nat.div_eq_of_eq_mul_right ?_ ?_
+                                · exact Nat.zero_lt_two
+                                · rw [mul_comm, ←pow_succ, nsize_minus1_add1]
+                              simp [aux] at this
+                              exact this
+                            replace : n / 2 ≤ 2 ^ (n.size - 1) - 1 := le_sub_one_of_lt this
+                            replace : n / 2 = 2 ^ (n.size - 1) - 1 ∨ n / 2 < 2 ^ (n.size - 1) - 1 := by
+                              exact Nat.eq_or_lt_of_le this
+                            rcases this with eq|gt
+                            · replace eq : n / 2 * 2 = (2 ^ (n.size - 1) - 1) * 2 := by
+                                exact congrFun (congrArg HMul.hMul eq) 2
+                              rw [mul_two, ←even, mul_comm] at eq
+                              have : 2 * (2 ^ (n.size - 1) - 1) = 2 * 2 ^ (n.size - 1) - 2 * 1 := by
+                                exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 1
+                              rw [this, mul_comm, ←pow_succ, nsize_minus1_add1] at eq
+                              simp at eq
+                              replace eq : n + 2 = 2 ^ n.size := by
+                                refine Eq.symm (Nat.eq_add_of_sub_eq ?_ (id (Eq.symm eq)))
+                                · exact le_pow (size_pos.mpr n_gt_0)
+                              exact absurd eq n2_ne_pow2
+                            · exact gt
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 1) := by
+                            exact Nat.sub_le_sub_left this n
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 - 1 := by
+                            have t1 : n - (n / 2 + 1) = n / 2 - 1 := by
+                              have : n - (n / 2 + 1) = n - n / 2 - 1 := rfl
+                              rw (occs := .pos [3]) [even] at this
+                              simp at this
+                              exact this
+                            simp [t1] at this
+                            exact sub_le_of_le_add this
+                          exact this
+                        exact this
+                      have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (n / 2 - 1) := by
+                        exact segment_is_monotone' segment_arg_order
+                      replace s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ 2 ^ (n.size - 2) := by
+                        exact Nat.le_trans s1 unsegment
+                      replace s1 :
+                          segment (n - (2 ^ (n.size - 1) - 1)) = 2 ^ (n.size - 2) ∨
+                          segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
+                        exact Nat.eq_or_lt_of_le s1
+                      rcases s1 with eq|lt
+                      · simp [n1size_eq_nsize, n2size_eq_nsize] at n_ne_envelope_segment
+                        simp [eq] at n_ne_envelope_segment
+                        rw [←mul_two, ←pow_succ] at n_ne_envelope_segment
+                        have aux : n.size - 2 + 1 = n.size - 1 := by grind
+                        simp [aux] at n_ne_envelope_segment
+                      · have s4 :
+                            trailing_zeros (2 ^ (n.size - 2) + segment (n - (2 ^ (n.size - 1) - 1))) =
+                            trailing_zeros (segment (n - (2 ^ (n.size - 1) - 1))) := by
+                          rw [add_comm]
+                          refine trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) lt ?_
+                          · exact Nat.pos_iff_ne_zero.mp (segment_is_pos (n - (2 ^ (n.size - 1) - 1)))
+                        simp [s4]
+                      -- odd path
+                    · have odd : Odd n := by exact not_even_iff_odd.mp parity
+                      have odd' : n = n / 2 + n / 2 + 1 := by rw [←mul_two, div_two_mul_two_add_one_of_odd odd]
+                      have odd'' : (n - 1) / 2 = n / 2 := by
+                        refine Nat.div_eq_of_eq_mul_right ?_ ?_
+                        · exact Nat.zero_lt_two
+                        · exact Eq.symm (two_mul_odd_div_two (not_even_iff.mp parity))
+                      have unsegment : segment (n / 2) ≤ 2 ^ (n.size - 2) := by
+                        have s1 : segment (n / 2) ≤ 2 ^ ((n / 2 + 1).size - 1) := by
+                          refine segment_limit2 ?_
+                          · have : (n - 1) / 2 ≥ 2 := by
+                              have : n ≥ 5 := by exact le_of_add_left_le n_ge_8
+                              replace : n - 1 ≥ 4 := by exact (Nat.le_sub_one_iff_lt n_gt_0).mpr this
+                              replace : (n - 1) / 2 ≥ 4 / 2 := by exact Nat.div_le_div_right this
+                              simp at this
+                              exact this
+                            simp [odd''] at this
+                            exact this
+                        replace s4 : (n / 2 + 1).size = n.size - 1 := by
+                          have s : ((n - 1) / 2).size = (n - 1).size - 1 := by
+                            refine size_div ?_ ?_
+                            · exact le_sub_one_of_lt (lt_of_add_left_lt n_ge_8)
+                            · refine dvd_of_mod_eq_zero ?_
+                              · replace odd : Even (n - 1) := Odd.tsub_odd odd (odd_iff.mpr rfl)
+                                exact even_iff.mp odd
+                          have right : (n - 1).size = n.size := by
+                            let m := n / 2
+                            have m_def : m = value_of% m := rfl
+                            have n_to_m : n = 2 * m + 1 := by grind
+                            have n_bits : (2 * m + 1).bits = true :: m.bits := bit1_bits m
+                            simp [←n_to_m] at n_bits
+                            replace n_bits : n.bits.length = (true :: m.bits).length := by
+                              exact congrArg List.length n_bits
+                            replace n_bits : n.bits.length = m.bits.length + 1 := n_bits
+                            simp [bitslength_eq_size] at n_bits
+                            have n1_bits : (2 * m).bits = false :: m.bits := by
+                              refine bit0_bits m ?_
+                              · refine Nat.div_ne_zero_iff.mpr ?_
+                                · constructor
+                                  · exact Ne.symm (zero_ne_add_one 1)
+                                  · exact le_of_add_left_le n_ge_8
+                            replace n_to_m : n - 1 = 2 * m := by grind
+                            simp [←n_to_m] at n1_bits
+                            replace n1_bits : (n - 1).bits.length = (false :: m.bits).length := by
+                              exact congrArg List.length n1_bits
+                            replace n1_bits : (n - 1).bits.length = m.bits.length + 1 := n1_bits
+                            simp [bitslength_eq_size] at n1_bits
+                            simp [n1_bits, n_bits]
+                          simp [odd'', right] at s
+                          have aux : (n / 2 + 1).size = (n / 2).size := by
+                            have : (n + 1) / 2 = (n + 2) / 2 := by
+                              have : n + 2 = n + 1 + 1 := rfl
+                              simp [this]
+                              replace : (n + 1 + 1) / 2 = (n + 1) / 2 + 1 / 2 := by
+                                refine add_div_of_dvd_add_add_one ?_
+                                · refine (mod_eq_sub_iff ?_ ?_).mp ?_
+                                  · exact Nat.one_pos
+                                  · exact NeZero.one_le
+                                  . simp
+                                    have : Odd (n + 2) := by
+                                      refine odd_add_one.mpr ?_
+                                      · have : Even (n + 1) := Odd.add_one odd
+                                        exact not_odd_iff_even.mpr this
+                                    exact odd_iff.mp this
+                              simp [this]
+                            replace : (n + 1) / 2 = n / 2 + 1 := by
+                              have aux : (n + 2) / 2 = n / 2 + 1 := by grind
+                              simp [aux] at this
+                              exact this
+                            simp [←this]
+                            replace : ((n + 1) / 2).size = (n + 1).size - 1 := by
+                              refine size_div ?_ ?_
+                              · exact le_add_right_of_le n_gt_0
+                              · have : Even (n + 1) := by exact Odd.add_one odd
+                                exact dvd_of_mod_eq_zero (even_iff.mp this)
+                            simp [this, n1size_eq_nsize]
+                            exact id (Eq.symm s)
+                          simp [aux]
+                          exact s
+                        simp [s4] at s1
+                        have : n.size - 1 - 1 = n.size - 2 := rfl
+                        simp [this] at s1
+                        exact s1
+                      rw [add_comm]
+                      have segment_arg_order : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 := by
+                        have : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
+                          have : n < 2 ^ n.size := by exact lt_size_self n
+                          replace : n + 1 ≤ 2 ^ n.size := this
+                          replace : n + 1 = 2 ^ n.size ∨ n + 1 < 2 ^ n.size := Nat.eq_or_lt_of_le this
+                          rcases this with eq|lt
+                          · exact absurd eq n1_ne_pow2
+                          · replace eq : n + 1 + 1 ≤ 2 ^ n.size := lt
+                            simp [n_add1_add1] at eq
+                            replace eq : n + 2 = 2 ^ n.size ∨ n + 2 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
+                            rcases eq with eq|lt
+                            · exact absurd eq n2_ne_pow2
+                            · replace lt : n + 3 ≤ 2 ^ n.size := by grind
+                              replace lt : n + 3 = 2 ^ n.size ∨ n + 3 < 2 ^ n.size := Nat.eq_or_lt_of_le lt
+                              rcases lt with eq|lt
+                              · replace lt : n = 2 ^ n.size - 3 := Nat.eq_sub_of_add_eq eq
+                                rw (occs := .pos [1]) [lt]
+                                have s1 : (2 * (2 ^ (n.size - 1) - 2) + 1).div2 = 2 ^ (n.size - 1) - 2 := by
+                                  exact div2_bit1 (2 ^ (n.size - 1) - 2)
+                                have s2 : 2 * (2 ^ (n.size - 1) - 2) + 1 = 2 ^ n.size - 3 := by
+                                  have : 2 * (2 ^ (n.size - 1) - 2) = 2 * 2 ^ (n.size - 1) - 2 * 2 := by
+                                    exact Nat.mul_sub_left_distrib 2 (2 ^ (n.size - 1)) 2
+                                  simp at this
+                                  rw [this, mul_comm, ←pow_succ, nsize_minus1_add1]
+                                  refine Eq.symm (Nat.eq_add_of_sub_eq ?_ rfl)
+                                  · refine le_sub_of_add_le ?_
+                                    · have : 1 + 3 = 2 ^ 2 := rfl
+                                      simp only [this]
+                                      exact Luby.pow2_le_pow2 2 n.size (le_of_add_left_le nsize_ge_4)
+                                simp [s2] at s1
+                                replace s2 : (2 ^ n.size - 3).div2 = (2 ^ n.size - 3) / 2 := by
+                                  exact div2_val (2 ^ n.size - 3)
+                                simp [s2] at s1
+                                replace s1 : (2 ^ n.size - 3) / 2 + 2 = 2 ^ (n.size - 1) := by
+                                  refine
+                                    Eq.symm
+                                      ((fun {b a c} h ↦ (Nat.sub_eq_iff_eq_add h).mp) ?_
+                                        (id (Eq.symm s1)))
+                                  · exact le_pow (zero_lt_sub_of_lt (lt_of_add_left_lt nsize_ge_4))
+                                exact Nat.le_of_eq s1
+                              · replace lt : n + 4 ≤ 2 ^ n.size := lt
+                                replace lt : (n + 4) / 2 ≤ 2 ^ n.size / 2 := Nat.div_le_div_right lt
+                                replace lt : n / 2 + 2 ≤ 2 ^ n.size / 2 := by grind
+                                replace lt : n / 2 + 2 ≤ 2 ^ (n.size - 1) := by
+                                  have : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by grind
+                                  simp [this] at lt
+                                  exact lt
+                                exact lt
+                        replace : n / 2 + 2 - 1 ≤ 2 ^ (n.size - 1) - 1 := Nat.sub_le_sub_right this 1
+                        replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 2 - 1) := by
+                          exact Nat.sub_le_sub_left this n
+                        replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 := by
+                          replace : n / 2 + 1 ≤ 2 ^ (n.size - 1) - 1 := by
+                            replace : n < 2 ^ n.size := by exact lt_size_self n
+                            replace : n / 2 < 2 ^ n.size / 2 := by
+                              refine div_lt_div_of_lt_of_dvd ?_ this
+                              · exact Dvd.intro_left (2 ^ (n.size - 1)) (id (Eq.symm nsize_divide))
+                            replace : n / 2 < 2 ^ (n.size - 1) := by
+                              have aux : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
+                                refine Nat.div_eq_of_eq_mul_right ?_ ?_
+                                · exact Nat.zero_lt_two
+                                · rw [mul_comm, ←pow_succ, nsize_minus1_add1]
+                              simp [aux] at this
+                              exact this
+                            replace : n / 2 ≤ 2 ^ (n.size - 1) - 1 := le_sub_one_of_lt this
+                            replace : n / 2 = 2 ^ (n.size - 1) - 1 ∨ n / 2 < 2 ^ (n.size - 1) - 1 := by
+                              exact Nat.eq_or_lt_of_le this
+                            rcases this with eq|gt
+                            · replace eq : n / 2 * 2 = (2 ^ (n.size - 1) - 1) * 2 := by
+                                exact congrFun (congrArg HMul.hMul eq) 2
+                              have even : n /2 * 2 = n - 1 := by grind
+                              rw [even] at eq
+                              rw [Nat.sub_mul] at eq
+                              replace eq : n + 1 = 2 ^ (n.size - 1) * 2 := by grind
+                              rw [←pow_succ, nsize_minus1_add1] at eq
+                              exact absurd eq n1_ne_pow2
+                            · exact gt
+                          replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 1) := by
                             exact Nat.sub_le_sub_left this n
                           replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 := by
-                            replace : n / 2 + 1 ≤ 2 ^ (n.size - 1) - 1 := by
-                              replace : n < 2 ^ n.size := by exact lt_size_self n
-                              replace : n / 2 < 2 ^ n.size / 2 := by
-                                refine div_lt_div_of_lt_of_dvd ?_ this
-                                · exact Dvd.intro_left (2 ^ (n.size - 1)) (id (Eq.symm nsize_divide))
-                              replace : n / 2 < 2 ^ (n.size - 1) := by
-                                have aux : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
-                                  refine Nat.div_eq_of_eq_mul_right ?_ ?_
-                                  · exact Nat.zero_lt_two
-                                  · rw [mul_comm, ←pow_succ, nsize_minus1_add1]
-                                simp [aux] at this
-                                exact this
-                              replace : n / 2 ≤ 2 ^ (n.size - 1) - 1 := le_sub_one_of_lt this
-                              replace : n / 2 = 2 ^ (n.size - 1) - 1 ∨ n / 2 < 2 ^ (n.size - 1) - 1 := by
-                                exact Nat.eq_or_lt_of_le this
-                              rcases this with eq|gt
-                              · replace eq : n / 2 * 2 = (2 ^ (n.size - 1) - 1) * 2 := by
-                                  exact congrFun (congrArg HMul.hMul eq) 2
-                                have even : n /2 * 2 = n - 1 := by grind
-                                rw [even] at eq
-                                rw [Nat.sub_mul] at eq
-                                replace eq : n + 1 = 2 ^ (n.size - 1) * 2 := by grind
-                                rw [←pow_succ, nsize_minus1_add1] at eq
-                                exact absurd eq n1_ne_pow2
-                              · exact gt
-                            replace : n - (2 ^ (n.size - 1) - 1) ≤ n - (n / 2 + 1) := by
-                              exact Nat.sub_le_sub_left this n
-                            replace : n - (2 ^ (n.size - 1) - 1) ≤ n / 2 := by
-                              have t1 : n - (n / 2 + 1) = n / 2 := by rw (occs := .pos [1]) [odd'] ; simp
-                              simp [t1] at this
-                              exact sub_le_of_le_add this
-                            exact this
+                            have t1 : n - (n / 2 + 1) = n / 2 := by rw (occs := .pos [1]) [odd'] ; simp
+                            simp [t1] at this
+                            exact sub_le_of_le_add this
                           exact this
-                        have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (n / 2) := by
-                          exact segment_is_monotone' segment_arg_order
-                        refine trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) ?_ ?_
-                        · have : segment (n - (2 ^ (n.size - 1) - 1)) ≤ 2 ^ (n.size - 2) := by
-                            exact Nat.le_trans s1 unsegment
-                          replace :
-                              segment (n - (2 ^ (n.size - 1) - 1)) = 2 ^ (n.size - 2) ∨
-                              segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
-                            exact Nat.eq_or_lt_of_le this
-                          rcases this with eq|lt
-                          · simp [n2size_eq_nsize, n1size_eq_nsize, eq, ←mul_two, ←pow_succ] at n_ne_envelope_segment
-                            have aux : n.size - 2 + 1 = n.size - 1 := by grind
-                            simp [aux] at n_ne_envelope_segment
-                          · exact lt
-                        · exact Nat.pos_iff_ne_zero.mp (segment_is_pos (n - (2 ^ (n.size - 1) - 1)))
-      · intro x; simp [x] at n_gt_0
+                        exact this
+                      have s1 : segment (n - (2 ^ (n.size - 1) - 1)) ≤ segment (n / 2) := by
+                        exact segment_is_monotone' segment_arg_order
+                      refine trailing_zeros_prop7 (n.size - 2) (segment (n - (2 ^ (n.size - 1) - 1))) ?_ ?_
+                      · have : segment (n - (2 ^ (n.size - 1) - 1)) ≤ 2 ^ (n.size - 2) := by
+                          exact Nat.le_trans s1 unsegment
+                        replace :
+                            segment (n - (2 ^ (n.size - 1) - 1)) = 2 ^ (n.size - 2) ∨
+                            segment (n - (2 ^ (n.size - 1) - 1)) < 2 ^ (n.size - 2) := by
+                          exact Nat.eq_or_lt_of_le this
+                        rcases this with eq|lt
+                        · simp [n2size_eq_nsize, n1size_eq_nsize, eq, ←mul_two, ←pow_succ] at n_ne_envelope_segment
+                          have aux : n.size - 2 + 1 = n.size - 1 := by grind
+                          simp [aux] at n_ne_envelope_segment
+                        · exact lt
+                      · exact Nat.pos_iff_ne_zero.mp (segment_is_pos (n - (2 ^ (n.size - 1) - 1)))
+    · intro x; simp [x] at n_gt_0
+
 end LubySegment
+
