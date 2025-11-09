@@ -222,7 +222,7 @@ $
           (text(fill: blue, [$\#8 = "b1000"$])), ), )) )
 })
 
-$ "segment_beg"_n = 1 + sum_(i = 0)^n #pin(1)i."trailing_zero"#pin(2) + 1  $
+$ "segment_beg"_n = 1 + sum_(i = 0)^n #pin(1)i."trailing_zero"#pin(2) + 1 $
 
 #pinit-highlight(1, 2)
 
@@ -252,7 +252,7 @@ def State.luby (s : State) : ℕ := 2 ^ s.locIx
 #align(center)[
 #diagram(cell-size: 12mm, {
   node((1, 0), $n$)
-  edge((1, 0), (1, 2),  $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight", stroke: red)
+  edge((1, 0), (1, 2), $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight", stroke: red)
   edge((1, 0), (1, 1), "<-->")
   node((0, 1), $S_0$)
   edge((0, 1), (1, 1), "~>", stroke: luma(150))

@@ -168,7 +168,7 @@ theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ 2 * n := 
 /--
 The bit representation length of `2 ^ n` equals `n + 1`.
 -/
-theorem bitslength_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
+theorem bitslength_of_pow2_eq_self_add_one (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
   induction n with
   | zero => simp
   | succ n hn =>
@@ -182,7 +182,7 @@ theorem bitslength_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).bits.length = n 
 /--
 The size of `2 ^ n` equals `n + 1`.
 -/
-theorem size_of_pow2_eq_self_add_one  (n : ℕ) : (2 ^ n).size = n + 1 := by
+theorem size_of_pow2_eq_self_add_one (n : ℕ) : (2 ^ n).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_of_pow2_eq_self_add_one n
 
@@ -443,7 +443,7 @@ theorem size_limit (n : ℕ) : (n + 1).size = n.size ∨ (n + 1).size = n.size +
     rcases h' with ⟨a, b⟩
     have c1 : n.size < (n + 1).size := by exact lt_of_le_of_ne s1 (id (Ne.symm a))
     have c2 : (n + 1).size < n.size + 1 := by exact lt_of_le_of_ne s2 b
-    have c2' : (n + 1).size ≤ n.size  := by exact le_of_lt_succ c2
+    have c2' : (n + 1).size ≤ n.size := by exact le_of_lt_succ c2
     have c2'' : ¬(n + 1).size > n.size := by exact not_lt.mpr c2'
     exact absurd c1 c2''
 
@@ -519,7 +519,7 @@ theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
     have : n > 2 ^ (n.size - 1) - 1 := by
       have : n.size > (2 ^ (n.size - 1) - 1).size := by
         have : (2 ^ (n.size - 1) - 1).size = n.size - 1 := by
-          refine size_sub ?_ (by grind)  ?_
+          refine size_sub ?_ (by grind) ?_
           · exact zero_lt_sub_of_lt h2
           · have : 0 ≤ n.size - 1 - 1 := by
               have t1 : (2 : ℕ).size - 1 - 1 ≤ n.size - 1 - 1 := by
@@ -676,7 +676,7 @@ theorem increase_n2size_iff_pow2 {n : ℕ} (h : n ≥ 4) :
       rw [n1size_eq_nsize, ←n2] at this
       right
       exact this
-    
+
 /--
 Lower bound on n based on its bit size. For any positive natural number n,
 `2 ^ (n.size - 1) ≤ n`. This provides a lower bound relating n to its bit length.

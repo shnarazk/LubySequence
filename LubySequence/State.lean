@@ -175,7 +175,7 @@ def S₁ (n: ℕ) : ℕ := n.succ.size.pred
 -- @[simp]
 def segIdToLastIndex (n : ℕ) : ℕ := match n with
   | 0     => 0
-  | m + 1 => trailing_zeros n + 1  + segIdToLastIndex m
+  | m + 1 => trailing_zeros n + 1 + segIdToLastIndex m
 
 def toNat (self : LubyState) : ℕ := match self.segIx with
   | 0 => 0
@@ -297,7 +297,7 @@ theorem LubyState_prop (n : ℕ) :
     simp [t1]
     have t3 : ¬(ofNat (n - 1)).is_segment_end = true := by
       by_contra x
-      have c : (ofNat (n - 1 + 1)).is_segment_beg  := by exact LubyState_segment_prop1 x
+      have c : (ofNat (n - 1 + 1)).is_segment_beg := by exact LubyState_segment_prop1 x
       have t1 : n - 1 + 1 = n := by grind
       simp [t1] at c
       exact absurd c h

@@ -655,7 +655,7 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
                 · expose_names
                   simp [goal1] at h
                   exact ne_true_of_eq_false h
-            have cases : is_segment_beg (n + 1 - S₂ n + 1) ∨  ¬is_segment_beg (n + 1 - S₂ n + 1) := by
+            have cases : is_segment_beg (n + 1 - S₂ n + 1) ∨ ¬is_segment_beg (n + 1 - S₂ n + 1) := by
               exact eq_or_ne (is_segment_beg (n + 1 - S₂ n + 1)) true
             rcases cases with term|recur
             · exact absurd term sub2

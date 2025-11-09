@@ -524,7 +524,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
               replace segment_arg_pos : n - (2 ^ (n.size - 1) - 1) > 0 := by
                 exact zero_lt_of_ne_zero segment_arg_pos
               replace segment_arg_pos :
-                  n - (2 ^ (n.size - 1) - 1) = 1 ∨  n - (2 ^ (n.size - 1) - 1) > 1 := by
+                  n - (2 ^ (n.size - 1) - 1) = 1 ∨ n - (2 ^ (n.size - 1) - 1) > 1 := by
                 exact LE.le.eq_or_lt' segment_arg_pos
               rcases segment_arg_pos with segment_arg_eq_1|segment_arg_ge_2
               · simp [segment_arg_eq_1]
@@ -1012,7 +1012,7 @@ where each new level contains twice as many segments as the previous level.
 -/
 theorem segment_prop1' : ∀ n : ℕ, n = 2 ^ n.size - 2 →
     segment (2 ^ (n + 2).size - 2) = 2 * segment n := by
-  intro n  envelope
+  intro n envelope
   by_cases n_gt_0 : n = 0
   · simp [n_gt_0, size, segment]
   · replace n_gt_0 : n > 0 := by exact zero_lt_of_ne_zero n_gt_0

@@ -488,7 +488,7 @@ theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true
 
 theorem LubyTree.is_symmetry (d : ℕ) :
     ∀ n ≤ ((LubyTree.mk d).size - 1) / 2,
-      n > 0 → (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2)  := by
+      n > 0 → (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2) := by
   intro n hn nz
   induction d with
   | zero => simp [LubyTree.mk, LubyTree.size]

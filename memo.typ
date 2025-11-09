@@ -244,7 +244,7 @@ def State.luby (s : State) : Nat := 2 ^ s.locIx
 #figure(caption: [Generating the Luby state], gap: 16pt)[
 #diagram(cell-size: 12mm, {
   node((1, 0), $n$)
-  edge((1, 0), (1, 2),  $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight", stroke: red)
+  edge((1, 0), (1, 2), $O(log(n))$, label-pos: 25%, bend: -30deg, "-straight", stroke: red)
   edge((1, 0), (1, 1), "<-->")
   node((0, 1), $S_0$)
   edge((0, 1), (1, 1), "~>", stroke: luma(150))
