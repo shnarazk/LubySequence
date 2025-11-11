@@ -767,21 +767,49 @@ section WIP
 
 /--
 Work in progress: For envelopes, the local index equals size - 1.
+これの前に漸化式が必要なのでは?
 -/
-theorem t20250919_sorry : ∀ n : ℕ, n = 2 ^ n.size - 1 → (ofNat (n - 1)).locIx = n.size - 1 := by
-  intro n hn
+theorem t20250919_sorry : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = n.size - 1 := by
+  intro n n1_is_pow2
   induction n using Nat.strong_induction_on with
   | h n ih =>
     by_cases zero : n = 0
     · simp [zero, ofNat, default]
-    · let n' := 2 ^ (n.size - 1) - 1
-      have n'_def : n' = value_of% n' := by exact rfl
-      have n'_lt_n : n' < n := by sorry
-      have n'_is_envelope : n' = 2 ^ n'.size - 1 := by
-        sorry
-      have ih' := ih n' n'_lt_n n'_is_envelope
-      --
-      sorry
+    · rename' zero => n_ge_1
+      replace n_ge_1 : n ≥ 1 := by exact one_le_iff_ne_zero.mpr n_ge_1
+      replace n_ge_1 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' n_ge_1
+      rcases n_ge_1 with eq|n_ge_2
+      · simp [eq, ofNat]
+      · replace n_ge_2 : n ≥ 2 := n_ge_2
+        have nsize_ge_2 : n.size ≥ 2 := by
+          have : n.size ≥ (2 : ℕ).size := by exact size_le_size n_ge_2
+          simp [size2_eq_2] at this
+          exact this
+        let n' := 2 ^ (n.size - 1) - 1
+        have n'_def : n' = value_of% n' := by exact rfl
+        have n'_lt_n : n' < n := by
+          have : 2 ^ (n.size - 1) ≤ n := n_lower (zero_lt_of_lt n_ge_2)
+          replace : 2 ^ (n.size - 1) - 1 < n := sub_one_lt_of_le (Nat.two_pow_pos (n.size - 1)) this
+          simp [←n'_def] at this
+          exact this
+        have n'1_is_pow2 : n' + 1 = 2 ^ n'.size := by
+          have : n'.size = n.size - 1 := by
+            have : n'.size = (2 ^ (n.size - 1) - 1).size := rfl
+            have aux : (2 ^ (n.size - 1) - 1).size = n.size - 1 := by
+              refine size_sub ?_ ?_ ?_
+              · exact zero_lt_sub_of_lt nsize_ge_2
+              · exact Nat.one_pos
+              · exact Nat.one_le_two_pow
+            simp [aux] at this
+            exact this
+          simp [←this] at n'_def
+          replace n'_def : n' + 1 = 2 ^ n'.size := by
+            exact Eq.symm (Nat.eq_add_of_sub_eq (Nat.one_le_two_pow) (id (Eq.symm n'_def)))
+          exact n'_def
+        have ih' := ih n' n'_lt_n n'1_is_pow2
+        rw [ofNat]
+        sorry -- ???
+
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
 #eval List.range 64
