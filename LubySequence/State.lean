@@ -17,7 +17,7 @@ The main idea is dividing Luby sequence into monotonic subsuences, or *_segments
 
 open Finset Nat
 
-attribute [local simp] binaryRec
+attribute [local simp] binaryRec default
 
 structure LubyState where
   /-- segment index (zero-based) -/
@@ -283,15 +283,14 @@ theorem LubyState_prop (n : ℕ) :
     (ofNat n).luby = if is_segment_beg n then 1 else 2 * (ofNat (n - 1)).luby := by
   have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
   have segbeg1 : Luby.is_segment_beg 1 := by simp [Luby.is_segment_beg.eq_def]
-  have defaultenv : (default : LubyState).is_segment_end =true := by
-    simp [is_segment_end, default, segment_height]
+  have defaultenv : (default : LubyState).is_segment_end =true := by simp [is_segment_end, segment_height]
   split
   · expose_names ; exact LubyState_segment_prop2 h
   · expose_names
     have n0 : n > 0 := by
       by_contra x
       have n0 : n = 0 := by exact Nat.eq_zero_of_not_pos x
-      have c : (ofNat n).is_segment_beg = true := by simp [n0, ofNat, default, is_segment_beg]
+      have c : (ofNat n).is_segment_beg = true := by simp [n0, ofNat, is_segment_beg]
       exact absurd c h
     have t1 : ofNat (n - 1 + 1) = (ofNat (n - 1)).next := by exact rfl
     have t2 : n - 1 + 1 = n := by exact Nat.sub_add_cancel n0
@@ -398,8 +397,7 @@ theorem segment_beg_transition' : ∀ n : ℕ, (ofNat n).is_segment_beg = true �
     simp [segment_height]
   simp only [this]
   simp only [←nn]
-  replace : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.locIx + n'.segment_height - 1 := by
-    exact rfl
+  replace : (n'.next_in_segment (n'.segment_height - 1)).locIx = n'.locIx + n'.segment_height - 1 := rfl
   simp [z] at this
   simp [this]
   split
@@ -412,6 +410,9 @@ theorem segment_beg_transition' : ∀ n : ℕ, (ofNat n).is_segment_beg = true �
     have c : n'.segment_height - 1 + 1 = n'.segment_height := by exact this
     exact absurd c h
 
+/--
+The sum of segment lengths of segment 1 to b. So this is the index of the beginning of segment b.
+-/
 def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i + 1) + 1)
 
 -- #eval List.range 12 |>.map (fun n ↦ (segment_height_sum n, segment_height_sum' n))
@@ -433,7 +434,7 @@ def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i 
 For powers of 2, the sum of segment heights equals 2^(n.size) - 1.
 This is a key property connecting segment heights to the binary structure.
 -/
-theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
+theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
     ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = 2 ^ n.size - 1 := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -548,6 +549,26 @@ theorem segment_height_sum_pow2 : ∀ n > 0, n = 2 ^ (n.size - 1) →
         simp [this]
         exact Nat.sub_add_cancel (one_le_of_lt nsize2)
       simp [this]
+
+/--
+The sum of lengths of segment 1 to b is 2 ^ (b.size - 1) if b = 2 ^ (b.size - 1)
+-/
+theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_height_sum b = 2 * b - 1 := by
+  intro b b_is_pow2
+  have b_ge_1 : b ≥ 1 := by
+    by_contra x
+    simp at x
+    simp [x] at b_is_pow2
+  have b.size_ge_1 : b.size ≥ 1 := by
+    have : b.size ≥ (1 : ℕ).size := by exact size_le_size b_ge_1
+    simp at this
+    exact this
+  rw [segment_height_sum]
+  rw (occs := .pos [2]) [b_is_pow2] 
+  rw [mul_comm, ←pow_succ]
+  have : b.size - 1 + 1 = b.size := by exact Nat.sub_add_cancel b.size_ge_1
+  simp [this]
+  exact segment_height_sum_pow2' b b_ge_1 b_is_pow2
 
 #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
 
