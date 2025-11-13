@@ -55,6 +55,28 @@ def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
 #eval scanList (·.next) LubyState.zero 24 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
 -- #eval LubyState.zero.next 24 |>.luby
 
+/--
+Direct conversion version
+-/
+partial
+def state_from'' (n n' si l : ℕ) : ℕ × ℕ :=
+  if n' = n
+  then (si, l)
+  else
+    if l = trailing_zeros si
+    then state_from'' n (n' + 1) (si + 1) 0
+    else state_from'' n (n' + 1) si (l + 1)
+
+partial
+def state_from' (n n' si : ℕ) : ℕ × ℕ :=
+  let z := trailing_zeros si + 1
+  if n' + z > n then (si, n - n') else state_from' n (n' + z) (si + 1)
+
+def state_from (n : ℕ) : ℕ × ℕ := state_from' n 0 1
+
+#eval List.range 14 |>.map (LubyState.zero.next ·)
+#eval List.range 14 |>.map state_from
+
 namespace LubyState
 
 /--
@@ -564,7 +586,7 @@ theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_
     simp at this
     exact this
   rw [segment_height_sum]
-  rw (occs := .pos [2]) [b_is_pow2] 
+  rw (occs := .pos [2]) [b_is_pow2]
   rw [mul_comm, ←pow_succ]
   have : b.size - 1 + 1 = b.size := by exact Nat.sub_add_cancel b.size_ge_1
   simp [this]
@@ -756,7 +778,7 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
       grind
 
 section WIP
--- t20250910_sorryよりも
+-- t20250910 よりも
 -- - envelope hightが2 ^ n.size - 1 でのsegment_hightと等しいこと
 -- をいう方が簡単なのでは。
 -- - そもそもsegmentの左右対称性が何も言えてない。
@@ -770,7 +792,7 @@ Work in progress: For envelopes, the local index equals size - 1.
 これの前に漸化式が必要なのでは? あるいは左右対称性が必要なのでは?
 でもそれを証明するにはenvelopeでの定数化が先に必要なのでは?
 -/
-theorem t20250919_sorry : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = n.size - 1 := by
+theorem t20250919 : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = n.size - 1 := by
   intro n n1_is_pow2
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -820,7 +842,7 @@ theorem t20250919_sorry : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).lo
 /--
 Work in progress: Segment index doubling property at envelope boundaries.
 -/
-theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
+theorem t20250910 : ∀ n > 0 , n = 2 ^ n.size - 2 →
     (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
   intro n hn1 hn2
   induction n using Nat.strong_induction_on with
@@ -866,20 +888,28 @@ theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
 #eval List.range 32 |>.map (fun n ↦
       ((ofNat (∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx, (ofNat n).segIx))
 
-#eval ∑ i ∈ range 3, i
 /--
 Work in progress: Sum of index in segment corresponds to segment index.
 -/
 theorem locIx_eq_0_at_segment_beg : ∀ n : ℕ,
-    (ofNat (∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1)).locIx = 0 := by
+    (ofNat (∑ k ∈ range (ofNat n).segIx, (trailing_zeros k + 1) - 1)).locIx = 0 := by
   intro n
   induction n with
-  | zero => simp [Iio, LocallyFiniteOrderBot.finsetIio, ofNat, next]
+  | zero => simp [range, ofNat, next]
   | succ n ih =>
-    have : ∑ k ∈ range ((ofNat (n + 1)).segIx - 1 + 1), (trailing_zeros k + 1) = 
+    have : ∑ k ∈ range ((ofNat (n + 1)).segIx - 1 + 1), (trailing_zeros k + 1) =
         ∑ k ∈ range ((ofNat (n + 1)).segIx - 1), (trailing_zeros k + 1)
           + ∑ k ∈ range 1, (trailing_zeros ((ofNat (n + 1)).segIx - 1 + k) + 1) := by
       exact sum_range_add (fun x ↦ trailing_zeros x + 1) ((ofNat (n + 1)).segIx - 1) 1
+    have aux : (ofNat (n + 1)).segIx - 1 + 1 = (ofNat (n + 1)).segIx := by
+      refine Nat.sub_add_cancel ?_
+      · simp only [ofNat]
+        exact segId_ge_one (n + 1)
+    simp [aux] at this
+    simp [this]
+    by_cases at_beg : (ofNat (n + 1)).segIx - 1 = (ofNat n).segIx
+    · simp [at_beg]
+      --
     sorry
 
 /--
@@ -892,9 +922,9 @@ theorem t20250904_sorry : ∀ n : ℕ,
   | h n ih =>
     have : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := eq_or_ne n (2 ^ (n.size - 1))
     rcases this with n_is_pow2|n_ne_pow2
-    · 
+    ·
       sorry
-    · 
+    ·
       sorry
 
 #eval List.range 6 |>.map (· + 1) |>.map (2 ^ ·.succ - 2) |>.map
