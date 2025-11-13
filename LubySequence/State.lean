@@ -767,7 +767,8 @@ section WIP
 
 /--
 Work in progress: For envelopes, the local index equals size - 1.
-これの前に漸化式が必要なのでは?
+これの前に漸化式が必要なのでは? あるいは左右対称性が必要なのでは?
+でもそれを証明するにはenvelopeでの定数化が先に必要なのでは?
 -/
 theorem t20250919_sorry : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = n.size - 1 := by
   intro n n1_is_pow2
@@ -860,18 +861,41 @@ theorem t20250910_sorry : ∀ n > 0 , n = 2 ^ n.size - 2 →
       rewrite (occs := .pos [1]) [t1]
       --
       sorry
+
+#eval List.range 32 |>.map (fun n ↦ ((∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1), n))
+#eval List.range 32 |>.map (fun n ↦
+      ((ofNat (∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx, (ofNat n).segIx))
+
+#eval ∑ i ∈ range 3, i
+/--
+Work in progress: Sum of index in segment corresponds to segment index.
+-/
+theorem locIx_eq_0_at_segment_beg : ∀ n : ℕ,
+    (ofNat (∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1)).locIx = 0 := by
+  intro n
+  induction n with
+  | zero => simp [Iio, LocallyFiniteOrderBot.finsetIio, ofNat, next]
+  | succ n ih =>
+    have : ∑ k ∈ range ((ofNat (n + 1)).segIx - 1 + 1), (trailing_zeros k + 1) = 
+        ∑ k ∈ range ((ofNat (n + 1)).segIx - 1), (trailing_zeros k + 1)
+          + ∑ k ∈ range 1, (trailing_zeros ((ofNat (n + 1)).segIx - 1 + k) + 1) := by
+      exact sum_range_add (fun x ↦ trailing_zeros x + 1) ((ofNat (n + 1)).segIx - 1) 1
+    sorry
+
 /--
 Work in progress: Sum of segment heights corresponds to segment index.
 -/
 theorem t20250904_sorry : ∀ n : ℕ,
-    (ofNat (∑ k < (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
+    (ofNat (∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
   intro n
   induction n using Nat.strong_induction_on with
   | h n ih =>
-    have p2_not : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := eq_or_ne n (2 ^ (n.size - 1))
-    rcases p2_not with p2|not
-    · sorry
-    · sorry
+    have : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := eq_or_ne n (2 ^ (n.size - 1))
+    rcases this with n_is_pow2|n_ne_pow2
+    · 
+      sorry
+    · 
+      sorry
 
 #eval List.range 6 |>.map (· + 1) |>.map (2 ^ ·.succ - 2) |>.map
     (fun n ↦
@@ -896,6 +920,7 @@ theorem segIx_prop_20250914_sorry : ∀ n > 0,
       sorry -- apply?
     sorry
   --
+
 -- これはsegment単位でしか説明できない。これの前にsegIxの関係をいうべき
 /--
 Work in progress: Segment height preservation property.
