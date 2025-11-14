@@ -52,3 +52,29 @@ theorem build_state_is_additive (a b : ℕ) :
     build_state (a + b) 0 1 = build_state (a + b) (build_state a 0 1).fst (build_state a 0 1).snd := by
   sorry
   -/
+
+/-
+partial
+def state_from' (n n' si : ℕ) : ℕ × ℕ :=
+  let z := trailing_zeros si + 1
+  if n' + z > n then (si, n - n') else state_from' n (n' + z) (si + 1)
+
+def state_from (n : ℕ) : ℕ × ℕ := state_from' n 0 1
+
+#eval List.range 14 |>.map (LubyState.zero.next ·)
+#eval List.range 14 |>.map state_from
+
+theorem t2025114 : ∀ n : ℕ, (state_from (∑ i ∈ range n, (trailing_zeros i + 1))).snd = 0 := by
+  intro n
+  induction n with
+  | zero => simp [state_from, state_from']
+  | succ n ih =>
+    simp [state_from]
+    rw [state_from']
+    split <;> expose_names
+    · simp at h
+      simp
+      exact h
+    · have : state_from
+      sorry
+-/
