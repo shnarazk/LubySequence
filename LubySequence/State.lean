@@ -55,17 +55,6 @@ def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
 #eval scanList (·.next) LubyState.zero 24 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
 -- #eval LubyState.zero.next 24 |>.luby
 
-/--
-Direct conversion version
--/
-partial
-def state_from'' (n n' si l : ℕ) : ℕ × ℕ :=
-  if n' = n
-  then (si, l)
-  else
-    if l = trailing_zeros si
-    then state_from'' n (n' + 1) (si + 1) 0
-    else state_from'' n (n' + 1) si (l + 1)
 
 partial
 def state_from' (n n' si : ℕ) : ℕ × ℕ :=
@@ -76,6 +65,20 @@ def state_from (n : ℕ) : ℕ × ℕ := state_from' n 0 1
 
 #eval List.range 14 |>.map (LubyState.zero.next ·)
 #eval List.range 14 |>.map state_from
+
+theorem t2025114 : ∀ n : ℕ, (state_from (∑ i ∈ range n, (trailing_zeros i + 1))).snd = 0 := by
+  intro n
+  induction n with
+  | zero => simp [state_from, state_from']
+  | succ n ih =>
+    simp [state_from]
+    rw [state_from']
+    split <;> expose_names
+    · simp at h
+      simp 
+      exact h
+    · have : state_from 
+      sorry
 
 namespace LubyState
 
