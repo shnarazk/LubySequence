@@ -21,17 +21,21 @@ structure Segment where
   start : ℕ
   index_ge_1 : index ≥ 1 := by grind
 
-def Segment.zero : Segment := ⟨1, 1, by grind⟩
+namespace Segment
 
-instance Segment.inst : Inhabited Segment := ⟨1, 1, by grind⟩
-instance Segment.repl : Repr Segment where
+def zero : Segment := ⟨1, 0, by grind⟩
+
+instance inst : Inhabited Segment where
+  default := zero
+
+instance repl : Repr Segment where
   reprPrec s n := "Seg" ++ reprPrec s.index n ++ ":" ++ reprPrec s.start n
 
-def Segment.length (s : Segment) : ℕ := trailing_zeros s.index + 1
-def Segment.sum (s : Segment) : ℕ := s.start + s.length
+def length (s : Segment) : ℕ := trailing_zeros s.index + 1
+def sum (s : Segment) : ℕ := s.start + s.length
 
 @[simp]
-def Segment.next (self : Segment) (repeating : ℕ := 1) : Segment :=
+def next (self : Segment) (repeating : ℕ := 1) : Segment :=
   match repeating with
   | 0     => self
   | r + 1 =>
@@ -40,30 +44,71 @@ def Segment.next (self : Segment) (repeating : ℕ := 1) : Segment :=
 
 #eval List.range 10 |>.map (fun n ↦ Segment.zero.next n)
 
-def Segment.nextTo (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo n
+def nextTo (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo n
 termination_by (n - s.sum)
 decreasing_by
   expose_names
   simp at h
-  simp [Segment.next]
-  rw (occs := .pos [1]) [Segment.sum]
-  simp [Segment.length]
+  simp [next]
+  rw (occs := .pos [1]) [sum]
+  simp [length]
   refine Nat.sub_lt_sub_left ?_ ?_
   · exact h
   · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1)))
 
 #eval List.range 14 |>.map (LubyState.zero.next ·)
-#eval List.range 14 |>.map (Segment.zero.next ·)
+#eval List.range 14 |>.map (zero.next ·)
 
-theorem segment_is_additive (a b : ℕ) : Segment.zero.next (a + b) = (Segment.zero.next a).next b := by
+theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next b := by
   induction b with
   | zero => simp
-  | succ b' ih => rw [←add_assoc] ; simp [Segment.next, ih]
+  | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
 
-theorem segment_sum_eq_segment_length_sum : ∀ n : ℕ,
-    (Segment.zero.next (∑ i ∈ range n, (trailing_zeros i + 1))).sum =
-    ∑ i ∈ range n, (trailing_zeros i + 1) :=
-  sorry
+#eval List.range 20
+    |>.map (fun n ↦ ((zero.nextTo (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum,
+      ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
+
+theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
+    (zero.nextTo (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum =
+    ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
+  intro n n_gt_0
+  induction n with
+  | zero => contradiction
+  | succ n ih =>
+    by_cases n_eq_0 : n = 0
+    · simp [n_eq_0, zero]
+      rw [nextTo]
+      simp [sum, length]
+    · rename' n_eq_0 => n_gt_0
+      replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
+      replace ih := ih n_gt_0
+      let n' := ∑ i ∈ range 1, (trailing_zeros (n + i + 1) + 1)
+      have n'_def : n' = value_of% n' := rfl
+      simp at n'_def
+      have n'_gt_0 : n' > 0 := by exact Nat.zero_lt_succ (trailing_zeros (n + 0 + 1))
+      let sumₙ := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)
+      have sumₙ_def : sumₙ = value_of% sumₙ := rfl
+      have : ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) = sumₙ + n' := by
+        exact sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) n 1
+      simp only [this]
+      simp only [←sumₙ_def] at ih
+      rw [nextTo]
+      rw [←segment_is_additive]
+      --
+
+      rw [next.eq_def]
+      simp only [next]
+      split <;> expose_names
+      · simp [zero, sum, length] at h
+        have : sumₙ > 0 := Nat.lt_of_sub_eq_succ (id (Eq.symm ih))
+        replace : sumₙ + n' ≥ 1 + 1 := by exact Nat.add_le_add this n'_gt_0
+        simp at this
+        replace : 1 < sumₙ + n' := this
+        replace : ¬1 ≥ sumₙ + n' := by exact Nat.not_le_of_lt this
+        exact absurd h this
+      · 
+
+      sorry
 
 /-
 theorem t2025114 : ∀ n : ℕ, (state_from (∑ i ∈ range n, (trailing_zeros i + 1))).snd = 0 := by
@@ -80,3 +125,5 @@ theorem t2025114 : ∀ n : ℕ, (state_from (∑ i ∈ range n, (trailing_zeros 
     · have : state_from
       sorry
 -/
+
+end
