@@ -42,9 +42,23 @@ def next (self : Segment) (repeating : ℕ := 1) : Segment :=
     let s := self.next r
     Segment.mk (s.index + 1) s.sum (by exact Nat.le_add_left 1 s.index)
 
-#eval List.range 10 |>.map (fun n ↦ Segment.zero.next n)
+#eval List.range 14 |>.map (LubyState.zero.next ·)
+#eval List.range 14 |>.map (zero.next ·)
+#eval List.range 10 |>.map (Segment.zero.next ·)
+ 
+theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next b := by
+  induction b with
+  | zero => simp
+  | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
 
-def nextTo (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo n
+def within (limit : ℕ) (n : ℕ := limit) : Segment := match n with
+  | 0 => Segment.zero
+  | n' + 1 => if (Segment.zero.next n).sum ≤ limit then Segment.zero.next n else within limit n'
+
+#eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
+#eval List.range 20 |>.map (fun n ↦ (n, within n, (within n).sum))
+
+def nextTo' (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo' n
 termination_by (n - s.sum)
 decreasing_by
   expose_names
@@ -56,29 +70,25 @@ decreasing_by
   · exact h
   · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1)))
 
-#eval List.range 14 |>.map (LubyState.zero.next ·)
-#eval List.range 14 |>.map (zero.next ·)
-
-theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next b := by
-  induction b with
-  | zero => simp
-  | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
-
 #eval List.range 20
     |>.map (fun n ↦ ((zero.nextTo (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum,
       ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
 
 theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
-    (zero.nextTo (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum =
+    (within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum =
     ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
   intro n n_gt_0
   induction n with
   | zero => contradiction
   | succ n ih =>
     by_cases n_eq_0 : n = 0
-    · simp [n_eq_0, zero]
-      rw [nextTo]
-      simp [sum, length]
+    · rw [n_eq_0]
+      simp [range]
+      have : ∑ i ∈ {0}, (trailing_zeros (i + 1) + 1) = trailing_zeros (0 + 1) + 1 := rfl
+      have aux : trailing_zeros 1 = 0 := by exact trailing_zeros1
+      simp only [aux] at this
+      rw [this]
+      simp [within, zero, sum, length]
     · rename' n_eq_0 => n_gt_0
       replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
       replace ih := ih n_gt_0
@@ -92,22 +102,7 @@ theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
         exact sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) n 1
       simp only [this]
       simp only [←sumₙ_def] at ih
-      rw [nextTo]
-      rw [←segment_is_additive]
-      --
-
-      rw [next.eq_def]
-      simp only [next]
-      split <;> expose_names
-      · simp [zero, sum, length] at h
-        have : sumₙ > 0 := Nat.lt_of_sub_eq_succ (id (Eq.symm ih))
-        replace : sumₙ + n' ≥ 1 + 1 := by exact Nat.add_le_add this n'_gt_0
-        simp at this
-        replace : 1 < sumₙ + n' := this
-        replace : ¬1 ≥ sumₙ + n' := by exact Nat.not_le_of_lt this
-        exact absurd h this
-      · 
-
+      rw [within.eq_def]
       sorry
 
 /-
