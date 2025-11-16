@@ -51,9 +51,12 @@ theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next
   | zero => simp
   | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
 
-def within (limit : ℕ) (n : ℕ := limit) : Segment := match n with
+def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
-  | n' + 1 => if (Segment.zero.next n).sum ≤ limit then Segment.zero.next n else within limit n'
+  | n' + 1 => if (Segment.zero.next n).sum ≤ limit then Segment.zero.next n else within' limit n'
+
+@[simp]
+def within (limit : ℕ) : Segment := within' limit limit
 
 #eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
 #eval List.range 20 |>.map (fun n ↦ (n, within n, (within n).sum))
@@ -71,7 +74,7 @@ decreasing_by
   · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1)))
 
 #eval List.range 20
-    |>.map (fun n ↦ ((zero.nextTo (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum,
+    |>.map (fun n ↦ ((within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum,
       ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
 
 theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
@@ -84,11 +87,7 @@ theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
     by_cases n_eq_0 : n = 0
     · rw [n_eq_0]
       simp [range]
-      have : ∑ i ∈ {0}, (trailing_zeros (i + 1) + 1) = trailing_zeros (0 + 1) + 1 := rfl
-      have aux : trailing_zeros 1 = 0 := by exact trailing_zeros1
-      simp only [aux] at this
-      rw [this]
-      simp [within, zero, sum, length]
+      simp [within', sum, length, zero]
     · rename' n_eq_0 => n_gt_0
       replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
       replace ih := ih n_gt_0
@@ -102,7 +101,7 @@ theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
         exact sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) n 1
       simp only [this]
       simp only [←sumₙ_def] at ih
-      rw [within.eq_def]
+      rw [within, within'.eq_def]
       sorry
 
 /-
