@@ -16,6 +16,11 @@ Direct conversion version of segment manipulation
 
 open Finset
 
+/--
+A segment represents a contiguous portion of the Luby sequence.
+Each segment has an index (starting from 1) and a start position.
+The segment structure ensures that the index is always at least 1.
+-/
 structure Segment where
   index : ℕ
   start : ℕ
@@ -23,6 +28,10 @@ structure Segment where
 
 namespace Segment
 
+/--
+The initial segment with index 1 and start position 0.
+This represents the first segment in the Luby sequence.
+-/
 def zero : Segment := ⟨1, 0, by grind⟩
 
 instance inst : Inhabited Segment where
@@ -31,9 +40,24 @@ instance inst : Inhabited Segment where
 instance repl : Repr Segment where
   reprPrec s n := "Seg" ++ reprPrec s.index n ++ ":" ++ reprPrec s.start n
 
+/--
+The length of a segment, computed as the number of trailing zeros in its index plus 1.
+This corresponds to how many elements in the Luby sequence belong to this segment.
+-/
 def length (s : Segment) : ℕ := trailing_zeros s.index + 1
+
+/--
+The sum of a segment's start position and its length.
+This gives the position where the next segment would start.
+-/
 def sum (s : Segment) : ℕ := s.start + s.length
 
+/--
+Compute the next segment(s) after the current one.
+The `repeating` parameter specifies how many steps to advance (default is 1).
+When `repeating = 0`, returns the current segment unchanged.
+For `repeating > 0`, recursively advances through segments.
+-/
 @[simp]
 def next (self : Segment) (repeating : ℕ := 1) : Segment :=
   match repeating with
@@ -45,7 +69,11 @@ def next (self : Segment) (repeating : ℕ := 1) : Segment :=
 #eval List.range 14 |>.map (LubyState.zero.next ·)
 #eval List.range 14 |>.map (zero.next ·)
 #eval List.range 10 |>.map (Segment.zero.next ·)
- 
+
+/--
+The `next` operation is additive: advancing `a + b` steps is equivalent to
+advancing `a` steps and then advancing `b` more steps.
+-/
 theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next b := by
   induction b with
   | zero => simp
@@ -54,12 +82,20 @@ theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next
 
 #eval List.range 20 |>.map (fun n ↦ (n + 1, (Segment.zero.next n).index))
 
+/--
+The index of the segment after `n` steps from the zero segment is `n + 1`.
+This establishes a direct relationship between the number of steps and the segment index.
+-/
 theorem segment_index_for_n : ∀ n : ℕ, (Segment.zero.next n).index = n + 1 := by
   intro n
   induction n with
   | zero => simp [zero]
   | succ n ih => rw [next] ; simp [ih]
 
+/--
+The length of the segment after `n` steps from zero equals
+`trailing_zeros (n + 1) + 1`, which follows from the segment index being `n + 1`.
+-/
 theorem segment_length_for_n : ∀ n : ℕ, (Segment.zero.next n).length = trailing_zeros (n + 1) + 1 := by
   intro n
   simp [length]
@@ -68,6 +104,10 @@ theorem segment_length_for_n : ∀ n : ℕ, (Segment.zero.next n).length = trail
 #eval List.range 20
     |>.map (fun n ↦ (n, (Segment.zero.next n).start, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
 
+/--
+The start position of the segment after `n` steps from zero is the sum of
+the lengths of all previous segments (each length is `trailing_zeros (i + 1) + 1`).
+-/
 theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
   intro n
   induction n with
@@ -76,6 +116,10 @@ theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i �
     simp only [next, sum, ih, length, segment_index_for_n]
     exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n')
 
+/--
+For any positive `n`, the sum of segment lengths from 0 to n-1 equals
+the start position of the (n-1)th segment plus 1.
+-/
 theorem segment_for_n :
     ∀ n > 0, ∑ i ∈ range n, (trailing_zeros i + 1) = (Segment.zero.next (n - 1)).start + 1 := by
   intro n n_gt_0
@@ -101,10 +145,18 @@ theorem segment_for_n :
   rw [add_comm] at this
   simp [this]
 
+/--
+Helper function to find the segment whose start position is within the given limit.
+Searches backwards from position `n` to find the last segment that starts before `limit`.
+-/
 def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
   | n' + 1 => if (Segment.zero.next n).start < limit then Segment.zero.next n else within' limit n'
 
+/--
+Find the segment whose start position is within the given limit.
+This is a wrapper around `within'` that starts the search from `limit` itself.
+-/
 @[simp]
 def within (limit : ℕ) : Segment := within' limit limit
 
@@ -116,6 +168,10 @@ def within (limit : ℕ) : Segment := within' limit limit
     |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros i + 1)))
     |>.map (fun (n, m) ↦ (n, m, Segment.zero.next (n - 1), within m))
 
+/--
+For any positive `n`, the segment within the sum of the first `n` segment lengths
+is exactly the (n-1)th segment from zero.
+-/
 theorem segment_for_within_n :
     ∀ n > 0, within (∑ i ∈ range n, (trailing_zeros i + 1)) = Segment.zero.next (n - 1) := by
   sorry
@@ -137,6 +193,11 @@ decreasing_by
     |>.map (fun n ↦ ((within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum,
       ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
 
+/--
+For any positive `n`, the sum (start + length) of the segment within the
+cumulative sum of segment lengths equals that cumulative sum itself.
+This shows that segments partition the sequence correctly.
+-/
 theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
     (within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum =
     ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
