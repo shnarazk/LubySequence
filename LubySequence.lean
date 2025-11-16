@@ -4,6 +4,7 @@ import LubySequence.Utils
 import LubySequence.Basic
 import LubySequence.Tree
 import LubySequence.Segment
+import LubySequence.SegmentSequence
 import LubySequence.State
 import LubySequence.Equivalence
 import LubySequence.WIP
