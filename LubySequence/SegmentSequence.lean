@@ -168,6 +168,10 @@ def within (limit : ℕ) : Segment := within' limit limit
     |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros i + 1)))
     |>.map (fun (n, m) ↦ (n, m, Segment.zero.next (n - 1), within m))
 
+theorem within_induction {n m : ℕ} (h : (within n).length = m) :
+    within (n + m) = (within n).next := by
+  sorry -- TODO
+
 /--
 For any positive `n`, the segment within the sum of the first `n` segment lengths
 is exactly the (n-1)th segment from zero.
