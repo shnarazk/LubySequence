@@ -174,8 +174,22 @@ is exactly the (n-1)th segment from zero.
 -/
 theorem segment_for_within_n :
     ∀ n > 0, within (∑ i ∈ range n, (trailing_zeros i + 1)) = Segment.zero.next (n - 1) := by
-  sorry
-
+  intro n n_gt_0
+  induction n with
+  | zero => simp  [within']
+  | succ n ih =>
+    by_cases n_eq_0 : n = 0
+    · simp [n_eq_0, within', zero, sum, length]
+    · rename' n_eq_0 => n_gt_0
+      replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
+      replace ih := ih n_gt_0
+      rw [sum_range_add (fun x ↦ trailing_zeros x + 1) n 1]
+      rw [within]
+      rw [within'.eq_def]
+      simp
+      split <;> expose_names
+      · sorry
+      · sorry
 
 /- def nextTo' (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo' n
 termination_by (n - s.sum)
