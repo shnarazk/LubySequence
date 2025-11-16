@@ -73,10 +73,8 @@ theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i �
   induction n with
   | zero => simp [range, zero]
   | succ n' ih =>
-    simp only [next]
-    simp only [sum]
-    sorry--
-
+    simp only [next, sum, ih, length, segment_index_for_n]
+    exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n')
 
 def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
