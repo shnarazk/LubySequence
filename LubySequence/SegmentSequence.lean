@@ -103,15 +103,25 @@ theorem segment_for_n :
 
 def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
-  | n' + 1 => if (Segment.zero.next n).sum ≤ limit then Segment.zero.next n else within' limit n'
+  | n' + 1 => if (Segment.zero.next n).start < limit then Segment.zero.next n else within' limit n'
 
 @[simp]
 def within (limit : ℕ) : Segment := within' limit limit
 
 #eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
-#eval List.range 20 |>.map (fun n ↦ (n, within n, (within n).sum))
+#eval List.range 20
+    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros i + 1)))
+    |>.map (fun (n, m) ↦ (n, m, (Segment.zero.next (n - 1)).start + 1, (within m).start + 1))
+#eval List.range 20
+    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros i + 1)))
+    |>.map (fun (n, m) ↦ (n, m, Segment.zero.next (n - 1), within m))
 
-def nextTo' (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo' n
+theorem segment_for_within_n :
+    ∀ n > 0, within (∑ i ∈ range n, (trailing_zeros i + 1)) = Segment.zero.next (n - 1) := by
+  sorry
+
+
+/- def nextTo' (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo' n
 termination_by (n - s.sum)
 decreasing_by
   expose_names
@@ -121,7 +131,7 @@ decreasing_by
   simp [length]
   refine Nat.sub_lt_sub_left ?_ ?_
   · exact h
-  · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1)))
+  · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1))) -/
 
 #eval List.range 20
     |>.map (fun n ↦ ((within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum,
