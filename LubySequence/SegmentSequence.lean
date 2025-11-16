@@ -76,6 +76,31 @@ theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i �
     simp only [next, sum, ih, length, segment_index_for_n]
     exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n')
 
+theorem segment_for_n :
+    ∀ n > 0, ∑ i ∈ range n, (trailing_zeros i + 1) = (Segment.zero.next (n - 1)).start + 1 := by
+  intro n n_gt_0
+  rw [segment_start_for_n (n - 1)]
+  have : 
+      ∑ i ∈ range 1, (trailing_zeros i + 1) + ∑ i ∈ range (n - 1), (trailing_zeros (1 + i) + 1) =
+      ∑ i ∈ range (1 + (n - 1)), (trailing_zeros i + 1) := by
+    exact Eq.symm (sum_range_add (fun x ↦ trailing_zeros x + 1) 1 (n - 1))
+  have aux : 
+      ∑ i ∈ range (n - 1), (trailing_zeros (1 + i) + 1) =
+      ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1) := by
+    refine sum_equiv ?_ (fun i ↦ ?_) ?_
+    · exact Denumerable.eqv ℕ
+    · simp
+      constructor <;> exact fun a ↦ a
+    · intro n' n'_def
+      refine Nat.add_left_inj.mpr ?_
+      · have : 1 + n' = (Denumerable.eqv ℕ) n' + 1 := by exact Nat.add_comm 1 n'
+        exact congrArg trailing_zeros this
+  simp [aux] at this
+  have aux : 1 + (n - 1) = n := by grind
+  simp [aux] at this
+  rw [add_comm] at this
+  simp [this]
+
 def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
   | n' + 1 => if (Segment.zero.next n).sum ≤ limit then Segment.zero.next n else within' limit n'
