@@ -24,7 +24,6 @@ The segment structure ensures that the index is always at least 1.
 structure Segment where
   index : ℕ
   start : ℕ
-  index_ge_1 : index ≥ 1 := by grind
 
 namespace Segment
 
@@ -32,13 +31,10 @@ namespace Segment
 The initial segment with index 1 and start position 0.
 This represents the first segment in the Luby sequence.
 -/
-def zero : Segment := ⟨1, 0, by grind⟩
+def zero : Segment := ⟨1, 0⟩
 
 instance inst : Inhabited Segment where
   default := zero
-
-instance repl : Repr Segment where
-  reprPrec s n := "Seg" ++ reprPrec s.index n ++ ":" ++ reprPrec s.start n
 
 /--
 The length of a segment, computed as the number of trailing zeros in its index plus 1.
@@ -50,7 +46,10 @@ def length (s : Segment) : ℕ := trailing_zeros s.index + 1
 The sum of a segment's start position and its length.
 This gives the position where the next segment would start.
 -/
-def sum (s : Segment) : ℕ := s.start + s.length
+def nextStart (s : Segment) : ℕ := s.start + s.length
+
+instance repl : Repr Segment where
+  reprPrec s n := "Seg" ++ reprPrec s.index n ++ "@" ++ reprPrec s.start n ++ ":" ++ reprPrec (s.nextStart - 1) n
 
 /--
 Compute the next segment(s) after the current one.
@@ -64,11 +63,17 @@ def next (self : Segment) (repeating : ℕ := 1) : Segment :=
   | 0     => self
   | r + 1 =>
     let s := self.next r
-    Segment.mk (s.index + 1) s.sum (by exact Nat.le_add_left 1 s.index)
+    Segment.mk (s.index + 1) s.nextStart
 
 #eval List.range 14 |>.map (LubyState.zero.next ·)
 #eval List.range 14 |>.map (zero.next ·)
 #eval List.range 10 |>.map (Segment.zero.next ·)
+
+theorem segment_length_gt_0 : ∀ n : ℕ, (Segment.zero.next n).length ≥ 1 := by
+  intro n
+  induction n with
+  | zero => simp [zero, length]
+  | succ n ih => rw [next] ; simp [length]
 
 /--
 The `next` operation is additive: advancing `a + b` steps is equivalent to
@@ -78,7 +83,6 @@ theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next
   induction b with
   | zero => simp
   | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
-
 
 #eval List.range 20 |>.map (fun n ↦ (n + 1, (Segment.zero.next n).index))
 
@@ -113,7 +117,7 @@ theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i �
   induction n with
   | zero => simp [range, zero]
   | succ n' ih =>
-    simp only [next, sum, ih, length, segment_index_for_n]
+    simp only [next, nextStart, ih, length, segment_index_for_n]
     exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n')
 
 /--
@@ -151,7 +155,7 @@ Searches backwards from position `n` to find the last segment that starts before
 -/
 def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
-  | n' + 1 => if (Segment.zero.next n).start < limit then Segment.zero.next n else within' limit n'
+  | n' + 1 => if (Segment.zero.next n).start ≤ limit then Segment.zero.next n else within' limit n'
 
 /--
 Find the segment whose start position is within the given limit.
@@ -162,38 +166,46 @@ def within (limit : ℕ) : Segment := within' limit limit
 
 #eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
 #eval List.range 20
-    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros i + 1)))
-    |>.map (fun (n, m) ↦ (n, m, (Segment.zero.next (n - 1)).start + 1, (within m).start + 1))
+    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
+    |>.map (fun (n, m) ↦ (n, m, Segment.zero.next n, within m))
 #eval List.range 20
-    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros i + 1)))
-    |>.map (fun (n, m) ↦ (n, m, Segment.zero.next (n - 1), within m))
+    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
+    |>.map (fun (n, m) ↦ (n, m, within m, within (m + (within m).length), (within m).next))
 
-theorem within_induction {n m : ℕ} (h : (within n).length = m) :
-    within (n + m) = (within n).next := by
-  sorry -- TODO
+theorem within_induction {n m : ℕ} : within (n + (within n).length + 1) = (within n).next := by
+  let s := within n 
+  have s_def : s = value_of% s := rfl
+  simp only [←s_def]
+  rw [within, within'.eq_def]
+  by_cases n_eq_0 : n = 0
+  · simp [n_eq_0] at *
+    simp [within'] at s_def
+    simp [s_def, zero, length, nextStart, within']
+  · rename' n_eq_0 => n_gt_0
+    replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
+    simp
+    split <;> expose_names
+    · 
+      sorry
+    · 
+      sorry
 
 /--
 For any positive `n`, the segment within the sum of the first `n` segment lengths
 is exactly the (n-1)th segment from zero.
 -/
 theorem segment_for_within_n :
-    ∀ n > 0, within (∑ i ∈ range n, (trailing_zeros i + 1)) = Segment.zero.next (n - 1) := by
+    ∀ n > 0, within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1)) = Segment.zero.next n := by
   intro n n_gt_0
   induction n with
   | zero => simp  [within']
   | succ n ih =>
     by_cases n_eq_0 : n = 0
-    · simp [n_eq_0, within', zero, sum, length]
+    · simp [n_eq_0, within', zero, nextStart, length]
     · rename' n_eq_0 => n_gt_0
       replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
       replace ih := ih n_gt_0
-      rw [sum_range_add (fun x ↦ trailing_zeros x + 1) n 1]
-      rw [within]
-      rw [within'.eq_def]
-      simp
-      split <;> expose_names
-      · sorry
-      · sorry
+      sorry
 
 /- def nextTo' (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo' n
 termination_by (n - s.sum)
@@ -208,7 +220,7 @@ decreasing_by
   · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1))) -/
 
 #eval List.range 20
-    |>.map (fun n ↦ ((within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum,
+    |>.map (fun n ↦ ((within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).nextStart,
       ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
 
 /--
@@ -217,7 +229,7 @@ cumulative sum of segment lengths equals that cumulative sum itself.
 This shows that segments partition the sequence correctly.
 -/
 theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
-    (within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).sum =
+    (within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).start =
     ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
   intro n n_gt_0
   induction n with
@@ -226,7 +238,7 @@ theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
     by_cases n_eq_0 : n = 0
     · rw [n_eq_0]
       simp [range]
-      simp [within', sum, length, zero]
+      simp [within', nextStart, length, zero]
     · rename' n_eq_0 => n_gt_0
       replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
       replace ih := ih n_gt_0
