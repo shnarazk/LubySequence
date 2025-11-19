@@ -1,10 +1,12 @@
+module
+
 import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
-import LubySequence.Size
-import LubySequence.Utils
+public import LubySequence.Size
+public import LubySequence.Utils
 
 namespace Tree
 
@@ -13,7 +15,7 @@ namespace Tree
  - The index of the elements of LubyTree starts with 0.
  -/
 
-inductive LubyTree where
+public inductive LubyTree where
   | leaf : LubyTree
   | wrap (tree : LubyTree) : LubyTree
 deriving BEq
@@ -157,12 +159,12 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
 /-
  - The envelope is the smallest tree containing `s` elements.
  -/
-def LubyTree.envelopeDepth (s : ℕ) : ℕ := s.size
-def LubyTree.envelopeSize (s : ℕ) : ℕ := 2 ^ (LubyTree.envelopeDepth s) - 1
+public def LubyTree.envelopeDepth (s : ℕ) : ℕ := s.size
+public def LubyTree.envelopeSize (s : ℕ) : ℕ := 2 ^ (LubyTree.envelopeDepth s) - 1
 def LubyTree.envelope (s : ℕ) : LubyTree := LubyTree.mk (LubyTree.envelopeDepth s - 1)
-def LubyTree.is_envelope (s : ℕ) : Bool := LubyTree.envelopeSize s = s
+public def LubyTree.is_envelope (s : ℕ) : Bool := LubyTree.envelopeSize s = s
 def LubyTree.quotientOfSize (s : ℕ) (e : ℕ) := (s - 1) % ((e - 1) / 2) + 1
-def LubyTree.quotient (s : ℕ) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
+public def LubyTree.quotient (s : ℕ) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 
 -- #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeDepth (n + 1)))
 -- #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeSize (n + 1), LubyTree.is_envelope (n + 1)))
@@ -432,7 +434,7 @@ def LubyTree.valueAtSize (self : LubyTree) (s : ℕ) : ℕ := match self with
   | .wrap sub =>
     if self.size ≤ s then 2 ^ self.depth.pred else sub.valueAtSize ((s - 1) % sub.size + 1)
 
-def LubyTree.luby (s : ℕ) : ℕ :=
+public def LubyTree.luby (s : ℕ) : ℕ :=
   if h : LubyTree.is_envelope s
   then 2 ^ (LubyTree.envelopeDepth s).pred
   else
@@ -448,7 +450,7 @@ def LubyTree.luby (s : ℕ) : ℕ :=
     LubyTree.luby (LubyTree.quotient s)
 termination_by LubyTree.envelopeSize s
 
-def LubyTree.valueAt (s : ℕ) : ℕ := (LubyTree.mk (s.succ.size - 1)).valueAtSize s
+public def LubyTree.valueAt (s : ℕ) : ℕ := (LubyTree.mk (s.succ.size - 1)).valueAtSize s
 
 -- #eval! List.range 28 |>.map (fun n ↦ LubyTree.luby n.succ)
 -- #eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
