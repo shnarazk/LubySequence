@@ -1,9 +1,12 @@
+module
+
 import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
-import LubySequence.Size
+public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
+public import LubySequence.Size
 
 open Finset Nat
 
@@ -14,7 +17,7 @@ Returns the number of zeros at the end of bit representation of Nat `n`.
 Note: `trailing_zeros 0 = 0`
 It differs from the Rust implementation which returns 64 if n = 0_u64.
 -/
-def trailing_zeros (n : ℕ) : ℕ := match h : n with
+public def trailing_zeros (n : ℕ) : ℕ := match h : n with
   | 0      => n
   | n' + 1 =>
     if n = 2 ^ (n.size - 1)
@@ -91,7 +94,7 @@ theorem trailing_zeros_prop1 : ∀ n > 0,
 For positive n and k where 2^k > n, adding 2^k to n preserves the number of trailing zeros.
 This shows that adding a sufficiently large power of 2 does not affect trailing zeros.
 -/
-theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
+public theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
     2 ^ k > n → trailing_zeros (n + 2 ^ k) = trailing_zeros n := by
   intro n n_gt_0 k pow2k_gt_n
   rw [trailing_zeros.eq_def]
@@ -153,7 +156,7 @@ theorem trailing_zeros_prop2 :
 /--
 The number of trailing zeros in 2^n equals n.
 -/
-theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
+public theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
   intro n
   rw [trailing_zeros.eq_def]
   split
@@ -176,7 +179,7 @@ theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
 /--
 The number of trailing zeros in 2^n - 1 is always 0.
 -/
-theorem trailing_zeros_prop4 : ∀ n : ℕ, trailing_zeros (2 ^ n - 1) = 0 := by
+public theorem trailing_zeros_prop4 : ∀ n : ℕ, trailing_zeros (2 ^ n - 1) = 0 := by
   intro n
   induction n with
   | zero => simp [trailing_zeros.eq_def]
@@ -284,7 +287,7 @@ theorem trailing_zeros_prop6 : ∀ n > 0,
 /--
 For k < 2^n and k ≠ 0, trailing_zeros(k + 2^n) = trailing_zeros(k).
 -/
-theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
+public theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
     ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros k := by
   intro n k
   induction n using Nat.strong_induction_on with
@@ -347,7 +350,7 @@ theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
 For k ≤ 2^n, the sum of (trailing_zeros(2^n + i + 1) + 1) over i ∈ [0, k-2] equals
 the sum of (trailing_zeros(i + 1) + 1) over the same range.
 -/
-theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
+public theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
     ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
     = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
   intro n k hk
@@ -424,8 +427,8 @@ theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
   so both bit-lists have the same length `n.bits.length + 1`. Note that the
   assumption `n > 0` is necessary: for `n = 0` we have `0.size = 0` but `1.size = 1`.
   -/
-theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
-    (2 * n).size = (2 * n + 1).size := by
+public theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
+    ((2 : ℕ) * n).size = ((2 : ℕ) * n + 1).size := by
   intro n h
   let bv := n.bits
   have hbv : bv = value_of% bv := by exact rfl
