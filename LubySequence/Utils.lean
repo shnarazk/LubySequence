@@ -12,6 +12,7 @@ open Finset Nat
 Generates a list by repeatedly applying function `f` starting from `init` for `n` iterations.
 If `start` is true, includes the initial value in the result.
 -/
+@[expose]
 public def scanList {α : Type _} (f : α → α) (init : α) (n : ℕ) (start : Bool := true) : List α :=
   match n with
   | 0      => []

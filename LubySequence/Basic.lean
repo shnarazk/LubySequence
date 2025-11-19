@@ -36,6 +36,7 @@ A kind of ceiling function.
 
 This returns the envelope + 1 (zero-based indexed).
 -/
+@[expose]
 public def S₂ (n : ℕ) := 2 ^ (n.succ.size - 1)
 #eval List.range 24 |>.map S₂
 
@@ -147,6 +148,7 @@ decreasing_by
 -- #eval S₂ 0 -- 2 = 2 -- 0
 -- #eval luby 2 -- 2 = 2 -- 0
 
+@[expose]
 public def is_segment_beg (n : ℕ) : Bool := match h : n with
   | 0 => true
   | 1 => true
