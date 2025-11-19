@@ -1,3 +1,5 @@
+module
+
 import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
@@ -10,7 +12,7 @@ open Finset Nat
 Generates a list by repeatedly applying function `f` starting from `init` for `n` iterations.
 If `start` is true, includes the initial value in the result.
 -/
-def scanList {α : Type _} (f : α → α) (init : α) (n : ℕ) (start : Bool := true) : List α :=
+public def scanList {α : Type _} (f : α → α) (init : α) (n : ℕ) (start : Bool := true) : List α :=
   match n with
   | 0      => []
   | n' + 1 =>
@@ -24,11 +26,11 @@ def scanList {α : Type _} (f : α → α) (init : α) (n : ℕ) (start : Bool :
 /--
 The remainder of division by a positive number is strictly less than the divisor.
 -/
-theorem mod_gt_right (a b : ℕ) (h : 0 < b) : a % b < b := by exact mod_lt a h
+public theorem mod_gt_right (a b : ℕ) (h : 0 < b) : a % b < b := by exact mod_lt a h
 /--
 When a number is smaller than the divisor, the remainder equals the original number.
 -/
-theorem mod_eq_left {a b : ℕ} (ha : a < b) : a % b = a := by exact mod_eq_of_lt ha
+public theorem mod_eq_left {a b : ℕ} (ha : a < b) : a % b = a := by exact mod_eq_of_lt ha
 
 /--
 For positive numbers a and b, if a is divisible by b, then (a-1) % b + 1 = b.
@@ -84,7 +86,7 @@ theorem mod_gt_right'_mpr {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
 /--
 For any natural number a and positive b, (a-1) % b + 1 ≤ b.
 -/
-theorem mod_gt_right'' {b : ℕ} (a : ℕ) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
+public theorem mod_gt_right'' {b : ℕ} (a : ℕ) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
   refine add_le_of_le_sub hb ?_
   · refine le_sub_one_of_lt ?_
     · exact mod_gt_right (a - 1) b hb
