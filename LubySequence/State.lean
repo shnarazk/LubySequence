@@ -62,19 +62,10 @@ namespace LubyState
 The next state is never equal to the current state, ensuring progress.
 This shows that the state transition function is divergent (always makes progress).
 -/
-theorem is_divergent (li : LubyState) : ¬(li.next = li) := by
-  contrapose!
-  intro t₀
-  simp
-  by_cases h : li.locIx + 1 = li.segment_height
-  · simp [is_segment_end, h]
-    have (a : LubyState) (h : ¬a.segIx = li.segIx) : ¬a = li := by
-      exact fun a_1 ↦ h (congrArg segIx a_1)
-    simp [this]
-  · simp [is_segment_end, h]
-    have (a : LubyState) (h : ¬a.locIx = li.locIx) : ¬a = li := by
-      exact fun a_1 ↦ h (congrArg locIx a_1)
-    simp [this]
+theorem is_divergent (li : LubyState) : ¬li.next = li := by
+  by_contra! x
+  simp at x
+  by_cases h : li.locIx + 1 = li.segment_height <;> grind
 
 /--
 The segment index is non-decreasing: moving to the next state never decreases segIx.
