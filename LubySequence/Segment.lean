@@ -1,11 +1,13 @@
+module
+
 import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
-import LubySequence.Utils
-import LubySequence.Basic
-import LubySequence.TrailingZeros
+public import LubySequence.Utils
+public import LubySequence.Basic
+public import LubySequence.TrailingZeros
 
 /-!
 Segments are monotonic subsequences in the Luby sequence.
@@ -26,7 +28,7 @@ Return the segment index for `n`.
 - `n` starts from 0.
 - segment index starts from 1.
 -/
-def segment (n : ℕ) : ℕ := match n with
+public def segment (n : ℕ) : ℕ := match n with
   | 0 => 1
   | n =>
     if h : n = 2 ^ ((n + 2).size - 1) - 2
@@ -1237,14 +1239,15 @@ def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 theorem segment_length_of_0_eq_1 : segment_length 0 = 1 := by simp [segment_length]
 
 @[simp]
-theorem segment_length_of_1_eq_2 : segment_length 1 = 2 := by simp [segment_length]
+theorem segment_length_of_1_eq_2 : segment_length 1 = 2 := by simp [segment_length, trailing_zeros]
 
 @[simp]
-theorem segment_length_of_2_eq_2 : segment_length 2 = 2 := by simp [segment_length, segment]
+theorem segment_length_of_2_eq_2 : segment_length 2 = 2 := by simp [segment_length, segment, trailing_zeros]
 
-#eval List.range 64
+/- #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
   |>.map (fun n ↦ (n, 1 + segment_length (n - 2 ^ ((n + 2).size - 2)) , segment_length n))
+-/
 
 /--
 At envelope boundaries, the segment length increases by 1 when moving backwards by `2 ^ ((n + 2).size - 2)`.
@@ -1259,7 +1262,7 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     have : n = 1 := by exact Nat.eq_of_le_of_lt_succ n_gt_0 n_eq_1
     simp [this] at n_is_envelope
   by_cases n_eq_2 : n = 2
-  · simp [n_eq_2, segment_length, segment, size]
+  · simp [n_eq_2, segment_length, segment, size, trailing_zeros]
   · have n_ge_4 : n ≥ 4 := by
       have n_ge_3 : n > 2 := by
         exact Nat.lt_of_le_of_ne n_gt_2 fun a ↦ n_eq_2 (id (Eq.symm a))
@@ -1346,9 +1349,10 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     rw [trailing_zeros_prop3 (n.size - 1 - 1)]
     grind
 
-#eval List.range 64
+/- #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
   |>.map (fun n ↦ (n, segment_length (2 ^ (n + 2).size - 2) , 1 + segment_length n))
+-/
 
 /--
 At envelope boundaries (where `n = 2 ^ n.size - 2`), the segment length increases by 1
@@ -1455,10 +1459,10 @@ theorem segment_length_prop2 : ∀ n > 0, n = 2 ^ n.size - 2 →
   simp [this]
   exact Nat.add_comm n.size 1
 
-#eval List.range 62
+/- #eval List.range 62
   |>.filter (fun n ↦ ¬segment n = 2 ^ ((n + 1).size - 1))
   |>.map (fun n ↦ (n, segment_length (n - (2 ^ ((n + 1).size - 1) - 1)), segment_length n))
-
+-/
 
 /--
 For positions not at envelope boundaries, the segment length remains invariant under
@@ -2130,4 +2134,3 @@ theorem segment_length_prop3 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
     · intro x; simp [x] at n_gt_0
 
 end LubySegment
-

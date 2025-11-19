@@ -4,7 +4,7 @@ import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
+public import Mathlib.Data.Nat.Size
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import LubySequence.Size
 
@@ -17,6 +17,7 @@ Returns the number of zeros at the end of bit representation of Nat `n`.
 Note: `trailing_zeros 0 = 0`
 It differs from the Rust implementation which returns 64 if n = 0_u64.
 -/
+@[expose]
 public def trailing_zeros (n : ℕ) : ℕ := match h : n with
   | 0      => n
   | n' + 1 =>
@@ -37,13 +38,13 @@ public def trailing_zeros (n : ℕ) : ℕ := match h : n with
 The number of trailing zeros in 0 is 0.
 -/
 @[simp]
-theorem trailing_zeros0 : trailing_zeros 0 = 0 := by simp [trailing_zeros]
+public theorem trailing_zeros0 : trailing_zeros 0 = 0 := by simp [trailing_zeros]
 
 /--
 The number of trailing zeros in 1 is 0.
 -/
 @[simp]
-theorem trailing_zeros1 : trailing_zeros 1 = 0 := by simp [trailing_zeros]
+public theorem trailing_zeros1 : trailing_zeros 1 = 0 := by simp [trailing_zeros]
 
 /--
 Returns the number of consecutive ones at the end of bit representation of Nat `n`.
