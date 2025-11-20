@@ -175,7 +175,7 @@ theorem within_induction {n m : ℕ} : within (n + (within n).length) = (within 
   by_cases n_eq_0 : n = 0
   · simp [n_eq_0] at *
     simp [within'] at s_def
-    simp [s_def, zero, length, nextStart, within']
+    simp [s_def, zero, length, nextStart]
   · rename' n_eq_0 => n_gt_0
     replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
     simp
