@@ -1,13 +1,10 @@
+module
+
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
-import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
-import Mathlib.Data.Finset.Basic
-import LubySequence.Basic
-import LubySequence.Segment
-import LubySequence.TrailingZeros
-import LubySequence.Utils
+public import LubySequence.Basic
+public import LubySequence.Segment
+public import LubySequence.TrailingZeros
+public import LubySequence.Utils
 
 /-! A state-based Luby Implementation that compute Luby value in _O(1)_ and transite
 from state n to state n + 1 in _O(1)_.
@@ -19,29 +16,36 @@ open Finset Nat
 
 attribute [local simp] binaryRec default
 
-structure LubyState where
+public structure LubyState where
   /-- segment index (zero-based) -/
   segIx : ℕ
   /-- local index within the current segment -/
   locIx : ℕ
 
-instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
+public instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
 instance LubyState.repl : Repr LubyState where
   reprPrec s _ := "LubyState(" ++ toString s.segIx ++ ", " ++ toString s.locIx ++ ")"
 
-@[simp]
-def LubyState.zero := (default : LubyState)
+@[expose, simp]
+public def LubyState.zero := (default : LubyState)
 
 -- #check LubyState.zero
 -- #eval LubyState.zero
 
-def LubyState.luby (self : LubyState) : ℕ := 2 ^ self.locIx
-def LubyState.segment_height (self : LubyState) : ℕ := trailing_zeros self.segIx + 1
-def LubyState.is_segment_beg (self : LubyState) : Bool := self.locIx = 0
-def LubyState.is_segment_end (self : LubyState) : Bool := self.locIx.succ = self.segment_height
+@[expose]
+public def LubyState.luby (self : LubyState) : ℕ := 2 ^ self.locIx
 
-@[simp]
-def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
+@[expose]
+public def LubyState.segment_height (self : LubyState) : ℕ := trailing_zeros self.segIx + 1
+
+@[expose]
+public def LubyState.is_segment_beg (self : LubyState) : Bool := self.locIx = 0
+
+@[expose]
+public def LubyState.is_segment_end (self : LubyState) : Bool := self.locIx.succ = self.segment_height
+
+@[expose, simp]
+public def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
   match repeating with
   | 0     => self
   | r + 1 =>
@@ -51,8 +55,8 @@ def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
     else LubyState.mk li.segIx li.locIx.succ
 
 -- #eval LubyState.zero.next 2
-#eval scanList (·.next) LubyState.zero 24 |>.map (·.luby)
-#eval scanList (·.next) LubyState.zero 24 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
+-- #eval scanList (·.next) LubyState.zero 24 |>.map (·.luby)
+-- #eval scanList (·.next) LubyState.zero 24 |>.map (fun i ↦ (i.segIx, i.locIx, i.segment_height, i.luby))
 -- #eval LubyState.zero.next 24 |>.luby
 
 
@@ -62,19 +66,10 @@ namespace LubyState
 The next state is never equal to the current state, ensuring progress.
 This shows that the state transition function is divergent (always makes progress).
 -/
-theorem is_divergent (li : LubyState) : ¬(li.next = li) := by
-  contrapose!
-  intro t₀
-  simp
-  by_cases h : li.locIx + 1 = li.segment_height
-  · simp [is_segment_end, h]
-    have (a : LubyState) (h : ¬a.segIx = li.segIx) : ¬a = li := by
-      exact fun a_1 ↦ h (congrArg segIx a_1)
-    simp [this]
-  · simp [is_segment_end, h]
-    have (a : LubyState) (h : ¬a.locIx = li.locIx) : ¬a = li := by
-      exact fun a_1 ↦ h (congrArg locIx a_1)
-    simp [this]
+theorem is_divergent (li : LubyState) : ¬li.next = li := by
+  by_contra! x
+  simp at x
+  by_cases h : li.locIx + 1 = li.segment_height <;> grind
 
 /--
 The segment index is non-decreasing: moving to the next state never decreases segIx.
@@ -156,7 +151,8 @@ theorem next_assoc (li : LubyState) : ∀ n : ℕ, (li.next n).next = li.next (n
 /--
 Convert a natural number to a LubyState.
 -/
-def ofNat (n : ℕ) : LubyState := zero.next n
+@[expose]
+public def ofNat (n : ℕ) : LubyState := zero.next n
 
 /--
 ofNat distributes over addition: ofNat (a + b) = (ofNat a).next b.
@@ -172,9 +168,9 @@ theorem ofNat_dist (a b : ℕ) : ofNat (a + b) = (ofNat a).next b := by
 
 def S₁ (n: ℕ) : ℕ := n.succ.size.pred
 
-#eval List.range 24 |>.map (fun k ↦ S₁ k)
-#eval List.range 24 |>.map (fun k ↦ Luby.S₂ k)
-#eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
+-- #eval List.range 24 |>.map (fun k ↦ S₁ k)
+-- #eval List.range 24 |>.map (fun k ↦ Luby.S₂ k)
+-- #eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
 
 -- @[simp]
 def segIdToLastIndex (n : ℕ) : ℕ := match n with
@@ -185,7 +181,7 @@ def toNat (self : LubyState) : ℕ := match self.segIx with
   | 0 => 0
   | n + 1 => segIdToLastIndex n + self.locIx
 
-#eval scanList (·.next) zero 24 |>.map (·.toNat)
+-- #eval scanList (·.next) zero 24 |>.map (·.toNat)
 
 /--
 The toNat and ofNat functions are inverses: (ofNat n).toNat = n for all n.
@@ -250,7 +246,7 @@ theorem next_is_succ : ∀ n : ℕ, (ofNat n).next.toNat = n + 1 := by
     _ = (zero.next (n + 1)).toNat := by exact rfl
     _ = n + 1 := by exact is_iso (n + 1)
 
-#eval List.range 28 |>.map (fun n ↦ ((ofNat n).luby, Luby.luby n))
+-- #eval List.range 28 |>.map (fun n ↦ ((ofNat n).luby, Luby.luby n))
 
 instance : Coe ℕ LubyState where coe n := ofNat n
 
@@ -322,7 +318,7 @@ def toSegIx (n segIx sum : ℕ) : ℕ :=
 
 def sumOfSegmentHeights (si : ℕ) : ℕ := ∑ i ∈ range si, (trailing_zeros (i + 1) + 1)
 
-#eval List.range 17 |>.map (fun n ↦ (n, sumOfSegmentHeights n))
+-- #eval List.range 17 |>.map (fun n ↦ (n, sumOfSegmentHeights n))
 
 def toLocIx (n : ℕ) : ℕ := n - sumOfSegmentHeights n
 
@@ -416,7 +412,7 @@ The sum of segment lengths of segment 1 to b. So this is the index of the beginn
 -/
 def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i + 1) + 1)
 
--- #eval List.range 12 |>.map (fun n ↦ (segment_height_sum n, segment_height_sum' n))
+/- #eval List.range 12 |>.map (fun n ↦ (segment_height_sum n, segment_height_sum' n))
 #eval List.range 7 |>.map (fun k ↦ (2 ^ k, segment_height_sum (2 ^ k), 2 ^ (k + 1) - 1))
 
 #eval List.range 30 |>.map (fun n ↦ (
@@ -430,6 +426,7 @@ def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i 
 #eval List.range 7 |>.map (fun k ↦
   let n := 2 ^ k
   (∑ i ∈ range n, (trailing_zeros (i + 1) + 1), 2 ^ n.size - 1))
+-/
 
 /--
 For powers of 2, the sum of segment heights equals 2^(n.size) - 1.
@@ -571,7 +568,7 @@ theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_
   simp [this]
   exact segment_height_sum_pow2' b b_ge_1 b_is_pow2
 
-#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
+-- #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
 
 -- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
 -- あるいは segment_beg な (ofNat n).segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = n 的な
@@ -764,7 +761,7 @@ section WIP
 
 -- #CURRENT-TASK
 
-#eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
+-- #eval List.range 9 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n.size - 1, (ofNat (n - 1)).locIx))
 
 /--
 Work in progress: For envelopes, the local index equals size - 1.
@@ -813,10 +810,11 @@ theorem t20250919 : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = 
         sorry -- ???
 
 
-#eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
-#eval List.range 64
+-- #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segIx, 2 ^ (n.size - 1)))
+/- #eval List.range 64
     |>.filter (fun n ↦ 0 < n && n == 2 ^ n.size - 2)
     |>.map (fun n ↦ (n, (ofNat n).segIx, 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx, 2 ^ (n.size - 1)))
+-/
 
 /--
 Work in progress: Segment index doubling property at envelope boundaries.
@@ -863,9 +861,10 @@ theorem t20250910 : ∀ n > 0 , n = 2 ^ n.size - 2 →
       --
       sorry
 
-#eval List.range 32 |>.map (fun n ↦ ((∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1), n))
-#eval List.range 32 |>.map (fun n ↦
+-- #eval List.range 32 |>.map (fun n ↦ ((∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1), n))
+/- #eval List.range 32 |>.map (fun n ↦
       ((ofNat (∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx, (ofNat n).segIx))
+-/
 
 /--
 Work in progress: Sum of index in segment corresponds to segment index.
@@ -907,7 +906,7 @@ theorem t20250904_sorry : ∀ n : ℕ,
     ·
       sorry
 
-#eval List.range 6 |>.map (· + 1) |>.map (2 ^ ·.succ - 2) |>.map
+/- #eval List.range 6 |>.map (· + 1) |>.map (2 ^ ·.succ - 2) |>.map
     (fun n ↦
       let state := ofNat n
       let si := state.segIx
@@ -915,6 +914,7 @@ theorem t20250904_sorry : ∀ n : ℕ,
       let n' := n - 2 ^ (n.size - 1)
       let as := (ofNat n').segment_height + 1
       f!"(n: {n}, segIx: {si}, height: {sh} ↦ n': {n'}, height': {as})")
+-/
 
 /--
 Work in progress: Segment index relates to power-of-two subtraction.

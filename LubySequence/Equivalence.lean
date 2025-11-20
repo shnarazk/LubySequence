@@ -1,17 +1,15 @@
+module
+
 import Mathlib.Tactic
-import LubySequence.Basic
-import LubySequence.Tree
-import LubySequence.State
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
-import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
+public import LubySequence.Basic
+public import LubySequence.Tree
+public import LubySequence.State
 
 open Tree
 
-#eval List.range 24 |>.map (fun n ↦ LubyTree.valueAt (n + 1))
-#eval List.range 24 |>.map (fun n ↦ Luby.luby n)
-#eval ∀ n < 20, LubyTree.valueAt (n + 1) == Luby.luby n
+-- #eval List.range 24 |>.map (fun n ↦ LubyTree.valueAt (n + 1))
+-- #eval List.range 24 |>.map (fun n ↦ Luby.luby n)
+-- #eval ∀ n < 20, LubyTree.valueAt (n + 1) == Luby.luby n
 
 theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := by
   intro n
@@ -271,10 +269,10 @@ theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := b
           have hn' := hn (n + 1 - 2 ^ ((n + 1).size - 1)) this
           exact hn'
 
-#eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat n).luby, (LubyState.ofNat n).segment_height, LubyTree.luby (n + 1)))
+-- #eval List.range 30 |>.map (fun n ↦ ((LubyState.ofNat n).luby, (LubyState.ofNat n).segment_height, LubyTree.luby (n + 1)))
 
-#eval List.range 30 |>.map (fun n ↦ (Luby.luby n, (LubyState.ofNat n).luby))
-#eval List.range 22 |>.map (fun n ↦ ((LubyState.ofNat n).is_segment_beg, Luby.is_segment_beg n))
+-- #eval List.range 30 |>.map (fun n ↦ (Luby.luby n, (LubyState.ofNat n).luby))
+-- #eval List.range 22 |>.map (fun n ↦ ((LubyState.ofNat n).is_segment_beg, Luby.is_segment_beg n))
 
 theorem LubyStateSegment_is_LubySegment :
     ∀ n : ℕ, (LubyState.ofNat n).is_segment_beg = Luby.is_segment_beg n := by

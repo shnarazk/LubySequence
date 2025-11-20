@@ -1,9 +1,8 @@
+module
+
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
-import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
-import LubySequence.Size
+public import Mathlib.Data.Nat.Size
+public import LubySequence.Size
 
 /-!
   The Luby sequence is a sequence of natural numbers defined recursively.
@@ -34,13 +33,14 @@ A kind of ceiling function.
 
 This returns the envelope + 1 (zero-based indexed).
 -/
-def S₂ (n : ℕ) := 2 ^ (n.succ.size - 1)
-#eval List.range 24 |>.map S₂
+@[expose]
+public def S₂ (n : ℕ) := 2 ^ (n.succ.size - 1)
+-- #eval List.range 24 |>.map S₂
 
 /--
 Monotonicity of powers of 2: if `a ≤ b`, then `2 ^ a ≤ 2 ^ b`.
 -/
-theorem pow2_le_pow2 (a b : ℕ) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
+public theorem pow2_le_pow2 (a b : ℕ) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
   exact Nat.pow_le_pow_right (by grind : 2 > 0)
 
 /--
@@ -87,7 +87,7 @@ theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
       exact Nat.le_trans h2 h4
   exact this
 
-#eval List.range 50 |>.map (fun n ↦ (if n + 1 ≥ S₂ n then 1 else 0))
+-- #eval List.range 50 |>.map (fun n ↦ (if n + 1 ≥ S₂ n then 1 else 0))
 
 /--
 Upper bound for S₂: `S₂ n ≤ n + 1` for all natural numbers n.
@@ -115,13 +115,15 @@ theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
     rw [this] at t2
     exact Nat.le_trans t1 t2
 
-#eval List.range 24 |>.map (fun k ↦ S₂ k == k)
-#eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
+-- #eval List.range 24 |>.map (fun k ↦ S₂ k == k)
+-- #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
-def is_envelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
+@[expose]
+public def is_envelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
 
 -- Well-founded version of the Luby sequence
-def luby (n : ℕ) : ℕ := if is_envelope n then S₂ n else luby (n + 1 - S₂ n)
+@[expose]
+public def luby (n : ℕ) : ℕ := if is_envelope n then S₂ n else luby (n + 1 - S₂ n)
 termination_by n
 decreasing_by
   rcases n with z | k
@@ -145,7 +147,8 @@ decreasing_by
 -- #eval S₂ 0 -- 2 = 2 -- 0
 -- #eval luby 2 -- 2 = 2 -- 0
 
-def is_segment_beg (n : ℕ) : Bool := match h : n with
+@[expose]
+public def is_segment_beg (n : ℕ) : Bool := match h : n with
   | 0 => true
   | 1 => true
   | m + 1 + 1 => if is_envelope n then false else is_segment_beg (n + 1 - S₂ n)
@@ -709,5 +712,5 @@ theorem luby_sequence_prop (n : ℕ) :
 end Luby
 
 -- 🧪 Test output
-#eval List.range 24 |>.map Luby.luby
+-- #eval List.range 24 |>.map Luby.luby
 -- Output: [1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1]
