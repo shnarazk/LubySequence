@@ -1,14 +1,16 @@
+module
+
 import Mathlib.Tactic
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.Init
 import Mathlib.Data.Nat.Bits
 import Mathlib.Data.Nat.Size
 import Mathlib.Data.Finset.Basic
-import LubySequence.Basic
-import LubySequence.Segment
-import LubySequence.State
-import LubySequence.TrailingZeros
-import LubySequence.Utils
+public import LubySequence.Basic
+public import LubySequence.Segment
+public import LubySequence.State
+public import LubySequence.TrailingZeros
+public import LubySequence.Utils
 
 /-!
 Direct conversion version of segment manipulation
@@ -65,9 +67,9 @@ def next (self : Segment) (repeating : ℕ := 1) : Segment :=
     let s := self.next r
     Segment.mk (s.index + 1) s.nextStart
 
-#eval List.range 14 |>.map (LubyState.zero.next ·)
-#eval List.range 14 |>.map (zero.next ·)
-#eval List.range 10 |>.map (Segment.zero.next ·)
+-- #eval List.range 14 |>.map (LubyState.zero.next ·)
+-- #eval List.range 14 |>.map (zero.next ·)
+-- #eval List.range 10 |>.map (Segment.zero.next ·)
 
 theorem segment_length_gt_0 : ∀ n : ℕ, (Segment.zero.next n).length ≥ 1 := by
   intro n
@@ -84,7 +86,7 @@ theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next
   | zero => simp
   | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
 
-#eval List.range 20 |>.map (fun n ↦ (n + 1, (Segment.zero.next n).index))
+-- #eval List.range 20 |>.map (fun n ↦ (n + 1, (Segment.zero.next n).index))
 
 /--
 The index of the segment after `n` steps from the zero segment is `n + 1`.
@@ -105,8 +107,9 @@ theorem segment_length_for_n : ∀ n : ℕ, (Segment.zero.next n).length = trail
   simp [length]
   rw [segment_index_for_n n]
 
-#eval List.range 20
+/- #eval List.range 20
     |>.map (fun n ↦ (n, (Segment.zero.next n).start, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
+-/
 
 /--
 The start position of the segment after `n` steps from zero is the sum of
@@ -128,11 +131,11 @@ theorem segment_for_n :
     ∀ n > 0, ∑ i ∈ range n, (trailing_zeros i + 1) = (Segment.zero.next (n - 1)).start + 1 := by
   intro n n_gt_0
   rw [segment_start_for_n (n - 1)]
-  have : 
+  have :
       ∑ i ∈ range 1, (trailing_zeros i + 1) + ∑ i ∈ range (n - 1), (trailing_zeros (1 + i) + 1) =
       ∑ i ∈ range (1 + (n - 1)), (trailing_zeros i + 1) := by
     exact Eq.symm (sum_range_add (fun x ↦ trailing_zeros x + 1) 1 (n - 1))
-  have aux : 
+  have aux :
       ∑ i ∈ range (n - 1), (trailing_zeros (1 + i) + 1) =
       ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1) := by
     refine sum_equiv ?_ (fun i ↦ ?_) ?_
@@ -164,16 +167,17 @@ This is a wrapper around `within'` that starts the search from `limit` itself.
 @[simp]
 def within (limit : ℕ) : Segment := within' limit limit
 
-#eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
+/- #eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
 #eval List.range 20
     |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
     |>.map (fun (n, m) ↦ (n, m, Segment.zero.next n, within m))
 #eval List.range 20
     |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
     |>.map (fun (n, m) ↦ (n, m, within m, within (m + (within m).length), (within m).next))
+-/
 
-theorem within_induction {n m : ℕ} : within (n + (within n).length + 1) = (within n).next := by
-  let s := within n 
+theorem within_induction {n m : ℕ} : within (n + (within n).length) = (within n).next := by
+  let s := within n
   have s_def : s = value_of% s := rfl
   simp only [←s_def]
   rw [within, within'.eq_def]
@@ -185,9 +189,9 @@ theorem within_induction {n m : ℕ} : within (n + (within n).length + 1) = (wit
     replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
     simp
     split <;> expose_names
-    · 
+    ·
       sorry
-    · 
+    · -- conflict path
       sorry
 
 /--
@@ -219,9 +223,10 @@ decreasing_by
   · exact h
   · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1))) -/
 
-#eval List.range 20
+/- #eval List.range 20
     |>.map (fun n ↦ ((within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).nextStart,
       ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
+-/
 
 /--
 For any positive `n`, the sum (start + length) of the segment within the
