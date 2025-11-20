@@ -337,10 +337,11 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
       exact rfl
     simp [tmp]
     clear tmp
-    refine bitslength_sub (by grind) (by grind) ?_
-    have tmp1 : 1 ≤ n.bits.length - 1 := by exact Nat.le_sub_one_of_lt le2nbl
-    have tmp2 : 2 ^ 1 ≤ 2 ^ (n.bits.length - 1) := by exact Nat.le_pow tmp1
-    exact tmp2
+    simp [bitslength_eq_size]
+    refine size_sub ?_ ?_ ?_
+    · exact Nat.zero_lt_of_lt le2n
+    · exact Nat.two_pos
+    · exact Nat.le_self_pow (Nat.sub_ne_zero_iff_lt.mpr le2n) 2
   have s1' : ((2 ^ n.bits.length - 1 - 1) / 2).bits.length = n.bits.length - 1 := by
     have t1 {x : ℕ} (h : 2 ≤ x) : (x / 2).bits = x.bits.tail := by
       let v := (x / 2).bits
