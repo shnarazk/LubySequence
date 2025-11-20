@@ -159,11 +159,21 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
 /-
  - The envelope is the smallest tree containing `s` elements.
  -/
+@[expose]
 public def LubyTree.envelopeDepth (s : ℕ) : ℕ := s.size
+
+@[expose]
 public def LubyTree.envelopeSize (s : ℕ) : ℕ := 2 ^ (LubyTree.envelopeDepth s) - 1
+
+@[expose]
 def LubyTree.envelope (s : ℕ) : LubyTree := LubyTree.mk (LubyTree.envelopeDepth s - 1)
+
+@[expose]
 public def LubyTree.is_envelope (s : ℕ) : Bool := LubyTree.envelopeSize s = s
+
 def LubyTree.quotientOfSize (s : ℕ) (e : ℕ) := (s - 1) % ((e - 1) / 2) + 1
+
+@[expose]
 public def LubyTree.quotient (s : ℕ) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2) + 1
 
 -- #eval List.range 20 |>.map (fun n ↦ (n + 1, LubyTree.envelopeDepth (n + 1)))
@@ -434,6 +444,7 @@ def LubyTree.valueAtSize (self : LubyTree) (s : ℕ) : ℕ := match self with
   | .wrap sub =>
     if self.size ≤ s then 2 ^ self.depth.pred else sub.valueAtSize ((s - 1) % sub.size + 1)
 
+@[expose]
 public def LubyTree.luby (s : ℕ) : ℕ :=
   if h : LubyTree.is_envelope s
   then 2 ^ (LubyTree.envelopeDepth s).pred

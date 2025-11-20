@@ -27,22 +27,29 @@ public structure LubyState where
   /-- local index within the current segment -/
   locIx : ℕ
 
-instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
+public instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
 instance LubyState.repl : Repr LubyState where
   reprPrec s _ := "LubyState(" ++ toString s.segIx ++ ", " ++ toString s.locIx ++ ")"
 
-@[simp]
+@[expose, simp]
 public def LubyState.zero := (default : LubyState)
 
 -- #check LubyState.zero
 -- #eval LubyState.zero
 
+@[expose]
 public def LubyState.luby (self : LubyState) : ℕ := 2 ^ self.locIx
+
+@[expose]
 public def LubyState.segment_height (self : LubyState) : ℕ := trailing_zeros self.segIx + 1
+
+@[expose]
 public def LubyState.is_segment_beg (self : LubyState) : Bool := self.locIx = 0
+
+@[expose]
 public def LubyState.is_segment_end (self : LubyState) : Bool := self.locIx.succ = self.segment_height
 
-@[simp]
+@[expose, simp]
 public def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
   match repeating with
   | 0     => self

@@ -121,9 +121,11 @@ theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
 #eval List.range 24 |>.map (fun k ↦ S₂ k == k)
 #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
+@[expose]
 public def is_envelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
 
 -- Well-founded version of the Luby sequence
+@[expose]
 public def luby (n : ℕ) : ℕ := if is_envelope n then S₂ n else luby (n + 1 - S₂ n)
 termination_by n
 decreasing_by
