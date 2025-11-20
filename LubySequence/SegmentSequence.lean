@@ -14,7 +14,7 @@ A segment represents a contiguous portion of the Luby sequence.
 Each segment has an index (starting from 1) and a start position.
 The segment structure ensures that the index is always at least 1.
 -/
-structure Segment where
+public structure Segment where
   index : ℕ
   start : ℕ
 
@@ -24,7 +24,8 @@ namespace Segment
 The initial segment with index 1 and start position 0.
 This represents the first segment in the Luby sequence.
 -/
-def zero : Segment := ⟨1, 0⟩
+@[expose]
+public def zero : Segment := ⟨1, 0⟩
 
 instance inst : Inhabited Segment where
   default := zero
@@ -33,13 +34,15 @@ instance inst : Inhabited Segment where
 The length of a segment, computed as the number of trailing zeros in its index plus 1.
 This corresponds to how many elements in the Luby sequence belong to this segment.
 -/
-def length (s : Segment) : ℕ := trailing_zeros s.index + 1
+@[expose]
+public def length (s : Segment) : ℕ := trailing_zeros s.index + 1
 
 /--
 The sum of a segment's start position and its length.
 This gives the position where the next segment would start.
 -/
-def nextStart (s : Segment) : ℕ := s.start + s.length
+@[expose]
+public def nextStart (s : Segment) : ℕ := s.start + s.length
 
 instance repl : Repr Segment where
   reprPrec s n := "Seg" ++ reprPrec s.index n ++ "@" ++ reprPrec s.start n ++ ":" ++ reprPrec (s.nextStart - 1) n
@@ -50,8 +53,8 @@ The `repeating` parameter specifies how many steps to advance (default is 1).
 When `repeating = 0`, returns the current segment unchanged.
 For `repeating > 0`, recursively advances through segments.
 -/
-@[simp]
-def next (self : Segment) (repeating : ℕ := 1) : Segment :=
+@[expose, simp]
+public def next (self : Segment) (repeating : ℕ := 1) : Segment :=
   match repeating with
   | 0     => self
   | r + 1 =>
@@ -146,8 +149,26 @@ theorem segment_for_n :
 /--
 Helper function to find the segment whose start position is within the given limit.
 Searches backwards from position `n` to find the last segment that starts before `limit`.
+
+segment は ⟨∑ range x, 1, ∑ range x, (trailing_zeros (i + 1) + 1)⟩ の形で記述できるので
+a + xに対する繰り返し回数xを一つ仮定して∑ の形にしてから分割すれば
+zero.extendsTo (a + b) = (zero.extendsTo a).extendsTo b
+を導出できるのでは?
+そのための形は以下のようなもの
 -/
-def within' (limit : ℕ) (n : ℕ) : Segment := match n with
+public def extendTo (s : Segment) (limit : ℕ) : Segment :=
+  if limit = 0 then s else (s.next).extendTo (limit - s.length)
+termination_by limit
+decreasing_by
+  expose_names
+  replace h : limit > 0 := by exact Nat.ne_zero_iff_zero_lt.mp h
+  have : s.length > 0 := by exact Nat.zero_lt_succ (trailing_zeros s.index)
+  exact Nat.sub_lt h this
+
+-- TODO: 補助定理として zero.extendTo (a + b) = (zero.extendTo a).extendTo b が必要
+
+-- TODO: extendTo で置き換え
+public def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
   | n' + 1 => if (Segment.zero.next n).start ≤ limit then Segment.zero.next n else within' limit n'
 
@@ -155,8 +176,8 @@ def within' (limit : ℕ) (n : ℕ) : Segment := match n with
 Find the segment whose start position is within the given limit.
 This is a wrapper around `within'` that starts the search from `limit` itself.
 -/
-@[simp]
-def within (limit : ℕ) : Segment := within' limit limit
+@[expose, simp]
+public def within (limit : ℕ) : Segment := within' limit limit
 
 /- #eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
 #eval List.range 20
@@ -180,10 +201,16 @@ theorem within_induction {n m : ℕ} : within (n + (within n).length) = (within 
     replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
     simp
     split <;> expose_names
-    ·
-      sorry
+    · have : s.length ≥ 1 := by exact Nat.le_of_ble_eq_true rfl
+      replace : n + s.length > 0 := by exact Nat.add_pos_right n this
+      replace : ¬n + s.length = 0 := by exact Nat.ne_zero_iff_zero_lt.mpr this
+      exact absurd heq this
     · -- conflict path
-      sorry
+      split <;> expose_names
+      · have : (zero.next (n + s.length)).start ≥ n + s.length := by sorry
+        sorry
+      · 
+        sorry
 
 /--
 For any positive `n`, the segment within the sum of the first `n` segment lengths
