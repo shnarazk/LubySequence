@@ -221,48 +221,37 @@ theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := 
 
 /--
 Deprecated: Use `size_add` instead.
-For `0 < k < 2 ^ n`, the bit length of `2 ^ n + k` equals `n + 1`.
+For `0 < k < 2 ^ n`, the size of `2 ^ n + k` equals `n + 1`.
 -/
-@[deprecated "Use `size_add` instead of `bitslength_add`" (since := "2025-08-10")]
-theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
-    (2 ^ n + k).bits.length = n + 1 := by
+public theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
+  simp [←bitslength_eq_size]
   have p1 : (2 ^ n).bits.length ≤ (2 ^ n + k).bits.length := by
-    have : (2 ^ n).size ≤ (2 ^ n + k).size := by
-      refine size_le_size ?_
-      exact le_add_right (2 ^ n) k
+    have : (2 ^ n).size ≤ (2 ^ n + k).size := size_le_size (le_add_right (2 ^ n) k)
     simp only [←bitslength_eq_size] at this
     exact this
   have p1' : n + 1 ≤ (2 ^ n + k).bits.length := by
-    have : (2 ^ n).bits.length = n + 1 := by
-      exact bitslength_of_pow2_eq_self_add_one n
+    have : (2 ^ n).bits.length = n + 1 := bitslength_of_pow2_eq_self_add_one n
     simp [this] at p1
     exact p1
   have p2 : 2 ^ n + k ≤ 2 ^ (n + 1) - 1 := by
     have : 2 ^ (n + 1) = 2 * 2 ^ n := by exact pow_succ'
     simp [this]
-    clear this
-    have : 2 * 2 ^ n = 2 ^ n + 2 ^ n := by
-      exact two_mul (2 ^ n)
+    replace : 2 * 2 ^ n = 2 ^ n + 2 ^ n := two_mul (2 ^ n)
     simp [this]
     have : 2 ^ n + 2 ^ n - 1 = 2 ^ n - 1 + 2 ^ n := by
-      have : 2 ^ n + 2 ^ n - 1 = 2 ^ n + (2 ^ n - 1) := by
-        refine Nat.add_sub_assoc ?_ ?_
-        grind
+      have : 2 ^ n + 2 ^ n - 1 = 2 ^ n + (2 ^ n - 1) := Nat.add_sub_assoc (by grind) (2 ^ n)
       rw [add_comm _ (2 ^ n - 1)] at this
       exact this
     simp [this]
     rw [add_comm]
-    refine Nat.add_le_add_iff_right.mpr ?_
-    exact le_sub_one_of_lt hb
+    exact Nat.add_le_add_iff_right.mpr (le_sub_one_of_lt hb)
   have p2' : (2 ^ n + k).bits.length ≤ n + 1 := by
     have s1 : (2 ^ n + k).bits.length ≤ (2 ^ (n + 1) - 1).bits.length := by
-      have : (2 ^ n + k).size ≤ (2 ^ (n + 1) - 1).size := by
-        exact size_le_size p2
+      have : (2 ^ n + k).size ≤ (2 ^ (n + 1) - 1).size := size_le_size p2
       simp [←bitslength_eq_size] at this
       exact this
     have s2 : (2 ^ (n + 1) - 1).bits.length = n + 1 := by
-      have : (2 ^ (n + 1) - 1).bits = List.iterate (·) true (n + 1) := by
-        exact pow2_sub_one
+      have : (2 ^ (n + 1) - 1).bits = List.iterate (·) true (n + 1) := pow2_sub_one
       simp [this]
     simp [s2] at s1
     exact s1
@@ -270,51 +259,25 @@ theorem bitslength_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) :
   exact le_antisymm p2' p1'
 
 /--
-For `0 < k < 2 ^ n`, the size of `2 ^ n + k` equals `n + 1`.
--/
-public theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
-  simp [←bitslength_eq_size]
-  exact bitslength_add ha hb
-
-/--
-Deprecated: Use `size_add'` instead.
-If adding k to n doesn't increase the bit length beyond n.bits.length, then the bit length stays the same.
--/
-@[deprecated "Use `size_add'` instead of `bitslength_add'`" (since := "2025-08-10")]
-theorem bitslength_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).bits.length < n.bits.length + 1) :
-    (n + k).bits.length = n.bits.length := by
-  have t1 : n < n + k := by exact Nat.lt_add_of_pos_right ha
-  have t2 : n.size ≤ (n + k).size := by
-    refine size_le_size ?_
-    grind
-  simp [←bitslength_eq_size] at t2
-  have le : n.bits.length < (n + k).bits.length ∨ n.bits.length = (n + k).bits.length := by
-    exact Or.symm (eq_or_lt_of_le t2)
-  rcases le with l|e
-  · have l' : n.bits.length + 1 ≤ (n + k).bits.length := by exact l
-    have l'' : ¬(n + k).bits.length < n.bits.length + 1 := by exact not_lt.mpr l
-    exact absurd hb l''
-  · exact id (Eq.symm e)
-
-/--
 If adding k to n doesn't increase the size beyond n.size, then the size stays the same.
 -/
 public theorem size_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n + k).size = n.size := by
-  simp [←bitslength_eq_size]
-  simp [←bitslength_eq_size] at hb
-  exact bitslength_add' ha hb
+  have t1 : n < n + k := by exact Nat.lt_add_of_pos_right ha
+  have t2 : n.size ≤ (n + k).size := size_le_size (by grind)
+  have le : n.size < (n + k).size ∨ n.size = (n + k).size := Or.symm (eq_or_lt_of_le t2)
+  rcases le with l|e
+  · have l' : ¬(n + k).size < n.size + 1 := not_lt.mpr l
+    exact absurd hb l'
+  · exact id (Eq.symm e)
 
 /--
-Deprecated: Use `size_sub` instead.
-For `n > 0` and `0 < k ≤ 2 ^ (n - 1)`, the bit length of `2 ^ n - k` equals n.
+For `n > 0` and `0 < k ≤ 2 ^ (n - 1)`, the size of `2 ^ n - k` equals n.
 -/
-@[deprecated "Use `size_sub` instead of `bitslength_sub`" (since := "2025-08-10")]
-public theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
-    (2 ^ n - k).bits.length = n := by
+public theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) : (2 ^ n - k).size = n := by
   have p1 : 0 < n := by
     have p : 1 ≤ n := by exact h
-    have t1 : (1 : ℕ).bits.length ≤ n := by
-      have : (1 : ℕ).size ≤ n.size := by exact size_le_size h
+    have t1 : (1 : ℕ).size ≤ n := by
+      have : (1 : ℕ).size ≤ n.size := size_le_size h
       simp
       exact p
     simp at t1
@@ -322,89 +285,56 @@ public theorem bitslength_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2
     grind
   have r1 : 2 ^ n - 1 ≥ 2 ^ n - k := by grind
   have e1 : (2 ^ n - 1).bits.length = n := by simp [pow2_sub_one]
-  have t1 : (2 ^ n - k).bits.length ≤ (2 ^ n - 1).bits.length := by
-    have : 2 ^ n - k ≤ 2 ^ n - 1 := by exact r1
-    have : (2 ^ n - k).size ≤ (2 ^ n - 1).size := by exact size_le_size r1
-    simp [←bitslength_eq_size] at this
-    exact this
+  simp [bitslength_eq_size] at e1
+  have t1 : (2 ^ n - k).size ≤ (2 ^ n - 1).size := by
+    have : 2 ^ n - k ≤ 2 ^ n - 1 := r1
+    exact size_le_size r1
   simp [e1] at t1
   clear e1 r1
-  have t2 : n ≤ (2 ^ n - k).bits.length := by
-    have r2 : 2 ^ n - 2 ^ (n - 1) ≤ 2 ^ n - k := by exact Nat.sub_le_sub_left hb (2 ^ n)
-    have r2' : (2 ^ n - 2 ^ (n - 1)).bits.length ≤ (2 ^ n - k).bits.length := by
-      have : (2 ^ n - 2 ^ (n - 1)).size ≤ (2 ^ n - k).size := by exact size_le_size r2
-      simp [←bitslength_eq_size] at this
-      exact this
-    clear r2
+  have t2 : n ≤ (2 ^ n - k).size := by
+    have r2 : 2 ^ n - 2 ^ (n - 1) ≤ 2 ^ n - k := Nat.sub_le_sub_left hb (2 ^ n)
+    replace r2 : (2 ^ n - 2 ^ (n - 1)).size ≤ (2 ^ n - k).size := size_le_size r2
     have e2 : 2 ^ n - 2 ^ (n - 1) = 2 ^ (n - 1) := by
-      have step1 : 2 ^ n = 2 * 2 ^ (n - 1) := by
-        refine Eq.symm (mul_pow_sub_one (by grind) 2)
+      have step1 : 2 ^ n = 2 * 2 ^ (n - 1) := Eq.symm (mul_pow_sub_one (by grind) 2)
       simp [step1]
       have step2 : 2 * 2 ^ (n - 1) - 2 ^ (n - 1) = 2 ^ (n - 1) := by
         calc
           2 * 2 ^ (n - 1) - 2 ^ (n - 1) = 2 * 2 ^ (n - 1) - 1 * 2 ^ (n - 1) := by
-            have : 2 ^ (n - 1) = 1 * 2 ^ (n - 1) := by
-              exact Eq.symm (one_mul (2 ^ (n - 1)))
+            have : 2 ^ (n - 1) = 1 * 2 ^ (n - 1) := Eq.symm (one_mul (2 ^ (n - 1)))
             rewrite (occs := .pos [2]) [this]
             exact rfl
-          _ = (2 - 1) * 2 ^ (n - 1) := by
-             exact Eq.symm (Nat.sub_mul 2 1 (2 ^ (n - 1)))
-          _ = 2 ^ (n - 1) := by
-            refine (mul_eq_right ?_).mpr rfl
-            exact Ne.symm (NeZero.ne' (2 ^ (n - 1)))
+          _ = (2 - 1) * 2 ^ (n - 1) := Eq.symm (Nat.sub_mul 2 1 (2 ^ (n - 1)))
+          _ = 2 ^ (n - 1) := (mul_eq_right (Ne.symm (NeZero.ne' (2 ^ (n - 1))))).mpr rfl
       simp [step2]
-    have e2' : (2 ^ n - 2 ^ (n - 1)).bits.length = (2 ^ (n - 1)).bits.length := by
-      have : (2 ^ n - 2 ^ (n - 1)).size = (2 ^ (n - 1)).size := by exact congrArg size e2
-      simp [←bitslength_eq_size] at this
+    replace e2 : (2 ^ n - 2 ^ (n - 1)).size = (2 ^ (n - 1)).size := by
+      have : (2 ^ n - 2 ^ (n - 1)).size = (2 ^ (n - 1)).size := congrArg size e2
       exact this
-    clear e2
-    simp [e2'] at r2'
-    clear e2'
-    have e3 : (2 ^ (n - 1)).bits.length = n := by
-      have step1 : (2 ^ (n - 1)).bits.length = n - 1 + 1 := by
-        exact bitslength_of_pow2_eq_self_add_one (n - 1)
-      have step2 : n - 1 + 1 = n := by exact Nat.sub_add_cancel p1
-      simp [step2] at step1
+    simp [e2] at r2
+    replace e2 : (2 ^ (n - 1)).size = n := by
+      have step1 : (2 ^ (n - 1)).bits.length = n - 1 + 1 := bitslength_of_pow2_eq_self_add_one (n - 1)
+      have step2 : n - 1 + 1 = n := Nat.sub_add_cancel p1
+      simp [step2, bitslength_eq_size] at step1
       exact step1
-    simp [e3] at r2'
-    exact r2'
+    simp [e2] at r2
+    exact r2
   exact le_antisymm t1 t2
-
-/--
-For `n > 0` and `0 < k ≤ 2 ^ (n - 1)`, the size of `2 ^ n - k` equals n.
--/
-public theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n - 1)) :
-      (2 ^ n - k).size = n := by
-  simp [←bitslength_eq_size]
-  exact bitslength_sub h ha hb
-
-/--
-Deprecated: Use `size_div` instead.
-For `n ≥ 1` divisible by 2, the bit length of `n / 2` is one less than the bit length of n.
--/
-@[deprecated "Use `size_div` instead of `bitslength_div`" (since := "2025-08-10")]
-theorem bitslength_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) :
-    (n / 2).bits.length = n.bits.length - 1 := by
-  let n2b := (n / 2).bits
-  have n2bp : n2b = value_of% n2b := by rfl
-  have np : (2 * (n / 2)).bits.length = (n / 2).bits.length + 1 := by
-    have s1 : (2 * (n / 2)).bits = false :: (n / 2).bits := by
-      refine bit0_bits (n / 2) (by grind)
-    have s2 : (false :: (n / 2).bits).length = 1 + (n / 2).bits.length := by
-      exact succ_eq_one_add (n / 2).bits.length
-    simp only [←s1] at s2
-    simp [s2]
-    exact add_comm 1 (n / 2).bits.length
-  have : 2 * (n /2) = n := by exact Nat.mul_div_cancel' h2
-  simp [this] at np
-  exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
 /--
 For `n ≥ 1` divisible by 2, the size of `n / 2` is one less than the size of n.
 -/
 public theorem size_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
-  simp [←bitslength_eq_size]
-  exact bitslength_div h1 h2
+  let n2b := (n / 2).bits
+  have n2bp : n2b = value_of% n2b := by rfl
+  have np : (2 * (n / 2)).size = (n / 2).size + 1 := by
+    have s1 : (2 * (n / 2)).bits = false :: (n / 2).bits := bit0_bits (n / 2) (by grind)
+    have s2 : (false :: (n / 2).bits).length = 1 + (n / 2).bits.length := by
+      exact succ_eq_one_add (n / 2).bits.length
+    simp only [←s1, bitslength_eq_size] at s2
+    simp [s2]
+    exact add_comm 1 (n / 2).size
+  have : 2 * (n /2) = n := Nat.mul_div_cancel' h2
+  simp [this] at np
+  exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
 /--
 If a ≤ b, then the bit length of a is at most the bit length of b.
