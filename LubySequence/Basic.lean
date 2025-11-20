@@ -1,10 +1,7 @@
 module
 
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
-import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
+public import Mathlib.Data.Nat.Size
 public import LubySequence.Size
 
 /-!
@@ -38,7 +35,7 @@ This returns the envelope + 1 (zero-based indexed).
 -/
 @[expose]
 public def S₂ (n : ℕ) := 2 ^ (n.succ.size - 1)
-#eval List.range 24 |>.map S₂
+-- #eval List.range 24 |>.map S₂
 
 /--
 Monotonicity of powers of 2: if `a ≤ b`, then `2 ^ a ≤ 2 ^ b`.
@@ -90,7 +87,7 @@ theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
       exact Nat.le_trans h2 h4
   exact this
 
-#eval List.range 50 |>.map (fun n ↦ (if n + 1 ≥ S₂ n then 1 else 0))
+-- #eval List.range 50 |>.map (fun n ↦ (if n + 1 ≥ S₂ n then 1 else 0))
 
 /--
 Upper bound for S₂: `S₂ n ≤ n + 1` for all natural numbers n.
@@ -118,8 +115,8 @@ theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
     rw [this] at t2
     exact Nat.le_trans t1 t2
 
-#eval List.range 24 |>.map (fun k ↦ S₂ k == k)
-#eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
+-- #eval List.range 24 |>.map (fun k ↦ S₂ k == k)
+-- #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
 @[expose]
 public def is_envelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
@@ -715,5 +712,5 @@ theorem luby_sequence_prop (n : ℕ) :
 end Luby
 
 -- 🧪 Test output
-#eval List.range 24 |>.map Luby.luby
+-- #eval List.range 24 |>.map Luby.luby
 -- Output: [1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1]

@@ -1,9 +1,6 @@
 module
 
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
-import Mathlib.Data.Nat.Bits
 public import Mathlib.Data.Nat.Size
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import LubySequence.Size

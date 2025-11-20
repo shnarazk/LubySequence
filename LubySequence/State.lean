@@ -1,11 +1,6 @@
 module
 
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
-import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
-import Mathlib.Data.Finset.Basic
 public import LubySequence.Basic
 public import LubySequence.Segment
 public import LubySequence.TrailingZeros

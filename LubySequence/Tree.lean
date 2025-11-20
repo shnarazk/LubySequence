@@ -1,10 +1,6 @@
 module
 
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
-import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
 public import LubySequence.Size
 public import LubySequence.Utils
 
@@ -20,7 +16,8 @@ public inductive LubyTree where
   | wrap (tree : LubyTree) : LubyTree
 deriving BEq
 
-def LubyTree.mk (level : ℕ) : LubyTree := match level with
+@[expose]
+public def LubyTree.mk (level : ℕ) : LubyTree := match level with
   | 0     => LubyTree.leaf
   | l + 1 => wrap (LubyTree.mk l)
 
@@ -166,7 +163,7 @@ public def LubyTree.envelopeDepth (s : ℕ) : ℕ := s.size
 public def LubyTree.envelopeSize (s : ℕ) : ℕ := 2 ^ (LubyTree.envelopeDepth s) - 1
 
 @[expose]
-def LubyTree.envelope (s : ℕ) : LubyTree := LubyTree.mk (LubyTree.envelopeDepth s - 1)
+public def LubyTree.envelope (s : ℕ) : LubyTree := LubyTree.mk (LubyTree.envelopeDepth s - 1)
 
 @[expose]
 public def LubyTree.is_envelope (s : ℕ) : Bool := LubyTree.envelopeSize s = s

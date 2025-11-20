@@ -1,10 +1,8 @@
 module
 
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Init
 public import Mathlib.Data.Nat.Bits
-import Mathlib.Data.Nat.Size
+public import Mathlib.Data.Nat.Size
 public import Mathlib.Algebra.Group.Defs
 
 open Finset Nat
