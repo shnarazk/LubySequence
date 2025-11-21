@@ -163,7 +163,7 @@ theorem segment_starts_gt_self : ∀ n : ℕ, segment_starts (n + 2) > n := by
   exact le_of_eq_of_le (id (Eq.symm (aux (n + 1)))) this
 
 @[expose]
-public def find (n :ℕ) := 
+public def findLargestCoveredSegment (n : ℕ) := 
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
 /--
@@ -176,17 +176,19 @@ zero.extendsTo (a + b) = (zero.extendsTo a).extendsTo b
 を導出できるのでは?
 そのための形は以下のようなもの
 -/
-public def extendTo (s : Segment) (limit : ℕ) : Segment :=
-  if limit = 0 then s else (s.next).extendTo (limit - s.length)
-termination_by limit
-decreasing_by
-  expose_names
-  replace h : limit > 0 := by exact Nat.ne_zero_iff_zero_lt.mp h
-  have : s.length > 0 := by exact Nat.zero_lt_succ (trailing_zeros s.index)
-  exact Nat.sub_lt h this
+public def extendTo (limit : ℕ) : Segment := Segment.zero.next (findLargestCoveredSegment limit)
 
+theorem segment_is_fixpoint_of_extendTo : ∀ n : ℕ,
+    findLargestCoveredSegment (Segment.zero.next (n + 1)).start = (Segment.zero.next (n + 1)).start := by
+  sorry
+
+theorem extendTo_next_segment : ∀ n : ℕ,
+    findLargestCoveredSegment (Segment.zero.next (n + 1)).nextStart = (Segment.zero.next (n + 2)).start := by
+  sorry
+
+/-
 -- TODO: 補助定理として zero.extendTo (a + b) = (zero.extendTo a).extendTo b が必要
-theorem extendTo_induction (a b : ℕ) : Segment.zero.extendTo (a + b) = (Segment.zero.extendTo a).extendTo b := by
+theorem extendTo_induction (a b : ℕ) : Segment.extendTo (a + b) = (Segment.zero.extendTo a).extendTo b := by
   induction b with
   | zero => rw (occs := .pos [2]) [extendTo] ; simp
   | succ b ih =>
@@ -322,6 +324,7 @@ theorem t2025114 : ∀ n : ℕ, (state_from (∑ i ∈ range n, (trailing_zeros 
       exact h
     · have : state_from
       sorry
+-/
 -/
 
 end Segment
