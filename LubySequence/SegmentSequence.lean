@@ -122,24 +122,29 @@ theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i �
   simp [segment_for_n]
 
 @[expose]
-public def segment_sequence (n : ℕ) : ℕ := ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1)
+public def segment_starts (n : ℕ) : ℕ := ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1)
 
-theorem segment_sequence_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_sequence a ≤ segment_sequence b := by
+example : segment_starts 0 = 0 := by simp [segment_starts]
+example : segment_starts 1 = 0 := by simp [segment_starts]
+example : segment_starts 2 = 1 := by simp [segment_starts]
+example : segment_starts 3 = 3 := by simp [segment_starts, range, trailing_zeros]
+
+theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_starts a ≤ segment_starts b := by
   intros a b h
   induction h with
-  | refl => simp [segment_sequence]
+  | refl => simp [segment_starts]
   | step h ih =>
     expose_names
-    have : segment_sequence m ≤ segment_sequence m.succ := by
-      simp [segment_sequence]
+    have : segment_starts m ≤ segment_starts m.succ := by
+      simp [segment_starts]
       refine sum_le_sum_of_subset ?_
       · refine GCongr.finset_range_subset_of_le ?_
         · exact Nat.sub_le m 1
     exact Nat.le_trans ih this
 
-theorem segment_sequence_ge_self : ∀ n : ℕ, segment_sequence (n + 1) ≥ n := by
+theorem segment_starts_ge_self : ∀ n : ℕ, segment_starts (n + 1) ≥ n := by
   intro n
-  simp [segment_sequence]
+  simp [segment_starts]
   have : ∑ i ∈ range n, 1 ≤ ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
     refine sum_le_sum ?_
     · intro i ih
@@ -147,9 +152,9 @@ theorem segment_sequence_ge_self : ∀ n : ℕ, segment_sequence (n + 1) ≥ n :
   have aux :∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm aux)) this
 
-theorem segment_sequence_ge_self' : ∀ n : ℕ, segment_sequence (n + 2) > n := by
+theorem segment_starts_gt_self : ∀ n : ℕ, segment_starts (n + 2) > n := by
   intro n
-  simp [segment_sequence]
+  simp [segment_starts]
   have : ∑ i ∈ range (n + 1), 1 ≤ ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) := by
     refine sum_le_sum ?_
     · intro i ih
@@ -159,10 +164,7 @@ theorem segment_sequence_ge_self' : ∀ n : ℕ, segment_sequence (n + 2) > n :=
 
 @[expose]
 public def find (n :ℕ) := 
-  have h : ∃ i : ℕ, segment_sequence i > n := by
-    use n + 2
-    exact segment_sequence_ge_self' n
-  Nat.find h
+  Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
 /--
 Helper function to find the segment whose start position is within the given limit.
