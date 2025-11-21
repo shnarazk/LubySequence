@@ -80,6 +80,16 @@ theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next
   | zero => simp
   | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
 
+theorem segment_for_n : ∀ n : ℕ,
+    Segment.zero.next n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
+  intro n
+  induction n with
+  | zero => simp [zero]
+  | succ n ih =>
+    rw [next]
+    simp [ih, nextStart, length]
+    exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
+
 -- #eval List.range 20 |>.map (fun n ↦ (n + 1, (Segment.zero.next n).index))
 
 /--
@@ -88,9 +98,7 @@ This establishes a direct relationship between the number of steps and the segme
 -/
 theorem segment_index_for_n : ∀ n : ℕ, (Segment.zero.next n).index = n + 1 := by
   intro n
-  induction n with
-  | zero => simp [zero]
-  | succ n ih => rw [next] ; simp [ih]
+  simp [segment_for_n]
 
 /--
 The length of the segment after `n` steps from zero equals
@@ -98,8 +106,7 @@ The length of the segment after `n` steps from zero equals
 -/
 theorem segment_length_for_n : ∀ n : ℕ, (Segment.zero.next n).length = trailing_zeros (n + 1) + 1 := by
   intro n
-  simp [length]
-  rw [segment_index_for_n n]
+  simp [segment_for_n, length]
 
 /- #eval List.range 20
     |>.map (fun n ↦ (n, (Segment.zero.next n).start, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
@@ -111,50 +118,7 @@ the lengths of all previous segments (each length is `trailing_zeros (i + 1) + 1
 -/
 theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
   intro n
-  induction n with
-  | zero => simp [range, zero]
-  | succ n' ih =>
-    simp only [next, nextStart, ih, length, segment_index_for_n]
-    exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n')
-
-/--
-For any positive `n`, the sum of segment lengths from 0 to n-1 equals
-the start position of the (n-1)th segment plus 1.
--/
-theorem segment_start_for_n' :
-    ∀ n > 0, ∑ i ∈ range n, (trailing_zeros i + 1) = (Segment.zero.next (n - 1)).start + 1 := by
-  intro n n_gt_0
-  rw [segment_start_for_n (n - 1)]
-  have :
-      ∑ i ∈ range 1, (trailing_zeros i + 1) + ∑ i ∈ range (n - 1), (trailing_zeros (1 + i) + 1) =
-      ∑ i ∈ range (1 + (n - 1)), (trailing_zeros i + 1) := by
-    exact Eq.symm (sum_range_add (fun x ↦ trailing_zeros x + 1) 1 (n - 1))
-  have aux :
-      ∑ i ∈ range (n - 1), (trailing_zeros (1 + i) + 1) =
-      ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1) := by
-    refine sum_equiv ?_ (fun i ↦ ?_) ?_
-    · exact Denumerable.eqv ℕ
-    · simp
-      constructor <;> exact fun a ↦ a
-    · intro n' n'_def
-      refine Nat.add_left_inj.mpr ?_
-      · have : 1 + n' = (Denumerable.eqv ℕ) n' + 1 := by exact Nat.add_comm 1 n'
-        exact congrArg trailing_zeros this
-  simp [aux] at this
-  have aux : 1 + (n - 1) = n := by grind
-  simp [aux] at this
-  rw [add_comm] at this
-  simp [this]
-
-theorem segment_for_n : ∀ n : ℕ, 
-    Segment.zero.next n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
-  intro n
-  induction n with
-  | zero => simp [zero]
-  | succ n ih =>
-    rw [next]
-    simp [ih, nextStart, length]
-    exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
+  simp [segment_for_n]
 
 /--
 Helper function to find the segment whose start position is within the given limit.
