@@ -11,13 +11,11 @@ experimental.module = true
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-# rev = "master"
-rev = "v4.26.0-rc1"
-# leanOptions = {experimental.module = true}
+rev = "master"
+# rev = "v4.26.0-rc2"
 
 [[lean_lib]]
 name = "LubySequence"
-# leanOptions = {experimental.module = true}
 
 [[require]]
 name = "doc-gen4"
