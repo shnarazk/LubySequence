@@ -121,7 +121,7 @@ theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i �
 For any positive `n`, the sum of segment lengths from 0 to n-1 equals
 the start position of the (n-1)th segment plus 1.
 -/
-theorem segment_for_n :
+theorem segment_start_for_n' :
     ∀ n > 0, ∑ i ∈ range n, (trailing_zeros i + 1) = (Segment.zero.next (n - 1)).start + 1 := by
   intro n n_gt_0
   rw [segment_start_for_n (n - 1)]
@@ -145,6 +145,16 @@ theorem segment_for_n :
   simp [aux] at this
   rw [add_comm] at this
   simp [this]
+
+theorem segment_for_n : ∀ n : ℕ, 
+    Segment.zero.next n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
+  intro n
+  induction n with
+  | zero => simp [zero]
+  | succ n ih =>
+    rw [next]
+    simp [ih, nextStart, length]
+    exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
 
 /--
 Helper function to find the segment whose start position is within the given limit.
