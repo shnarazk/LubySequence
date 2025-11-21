@@ -1,6 +1,7 @@
 module
 
 import Mathlib.Tactic
+public import Mathlib.Data.Nat.Find
 public import LubySequence.TrailingZeros
 
 /-!
@@ -120,6 +121,49 @@ theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i �
   intro n
   simp [segment_for_n]
 
+@[expose]
+public def segment_sequence (n : ℕ) : ℕ := ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1)
+
+theorem segment_sequence_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_sequence a ≤ segment_sequence b := by
+  intros a b h
+  induction h with
+  | refl => simp [segment_sequence]
+  | step h ih =>
+    expose_names
+    have : segment_sequence m ≤ segment_sequence m.succ := by
+      simp [segment_sequence]
+      refine sum_le_sum_of_subset ?_
+      · refine GCongr.finset_range_subset_of_le ?_
+        · exact Nat.sub_le m 1
+    exact Nat.le_trans ih this
+
+theorem segment_sequence_ge_self : ∀ n : ℕ, segment_sequence (n + 1) ≥ n := by
+  intro n
+  simp [segment_sequence]
+  have : ∑ i ∈ range n, 1 ≤ ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
+    refine sum_le_sum ?_
+    · intro i ih
+      exact Nat.le_add_left 1 (trailing_zeros (i + 1))
+  have aux :∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
+  exact le_of_eq_of_le (id (Eq.symm aux)) this
+
+theorem segment_sequence_ge_self' : ∀ n : ℕ, segment_sequence (n + 2) > n := by
+  intro n
+  simp [segment_sequence]
+  have : ∑ i ∈ range (n + 1), 1 ≤ ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) := by
+    refine sum_le_sum ?_
+    · intro i ih
+      exact Nat.le_add_left 1 (trailing_zeros (i + 1))
+  have aux (n : ℕ) : ∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
+  exact le_of_eq_of_le (id (Eq.symm (aux (n + 1)))) this
+
+@[expose]
+public def find (n :ℕ) := 
+  have h : ∃ i : ℕ, segment_sequence i > n := by
+    use n + 2
+    exact segment_sequence_ge_self' n
+  Nat.find h
+
 /--
 Helper function to find the segment whose start position is within the given limit.
 Searches backwards from position `n` to find the last segment that starts before `limit`.
@@ -140,6 +184,14 @@ decreasing_by
   exact Nat.sub_lt h this
 
 -- TODO: 補助定理として zero.extendTo (a + b) = (zero.extendTo a).extendTo b が必要
+theorem extendTo_induction (a b : ℕ) : Segment.zero.extendTo (a + b) = (Segment.zero.extendTo a).extendTo b := by
+  induction b with
+  | zero => rw (occs := .pos [2]) [extendTo] ; simp
+  | succ b ih =>
+    rw (occs := .pos [1]) [extendTo]
+    simp
+
+    sorry
 
 -- TODO: extendTo で置き換え
 public def within' (limit : ℕ) (n : ℕ) : Segment := match n with
@@ -183,7 +235,7 @@ theorem within_induction {n m : ℕ} : within (n + (within n).length) = (within 
       split <;> expose_names
       · have : (zero.next (n + s.length)).start ≥ n + s.length := by sorry
         sorry
-      · 
+      ·
         sorry
 
 /--
