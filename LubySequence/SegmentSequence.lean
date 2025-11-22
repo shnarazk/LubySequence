@@ -62,7 +62,7 @@ public def next (self : Segment := one) (repeating : ℕ := 1) : Segment :=
     let s := self.next r
     Segment.mk (s.index + 1) s.nextStart
 
-public theorem segment_starts_is_increasing : ∀ n : ℕ, (next one n).start < (next one (n + 1)).start := by
+public theorem segment_start_is_increasing : ∀ n : ℕ, (next one n).start < (next one (n + 1)).start := by
   intro n
   simp only [next]
   induction n with
@@ -236,47 +236,48 @@ public theorem segment_starts_to_segment_start : ∀ n, segment_starts (n + 1) =
   rw [segment_for_n n]
   exact rfl
 
+public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a < b → segment_starts a < segment_starts b := by
+  intros a b h
+  sorry
+
 /--
 Find the largest segment index whose start position does not exceed `n`.
 Uses `Nat.find` to locate the smallest index where `segment_starts` exceeds `n`,
 which identifies the boundary between segments covering and not covering position `n`.
 -/
 @[expose]
-public def findLargestCoveredSegment (n : ℕ) := 
-  Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
+public def segmentIdOver (n : ℕ) : ℕ := 
+  Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ t : ℕ, segment_starts t > n)
 
 /--
 Extend the initial segment to cover position `limit`.
 Returns the segment that contains position `limit` by advancing from `one`
 using `findLargestCoveredSegment` to determine the appropriate number of steps.
 -/
-public def extendTo (limit : ℕ) : Segment := one + findLargestCoveredSegment limit
+@[expose]
+public def segmentOver (limit : ℕ) : Segment := Segment.ofNat (segmentIdOver limit)
 
-/- FIXME
-theorem segment_is_fixpoint_of_extendTo : ∀ n : ℕ,
-    findLargestCoveredSegment (Segment.zero.next (n + 1)).start = (Segment.zero.next (n + 1)).start := by
+-- TODO
+-- #eval List.range 20 |>.map fun n ↦ (n + 2, segmentIdOver (one + n).start, (one + (n + 1)).index)
+public theorem segment_is_fixpoint_of_segmentIdOver : ∀ n : ℕ,
+    segmentIdOver (one + n).start = (one + (n + 1)).index := by
   intro n
-  simp [findLargestCoveredSegment]
+  simp only [segmentIdOver]
   refine
     (Nat.find_eq_iff
           (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
-            (fun [DecidablePred fun i ↦ segment_starts i > (zero.next (n + 1)).start] ↦
-              findLargestCoveredSegment._proof_1 (zero.next (n + 1)).start)
-            (funext fun i ↦ gt_iff_lt._simp_1))).mpr
+            (fun [DecidablePred fun t ↦ segment_starts t > (one + n).start] ↦
+              segmentIdOver._proof_1 (one + n).start)
+            (funext fun t ↦ gt_iff_lt._simp_1))).mpr
       ?_
   · constructor
+    · simp only [segment_index_for_n (n + 1)]
+      simp only [←segment_starts_to_segment_start]
+      sorry
     · sorry
-    · sorry
-    --
-
-
-  have s_def : s = value_of% s := rfl
-  --
-  sorry
--/
 
 theorem extendTo_next_segment : ∀ n : ℕ,
-    findLargestCoveredSegment (one + n).nextStart = (one + (n + 2)).start := by
+    segmentIdOver (one + n).nextStart = (one + (n + 2)).start := by
   sorry
 
 /-
