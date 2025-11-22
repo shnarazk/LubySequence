@@ -62,6 +62,17 @@ public def next (self : Segment := one) (repeating : ℕ := 1) : Segment :=
     let s := self.next r
     Segment.mk (s.index + 1) s.nextStart
 
+public theorem segment_starts_is_increasing : ∀ n : ℕ, (next one n).start < (next one (n + 1)).start := by
+  intro n
+  simp only [next]
+  induction n with
+  | zero => simp [nextStart, length]
+  | succ n ih =>
+    simp only [next] at *
+    rw (occs := .pos [2]) [nextStart]
+    rw [length]
+    simp
+
 /--
 Instance that allows using `+` operator to advance a segment by `n` steps.
 This enables the syntax `segment + n` as shorthand for `Segment.next segment n`.
@@ -93,7 +104,7 @@ example : Segment.ofNat 2 = { index := 2, start := 1 } := by simp [nextStart, le
 Every segment reached from `one` has a length of at least 1.
 This ensures that segments are non-empty and partition the sequence properly.
 -/
-theorem segment_length_gt_0 : ∀ n : ℕ, (one + n).length ≥ 1 := by
+public theorem segment_length_gt_0 : ∀ n : ℕ, (one + n).length ≥ 1 := by
   intro n
   simp [ofNat, length]
 
@@ -101,7 +112,7 @@ theorem segment_length_gt_0 : ∀ n : ℕ, (one + n).length ≥ 1 := by
 The `next` operation is additive: advancing `a + b` steps is equivalent to
 advancing `a` steps and then advancing `b` more steps.
 -/
-theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a) + b := by
+public theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a) + b := by
   simp
   induction b with
   | zero => exact rfl
@@ -113,7 +124,7 @@ Explicit formula for the segment after `n` steps from `one`.
 The segment has index `n + 1` and its start position is the sum of all
 previous segment lengths, where each length is `trailing_zeros (i + 1) + 1`.
 -/
-theorem segment_for_n : ∀ n : ℕ,
+public theorem segment_for_n : ∀ n : ℕ,
     one + n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
   intro n
   induction n with
@@ -133,7 +144,7 @@ theorem segment_for_n : ∀ n : ℕ,
 The index of the segment after `n` steps from the zero segment is `n + 1`.
 This establishes a direct relationship between the number of steps and the segment index.
 -/
-theorem segment_index_for_n : ∀ n : ℕ, (one + n).index = n + 1 := by
+public theorem segment_index_for_n : ∀ n : ℕ, (one + n).index = n + 1 := by
   intro n
   simp only [segment_for_n n]
 
@@ -141,7 +152,7 @@ theorem segment_index_for_n : ∀ n : ℕ, (one + n).index = n + 1 := by
 The length of the segment after `n` steps from zero equals
 `trailing_zeros (n + 1) + 1`, which follows from the segment index being `n + 1`.
 -/
-theorem segment_length_for_n : ∀ n : ℕ, (one + n).length = trailing_zeros (n + 1) + 1 := by
+public theorem segment_length_for_n : ∀ n : ℕ, (one + n).length = trailing_zeros (n + 1) + 1 := by
   intro n
   simp only [segment_for_n, length]
 
@@ -153,16 +164,16 @@ theorem segment_length_for_n : ∀ n : ℕ, (one + n).length = trailing_zeros (n
 The start position of the segment after `n` steps from zero is the sum of
 the lengths of all previous segments (each length is `trailing_zeros (i + 1) + 1`).
 -/
-theorem segment_start_for_n : ∀ n : ℕ, (one + n).start = ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
+public theorem segment_start_for_n : ∀ n : ℕ, (one + n).start = ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
   intro n
   simp only [segment_for_n]
 
 /--
-Compute the start position for segment index `n`.
-Returns the cumulative sum of lengths of the first `n - 1` segments.
+Compute the start position for segment index `t`.
+Returns the cumulative sum of lengths of the 1 to `t`-th segments.
 -/
 @[expose]
-public def segment_starts (n : ℕ) : ℕ := ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1)
+public def segment_starts (t : ℕ) : ℕ := ∑ i ∈ range (t - 1), (trailing_zeros (i + 1) + 1)
 
 example : segment_starts 0 = 0 := by simp [segment_starts]
 example : segment_starts 1 = 0 := by simp [segment_starts]
@@ -173,7 +184,7 @@ example : segment_starts 3 = 3 := by simp [segment_starts, range, trailing_zeros
 The `segment_starts` function is monotonic: if `a ≤ b`, then `segment_starts a ≤ segment_starts b`.
 This follows from the fact that each term in the sum is non-negative.
 -/
-theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_starts a ≤ segment_starts b := by
+public theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_starts a ≤ segment_starts b := by
   intros a b h
   induction h with
   | refl => simp [segment_starts]
