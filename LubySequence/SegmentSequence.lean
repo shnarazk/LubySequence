@@ -180,8 +180,11 @@ theorem segment_starts_gt_self : ∀ s : ℕ, segment_starts (s + 2) > s := by
   have aux (n : ℕ) : ∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm (aux (n + 1)))) this
 
-public theorem a : ∀ n, segment_starts (n + 1) = (one + n).start := by
-  sorry
+public theorem segment_starts_to_segment_start : ∀ n, segment_starts (n + 1) = (one + n).start := by
+  intro n
+  simp only [segment_starts]
+  rw [segment_for_n n]
+  exact rfl
 
 @[expose]
 public def findLargestCoveredSegment (n : ℕ) := 
