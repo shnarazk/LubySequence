@@ -25,11 +25,11 @@ namespace Segment
 The initial segment with index 1 and start position 0.
 This represents the first segment in the Luby sequence.
 -/
-@[expose]
-public def zero : Segment := ⟨1, 0⟩
+@[expose, simp]
+public def one : Segment := ⟨1, 0⟩
 
 instance inst : Inhabited Segment where
-  default := zero
+  default := one
 
 /--
 The length of a segment, computed as the number of trailing zeros in its index plus 1.
@@ -49,47 +49,65 @@ instance repl : Repr Segment where
   reprPrec s n := "Seg" ++ reprPrec s.index n ++ "@" ++ reprPrec s.start n ++ ":" ++ reprPrec (s.nextStart - 1) n
 
 /--
-Compute the next segment(s) after the current one.
+Compute the `repeating`-th segment after the current one.
 The `repeating` parameter specifies how many steps to advance (default is 1).
 When `repeating = 0`, returns the current segment unchanged.
 For `repeating > 0`, recursively advances through segments.
 -/
 @[expose, simp]
-public def next (self : Segment) (repeating : ℕ := 1) : Segment :=
+public def next (self : Segment := one) (repeating : ℕ := 1) : Segment :=
   match repeating with
   | 0     => self
   | r + 1 =>
     let s := self.next r
     Segment.mk (s.index + 1) s.nextStart
 
--- #eval List.range 14 |>.map (LubyState.zero.next ·)
--- #eval List.range 14 |>.map (zero.next ·)
--- #eval List.range 10 |>.map (Segment.zero.next ·)
+public instance add_as_next : HAdd Segment Nat Segment where
+  hAdd s n := Segment.next s n
 
-theorem segment_length_gt_0 : ∀ n : ℕ, (Segment.zero.next n).length ≥ 1 := by
+attribute [simp] add_as_next
+
+@[expose, simp]
+public def ofNat (s : ℕ) : Segment := match s with
+  | 0 => ⟨0, 0⟩
+  | i + 1 => one + i
+
+
+example : Segment.one.next 0 = { index := 1, start := 0 } := by simp
+example : Segment.next one 0 = { index := 1, start := 0 } := by simp
+example : Segment.one.next 1 = { index := 2, start := 1 } := by simp [nextStart, length]
+example : one + 1 = { index := 2, start := 1 } := by simp [nextStart, length]
+example : Segment.ofNat 1 = { index := 1, start := 0 } := by simp
+example : Segment.ofNat 2 = { index := 2, start := 1 } := by simp [nextStart, length]
+
+theorem segment_length_gt_0 : ∀ n : ℕ, (one + n).length ≥ 1 := by
   intro n
-  induction n with
-  | zero => simp [zero, length]
-  | succ n ih => rw [next] ; simp [length]
+  simp [ofNat, length]
 
 /--
 The `next` operation is additive: advancing `a + b` steps is equivalent to
 advancing `a` steps and then advancing `b` more steps.
 -/
-theorem segment_is_additive (a b : ℕ) : zero.next (a + b) = (zero.next a).next b := by
+theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a) + b := by
+  simp
   induction b with
-  | zero => simp
-  | succ b' ih => simp at ih ; rw [←add_assoc] ; simp [next, ih]
+  | zero => exact rfl
+  | succ b' ih => simp [next, ih]
 
+-- ここまで
 theorem segment_for_n : ∀ n : ℕ,
-    Segment.zero.next n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
+    one + n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
   intro n
   induction n with
-  | zero => simp [zero]
+  | zero => simp
   | succ n ih =>
+    simp only [add_as_next] at *
     rw [next]
-    simp [ih, nextStart, length]
-    exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
+    simp only [ih, nextStart, length]
+    have : ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) + (trailing_zeros (n + 1) + 1) =
+        ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) := by
+      exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
+    simp [this]
 
 -- #eval List.range 20 |>.map (fun n ↦ (n + 1, (Segment.zero.next n).index))
 
@@ -97,17 +115,17 @@ theorem segment_for_n : ∀ n : ℕ,
 The index of the segment after `n` steps from the zero segment is `n + 1`.
 This establishes a direct relationship between the number of steps and the segment index.
 -/
-theorem segment_index_for_n : ∀ n : ℕ, (Segment.zero.next n).index = n + 1 := by
+theorem segment_index_for_n : ∀ n : ℕ, (one + n).index = n + 1 := by
   intro n
-  simp [segment_for_n]
+  simp only [segment_for_n n]
 
 /--
 The length of the segment after `n` steps from zero equals
 `trailing_zeros (n + 1) + 1`, which follows from the segment index being `n + 1`.
 -/
-theorem segment_length_for_n : ∀ n : ℕ, (Segment.zero.next n).length = trailing_zeros (n + 1) + 1 := by
+theorem segment_length_for_n : ∀ n : ℕ, (one + n).length = trailing_zeros (n + 1) + 1 := by
   intro n
-  simp [segment_for_n, length]
+  simp only [segment_for_n, length]
 
 /- #eval List.range 20
     |>.map (fun n ↦ (n, (Segment.zero.next n).start, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
@@ -117,9 +135,9 @@ theorem segment_length_for_n : ∀ n : ℕ, (Segment.zero.next n).length = trail
 The start position of the segment after `n` steps from zero is the sum of
 the lengths of all previous segments (each length is `trailing_zeros (i + 1) + 1`).
 -/
-theorem segment_start_for_n : ∀ n : ℕ, (Segment.zero.next n).start = ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
+theorem segment_start_for_n : ∀ n : ℕ, (one + n).start = ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
   intro n
-  simp [segment_for_n]
+  simp only [segment_for_n]
 
 @[expose]
 public def segment_starts (n : ℕ) : ℕ := ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1)
@@ -142,7 +160,7 @@ theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_starts
         · exact Nat.sub_le m 1
     exact Nat.le_trans ih this
 
-theorem segment_starts_ge_self : ∀ n : ℕ, segment_starts (n + 1) ≥ n := by
+theorem segment_starts_ge_self : ∀ s : ℕ, segment_starts (s + 1) ≥ s := by
   intro n
   simp [segment_starts]
   have : ∑ i ∈ range n, 1 ≤ ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
@@ -152,7 +170,7 @@ theorem segment_starts_ge_self : ∀ n : ℕ, segment_starts (n + 1) ≥ n := by
   have aux :∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm aux)) this
 
-theorem segment_starts_gt_self : ∀ n : ℕ, segment_starts (n + 2) > n := by
+theorem segment_starts_gt_self : ∀ s : ℕ, segment_starts (s + 2) > s := by
   intro n
   simp [segment_starts]
   have : ∑ i ∈ range (n + 1), 1 ≤ ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) := by
@@ -161,6 +179,9 @@ theorem segment_starts_gt_self : ∀ n : ℕ, segment_starts (n + 2) > n := by
       exact Nat.le_add_left 1 (trailing_zeros (i + 1))
   have aux (n : ℕ) : ∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm (aux (n + 1)))) this
+
+public theorem a : ∀ n, segment_starts (n + 1) = (one + n).start := by
+  sorry
 
 @[expose]
 public def findLargestCoveredSegment (n : ℕ) := 
@@ -176,14 +197,33 @@ zero.extendsTo (a + b) = (zero.extendsTo a).extendsTo b
 を導出できるのでは?
 そのための形は以下のようなもの
 -/
-public def extendTo (limit : ℕ) : Segment := Segment.zero.next (findLargestCoveredSegment limit)
+public def extendTo (limit : ℕ) : Segment := one + findLargestCoveredSegment limit
 
+/- FIXME
 theorem segment_is_fixpoint_of_extendTo : ∀ n : ℕ,
     findLargestCoveredSegment (Segment.zero.next (n + 1)).start = (Segment.zero.next (n + 1)).start := by
+  intro n
+  simp [findLargestCoveredSegment]
+  refine
+    (Nat.find_eq_iff
+          (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
+            (fun [DecidablePred fun i ↦ segment_starts i > (zero.next (n + 1)).start] ↦
+              findLargestCoveredSegment._proof_1 (zero.next (n + 1)).start)
+            (funext fun i ↦ gt_iff_lt._simp_1))).mpr
+      ?_
+  · constructor
+    · sorry
+    · sorry
+    --
+
+
+  have s_def : s = value_of% s := rfl
+  --
   sorry
+-/
 
 theorem extendTo_next_segment : ∀ n : ℕ,
-    findLargestCoveredSegment (Segment.zero.next (n + 1)).nextStart = (Segment.zero.next (n + 2)).start := by
+    findLargestCoveredSegment (one + n).nextStart = (one + (n + 2)).start := by
   sorry
 
 /-
