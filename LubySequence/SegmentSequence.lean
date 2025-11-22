@@ -62,11 +62,20 @@ public def next (self : Segment := one) (repeating : ℕ := 1) : Segment :=
     let s := self.next r
     Segment.mk (s.index + 1) s.nextStart
 
+/--
+Instance that allows using `+` operator to advance a segment by `n` steps.
+This enables the syntax `segment + n` as shorthand for `Segment.next segment n`.
+-/
 public instance add_as_next : HAdd Segment Nat Segment where
   hAdd s n := Segment.next s n
 
 attribute [simp] add_as_next
 
+/--
+Convert a natural number to a segment by advancing from the initial segment.
+For `s = 0`, returns a segment with index 0 and start 0.
+For `s > 0`, returns the segment reached after `s - 1` steps from `one`.
+-/
 @[expose, simp]
 public def ofNat (s : ℕ) : Segment := match s with
   | 0 => ⟨0, 0⟩
@@ -80,6 +89,10 @@ example : one + 1 = { index := 2, start := 1 } := by simp [nextStart, length]
 example : Segment.ofNat 1 = { index := 1, start := 0 } := by simp
 example : Segment.ofNat 2 = { index := 2, start := 1 } := by simp [nextStart, length]
 
+/--
+Every segment reached from `one` has a length of at least 1.
+This ensures that segments are non-empty and partition the sequence properly.
+-/
 theorem segment_length_gt_0 : ∀ n : ℕ, (one + n).length ≥ 1 := by
   intro n
   simp [ofNat, length]
@@ -95,6 +108,11 @@ theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a) + b :
   | succ b' ih => simp [next, ih]
 
 -- ここまで
+/--
+Explicit formula for the segment after `n` steps from `one`.
+The segment has index `n + 1` and its start position is the sum of all
+previous segment lengths, where each length is `trailing_zeros (i + 1) + 1`.
+-/
 theorem segment_for_n : ∀ n : ℕ,
     one + n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
   intro n
@@ -139,6 +157,10 @@ theorem segment_start_for_n : ∀ n : ℕ, (one + n).start = ∑ i ∈ range n, 
   intro n
   simp only [segment_for_n]
 
+/--
+Compute the start position for segment index `n`.
+Returns the cumulative sum of lengths of the first `n - 1` segments.
+-/
 @[expose]
 public def segment_starts (n : ℕ) : ℕ := ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1)
 
@@ -147,6 +169,10 @@ example : segment_starts 1 = 0 := by simp [segment_starts]
 example : segment_starts 2 = 1 := by simp [segment_starts]
 example : segment_starts 3 = 3 := by simp [segment_starts, range, trailing_zeros]
 
+/--
+The `segment_starts` function is monotonic: if `a ≤ b`, then `segment_starts a ≤ segment_starts b`.
+This follows from the fact that each term in the sum is non-negative.
+-/
 theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_starts a ≤ segment_starts b := by
   intros a b h
   induction h with
@@ -160,6 +186,10 @@ theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_starts
         · exact Nat.sub_le m 1
     exact Nat.le_trans ih this
 
+/--
+Lower bound for `segment_starts`: for any `s`, `segment_starts (s + 1) ≥ s`.
+This follows from the fact that each segment has length at least 1.
+-/
 theorem segment_starts_ge_self : ∀ s : ℕ, segment_starts (s + 1) ≥ s := by
   intro n
   simp [segment_starts]
@@ -170,6 +200,10 @@ theorem segment_starts_ge_self : ∀ s : ℕ, segment_starts (s + 1) ≥ s := by
   have aux :∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm aux)) this
 
+/--
+Strict lower bound for `segment_starts`: for any `s`, `segment_starts (s + 2) > s`.
+This is a stronger version of `segment_starts_ge_self`.
+-/
 theorem segment_starts_gt_self : ∀ s : ℕ, segment_starts (s + 2) > s := by
   intro n
   simp [segment_starts]
@@ -180,25 +214,30 @@ theorem segment_starts_gt_self : ∀ s : ℕ, segment_starts (s + 2) > s := by
   have aux (n : ℕ) : ∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm (aux (n + 1)))) this
 
+/--
+Relationship between `segment_starts` and the `start` field of a segment.
+For any `n`, `segment_starts (n + 1)` equals the start position of the segment
+reached after `n` steps from `one`.
+-/
 public theorem segment_starts_to_segment_start : ∀ n, segment_starts (n + 1) = (one + n).start := by
   intro n
   simp only [segment_starts]
   rw [segment_for_n n]
   exact rfl
 
+/--
+Find the largest segment index whose start position does not exceed `n`.
+Uses `Nat.find` to locate the smallest index where `segment_starts` exceeds `n`,
+which identifies the boundary between segments covering and not covering position `n`.
+-/
 @[expose]
 public def findLargestCoveredSegment (n : ℕ) := 
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
 /--
-Helper function to find the segment whose start position is within the given limit.
-Searches backwards from position `n` to find the last segment that starts before `limit`.
-
-segment は ⟨∑ range x, 1, ∑ range x, (trailing_zeros (i + 1) + 1)⟩ の形で記述できるので
-a + xに対する繰り返し回数xを一つ仮定して∑ の形にしてから分割すれば
-zero.extendsTo (a + b) = (zero.extendsTo a).extendsTo b
-を導出できるのでは?
-そのための形は以下のようなもの
+Extend the initial segment to cover position `limit`.
+Returns the segment that contains position `limit` by advancing from `one`
+using `findLargestCoveredSegment` to determine the appropriate number of steps.
 -/
 public def extendTo (limit : ℕ) : Segment := one + findLargestCoveredSegment limit
 
@@ -241,6 +280,11 @@ theorem extendTo_induction (a b : ℕ) : Segment.extendTo (a + b) = (Segment.zer
     sorry
 
 -- TODO: extendTo で置き換え
+/--
+Helper function for `within` that searches backwards from position `n`.
+Recursively finds the largest segment whose start position is at most `limit`,
+checking from `n` down to 0.
+-/
 public def within' (limit : ℕ) (n : ℕ) : Segment := match n with
   | 0 => Segment.zero
   | n' + 1 => if (Segment.zero.next n).start ≤ limit then Segment.zero.next n else within' limit n'
@@ -261,6 +305,11 @@ public def within (limit : ℕ) : Segment := within' limit limit
     |>.map (fun (n, m) ↦ (n, m, within m, within (m + (within m).length), (within m).next))
 -/
 
+/--
+Inductive property of `within`: extending the limit by the length of the current
+segment yields the next segment.
+This shows that `within` correctly identifies segment boundaries.
+-/
 theorem within_induction {n m : ℕ} : within (n + (within n).length) = (within n).next := by
   let s := within n
   have s_def : s = value_of% s := rfl
@@ -286,8 +335,9 @@ theorem within_induction {n m : ℕ} : within (n + (within n).length) = (within 
         sorry
 
 /--
-For any positive `n`, the segment within the sum of the first `n` segment lengths
-is exactly the (n-1)th segment from zero.
+For any positive `n`, the segment within the cumulative sum of the first `n` segment lengths
+is exactly the segment reached after `n` steps from zero.
+This establishes the correctness of the `within` function.
 -/
 theorem segment_for_within_n :
     ∀ n > 0, within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1)) = Segment.zero.next n := by
@@ -320,9 +370,9 @@ decreasing_by
 -/
 
 /--
-For any positive `n`, the sum (start + length) of the segment within the
-cumulative sum of segment lengths equals that cumulative sum itself.
-This shows that segments partition the sequence correctly.
+The start position of the segment within the cumulative sum equals that cumulative sum.
+This theorem shows that segments partition the Luby sequence correctly:
+the start position of each segment aligns exactly with the sum of all previous segment lengths.
 -/
 theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
     (within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).start =
