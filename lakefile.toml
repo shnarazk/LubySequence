@@ -11,8 +11,8 @@ experimental.module = true
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "master"
-# rev = "v4.26.0-rc2"
+# rev = "master"
+rev = "v4.26.0-rc2"
 
 [[lean_lib]]
 name = "LubySequence"
