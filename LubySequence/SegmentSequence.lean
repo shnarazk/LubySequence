@@ -123,7 +123,6 @@ public theorem segment_length_gt_0 : ∀ n : ℕ, (one + n).length ≥ 1 := by
   intro n
   simp [length]
 
--- ここまで
 /--
 Explicit formula for the segment after `n` steps from `one`.
 The segment has index `n + 1` and its start position is the sum of all
@@ -241,9 +240,25 @@ public theorem segment_starts_to_segment_start : ∀ n, segment_starts (n + 1) =
   rw [segment_for_n n]
   exact rfl
 
-public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a < b → segment_starts a < segment_starts b := by
-  intros a b h
-  sorry
+public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a > 0 → a < b → segment_starts a < segment_starts b := by
+  intros a b a_ge_1 h
+  simp [segment_starts]
+  let d := b - a
+  have d_def : d = value_of% d := rfl
+  have d_ge_1 : d ≥ 1 := by exact Nat.le_sub_of_add_le' h
+  have b_def : b = a + d := by grind
+  simp [b_def]
+  have : a + d - 1 = a - 1 + d := Nat.sub_add_comm a_ge_1
+  simp [this]
+  simp [sum_range_add]
+  replace : ∑ x ∈ range d, 1 ≤ ∑ x ∈ range d, (trailing_zeros (a - 1 + x + 1) + 1) := by
+    refine sum_le_sum ?_
+    · intro i i_def
+      exact Nat.le_add_left 1 (trailing_zeros (a - 1 + i + 1))
+  have aux : ∑ x ∈ range d, 1 = 1 * d := sum_range_induction (fun k ↦ 1) (HMul.hMul 1) rfl d fun k ↦ congrFun rfl 
+  simp [aux] at this
+  replace aux : 0 < d := d_ge_1
+  exact Nat.lt_of_lt_of_le d_ge_1 this
 
 /--
 Find the largest segment index whose start position does not exceed `n`.
