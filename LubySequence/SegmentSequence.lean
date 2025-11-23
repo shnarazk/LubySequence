@@ -328,7 +328,7 @@ using `findLargestCoveredSegment` to determine the appropriate number of steps.
 public def segmentOver (limit : ℕ) : Segment := Segment.ofNat (segmentIdOver limit)
 
 -- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).start, (one + (t + 1)).index)
-public theorem segment_is_fixpoint_of_segmentIdOver : ∀ t : ℕ,
+public theorem next_segment_is_covering_segment : ∀ t : ℕ,
     segmentIdOver (one + t).start = (one + (t + 1)).index := by
   intro n
   rw [unfold_segment_index]
@@ -366,7 +366,8 @@ The segment ID for the next start position of a segment equals a specific formul
 This theorem relates segment boundaries to the cumulative segment structure.
 -/
 -- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).nextStart, (one + (t + 2)).index)
-theorem extendTo_next_segment : ∀ t : ℕ, segmentIdOver (one + t).nextStart = (one + (t + 2)).index := by
+theorem coveringSegment_of_next_segment_is_next_of_next :
+    ∀ t : ℕ, segmentIdOver (one + t).nextStart = (one + (t + 2)).index := by
   intro t
   simp only [unfold_segment_index]
   simp only [nextStart]
@@ -394,164 +395,5 @@ theorem extendTo_next_segment : ∀ t : ℕ, segmentIdOver (one + t).nextStart =
           · replace lt : t' < t + 2 := by exact lt_of_tsub_lt_tsub_right lt
             exact Nat.le_of_succ_le lt
         exact Nat.le_lt_asymm this
-
-/-
--- TODO: 補助定理として zero.extendTo (a + b) = (zero.extendTo a).extendTo b が必要
-
-/--
-Inductive property for extending segments by addition.
-Extending a segment to cover `a + b` positions is equivalent to first extending
-to `a` positions, then extending that result to cover `b` more positions.
-This is a helper theorem for understanding segment composition.
--/
-theorem extendTo_induction (a b : ℕ) : Segment.extendTo (a + b) = (Segment.zero.extendTo a).extendTo b := by
-  induction b with
-  | zero => rw (occs := .pos [2]) [extendTo] ; simp
-  | succ b ih =>
-    rw (occs := .pos [1]) [extendTo]
-    simp
-
-    sorry
-
--- TODO: extendTo で置き換え
-/--
-Helper function for `within` that searches backwards from position `n`.
-Recursively finds the largest segment whose start position is at most `limit`,
-checking from `n` down to 0.
--/
-public def within' (limit : ℕ) (n : ℕ) : Segment := match n with
-  | 0 => Segment.zero
-  | n' + 1 => if (Segment.zero.next n).start ≤ limit then Segment.zero.next n else within' limit n'
-
-/--
-Find the segment whose start position is within the given limit.
-This is a wrapper around `within'` that starts the search from `limit` itself.
--/
-@[expose, simp]
-public def within (limit : ℕ) : Segment := within' limit limit
-
-/- #eval List.range 20 |>.map (fun n ↦ Segment.zero.next n)
-#eval List.range 20
-    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
-    |>.map (fun (n, m) ↦ (n, m, Segment.zero.next n, within m))
-#eval List.range 20
-    |>.map (fun n ↦ (n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
-    |>.map (fun (n, m) ↦ (n, m, within m, within (m + (within m).length), (within m).next))
--/
-
-/--
-Inductive property of `within`: extending the limit by the length of the current
-segment yields the next segment.
-This shows that `within` correctly identifies segment boundaries.
--/
-theorem within_induction {n m : ℕ} : within (n + (within n).length) = (within n).next := by
-  let s := within n
-  have s_def : s = value_of% s := rfl
-  simp only [←s_def]
-  rw [within, within'.eq_def]
-  by_cases n_eq_0 : n = 0
-  · simp [n_eq_0] at *
-    simp [within'] at s_def
-    simp [s_def, zero, length, nextStart]
-  · rename' n_eq_0 => n_gt_0
-    replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
-    simp
-    split <;> expose_names
-    · have : s.length ≥ 1 := by exact Nat.le_of_ble_eq_true rfl
-      replace : n + s.length > 0 := by exact Nat.add_pos_right n this
-      replace : ¬n + s.length = 0 := by exact Nat.ne_zero_iff_zero_lt.mpr this
-      exact absurd heq this
-    · -- conflict path
-      split <;> expose_names
-      · have : (zero.next (n + s.length)).start ≥ n + s.length := by sorry
-        sorry
-      ·
-        sorry
-
-/--
-For any positive `n`, the segment within the cumulative sum of the first `n` segment lengths
-is exactly the segment reached after `n` steps from zero.
-This establishes the correctness of the `within` function.
--/
-theorem segment_for_within_n :
-    ∀ n > 0, within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1)) = Segment.zero.next n := by
-  intro n n_gt_0
-  induction n with
-  | zero => simp  [within']
-  | succ n ih =>
-    by_cases n_eq_0 : n = 0
-    · simp [n_eq_0, within', zero, nextStart, length]
-    · rename' n_eq_0 => n_gt_0
-      replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
-      replace ih := ih n_gt_0
-      sorry
-
-/- def nextTo' (s : Segment) (n : ℕ) : Segment := if s.sum ≥ n then s else (s.next).nextTo' n
-termination_by (n - s.sum)
-decreasing_by
-  expose_names
-  simp at h
-  simp [next]
-  rw (occs := .pos [1]) [sum]
-  simp [length]
-  refine Nat.sub_lt_sub_left ?_ ?_
-  · exact h
-  · exact Nat.lt_add_of_pos_right (Nat.zero_lt_succ (trailing_zeros (s.index + 1))) -/
-
-/- #eval List.range 20
-    |>.map (fun n ↦ ((within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).nextStart,
-      ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
--/
-
-/--
-The start position of the segment within the cumulative sum equals that cumulative sum.
-This theorem shows that segments partition the Luby sequence correctly:
-the start position of each segment aligns exactly with the sum of all previous segment lengths.
--/
-theorem segment_sum_eq_segment_length_sum : ∀ n > 0,
-    (within (∑ i ∈ range n, (trailing_zeros (i + 1) + 1))).start =
-    ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
-  intro n n_gt_0
-  induction n with
-  | zero => contradiction
-  | succ n ih =>
-    by_cases n_eq_0 : n = 0
-    · rw [n_eq_0]
-      simp [range]
-      simp [within', nextStart, length, zero]
-    · rename' n_eq_0 => n_gt_0
-      replace n_gt_0 : n > 0 := by exact Nat.zero_lt_of_ne_zero n_gt_0
-      replace ih := ih n_gt_0
-      let n' := ∑ i ∈ range 1, (trailing_zeros (n + i + 1) + 1)
-      have n'_def : n' = value_of% n' := rfl
-      simp at n'_def
-      have n'_gt_0 : n' > 0 := by exact Nat.zero_lt_succ (trailing_zeros (n + 0 + 1))
-      let sumₙ := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)
-      have sumₙ_def : sumₙ = value_of% sumₙ := rfl
-      have : ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) = sumₙ + n' := by
-        exact sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) n 1
-      simp only [this]
-      simp only [←sumₙ_def] at * -- ih
-      have : (within sumₙ).index = n := by
-        sorry
-      -- rw [within'.eq_def]
-      sorry
-
-/-
-theorem t2025114 : ∀ n : ℕ, (state_from (∑ i ∈ range n, (trailing_zeros i + 1))).snd = 0 := by
-  intro n
-  induction n with
-  | zero => simp [state_from, state_from']
-  | succ n ih =>
-    simp [state_from]
-    rw [state_from']
-    split <;> expose_names
-    · simp at h
-      simp
-      exact h
-    · have : state_from
-      sorry
--/
--/
 
 end Segment
