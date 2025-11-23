@@ -62,9 +62,34 @@ public def next (self : Segment := one) (repeating : ℕ := 1) : Segment :=
     let s := self.next r
     Segment.mk (s.index + 1) s.nextStart
 
-public theorem segment_start_is_increasing : ∀ n : ℕ, (next one n).start < (next one (n + 1)).start := by
+/--
+Instance that allows using `+` operator to advance a segment by `n` steps.
+This enables the syntax `segment + n` as shorthand for `Segment.next segment n`.
+-/
+public instance : HAdd Segment Nat Segment where
+  hAdd s n := Segment.next s n
+
+public theorem next_as_add : ∀ s : Segment, ∀ n : ℕ, next s n = s + n := by
+  intro _ n
+  exact rfl
+
+/--
+The `next` operation is additive: advancing `a + b` steps is equivalent to
+advancing `a` steps and then advancing `b` more steps.
+-/
+public theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a) + b := by
+  simp [←next_as_add]
+  induction b with
+  | zero => exact rfl
+  | succ b' ih =>
+    simp [next]
+    constructor
+    · exact congrArg index ih
+    · exact congrArg nextStart ih
+
+public theorem segment_start_is_increasing : ∀ n : ℕ, (one + n).start < (one + (n + 1)).start := by
   intro n
-  simp only [next]
+  simp only [←next_as_add]
   induction n with
   | zero => simp [nextStart, length]
   | succ n ih =>
@@ -72,15 +97,6 @@ public theorem segment_start_is_increasing : ∀ n : ℕ, (next one n).start < (
     rw (occs := .pos [2]) [nextStart]
     rw [length]
     simp
-
-/--
-Instance that allows using `+` operator to advance a segment by `n` steps.
-This enables the syntax `segment + n` as shorthand for `Segment.next segment n`.
--/
-public instance add_as_next : HAdd Segment Nat Segment where
-  hAdd s n := Segment.next s n
-
-attribute [simp] add_as_next
 
 /--
 Convert a natural number to a segment by advancing from the initial segment.
@@ -92,13 +108,12 @@ public def ofNat (s : ℕ) : Segment := match s with
   | 0 => ⟨0, 0⟩
   | i + 1 => one + i
 
-
 example : Segment.one.next 0 = { index := 1, start := 0 } := by simp
 example : Segment.next one 0 = { index := 1, start := 0 } := by simp
 example : Segment.one.next 1 = { index := 2, start := 1 } := by simp [nextStart, length]
-example : one + 1 = { index := 2, start := 1 } := by simp [nextStart, length]
-example : Segment.ofNat 1 = { index := 1, start := 0 } := by simp
-example : Segment.ofNat 2 = { index := 2, start := 1 } := by simp [nextStart, length]
+example : one + 1 = { index := 2, start := 1 } := by simp [←next_as_add, nextStart, length]
+example : Segment.ofNat 1 = { index := 1, start := 0 } := by simp [←next_as_add]
+example : Segment.ofNat 2 = { index := 2, start := 1 } := by simp [←next_as_add, nextStart, length]
 
 /--
 Every segment reached from `one` has a length of at least 1.
@@ -106,17 +121,7 @@ This ensures that segments are non-empty and partition the sequence properly.
 -/
 public theorem segment_length_gt_0 : ∀ n : ℕ, (one + n).length ≥ 1 := by
   intro n
-  simp [ofNat, length]
-
-/--
-The `next` operation is additive: advancing `a + b` steps is equivalent to
-advancing `a` steps and then advancing `b` more steps.
--/
-public theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a) + b := by
-  simp
-  induction b with
-  | zero => exact rfl
-  | succ b' ih => simp [next, ih]
+  simp [length]
 
 -- ここまで
 /--
@@ -127,10 +132,10 @@ previous segment lengths, where each length is `trailing_zeros (i + 1) + 1`.
 public theorem segment_for_n : ∀ n : ℕ,
     one + n = { index := n + 1, start := ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) } := by
   intro n
+  simp only [←next_as_add] at *
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [add_as_next] at *
     rw [next]
     simp only [ih, nextStart, length]
     have : ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) + (trailing_zeros (n + 1) + 1) =
