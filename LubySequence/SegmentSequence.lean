@@ -285,7 +285,7 @@ The `segment_starts` function is strictly increasing for positive indices.
 If `0 < a < b`, then `segment_starts a < segment_starts b`.
 This follows from the fact that each segment has positive length.
 -/
-public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a > 0 → a < b → segment_starts a < segment_starts b := by
+public theorem segment_starts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b → segment_starts a < segment_starts b := by
   intros a b a_ge_1 h
   simp [segment_starts]
   let d := b - a
@@ -305,6 +305,11 @@ public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a > 0 → a < b �
   replace aux : 0 < d := d_ge_1
   exact Nat.lt_of_lt_of_le d_ge_1 this
 
+public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a < b → (one + a).start < (one + b).start := by
+  intro a b ordering
+  simp only [←segment_starts_to_segment_start]
+  exact segment_starts_is_increasing' (Nat.zero_lt_succ a) (Nat.add_lt_add_right ordering 1)
+
 /--
 Find the largest segment index whose start position does not exceed `n`.
 Uses `Nat.find` to locate the smallest index where `segment_starts` exceeds `n`,
@@ -322,11 +327,11 @@ using `findLargestCoveredSegment` to determine the appropriate number of steps.
 @[expose]
 public def segmentOver (limit : ℕ) : Segment := Segment.ofNat (segmentIdOver limit)
 
--- TODO
 -- #eval List.range 20 |>.map fun n ↦ (n + 2, segmentIdOver (one + n).start, (one + (n + 1)).index)
 public theorem segment_is_fixpoint_of_segmentIdOver : ∀ n : ℕ,
     segmentIdOver (one + n).start = (one + (n + 1)).index := by
   intro n
+  rw [segment_index_for_n]
   simp only [segmentIdOver]
   refine
     (Nat.find_eq_iff
@@ -336,10 +341,25 @@ public theorem segment_is_fixpoint_of_segmentIdOver : ∀ n : ℕ,
             (funext fun t ↦ gt_iff_lt._simp_1))).mpr
       ?_
   · constructor
-    · simp only [segment_index_for_n (n + 1)]
-      simp only [←segment_starts_to_segment_start]
-      sorry
-    · sorry
+    · simp only [←segment_starts_to_segment_start]
+      exact segment_starts_is_increasing' (Nat.zero_lt_succ n) (lt_add_one (n + 1))
+    · intro n' n'_cond
+      replace n'_cond : n' ≤ n + 1 := by exact Nat.le_of_succ_le_succ n'_cond
+      replace n'_cond : n' - 1 ≤ n := by exact Nat.sub_le_of_le_add n'_cond
+      replace n'_cond : n' - 1 = n ∨ n' - 1 < n := by exact Nat.eq_or_lt_of_le n'_cond
+      rcases n'_cond with eq|lt
+      · rw [←segment_starts_to_segment_start]
+        have : segment_starts n' ≤ segment_starts (n + 1) := by
+          refine segment_starts_is_monotone ?_
+          · simp [←eq]
+            exact le_tsub_add
+        exact Nat.le_lt_asymm this
+      · rw [←segment_starts_to_segment_start]
+        have : segment_starts n' ≤ segment_starts (n + 1) := by
+          refine segment_starts_is_monotone ?_
+          · replace lt : n' < n + 1 := lt_add_of_tsub_lt_right lt
+            exact Nat.le_of_succ_le lt
+        exact Nat.le_lt_asymm this
 
 /--
 The segment ID for the next start position of a segment equals a specific formula.
