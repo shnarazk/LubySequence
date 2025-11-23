@@ -5,7 +5,28 @@ public import Mathlib.Data.Nat.Find
 public import LubySequence.TrailingZeros
 
 /-!
-Direct conversion version of segment manipulation
+# Segment Sequence
+
+Direct conversion version of segment manipulation for the Luby sequence.
+
+This module defines `Segment`, a structure that represents contiguous portions of the Luby sequence.
+Each segment has an index (starting from 1) and a start position within the sequence.
+The module provides functions to navigate between segments, compute segment boundaries,
+and establish relationships between segment indices and positions.
+
+## Main Definitions
+
+- `Segment`: A structure with an index and start position
+- `one`: The initial segment with index 1 and start position 0
+- `next`: Advance a segment by n steps
+- `segment_starts`: Compute the cumulative start positions
+- `segmentIdOver`, `segmentOver`: Find the segment containing a given position
+- `within`: Find the segment within a given limit
+
+## Key Theorems
+
+- Segment properties establish monotonicity and correctness of segment boundaries
+- Equivalences between different representations of segment positions
 -/
 
 open Finset
@@ -28,6 +49,10 @@ This represents the first segment in the Luby sequence.
 @[expose, simp]
 public def one : Segment := ⟨1, 0⟩
 
+/--
+Default instance for `Segment`, using `one` as the default value.
+This allows `Segment` to be used in contexts requiring an `Inhabited` instance.
+-/
 instance inst : Inhabited Segment where
   default := one
 
@@ -45,6 +70,10 @@ This gives the position where the next segment would start.
 @[expose]
 public def nextStart (s : Segment) : ℕ := s.start + s.length
 
+/--
+Custom string representation for `Segment`.
+Displays a segment in the form "Seg{index}@{start}:{end}" where end is `nextStart - 1`.
+-/
 instance repl : Repr Segment where
   reprPrec s n := "Seg" ++ reprPrec s.index n ++ "@" ++ reprPrec s.start n ++ ":" ++ reprPrec (s.nextStart - 1) n
 
@@ -69,6 +98,10 @@ This enables the syntax `segment + n` as shorthand for `Segment.next segment n`.
 public instance : HAdd Segment Nat Segment where
   hAdd s n := Segment.next s n
 
+/--
+The `next` function can be equivalently expressed using the `+` operator.
+This theorem establishes that `next s n` and `s + n` are definitionally equal.
+-/
 public theorem next_as_add : ∀ s : Segment, ∀ n : ℕ, next s n = s + n := by
   intro _ n
   exact rfl
@@ -87,6 +120,11 @@ public theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a
     · exact congrArg index ih
     · exact congrArg nextStart ih
 
+/--
+The start position increases strictly monotonically with each segment step.
+For any `n`, the start position of segment `one + (n + 1)` is strictly greater
+than the start position of segment `one + n`.
+-/
 public theorem segment_start_is_increasing : ∀ n : ℕ, (one + n).start < (one + (n + 1)).start := by
   intro n
   simp only [←next_as_add]
@@ -108,6 +146,7 @@ public def ofNat (s : ℕ) : Segment := match s with
   | 0 => ⟨0, 0⟩
   | i + 1 => one + i
 
+-- Basic examples demonstrating segment operations
 example : Segment.one.next 0 = { index := 1, start := 0 } := by simp
 example : Segment.next one 0 = { index := 1, start := 0 } := by simp
 example : Segment.one.next 1 = { index := 2, start := 1 } := by simp [nextStart, length]
@@ -179,6 +218,7 @@ Returns the cumulative sum of lengths of the 1 to `t`-th segments.
 @[expose]
 public def segment_starts (t : ℕ) : ℕ := ∑ i ∈ range (t - 1), (trailing_zeros (i + 1) + 1)
 
+-- Examples showing segment_starts computation
 example : segment_starts 0 = 0 := by simp [segment_starts]
 example : segment_starts 1 = 0 := by simp [segment_starts]
 example : segment_starts 2 = 1 := by simp [segment_starts]
@@ -240,6 +280,11 @@ public theorem segment_starts_to_segment_start : ∀ n, segment_starts (n + 1) =
   rw [segment_for_n n]
   exact rfl
 
+/--
+The `segment_starts` function is strictly increasing for positive indices.
+If `0 < a < b`, then `segment_starts a < segment_starts b`.
+This follows from the fact that each segment has positive length.
+-/
 public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a > 0 → a < b → segment_starts a < segment_starts b := by
   intros a b a_ge_1 h
   simp [segment_starts]
@@ -296,12 +341,23 @@ public theorem segment_is_fixpoint_of_segmentIdOver : ∀ n : ℕ,
       sorry
     · sorry
 
+/--
+The segment ID for the next start position of a segment equals a specific formula.
+This theorem relates segment boundaries to the cumulative segment structure.
+-/
 theorem extendTo_next_segment : ∀ n : ℕ,
     segmentIdOver (one + n).nextStart = (one + (n + 2)).start := by
   sorry
 
 /-
 -- TODO: 補助定理として zero.extendTo (a + b) = (zero.extendTo a).extendTo b が必要
+
+/--
+Inductive property for extending segments by addition.
+Extending a segment to cover `a + b` positions is equivalent to first extending
+to `a` positions, then extending that result to cover `b` more positions.
+This is a helper theorem for understanding segment composition.
+-/
 theorem extendTo_induction (a b : ℕ) : Segment.extendTo (a + b) = (Segment.zero.extendTo a).extendTo b := by
   induction b with
   | zero => rw (occs := .pos [2]) [extendTo] ; simp
