@@ -21,7 +21,6 @@ and establish relationships between segment indices and positions.
 - `next`: Advance a segment by n steps
 - `segment_starts`: Compute the cumulative start positions
 - `segmentIdOver`, `segmentOver`: Find the segment containing a given position
-- `within`: Find the segment within a given limit
 
 ## Key Theorems
 
@@ -87,9 +86,7 @@ For `repeating > 0`, recursively advances through segments.
 public def next (self : Segment := one) (repeating : ℕ := 1) : Segment :=
   match repeating with
   | 0     => self
-  | t + 1 =>
-    let s := self.next t
-    Segment.mk (s.index + 1) s.nextStart
+  | t + 1 => let s := self.next t ; Segment.mk (s.index + 1) s.nextStart
 
 /--
 Instance that allows using `+` operator to advance a segment by `n` steps.
@@ -236,9 +233,7 @@ public theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment
     expose_names
     have : segment_starts m ≤ segment_starts m.succ := by
       simp [segment_starts]
-      refine sum_le_sum_of_subset ?_
-      · refine GCongr.finset_range_subset_of_le ?_
-        · exact Nat.sub_le m 1
+      exact sum_le_sum_of_subset (GCongr.finset_range_subset_of_le (Nat.sub_le m 1))
     exact Nat.le_trans ih this
 
 /--
