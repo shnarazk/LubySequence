@@ -146,8 +146,7 @@ theorem trailing_zeros_prop2 :
     simp [this]
     exact (Nat.sub_eq_iff_eq_add n2).mp rfl
   simp [t1, t2]
-  have : trailing_zeros (2 ^ (n.size - 2)) = n.size - 2 := by
-    exact trailing_zeros_of_envelope (n.size - 2)
+  have : trailing_zeros (2 ^ (n.size - 2)) = n.size - 2 := trailing_zeros_of_envelope (n.size - 2)
   simp [this]
   exact (Nat.sub_eq_iff_eq_add n2).mp rfl
 
