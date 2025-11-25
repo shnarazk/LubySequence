@@ -249,7 +249,7 @@ theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
     refine sum_le_sum ?_
     · intro i ih
       exact Nat.le_add_left 1 (trailing_zeros (i + 1))
-  have aux :∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
+  have aux : ∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm aux)) this
 
 /--
@@ -297,7 +297,7 @@ public theorem segment_starts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b 
     refine sum_le_sum ?_
     · intro i i_def
       exact Nat.le_add_left 1 (trailing_zeros (a - 1 + i + 1))
-  have aux : ∑ x ∈ range d, 1 = 1 * d := sum_range_induction (fun k ↦ 1) (HMul.hMul 1) rfl d fun k ↦ congrFun rfl 
+  have aux : ∑ x ∈ range d, 1 = 1 * d := sum_range_induction (fun k ↦ 1) (HMul.hMul 1) rfl d fun k ↦ congrFun rfl
   simp [aux] at this
   replace aux : 0 < d := d_ge_1
   exact Nat.lt_of_lt_of_le d_ge_1 this
@@ -318,7 +318,7 @@ Uses `Nat.find` to locate the smallest index where `segment_starts` exceeds `n`,
 which identifies the boundary between segments covering and not covering position `n`.
 -/
 @[expose]
-public def segmentIdOver (n : ℕ) : ℕ := 
+public def segmentIdOver (n : ℕ) : ℕ :=
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
 /--
@@ -351,10 +351,9 @@ public theorem next_segment_is_covering_segment : ∀ t : ℕ,
     · simp only [←segment_starts_to_segment_start]
       exact segment_starts_is_increasing' (Nat.zero_lt_succ n) (lt_add_one (n + 1))
     · intro t' t'_cond
-      replace t'_cond : t' ≤ n + 1 := by exact Nat.le_of_succ_le_succ t'_cond
-      replace t'_cond : t' - 1 ≤ n := by exact Nat.sub_le_of_le_add t'_cond
-      replace t'_cond : t' - 1 = n ∨ t' - 1 < n := by exact Nat.eq_or_lt_of_le t'_cond
-      rcases t'_cond with eq|lt
+      replace t'_cond : t' ≤ n + 1 := Nat.le_of_succ_le_succ t'_cond
+      replace t'_cond : t' - 1 ≤ n := Nat.sub_le_of_le_add t'_cond
+      obtain eq|lt : t' - 1 = n ∨ t' - 1 < n := Nat.eq_or_lt_of_le t'_cond
       · rw [←segment_starts_to_segment_start]
         have : segment_starts t' ≤ segment_starts (n + 1) := by
           refine segment_starts_is_monotone ?_
@@ -391,8 +390,7 @@ theorem coveringSegment_of_next_segment_is_next_of_next :
     · intro t' t'_cond
       replace t'_cond : t' ≤ t + 2 := by exact Nat.le_of_succ_le_succ t'_cond
       replace t'_cond : t' - 1 ≤ t + 1 := by exact Nat.sub_le_of_le_add t'_cond
-      replace t'_cond : t' - 1 = t + 1 ∨ t' - 1 < t + 1 := by exact Nat.eq_or_lt_of_le t'_cond
-      rcases t'_cond with eq|lt
+      obtain eq|lt : t' - 1 = t + 1 ∨ t' - 1 < t + 1 := by exact Nat.eq_or_lt_of_le t'_cond
       · rw [←segment_starts_to_segment_start]
         have : segment_starts t' ≤ segment_starts (t + 2) := by
           refine segment_starts_is_monotone ?_
