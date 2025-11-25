@@ -29,7 +29,7 @@ public def segment (n : ℕ) : ℕ := match n with
     if h : n = 2 ^ ((n + 2).size - 1) - 2
     then 2 ^ ((n + 2).size - 2)
     else
-      have n2size : (n + 2).size ≥ 2 := by exact size0_add_2_ge_2 n
+      have n2size : (n + 2).size ≥ 2 := size2_ge_2 (Nat.le_add_left 2 n)
       have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
         have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
           exact zero_lt_sub_of_lt (Nat.one_lt_two_pow (Nat.sub_ne_zero_iff_lt.mpr n2size))
@@ -836,7 +836,7 @@ theorem segment_is_monotone : ∀ n : ℕ, segment n ≤ segment (n + 1) := by
         · split
           · expose_names
             have n_ge_1 : n ≥ 1 := by exact one_le_iff_ne_zero.mpr h
-            have n2size_ge_2 : (n + 2).size ≥ 2 := by exact size0_add_2_ge_2 n
+            have n2size_ge_2 : (n + 2).size ≥ 2 := size2_ge_2 (Nat.le_add_left 2 n)
             have n2_is_envelope : n + 2 = 2 ^ ((n + 1 + 2).size - 1) - 1 := by
               replace h_3 : n = 2 ^ ((n + 1 + 2).size - 1) - 2 - 1 := by
                 exact Nat.eq_sub_of_add_eq h_3
@@ -1182,10 +1182,7 @@ positions reference earlier positions in the sequence.
 theorem segment_prop2 : ∀ n > 0, ¬n = 2 ^ n.size - 2 →
     segment n = 2 ^ ((n + 2).size - 2) + segment (n - (2 ^ ((n + 2).size - 1) - 1)) := by
   intro n n_gt_0 n_ne_envelope
-  have n2size : (n + 2).size ≥ 2 := by
-    have s1 : (n + 2).size ≥ (0 + 2).size := by
-      exact size_le_size (Nat.le_add_left (0 + 2) n)
-    exact size0_add_2_ge_2 n
+  have n2size : (n + 2).size ≥ 2 := size2_ge_2 (Nat.le_add_left 2 n)
   have order : n - (2 ^ ((n + 2).size - 1) - 1) < n := by
     have s1 : 0 < 2 ^ ((n + 2).size - 1) - 1 := by
       refine zero_lt_sub_of_lt ?_

@@ -127,9 +127,8 @@ public theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
 For n > 1 where n = 2^(n.size-1), the trailing zeros of n equals
 the trailing zeros of (n - 2^(n.size-2)) plus 1.
 -/
-@[simp]
 theorem trailing_zeros_prop2 :
-    ∀ n > 1, n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 2)) + 1 := by
+    ∀ n : ℕ, n > 1 → n = 2 ^ (n.size - 1) → trailing_zeros (n - 2 ^ (n.size - 2)) + 1 = trailing_zeros n := by
   intro n hn1 hn2
   have n2 : 2 ≤ n.size := by
     have t1 : (2 : ℕ).size ≤ n.size := by exact size_le_size hn1
@@ -148,7 +147,7 @@ theorem trailing_zeros_prop2 :
   simp [t1, t2]
   have : trailing_zeros (2 ^ (n.size - 2)) = n.size - 2 := trailing_zeros_of_envelope (n.size - 2)
   simp [this]
-  exact (Nat.sub_eq_iff_eq_add n2).mp rfl
+  grind
 
 /--
 The number of trailing zeros in 2^n equals n.
@@ -469,9 +468,8 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
     · simp [n_eq_two] at *
       have cases' : n₂ = 0 ∨ n₂ = 1 := le_one_iff_eq_zero_or_eq_one.mp (le_of_lt_succ hn'2)
       rcases cases' with n₂|n₂
-      <;> { simp [n₂] }
-    · -- 前半分と後ろ半分
-      have sub1 : m < n := by
+      <;> { simp [n₂, trailing_zeros] }
+    · have sub1 : m < n := by
         refine le_if_le_size ?_
         · simp [hm]
           have : (2 ^ (n.size - 2)).size = n.size - 2 + 1 := by

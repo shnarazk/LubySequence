@@ -35,12 +35,6 @@ public theorem size2_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
   exact s1
 
 /--
-For any natural number n, the size of n + 2 is at least 2.
--/
-@[simp]
-public theorem size0_add_2_ge_2 (n : ℕ) : (n + 2).size ≥ 2 := size2_ge_2 (Nat.le_add_left 2 n)
-
-/--
 For any natural number n ≥ 2, the size of n + 2 is at least 3.
 -/
 @[simp]

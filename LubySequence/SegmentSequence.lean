@@ -36,7 +36,9 @@ Each segment has an index (starting from 1) and a start position.
 The segment structure ensures that the index is always at least 1.
 -/
 public structure Segment where
+  /-- (one-based) segment is -/
   index : ℕ
+  /-- the (zero-based) index of the element at which this segment starts -/
   start : ℕ
 
 namespace Segment
