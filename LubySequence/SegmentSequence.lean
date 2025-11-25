@@ -368,8 +368,9 @@ public theorem next_segment_is_covering_segment : ∀ t : ℕ,
 
 /--
 For any segment `one + t`, the segment ID covering its `nextStart` position equals `t + 3`.
-This is expressed as `segmentIdOver (one + t).nextStart = (one + (t + 2)).index`,
-where `(one + (t + 2)).index = t + 2 + 1 = t + 3`.
+This is expressed as `segmentIdOver (one + t).nextStart = (one + (t + 2)).index`.
+Since `(one + k).index = k + 1` by `unfold_segment_index`, we have
+`(one + (t + 2)).index = (t + 2) + 1 = t + 3`.
 This characterizes which segment covers the position immediately after a segment ends.
 -/
 -- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).nextStart, (one + (t + 2)).index)
