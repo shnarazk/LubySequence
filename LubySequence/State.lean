@@ -6,44 +6,105 @@ public import LubySequence.Segment
 public import LubySequence.TrailingZeros
 public import LubySequence.Utils
 
-/-! A state-based Luby Implementation that compute Luby value in _O(1)_ and transite
-from state n to state n + 1 in _O(1)_.
+/-!
+# State-based Luby Implementation
 
-The main idea is dividing Luby sequence into monotonic subsuences, or *_segments_*.
+This module provides a state-based implementation of the Luby sequence that computes
+Luby values in _O(1)_ time and transitions from state n to state n + 1 in _O(1)_ time.
+
+The main idea is dividing the Luby sequence into monotonically increasing subsequences,
+called *segments*. Each segment starts at 1 and doubles until reaching a peak value,
+after which a new segment begins.
+
+## Main Definitions
+
+* `LubyState` - A state representing a position in the Luby sequence
+* `LubyState.luby` - Computes the Luby value at the current state in O(1)
+* `LubyState.next` - Transitions to the next state in O(1)
+* `LubyState.ofNat` - Converts a natural number to a LubyState
+* `LubyState.toNat` - Converts a LubyState back to a natural number
+
+## Key Properties
+
+* The state representation is isomorphic to natural numbers
+* Segment heights are determined by trailing zeros of the segment index
+* Each segment's Luby values form the sequence 1, 2, 4, ..., 2^(height-1)
 -/
 
 open Finset Nat
 
 attribute [local simp] binaryRec default
 
+/--
+A state representation for efficiently computing Luby sequence values.
+The state tracks position within the sequence using two components:
+- `segIx`: The segment index (1-based), identifying which segment we're in
+- `locIx`: The local index (0-based) within the current segment
+-/
 public structure LubyState where
-  /-- segment index (zero-based) -/
+  /-- Segment index (1-based): identifies which monotonic segment of the Luby sequence -/
   segIx : ℕ
-  /-- local index within the current segment -/
+  /-- Local index (0-based): position within the current segment -/
   locIx : ℕ
 
+/--
+Default instance for `LubyState`, starting at segment 1, local index 0.
+-/
 public instance LubyState.inst : Inhabited LubyState := ⟨1, 0⟩
+
+/--
+String representation of `LubyState` for debugging and display.
+-/
 instance LubyState.repl : Repr LubyState where
   reprPrec s _ := "LubyState(" ++ toString s.segIx ++ ", " ++ toString s.locIx ++ ")"
 
+/--
+The zero state, representing position 0 in the Luby sequence.
+This is the starting state with segment index 1 and local index 0.
+-/
 @[expose, simp]
 public def LubyState.zero := (default : LubyState)
 
 -- #check LubyState.zero
 -- #eval LubyState.zero
 
+/--
+Computes the Luby sequence value at the current state in O(1) time.
+The value is `2^locIx`, since within each segment the values are 1, 2, 4, ..., 2^(height-1).
+-/
 @[expose]
 public def LubyState.luby (self : LubyState) : ℕ := 2 ^ self.locIx
 
+/--
+Returns the height (number of elements) of the current segment.
+Segment height equals `trailing_zeros(segIx) + 1`, which determines
+how many times the Luby value doubles before starting a new segment.
+-/
 @[expose]
 public def LubyState.segment_height (self : LubyState) : ℕ := trailing_zeros self.segIx + 1
 
+/--
+Returns true if this state is at the beginning of a segment (locIx = 0).
+At segment beginnings, the Luby value is always 1.
+-/
 @[expose]
 public def LubyState.is_segment_beg (self : LubyState) : Bool := self.locIx = 0
 
+/--
+Returns true if this state is at the end of a segment.
+At segment ends, the Luby value reaches its peak of 2^(height-1),
+and the next transition will start a new segment.
+-/
 @[expose]
 public def LubyState.is_segment_end (self : LubyState) : Bool := self.locIx.succ = self.segment_height
 
+/--
+Transitions to the next state(s) in the Luby sequence.
+- If at segment end, moves to the beginning of the next segment
+- Otherwise, increments the local index within the current segment
+
+The optional `repeating` parameter allows advancing multiple steps at once.
+-/
 @[expose, simp]
 public def LubyState.next (self : LubyState) (repeating : ℕ := 1) : LubyState :=
   match repeating with
@@ -166,17 +227,28 @@ theorem ofNat_dist (a b : ℕ) : ofNat (a + b) = (ofNat a).next b := by
     have t2 : ofNat (a + b + 1) = (ofNat (a + b)).next := by exact rfl
     simp [t2, hb]
 
+/--
+An auxiliary function used to define segment properties.
+Maps a natural number to a related quantity based on its successor's binary size.
+-/
 def S₁ (n: ℕ) : ℕ := n.succ.size.pred
 
 -- #eval List.range 24 |>.map (fun k ↦ S₁ k)
 -- #eval List.range 24 |>.map (fun k ↦ Luby.S₂ k)
 -- #eval List.range 24 |>.map (fun k ↦ (S₁ k, k + 2 - Luby.S₂ k))
 
--- @[simp]
+/--
+Computes the cumulative sum of segment heights up to segment `n`.
+This gives the index of the last element of segment `n - 1` (or 0 for segment 0).
+-/
 def segIdToLastIndex (n : ℕ) : ℕ := match n with
   | 0     => 0
   | m + 1 => trailing_zeros n + 1 + segIdToLastIndex m
 
+/--
+Converts a `LubyState` back to the corresponding natural number index.
+The result is the cumulative segment height sum plus the local index.
+-/
 def toNat (self : LubyState) : ℕ := match self.segIx with
   | 0 => 0
   | n + 1 => segIdToLastIndex n + self.locIx
@@ -303,6 +375,13 @@ theorem LubyState_prop (n : ℕ) :
     · exact absurd h_1 t3
     · simp [luby] ; exact pow_succ'
 
+/--
+Recursively finds the segment index for a given natural number position.
+Parameters:
+- `n`: remaining steps to process
+- `segIx`: current segment index being examined
+- `sum`: cumulative sum of segment heights so far
+-/
 def toSegIx (n segIx sum : ℕ) : ℕ :=
   let len := trailing_zeros segIx + 1
   if hn : n <= len
@@ -316,12 +395,24 @@ def toSegIx (n segIx sum : ℕ) : ℕ :=
       exact sub_lt n0 t1
     toSegIx (n - len) (segIx + 1) (sum + len)
 
+/--
+Computes the sum of segment heights for segments 1 through `si`.
+This equals the total number of Luby sequence elements in the first `si` segments.
+-/
 def sumOfSegmentHeights (si : ℕ) : ℕ := ∑ i ∈ range si, (trailing_zeros (i + 1) + 1)
 
 -- #eval List.range 17 |>.map (fun n ↦ (n, sumOfSegmentHeights n))
 
+/--
+Computes the local index within a segment for a given natural number position.
+-/
 def toLocIx (n : ℕ) : ℕ := n - sumOfSegmentHeights n
 
+/--
+Advances within the same segment by `d` steps.
+Unlike `next`, this does not handle segment transitions and should only
+be used when the result stays within the current segment.
+-/
 def next_in_segment (s : LubyState) (d : ℕ) : LubyState := mk s.segIx (s.locIx + d)
 
 /--
@@ -408,7 +499,8 @@ theorem segment_beg_transition' : ∀ n : ℕ, (ofNat n).is_segment_beg = true �
     exact absurd c h
 
 /--
-The sum of segment lengths of segment 1 to b. So this is the index of the beginning of segment b.
+The sum of segment heights from segment 1 to segment `b`.
+This gives the index of the beginning of segment `b + 1`.
 -/
 def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i + 1) + 1)
 
@@ -549,7 +641,8 @@ theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
       simp [this]
 
 /--
-The sum of lengths of segment 1 to b is 2 ^ (b.size - 1) if b = 2 ^ (b.size - 1)
+For powers of 2, the sum of segment heights from 1 to `b` equals `2 * b - 1`
+when `b = 2^(b.size - 1)`.
 -/
 theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_height_sum b = 2 * b - 1 := by
   intro b b_is_pow2
@@ -570,9 +663,10 @@ theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_
 
 -- #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
 
--- 筋が悪い。s.segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = s.segIx 的な方向であるべき
--- あるいは segment_beg な (ofNat n).segIx = k に対して (ofNat (∑ k, trailing_zeros k)).segId = n 的な
--- ことからsegIxを剥ぎ取ってnに持ち込める。
+/--
+For `k ≥ 0`, `segment_height_sum (2^k) = 2^(k+1) - 1`.
+This connects segment structure to powers of 2.
+-/
 theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
   simp [segment_height_sum]
