@@ -367,8 +367,9 @@ public theorem next_segment_is_covering_segment : ∀ t : ℕ,
         exact Nat.le_lt_asymm this
 
 /--
-For any segment `one + t`, the segment ID covering its `nextStart` position is `(t + 3)`.
-Specifically, `segmentIdOver (one + t).nextStart = (one + (t + 2)).index`.
+For any segment `one + t`, the segment ID covering its `nextStart` position equals `t + 3`.
+This is expressed as `segmentIdOver (one + t).nextStart = (one + (t + 2)).index`,
+where `(one + (t + 2)).index = t + 2 + 1 = t + 3`.
 This characterizes which segment covers the position immediately after a segment ends.
 -/
 -- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).nextStart, (one + (t + 2)).index)

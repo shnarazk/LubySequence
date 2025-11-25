@@ -135,8 +135,8 @@ public def is_envelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
 The Luby sequence, a well-founded recursive function computing `L(n)`.
 
 The Luby sequence is defined as:
-- `luby n = S₂ n` if `n` is an envelope (i.e., `n = 2^i - 2` for some `i`)
-- `luby n = luby (n + 1 - S₂ n)` otherwise
+- `luby n = S₂ n` if `n` is an envelope (i.e., `is_envelope n = true`)
+- `luby n = luby (n + 1 - S₂ n)` if `n` is not an envelope
 
 The first 16 values (indices 0-15) are: 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, ...
 
