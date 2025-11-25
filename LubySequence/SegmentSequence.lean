@@ -300,6 +300,11 @@ public theorem segment_starts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b 
   replace aux : 0 < d := d_ge_1
   exact Nat.lt_of_lt_of_le d_ge_1 this
 
+/--
+The `segment_starts` function is strictly increasing for positive indices.
+For any `a < b`, the start position `(one + a).start` is strictly less than `(one + b).start`.
+This is a more convenient form of `segment_starts_is_increasing'` working directly with segments.
+-/
 public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a < b → (one + a).start < (one + b).start := by
   intro a b ordering
   simp only [←segment_starts_to_segment_start]
@@ -322,6 +327,11 @@ using `findLargestCoveredSegment` to determine the appropriate number of steps.
 @[expose]
 public def segmentOver (limit : ℕ) : Segment := Segment.ofNat (segmentIdOver limit)
 
+/--
+For any segment `one + t`, the segment ID covering its start position is the next segment's index.
+Specifically, `segmentIdOver (one + t).start = (one + (t + 1)).index`.
+This establishes the relationship between segment positions and their covering segment IDs.
+-/
 -- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).start, (one + (t + 1)).index)
 public theorem next_segment_is_covering_segment : ∀ t : ℕ,
     segmentIdOver (one + t).start = (one + (t + 1)).index := by
@@ -357,8 +367,11 @@ public theorem next_segment_is_covering_segment : ∀ t : ℕ,
         exact Nat.le_lt_asymm this
 
 /--
-The segment ID for the next start position of a segment equals a specific formula.
-This theorem relates segment boundaries to the cumulative segment structure.
+For any segment `one + t`, the segment ID covering its `nextStart` position equals `t + 3`.
+This is expressed as `segmentIdOver (one + t).nextStart = (one + (t + 2)).index`.
+Since `(one + k).index = k + 1` by `unfold_segment_index`, we have
+`(one + (t + 2)).index = (t + 2) + 1 = t + 3`.
+This characterizes which segment covers the position immediately after a segment ends.
 -/
 -- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).nextStart, (one + (t + 2)).index)
 theorem coveringSegment_of_next_segment_is_next_of_next :

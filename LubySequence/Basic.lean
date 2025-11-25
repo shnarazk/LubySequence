@@ -118,10 +118,32 @@ theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
 -- #eval List.range 24 |>.map (fun k ↦ S₂ k == k)
 -- #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
+/--
+Checks whether `n` is an "envelope" position in the Luby sequence.
+
+An envelope is a position where the Luby sequence reaches a local maximum value.
+Specifically, `n` is an envelope if `S₂ (n + 2) = n + 2`, which corresponds to
+positions `n = 2^i - 2` for some `i ≥ 1`. At these positions, the Luby value
+equals `2^(i-1)`, the largest power of 2 in the current segment.
+
+For example, envelopes occur at positions 0, 2, 6, 14, 30, ... (i.e., `2^i - 2`).
+-/
 @[expose]
 public def is_envelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
 
--- Well-founded version of the Luby sequence
+/--
+The Luby sequence, a well-founded recursive function computing `L(n)`.
+
+The Luby sequence is defined as:
+- `luby n = S₂ n` if `n` is an envelope (i.e., `is_envelope n = true`)
+- `luby n = luby (n + 1 - S₂ n)` if `n` is not an envelope
+
+The first 16 values (indices 0-15) are: 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, ...
+
+The sequence is used in randomized algorithms, particularly for restart strategies
+in SAT solvers and other optimization problems, where it provides a balance between
+short and long runs.
+-/
 @[expose]
 public def luby (n : ℕ) : ℕ := if is_envelope n then S₂ n else luby (n + 1 - S₂ n)
 termination_by n
@@ -147,6 +169,18 @@ decreasing_by
 -- #eval S₂ 0 -- 2 = 2 -- 0
 -- #eval luby 2 -- 2 = 2 -- 0
 
+/--
+Checks whether position `n` is at the beginning of a segment in the Luby sequence.
+
+A segment beginning is a position where the Luby value equals 1.
+The Luby sequence can be viewed as a concatenation of segments where each segment
+has a length determined by the trailing zeros of the segment index.
+Positions 0 and 1 are always segment beginnings. For `n ≥ 2`, a position is a
+segment beginning if it is not an envelope and recursively maps to a segment
+beginning after subtracting the current envelope value `S₂ n`.
+
+Returns `true` if `n` is either 0, 1, or maps to a segment beginning after folding.
+-/
 @[expose]
 public def is_segment_beg (n : ℕ) : Bool := match h : n with
   | 0 => true
