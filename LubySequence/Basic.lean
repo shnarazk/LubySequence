@@ -138,7 +138,7 @@ The Luby sequence is defined as:
 - `luby n = S₂ n` if `n` is an envelope (i.e., `n = 2^i - 2` for some `i`)
 - `luby n = luby (n + 1 - S₂ n)` otherwise
 
-This produces the sequence: 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, ...
+The first 16 values (indices 0-15) are: 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, ...
 
 The sequence is used in randomized algorithms, particularly for restart strategies
 in SAT solvers and other optimization problems, where it provides a balance between
@@ -172,13 +172,14 @@ decreasing_by
 /--
 Checks whether position `n` is at the beginning of a segment in the Luby sequence.
 
-A segment beginning is a position where the Luby value resets to 1.
-The sequence is structured as segments that repeat with increasing envelope sizes:
-- Segment 1: [1]
-- Segment 2: [1, 2]
-- Segment 3: [1]
-- Segment 4: [1, 2, 4]
-- ...
+A segment beginning is a position where the Luby value equals 1.
+The Luby sequence can be viewed as a concatenation of segments where each segment
+has a specific structure based on trailing zeros of its index. Positions 0 and 1
+are always segment beginnings. For `n ≥ 2`, a position is a segment beginning if
+it would map to a segment beginning after subtracting the current envelope value.
+
+The segment structure follows the pattern of the Luby sequence values where
+each segment starts with 1 and ends at a power of 2 before the next segment begins.
 
 Returns `true` if `n` is either 0, 1, or maps to a segment beginning after folding.
 -/
