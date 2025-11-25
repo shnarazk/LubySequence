@@ -121,28 +121,21 @@ If `2 * a < b`, then the size of a is less than the size of b.
 -/
 public theorem size_lt {a b : ℕ} (h : 0 < a) : (2 : ℕ) * a < b → a.size < b.size := by
   intro hg
-  have s1 : (2 * a).bits = false :: a.bits := by refine bit0_bits a (by grind)
-  have s2 : (false :: a.bits).length = 1 + a.bits.length := by
-    exact succ_eq_one_add a.bits.length
+  have s1 : (2 * a).bits = false :: a.bits := bit0_bits a (by grind)
+  have s2 : (false :: a.bits).length = 1 + a.bits.length := succ_eq_one_add a.bits.length
   have s3 :(2 * a).bits.length = 1 + a.bits.length := by simp only [s1, s2]
   simp [bitslength_eq_size] at s3
   have stricten (a b c : ℕ) (h : 0 < b) : (a + b = c) → (a < c) := by
-    have le := @le.intro a c b
     intro hh
-    have le' := le hh
-    clear le
-    have tf : a < c ∨ a = c := by exact Or.symm (eq_or_lt_of_le le')
-    clear le'
-    rcases tf with t|f
+    obtain t|f : a < c ∨ a = c := Or.symm (eq_or_lt_of_le (@le.intro a c b hh))
     · expose_names ; exact t
     · expose_names
       simp [f] at hh
-      have : ¬b = 0 := by exact ne_zero_of_lt h
+      have : ¬b = 0 := ne_zero_of_lt h
       exact absurd hh this
-  have tr1 : a.size < (2 * a).size := by
-    exact stricten a.size 1 (2 * a).size (by grind) (by grind)
-  have hg' : 2 * a ≤ b := by exact le_of_succ_le hg
-  have tr2 : (2 * a).size ≤ b.size := by refine size_le_size hg'
+  have tr1 : a.size < (2 * a).size := stricten a.size 1 (2 * a).size (by grind) (by grind)
+  replace hg : 2 * a ≤ b := le_of_succ_le hg
+  have tr2 : (2 * a).size ≤ b.size := size_le_size hg
   exact lt_of_lt_of_le tr1 tr2
 
 /--
@@ -150,9 +143,8 @@ For positive n, `2 ^ n.size ≤ 2 * n`.
 -/
 public theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ (2 : ℕ) * n := by
   refine lt_size.mp ?_
-  have s1 : (2 * n).bits = false :: n.bits := by refine bit0_bits n (by grind)
-  have s2 : (false :: n.bits).length = 1 + n.bits.length := by
-    exact succ_eq_one_add n.bits.length
+  have s1 : (2 * n).bits = false :: n.bits := bit0_bits n (by grind)
+  have s2 : (false :: n.bits).length = 1 + n.bits.length := succ_eq_one_add n.bits.length
   have s3 : (2 * n).bits.length = 1 + n.bits.length := by simp only [s1, s2]
   simp [bitslength_eq_size] at s3
   simp [s3]
@@ -164,9 +156,9 @@ theorem bitslength_of_pow2_eq_self_add_one (n : ℕ) : (2 ^ n).bits.length = n +
   induction n with
   | zero => simp
   | succ n hn =>
-    have p : 0 < 2 ^ n := by exact Nat.two_pow_pos n
+    have p : 0 < 2 ^ n := Nat.two_pow_pos n
     let v := (2 ^ n).bits
-    have vp : v = value_of% v := by exact rfl
+    have vp : v = value_of% v := rfl
     have : 2 ^ (n + 1) = 2 * 2 ^ n := by grind
     simp [this]
     exact hn
@@ -185,7 +177,7 @@ theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] 
   induction n with
   | zero => simp
   | succ n hn =>
-    have s1 : 2 ^ (n + 1) = 2 * (2 ^ n) := by exact pow_succ'
+    have s1 : 2 ^ (n + 1) = 2 * (2 ^ n) := pow_succ'
     simp [s1]
     exact hn
 
@@ -204,8 +196,8 @@ theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := 
         _ = 1 + 2 * (2 ^ n - 1) := by
           simp [Nat.mul_sub]
           refine Nat.add_sub_assoc ?_ 1
-          have : 0 < 2 ^ n := by exact Nat.two_pow_pos n
-          grind
+          · have : 0 < 2 ^ n := by exact Nat.two_pow_pos n
+            grind
         _ = 2 * (2 ^ n - 1) + 1 := by rw [add_comm]
     simp [s1]
     exact hn
@@ -225,7 +217,7 @@ public theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).
     simp [this] at p1
     exact p1
   have p2 : 2 ^ n + k ≤ 2 ^ (n + 1) - 1 := by
-    have : 2 ^ (n + 1) = 2 * 2 ^ n := by exact pow_succ'
+    have : 2 ^ (n + 1) = 2 * 2 ^ n := pow_succ'
     simp [this]
     replace : 2 * 2 ^ n = 2 ^ n + 2 ^ n := two_mul (2 ^ n)
     simp [this]
@@ -246,7 +238,6 @@ public theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).
       simp [this]
     simp [s2] at s1
     exact s1
-  have p2'' : (2 ^ n + k).bits.length ≤ n + 1 := by exact p2'
   exact le_antisymm p2' p1'
 
 /--
@@ -255,8 +246,7 @@ If adding k to n doesn't increase the size beyond n.size, then the size stays th
 public theorem size_add' {n k : ℕ} (ha : 0 < k) (hb : (n + k).size < n.size + 1) : (n + k).size = n.size := by
   have t1 : n < n + k := by exact Nat.lt_add_of_pos_right ha
   have t2 : n.size ≤ (n + k).size := size_le_size (by grind)
-  have le : n.size < (n + k).size ∨ n.size = (n + k).size := Or.symm (eq_or_lt_of_le t2)
-  rcases le with l|e
+  obtain l|e : n.size < (n + k).size ∨ n.size = (n + k).size := Or.symm (eq_or_lt_of_le t2)
   · have l' : ¬(n + k).size < n.size + 1 := not_lt.mpr l
     exact absurd hb l'
   · exact id (Eq.symm e)
@@ -352,30 +342,30 @@ For any n, the size of `n + 1` is either equal to `n.size` or `n.size + 1`.
 public theorem size_limit (n : ℕ) : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := by
   by_cases h : n = 0
   · simp [h]
-  · replace h : n > 0 := by exact zero_lt_of_ne_zero h
-    have s1 : n.size ≤ (n + 1).size := by exact size_le_size (le_add_right n 1)
+  · replace h : n > 0 := zero_lt_of_ne_zero h
+    have s1 : n.size ≤ (n + 1).size := size_le_size (le_add_right n 1)
     have s2 : (n + 1).size ≤ n.size + 1 := by
-      have t1 : (2 * n).size = n.size + 1 := by exact size_of_double_eq_self_add_one n h
-      have t2 : n + 1 ≤ 2 * n := by exact add_one_le_two_mul h
-      have t2' : (n + 1).size ≤ (2 * n).size := by exact size_le_size t2
+      have t1 : (2 * n).size = n.size + 1 := size_of_double_eq_self_add_one n h
+      have t2 : n + 1 ≤ 2 * n := add_one_le_two_mul h
+      have t2' : (n + 1).size ≤ (2 * n).size := size_le_size t2
       simp [t1] at t2'
       exact t2'
     by_contra h'
     push_neg at h'
     rcases h' with ⟨a, b⟩
-    have c1 : n.size < (n + 1).size := by exact lt_of_le_of_ne s1 (id (Ne.symm a))
-    have c2 : (n + 1).size < n.size + 1 := by exact lt_of_le_of_ne s2 b
-    have c2' : (n + 1).size ≤ n.size := by exact le_of_lt_succ c2
-    have c2'' : ¬(n + 1).size > n.size := by exact not_lt.mpr c2'
-    exact absurd c1 c2''
+    have c1 : n.size < (n + 1).size := lt_of_le_of_ne s1 (id (Ne.symm a))
+    have c2 : (n + 1).size < n.size + 1 := lt_of_le_of_ne s2 b
+    replace c2 : (n + 1).size ≤ n.size := le_of_lt_succ c2
+    replace c2 : ¬(n + 1).size > n.size := not_lt.mpr c2
+    exact absurd c1 c2
 
 /--
 Every natural number less than `2 ^ k` has size at most k.
 -/
 public theorem pow2_is_minimum (k : ℕ) : ∀ n < ((2 : ℕ) ^ k) , n.size ≤ k := by
   intro n hn
-  have t1 : n.size ≤ (2 ^ k).size := by exact size_le_size (le_of_succ_le hn)
-  have t2 : (2 ^ k).size = k + 1 := by exact size_of_pow2_eq_self_add_one k
+  have t1 : n.size ≤ (2 ^ k).size := size_le_size (le_of_succ_le hn)
+  have t2 : (2 ^ k).size = k + 1 := size_of_pow2_eq_self_add_one k
   simp [t2] at t1
   exact size_le.mpr hn
 
@@ -387,11 +377,9 @@ theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
     n = 2 ^ n.size - 1 → (n + 1).size = n.size + 1 := by
   intro n_is_envelope
   rw (occs := .pos [1]) [n_is_envelope]
-  have : 2 ^ n.size - 1 + 1 = 2 ^ n.size := by
-    exact Nat.sub_add_cancel (Nat.one_le_two_pow)
+  have : 2 ^ n.size - 1 + 1 = 2 ^ n.size := Nat.sub_add_cancel (Nat.one_le_two_pow)
   simp [this]
-  replace : (2 ^ n.size).size = n.size + 1 := by
-    exact size_of_pow2_eq_self_add_one n.size
+  replace : (2 ^ n.size).size = n.size + 1 := size_of_pow2_eq_self_add_one n.size
   simp [this]
 
 /--
@@ -401,23 +389,19 @@ This is a variant characterization showing when a number is exactly a power of 2
 public theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
     n = 2 ^ (n.size - 1) → n.size = (n - 1).size + 1 := by
   intro n_is_envelope
-  have : (n - 1 + 1).size = (n - 1).size ∨ (n - 1 + 1).size = (n - 1).size + 1 := by
-    exact size_limit (n - 1)
-  have n_mp : n - 1 + 1 = n := by exact Nat.sub_add_cancel h
+  have : (n - 1 + 1).size = (n - 1).size ∨ (n - 1 + 1).size = (n - 1).size + 1 := size_limit (n - 1)
+  have n_mp : n - 1 + 1 = n := Nat.sub_add_cancel h
   have nsize_mp : n.size - 1 + 1 = n.size := by
     refine Nat.sub_add_cancel ?_
-    · replace h : n ≥ 1 := by exact h
-      have s1 : n.size ≥ (1 : ℕ).size := by exact size_le_size h
-      have s2 : (1 : ℕ).size = 1 := by simp [size]
-      simp [s2] at s1
-      exact s1
+    · replace h : n ≥ 1 := h
+      exact one_le_iff_ne_zero.mpr (Nat.pos_iff_ne_zero.mp (size_pos.mpr h))
   rcases this with eq|gt
   · have s1 : (n - 1).size < n.size := by
       have s1 : n - 1 < 2 ^ (n.size - 1) := by
         rw [←n_is_envelope]
         exact sub_one_lt_of_lt h
-      have : (n - 1).size ≤ n.size - 1 := by exact pow2_is_minimum (n.size - 1) (n - 1) s1
-      replace : (n - 1).size < n.size - 1 + 1 := by exact Order.lt_add_one_iff.mpr this
+      have : (n - 1).size ≤ n.size - 1 := pow2_is_minimum (n.size - 1) (n - 1) s1
+      replace : (n - 1).size < n.size - 1 + 1 := Order.lt_add_one_iff.mpr this
       simp [nsize_mp] at this
       exact this
     simp [n_mp] at eq
@@ -429,13 +413,12 @@ public theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
 For `n ≥ 1`, n is at least `2 ^ (n.size - 1)`.
 -/
 public theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
-  have tf : 1 = n ∨ 1 < n := by exact eq_or_lt_of_le h
-  rcases tf with t|f
+  obtain t|f : 1 = n ∨ 1 < n := by exact eq_or_lt_of_le h
   · simp [←t]
   · have n2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
-    have h1 : 2 ≤ n := by exact f
+    have h1 : 2 ≤ n := f
     have h2 : 2 ≤ n.size := by
-      have t1 : (2 : ℕ).size ≤ n.size := by exact size_le_size f
+      have t1 : (2 : ℕ).size ≤ n.size := size_le_size f
       simp [n2] at t1
       exact t1
     have : n > 2 ^ (n.size - 1) - 1 := by
@@ -472,8 +455,8 @@ public theorem increase_n1size_at_pow2 {n : ℕ} : (n + 1).size = n.size + 1 →
   by_contra ne_pow2
   by_cases n_eq_0 : n = 0
   · simp [n_eq_0] at ne_pow2
-  · replace n_eq_0 : n > 0 := by exact zero_lt_of_ne_zero n_eq_0
-    replace n_eq_0 : n ≥ 1 := by exact n_eq_0
+  · replace n_eq_0 : n > 0 := zero_lt_of_ne_zero n_eq_0
+    replace n_eq_0 : n ≥ 1 := n_eq_0
     by_cases n_eq_1 : n = 1
     · simp [n_eq_1, size] at ne_pow2
     · have n_ge_2 : n ≥ 2 := by
@@ -484,17 +467,14 @@ public theorem increase_n1size_at_pow2 {n : ℕ} : (n + 1).size = n.size + 1 →
       clear n_eq_0 n_eq_1
       have s1 : n + 1 < 2 ^ n.size := by
         simp at ne_pow2
-        have : n < 2 ^ n.size := by exact lt_size_self n
-        replace : n + 1 ≤ 2 ^ n.size := by exact this
-        replace : n + 1 < 2 ^ n.size ∨ n + 1 = 2 ^ n.size := by
-          exact Or.symm (Nat.eq_or_lt_of_le this)
-        rcases this with lt|eq
+        have : n < 2 ^ n.size := lt_size_self n
+        replace : n + 1 ≤ 2 ^ n.size := this
+        obtain lt|eq : n + 1 < 2 ^ n.size ∨ n + 1 = 2 ^ n.size := Or.symm (Nat.eq_or_lt_of_le this)
         · exact lt
         · exact absurd eq ne_pow2
-      have s2 : (n + 1).size ≤ n.size := by
-        exact pow2_is_minimum n.size (n + 1) s1
+      have s2 : (n + 1).size ≤ n.size := pow2_is_minimum n.size (n + 1) s1
       replace eq : (n + 1).size > n.size := by grind
-      replace eq : ¬(n + 1).size ≤ n.size := by exact Nat.not_le_of_lt eq
+      replace eq : ¬(n + 1).size ≤ n.size := Nat.not_le_of_lt eq
       exact absurd s2 eq
 
 /--
@@ -611,19 +591,16 @@ Stricter lower bound on n. For any natural number `n > 1`,
 `2 ^ (n.size - 2) < n`. This is a tighter bound than n_lower.
 -/
 theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
-  replace n_bound : n = 2 ∨ n > 2 := by exact LE.le.eq_or_lt' n_bound
-  rcases n_bound with n_eq_2|n_bound
+  obtain n_eq_2|n_bound : n = 2 ∨ n > 2 := LE.le.eq_or_lt' n_bound
   · simp [n_eq_2]
-  · replace n_bound : n = 3 ∨ n > 3 := by exact LE.le.eq_or_lt' n_bound
-    rcases n_bound with n_eq_3|n_bound
+  · obtain n_eq_3|n_bound : n = 3 ∨ n > 3 := LE.le.eq_or_lt' n_bound
     · simp [n_eq_3]
-    · replace n_bound : n ≥ 4 := by exact n_bound
+    · replace n_bound : n ≥ 4 := n_bound
       rename' n_bound => n_gt_4
-      have nsize_ge_3 : n.size ≥ 3 := by exact size4_add_0_ge_2 n_gt_4
-      have lower : 2 ^ (n.size - 1) ≤ n := by exact n_lower (zero_lt_of_lt n_gt_4)
+      have nsize_ge_3 : n.size ≥ 3 := size4_add_0_ge_2 n_gt_4
+      have lower : 2 ^ (n.size - 1) ≤ n := n_lower (zero_lt_of_lt n_gt_4)
       have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
-        have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := by
-          exact Eq.symm Nat.pow_succ'
+        have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := Eq.symm Nat.pow_succ'
         have s2 : n.size - 2 + 1 = n.size - 1 := by
           refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
           · exact Eq.symm (Nat.sub_add_cancel (le_of_add_left_le nsize_ge_3))
@@ -631,9 +608,9 @@ theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
         exact s1
       simp [←this] at lower
       rw [mul_comm, mul_two] at lower
-      replace : 0 < 2 ^ (n.size - 2) := by exact Nat.two_pow_pos (n.size - 2)
-      replace : 1 ≤ 2 ^ (n.size - 2) := by exact this
-      replace : 2 ^ (n.size - 2) + 1 ≤ n := by exact add_le_of_add_le_left lower this
+      replace : 0 < 2 ^ (n.size - 2) := Nat.two_pow_pos (n.size - 2)
+      replace : 1 ≤ 2 ^ (n.size - 2) := this
+      replace : 2 ^ (n.size - 2) + 1 ≤ n := add_le_of_add_le_left lower this
       exact this
 
 /--
@@ -643,6 +620,6 @@ corresponding to its bit length.
 -/
 theorem n_upper (n : ℕ) : n < 2 ^ n.size := by
   have : n.size < (2 ^ n.size).size := by
-    have : (2 ^ n.size).size = n.size + 1 := by exact size_pow
+    have : (2 ^ n.size).size = n.size + 1 := size_pow
     simp [this]
   exact lt_size_self n
