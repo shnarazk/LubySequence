@@ -228,7 +228,7 @@ theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
 /--
 The envelope depth for a given size `s`.
 Returns the depth of the smallest tree that can contain `s` elements.
-Equals `s.size`, the number of bits needed to represent `s`.
+Equals `s.size`, the bit-length (number of bits in binary representation) of `s`.
 -/
 @[expose]
 public def LubyTree.envelopeDepth (s : ℕ) : ℕ := s.size

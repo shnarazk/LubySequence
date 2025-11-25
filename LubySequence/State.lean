@@ -38,11 +38,11 @@ attribute [local simp] binaryRec default
 /--
 A state representation for efficiently computing Luby sequence values.
 The state tracks position within the sequence using two components:
-- `segIx`: The segment index (1-based), identifying which segment we're in
+- `segIx`: The segment index (1-based), identifying which segment we are in
 - `locIx`: The local index (0-based) within the current segment
 -/
 public structure LubyState where
-  /-- Segment index (1-based): identifies which monotonic segment of the Luby sequence -/
+  /-- Segment index (1-based): identifies which monotonic segment of the Luby sequence we are in -/
   segIx : ℕ
   /-- Local index (0-based): position within the current segment -/
   locIx : ℕ
@@ -228,8 +228,8 @@ theorem ofNat_dist (a b : ℕ) : ofNat (a + b) = (ofNat a).next b := by
     simp [t2, hb]
 
 /--
-An auxiliary function used to define segment properties.
-Maps a natural number to a related quantity based on its successor's binary size.
+An auxiliary function for segment properties.
+Computes `(n + 1).size - 1`, which relates to the binary representation of consecutive integers.
 -/
 def S₁ (n: ℕ) : ℕ := n.succ.size.pred
 
