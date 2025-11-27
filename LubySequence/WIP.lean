@@ -13,9 +13,11 @@ open Nat
 
 attribute [local simp] binaryRec
 
+/-
 #eval List.range 10
     |>.map (fun n ↦ 2 ^ (n + 1) - 2)
     |>.map (fun n ↦ (n, (Segment.segmentOver n).start - 1))
+-/
 
 theorem t20250913' : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (Segment.segmentOver n).start - 1 = n := by
   sorry
