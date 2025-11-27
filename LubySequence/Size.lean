@@ -389,13 +389,12 @@ This is a variant characterization showing when a number is exactly a power of 2
 public theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
     n = 2 ^ (n.size - 1) → n.size = (n - 1).size + 1 := by
   intro n_is_envelope
-  have : (n - 1 + 1).size = (n - 1).size ∨ (n - 1 + 1).size = (n - 1).size + 1 := size_limit (n - 1)
   have n_mp : n - 1 + 1 = n := Nat.sub_add_cancel h
   have nsize_mp : n.size - 1 + 1 = n.size := by
     refine Nat.sub_add_cancel ?_
     · replace h : n ≥ 1 := h
       exact one_le_iff_ne_zero.mpr (Nat.pos_iff_ne_zero.mp (size_pos.mpr h))
-  rcases this with eq|gt
+  obtain eq|gt : (n - 1 + 1).size = (n - 1).size ∨ (n - 1 + 1).size = (n - 1).size + 1 := size_limit (n - 1)
   · have s1 : (n - 1).size < n.size := by
       have s1 : n - 1 < 2 ^ (n.size - 1) := by
         rw [←n_is_envelope]
@@ -496,13 +495,11 @@ public theorem same_n1size_iff_not_pow2 {n : ℕ} : ¬n + 1 = 2 ^ n.size ↔ (n 
   · intro p
     have : (n + 1).size = n.size + 1 → n + 1 = 2 ^ n.size := fun a ↦ increase_n1size_at_pow2 a
     replace this := it this p
-    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
-    rcases cases with q|q
+    obtain q|q : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
     · exact q
     · exact absurd q this
   · intro p
-    have cases : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
-    rcases cases with q|q
+    obtain q|q : (n + 1).size = n.size ∨ (n + 1).size = n.size + 1 := size_limit n
     · replace q : ¬(n + 1).size = n.size + 1 := by simp [p]
       replace this := it increase_n1size_iff_pow2.mpr q
       exact this
@@ -558,8 +555,7 @@ This is a variant of `increase_size_iff_pow2` specialized for the case of adding
 -/
 theorem increase_n2size_if_pow2 {n : ℕ} (h : n ≥ 4) :
     n + 1 = 2 ^ n.size ∨ n + 2 = 2 ^ n.size → (n + 2).size = n.size + 1 := by
-  intro h'
-  rcases h' with h1|h2
+  rintro (h1|h2)
   · exact increase_n2size_if_pow2₁ h h1
   · exact increase_n2size_if_pow2₂ n h2
 

@@ -29,8 +29,7 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
   | h k ih =>
     expose_names
     intro h2
-    have cases : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
-    rcases cases with kz|kp
+    obtain kz|kp : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
     · simp [kz, ofNat, default, segment_height]
     · have h2' : k = 2 ^ ((k + 1).size - 1) - 1 - 1 := by exact Nat.eq_sub_of_add_eq h2
       let j := 2 ^ ((k + 1).size - 1 - 1)

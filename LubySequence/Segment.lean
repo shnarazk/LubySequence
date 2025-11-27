@@ -120,8 +120,7 @@ theorem segment_limit' (n : ℕ) : segment n ≤ n + 1 := by
       · expose_names
         simp
         by_cases n_eq_1_or_3 : n = 1 ∨ n = 3
-        · rcases n_eq_1_or_3 with n_def|n_def
-          <;> simp [n_def, size]
+        · obtain n_def|n_def := n_eq_1_or_3 <;> simp [n_def, size]
         · have n_ge_4 : n ≥ 4 := by
             by_contra n_le_3
             simp at n_le_3
@@ -617,7 +616,7 @@ theorem segment_limit2 {n : ℕ} (n_ge : n ≥ 2) : segment n ≤ 2 ^ ((n + 1).s
                       have : (n + 2).size = (n + 1).size ∨ (n + 2).size = (n + 1).size + 1 := by
                         exact size_limit (n + 1)
                       simp [n1size_eq_nsize] at this
-                      rcases this with eq|gt
+                      obtain eq|gt := this
                       · exact absurd eq x
                       · exact gt
                     have : (n + 2).size = (n + 1).size + 1 := by

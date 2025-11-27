@@ -530,16 +530,15 @@ theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
   induction n using Nat.strong_induction_on with
   | h n ih =>
     intro h
-    have cases : n = 1 ∨ 1 < n := by exact LE.le.eq_or_lt' h
-    rcases cases with case1|case2
+    obtain case1|case2 : n = 1 ∨ 1 < n := LE.le.eq_or_lt' h
     · simp [case1]
     · intro h2
       have nsize2 : 2 ≤ n.size := by
-        have u1 : (2 : ℕ).size ≤ n.size := by exact size_le_size case2
+        have u1 : (2 : ℕ).size ≤ n.size := size_le_size case2
         have u2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
         simp [u2] at u1
         exact u1
-      have t1 : range n = range (2 ^ (n.size - 1)) := by exact congrArg range h2
+      have t1 : range n = range (2 ^ (n.size - 1)) := congrArg range h2
       simp [t1]
       have t2 : 2 ^ (n.size - 1) = 2 * 2 ^ (n.size - 1 - 1) := by
         exact Eq.symm (mul_pow_sub_one (sub_ne_zero_of_lt (lt_size.mpr case2)) 2)
@@ -548,8 +547,8 @@ theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
       rw [two_mul]
       rw [sum_range_add]
       have sub1 : 2 ^ (n.size - 1 - 1) < n := by
-        have t1 : 2 ^ n.size ≤ 2 * n := by exact pow2size_has_upper_bound n (by grind)
-        have t2 : 2 ^ n.size / 2 ≤ 2 * n / 2 := by exact Nat.div_le_div_right t1
+        have t1 : 2 ^ n.size ≤ 2 * n := pow2size_has_upper_bound n (by grind)
+        have t2 : 2 ^ n.size / 2 ≤ 2 * n / 2 := Nat.div_le_div_right t1
         have t3 : 2 * n / 2 = n := by grind
         simp [t3] at t2
         clear t3
@@ -695,8 +694,7 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
     simp [t6]
     have t7 : trailing_zeros (2 ^ (k + 1) - 1) = 0 := by exact trailing_zeros_prop4 (k + 1)
     simp [t7]
-    have zp : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
-    rcases zp with z|p
+    obtain z|p : k = 0 ∨ k > 0 := by exact Nat.eq_zero_or_pos k
     · simp [z] at *
     · have : range (2 ^ (k + 1) - 2) = range (2 ^ k + (2 ^ (k + 1) - 2 ^ k - 2)) := by
         have t1 : 2 ^ (k + 1) = 2 ^ k + (2 ^ (k + 1) - 2 ^ k) := by grind
@@ -833,8 +831,7 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
         | succ k ih =>
           expose_names
           clear ih_1
-          have two_cases : k = 0 ∨ ¬k = 0 := by exact Or.symm (ne_or_eq k 0)
-          rcases two_cases with k0|kp
+          obtain k0|kp : k = 0 ∨ ¬k = 0 := by exact Or.symm (ne_or_eq k 0)
           · simp [k0]
           · have kp' : 0 < k := by exact zero_lt_of_ne_zero kp
             have t1 : 2 ^ (k + 1 + 1 + 1) = 2 * 2 ^ (k + 1 + 1) := by exact pow_succ'
@@ -870,8 +867,7 @@ theorem t20250919 : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = 
     · simp [zero, ofNat, default]
     · rename' zero => n_ge_1
       replace n_ge_1 : n ≥ 1 := by exact one_le_iff_ne_zero.mpr n_ge_1
-      replace n_ge_1 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' n_ge_1
-      rcases n_ge_1 with eq|n_ge_2
+      obtain eq|n_ge_2 : n = 1 ∨ n > 1 := by exact LE.le.eq_or_lt' n_ge_1
       · simp [eq, ofNat]
       · replace n_ge_2 : n ≥ 2 := n_ge_2
         have nsize_ge_2 : n.size ≥ 2 := by
@@ -918,8 +914,7 @@ theorem t20250910 : ∀ n > 0 , n = 2 ^ n.size - 2 →
   intro n hn1 hn2
   induction n using Nat.strong_induction_on with
   | h n ih =>
-    have zp : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
-    rcases zp with z|p
+    obtain z|p : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
     · simp [z] at *
     · let i := n - 1
       have pi : i = value_of% i := by exact rfl
@@ -993,8 +988,7 @@ theorem t20250904_sorry : ∀ n : ℕ,
   intro n
   induction n using Nat.strong_induction_on with
   | h n ih =>
-    have : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := eq_or_ne n (2 ^ (n.size - 1))
-    rcases this with n_is_pow2|n_ne_pow2
+    obtain n_is_pow2|n_ne_pow2 : n = 2 ^ (n.size - 1) ∨ ¬n = 2 ^ (n.size - 1) := eq_or_ne n (2 ^ (n.size - 1))
     ·
       sorry
     ·

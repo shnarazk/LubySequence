@@ -155,8 +155,7 @@ theorem LubyTree.mk_unique (m n : ℕ) : LubyTree.mk m = LubyTree.mk n → m = n
     grind
   | succ m hm =>
     intro h
-    have tf : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
-    rcases tf with t|f
+    obtain t|f : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
     { simp [t,mk] at h }
     { have : n = (n - 1) + 1 := by exact Eq.symm (Nat.succ_pred_eq_of_ne_zero f)
       rw [this] at h
@@ -450,8 +449,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
     have t1 {x : ℕ} (h : 2 ≤ x) : (x / 2).bits = x.bits.tail := by
       let v := (x / 2).bits
       have vp : v = value_of% v := by exact rfl
-      have tf : x % 2 = 0 ∨ ¬ x % 2 = 0 := by exact eq_or_ne _ _
-      rcases tf with t|f
+      obtain t|f : x % 2 = 0 ∨ ¬ x % 2 = 0 := by exact eq_or_ne _ _
       { have s1 : Even x := by refine Nat.even_iff.mpr t
         have s2 : x = 2 * (x / 2) := by refine Eq.symm (Nat.two_mul_div_two_of_even s1)
         have s3 : x.bits = (2 * (x / 2)).bits := by exact congrArg Nat.bits s2
@@ -570,7 +568,7 @@ public def LubyTree.luby (s : ℕ) : ℕ :=
       have : s = 0 ∨ s = 1 := by grind
       have : is_envelope s = true := by
         simp [is_envelope, envelopeSize, envelopeDepth]
-        rcases this with s01|s01 <;> simp [s01]
+        obtain s01|s01 := this <;> simp [s01]
       exact absurd this h
     have dec : s ≥ 2 → LubyTree.envelopeSize s > LubyTree.envelopeSize (LubyTree.quotient s) := by
      exact fun a ↦ envelop_of_quotient_is_decreasing' s this h

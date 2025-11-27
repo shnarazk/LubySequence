@@ -42,8 +42,7 @@ theorem mod_gt_right' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a -
       _ = (a / b - 1 + 1) * b := by
         refine (Nat.mul_right_cancel_iff hb).mpr ?_
         refine Nat.sub_add_comm ?_
-        have tf : a / b = 0 ∨ ¬(a / b = 0) := by exact eq_or_ne _ _
-        rcases tf with t|f
+        obtain t|f : a / b = 0 ∨ ¬(a / b = 0) := by exact eq_or_ne _ _
         · have a0 : a = 0 := by exact eq_zero_of_dvd_of_div_eq_zero h t
           have : ¬ 0 < a := by exact Eq.not_gt a0
           exact absurd ha this
@@ -93,9 +92,8 @@ If a is not divisible by b, then (a-1) % b + 1 < b.
 -/
 theorem mod_gt_right''' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
     (a - 1) % b + 1 < b := by
-  have el : (a - 1) % b + 1 = b ∨ (a - 1) % b + 1 < b := by
-    exact eq_or_lt_of_le (mod_gt_right'' a hb)
-  rcases el with e|l
+  obtain e|l : (a - 1) % b + 1 = b ∨ (a - 1) % b + 1 < b := eq_or_lt_of_le (mod_gt_right'' a hb)
   · apply mod_gt_right'_mpr ha hb at e
     grind
   · exact l
+

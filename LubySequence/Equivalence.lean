@@ -220,8 +220,7 @@ theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := b
             simp [this]
           simp [left, right]
         simp [ind]
-        have tf : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
-        rcases tf with t|f
+        obtain t|f : n = 0 ∨ ¬n = 0 := by exact eq_or_ne _ _
         · simp [t] at *
         · have : n + 1 - 2 ^ ((n + 1).size - 1) < n := by
             have : 1 < 2 ^ ((n + 1).size - 1) := by
