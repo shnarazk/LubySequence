@@ -75,7 +75,7 @@ public def nextStart (s : Segment) : ℕ := s.start + s.length
 Custom string representation for `Segment`.
 Displays a segment in the form "Seg{index}@{start}:{end}" where end is `nextStart - 1`.
 -/
-instance repl : Repr Segment where
+public instance repl : Repr Segment where
   reprPrec s n := "Seg" ++ reprPrec s.index n ++ "@" ++ reprPrec s.start n ++ ":" ++ reprPrec (s.nextStart - 1) n
 
 /--

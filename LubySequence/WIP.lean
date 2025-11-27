@@ -3,7 +3,8 @@ module
 import Mathlib.Tactic
 public import LubySequence.Utils
 public import LubySequence.Basic
-public import LubySequence.Segment
+-- public import LubySequence.Segment
+public import LubySequence.SegmentSequence
 public import LubySequence.State
 
 namespace LubyState
@@ -12,12 +13,20 @@ open Nat
 
 attribute [local simp] binaryRec
 
+#eval List.range 10
+    |>.map (fun n ↦ 2 ^ (n + 1) - 2)
+    |>.map (fun n ↦ (n, (Segment.segmentOver n).start - 1))
+
+theorem t20250913' : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (Segment.segmentOver n).start - 1 = n := by
+  sorry
+
 -- これはenvelopeはいくつのsegmentを必要とするかという問題。
 -- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
 -- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
 -- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
 -- この日本語のコメントは正しいのか？
 -- segment_heightはacculativeではないので再帰で解ける気がしないのだが。
+/-
 theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segment_height = n.size := by
   intro n hn
   let k := n - 1
@@ -76,3 +85,4 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       rw [size_of_double_eq_self_add_one (j - 1) (zero_lt_sub_of_lt j_ge_2)]
       rw [segment_height]
       sorry
+      -/
