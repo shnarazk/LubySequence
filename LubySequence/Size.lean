@@ -352,7 +352,7 @@ public theorem size_limit (n : ℕ) : (n + 1).size = n.size ∨ (n + 1).size = n
       exact t2'
     by_contra h'
     push_neg at h'
-    rcases h' with ⟨a, b⟩
+    obtain ⟨a, b⟩ := h'
     have c1 : n.size < (n + 1).size := lt_of_le_of_ne s1 (id (Ne.symm a))
     have c2 : (n + 1).size < n.size + 1 := lt_of_le_of_ne s2 b
     replace c2 : (n + 1).size ≤ n.size := le_of_lt_succ c2
