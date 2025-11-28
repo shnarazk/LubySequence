@@ -386,6 +386,15 @@ public theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
         exact absurd t1 h
   simp [t3]
 
+public theorem trailing_zeros_prop9 : ∀ n : ℕ, ∀ k < 2 ^ n,
+    ∑ i ∈ range k, (trailing_zeros (2 ^ n + i + 1) + 1) = ∑ i ∈ range k, (trailing_zeros (i + 1) + 1) := by
+  intro n k' k_lt_pow2
+  let k := k' + 1
+  have k_def : k = value_of% k := rfl
+  replace k_def : k' = k - 1 := by grind
+  simp [k_def] at *
+  exact trailing_zeros_prop8 n k k_lt_pow2
+
 /--
   For any positive natural number `n`, appending a `1` bit to the front of the binary
   representation of `n` (i.e. going from `2 * n` to `2 * n + 1`) does not change the
@@ -533,6 +542,98 @@ over the interval `1 ≤ i ≤ n - 1` matches the closed form `2 * n - 1`. This 
 check for telescoping arguments that shift ranges by powers of two in later parts of the file.
 -/
 public theorem sum_of_trailing_zeros_prop :
-    ∀ n : ℕ, n = (2 : ℕ) ^ n.size → ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1) = (2 : ℕ) * n - 1 := by
-  intro n n_is_pow2
-  sorry
+    ∀ n : ℕ, n = (2 : ℕ) ^ n.size → ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = (2 : ℕ) * n - 1 := by
+  intro n
+  induction n using Nat.strong_induction_on with
+  | h n ih =>
+    intro n_is_pow2
+    obtain n_eq_0|n_gt_0 : n = 0 ∨ n > 0 := Nat.eq_zero_or_pos n
+    · simp [n_eq_0]
+    · replace ih := ih (n / 2) (by grind)
+      have nsize_ge_1 : n.size ≥ 1 := one_le_iff_ne_zero.mpr (Nat.pos_iff_ne_zero.mp (size_pos.mpr n_gt_0))
+      have nsize_pm : n.size - 1 + 1 = n.size := by exact Nat.sub_add_cancel nsize_ge_1
+      have even : Even n := by
+        rw [n_is_pow2]
+        exact (even_pow' (Nat.pos_iff_ne_zero.mp (size_pos.mpr n_gt_0))).mpr (even_iff.mpr rfl)
+      have : n / 2 = 2 ^ (n / 2).size := by
+        rw (occs := .pos [1]) [n_is_pow2]
+        have left : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
+          refine Nat.div_eq_of_eq_mul_left Nat.two_pos ?_
+          · rw [←pow_succ]
+            exact congrArg (HPow.hPow 2) (id (Eq.symm nsize_pm))
+        have right : 2 ^ (n / 2).size = 2 ^ (n.size - 1) := by
+          exact (Nat.pow_right_inj (Nat.one_lt_two)).mpr (size_div n_gt_0 (Even.two_dvd even))
+        simp [left, right]
+      replace ih := ih this
+      replace : n = n / 2 + n / 2 := by grind
+      rw [this]
+      rw [sum_range_add]
+      rw [ih, mul_add]
+      replace : 2 * (n / 2) = n := by grind
+      simp [this]
+      replace : n / 2 = (n / 2 - 1) + 1 := by
+        refine Eq.symm (Nat.sub_add_cancel ?_)
+        · obtain n_eq_1|n_ge_2 : n = 1 ∨ n > 1 := Or.symm (Decidable.lt_or_eq_of_le' n_gt_0)
+          · replace : Odd n := ZMod.natCast_eq_one_iff_odd.mp (congrArg Nat.cast n_eq_1)
+            replace : ¬Even n := by exact not_even_iff_odd.mpr this
+            exact absurd even this
+          · replace n_ge_2 : n ≥ 2 := n_ge_2
+            grind
+      rw [this]
+      rw [sum_range_add]
+      simp
+      replace : ∑ x ∈ range (n / 2 - 1), (trailing_zeros (n / 2 - 1 + 1 + x + 1) + 1) =
+          ∑ x ∈ range (n / 2 - 1), (trailing_zeros (n / 2 + x + 1) + 1) := by
+        refine sum_equiv ?_ (fun i ↦ ?_) ?_
+        · exact Denumerable.eqv ℕ
+        · exact Iff.of_eq rfl
+        · intro i i_def
+          refine Nat.add_right_cancel_iff.mpr ?_
+          · have : n / 2 - 1 + 1 + i + 1 = n / 2 + (Denumerable.eqv ℕ) i + 1 := by
+              exact congrFun (congrArg HAdd.hAdd (congrFun (congrArg HAdd.hAdd (id (Eq.symm this))) i)) 1
+            exact congrArg trailing_zeros this
+      simp [this]
+      have n2_def : n / 2 = 2 ^ (n.size - 1) := by
+        rw (occs := .pos [1]) [n_is_pow2]
+        refine Nat.div_eq_of_eq_mul_left ?_ ?_
+        · exact Nat.two_pos
+        · exact Eq.symm (Nat.pow_pred_mul (size_pos.mpr n_gt_0))
+      rw [n2_def]
+      replace : ∑ x ∈ range (2 ^ (n.size - 1) - 1), (trailing_zeros (2 ^ (n.size - 1) + x + 1) + 1) =
+          ∑ x ∈ range (2 ^ (n.size - 1) - 1), (trailing_zeros (x + 1) + 1) := by
+        refine trailing_zeros_prop8 (n.size - 1) (2 ^ (n.size - 1)) ?_
+        · exact Nat.le_refl (2 ^ (n.size - 1))
+      simp [this]
+      have aux2 : 2 ^ (n.size - 1) ≥ 1 := by exact Nat.one_le_two_pow
+      replace : 2 ^ (n.size - 1) - 1 + 1 = 2 ^ (n.size - 1) := Nat.sub_add_cancel aux2
+      simp [this]
+      replace : 2 ^ (n.size - 1) + (2 ^ (n.size - 1) - 1) = 2 ^ (n.size - 1) + 2 ^ (n.size - 1) - 1 := by
+        exact Eq.symm (Nat.add_sub_assoc aux2 (2 ^ (n.size - 1)))
+      simp [this, ←mul_two]
+      replace : 2 ^ (n.size - 1) * 2 - 1 + 1 = 2 ^ (n.size - 1) * 2 := by grind 
+      simp [this]
+      replace : trailing_zeros (2 ^ (n.size - 1) * 2) = trailing_zeros (2 ^ (n.size - 1)) + 1 := by
+        have left : trailing_zeros (2 ^ (n.size - 1) * 2) = n.size := by
+          rw [←pow_succ]
+          simp [nsize_pm]
+          exact trailing_zeros_prop3 n.size
+        have right : trailing_zeros (2 ^ (n.size - 1)) + 1 = n.size := by
+          rw [trailing_zeros_prop3 (n.size - 1)]
+          exact nsize_pm
+        simp [left, right]
+      simp [this]
+      have : ∑ x ∈ range (2 ^ (n.size - 1) - 1), (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1)) + 1 + 1) =
+          ∑ x ∈ range (2 ^ (n.size - 1) - 1), (trailing_zeros (x + 1) + 1) + (trailing_zeros (2 ^ (n.size - 1)) + 1) + 1 := by
+        rfl
+      simp [this]
+      replace : ∑ x ∈ range (2 ^ (n.size - 1) - 1), (trailing_zeros (x + 1) + 1) +
+          (trailing_zeros (2 ^ (n.size - 1) - 1 + 1) + 1) =
+          ∑ x ∈ range (2 ^ (n.size - 1) - 1 + 1), (trailing_zeros (x + 1) + 1) := by
+        exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) (2 ^ (n.size - 1) - 1))
+      have aux : 2 ^ (n.size - 1) - 1 + 1 = 2 ^ (n.size - 1) := Nat.sub_add_cancel aux2
+      simp [aux] at this
+      simp [this]
+      simp [←n2_def]
+      simp [ih]
+      grind
+
