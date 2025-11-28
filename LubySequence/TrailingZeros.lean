@@ -386,6 +386,11 @@ public theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
         exact absurd t1 h
   simp [t3]
 
+/--
+For k < 2^n, the sum of (trailing_zeros(2^n + i + 1) + 1) over i in range k equals
+the sum of (trailing_zeros(i + 1) + 1) over the same range.
+This is a strict version of `trailing_zeros_prop8` using strict inequality.
+-/
 public theorem trailing_zeros_prop9 : ∀ n : ℕ, ∀ k < 2 ^ n,
     ∑ i ∈ range k, (trailing_zeros (2 ^ n + i + 1) + 1) = ∑ i ∈ range k, (trailing_zeros (i + 1) + 1) := by
   intro n k' k_lt_pow2
