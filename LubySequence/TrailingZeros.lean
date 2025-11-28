@@ -522,3 +522,12 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
             simp [trailing_zeros_m, trailing_zeros_n]
             exact sub_succ_lt_self n.size 1 nsize2
           exact Nat.lt_trans g g'
+
+-- #eval List.range 6
+--    |>.map (fun n ↦ 2 ^ n)
+--    |>.map (fun n ↦ (n, range n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1), 2 * n - 1))
+
+theorem sum_of_trailing_zeros_prop :
+    ∀ n : ℕ, n = 2 ^ n.size → ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1) = 2 * n - 1 := by
+  intro n n_is_pow2
+  sorry

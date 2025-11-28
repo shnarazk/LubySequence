@@ -19,8 +19,17 @@ attribute [local simp] binaryRec
     |>.map (fun n ↦ (n, (Segment.segmentOver n).start - 1))
 -/
 
-theorem t20250913' : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (Segment.segmentOver n).start - 1 = n := by
-  sorry
+theorem t20250913' : ∀ n > 0, n = 2 ^ n.size - 2 → (Segment.segmentOver n).start - 1 = n := by
+  intro n n_gt_0 n2_is_pow2
+  rw [Segment.segmentOver]
+  rw [Segment.ofNat.eq_def]
+  split <;> expose_names
+  · rw [Segment.segmentIdOver] at heq
+    simp [Segment.segment_starts] at heq
+  · rw [Segment.segmentIdOver] at heq
+    simp at heq
+    --
+    sorry
 
 -- これはenvelopeはいくつのsegmentを必要とするかという問題。
 -- ∑ i ∈ range (2 ^ (k.size - 1)), trailing_zeros · = k から
