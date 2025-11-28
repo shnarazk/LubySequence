@@ -527,6 +527,11 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
 --    |>.map (fun n ↦ 2 ^ n)
 --    |>.map (fun n ↦ (n, range n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1), 2 * n - 1))
 
+/--
+For any `n` that is exactly a power of two, the cumulative count of trailing zeros (plus one)
+over the interval `1 ≤ i ≤ n - 1` matches the closed form `2 * n - 1`. This acts as a sanity
+check for telescoping arguments that shift ranges by powers of two in later parts of the file.
+-/
 theorem sum_of_trailing_zeros_prop :
     ∀ n : ℕ, n = 2 ^ n.size → ∑ i ∈ range (n - 1), (trailing_zeros (i + 1) + 1) = 2 * n - 1 := by
   intro n n_is_pow2
