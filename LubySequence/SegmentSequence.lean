@@ -321,6 +321,24 @@ which identifies the boundary between segments covering and not covering positio
 public def segmentIdOver (n : ℕ) : ℕ :=
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
+public theorem segmentIdOver_0 : segmentIdOver 0 = 2 := by
+  simp [segmentIdOver]
+  refine
+    (Nat.find_eq_iff
+          (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
+            (fun [DecidablePred fun i ↦ segment_starts i > 0] ↦ segmentIdOver._proof_1 0)
+            (funext fun i ↦ gt_iff_lt._simp_1))).mpr
+      ?_
+  · constructor
+    · simp [segment_starts]
+    · intro n n_def
+      replace n_def : n ≤ 1 := Nat.le_of_succ_le_succ n_def
+      obtain n_eq_1|n_eq_0 : n = 1 ∨ n < 1 := by exact Nat.eq_or_lt_of_le n_def
+      · simp [n_eq_1, segment_starts]
+      · replace n_eq_0 : n = 0 := by exact Nat.lt_one_iff.mp n_eq_0
+        simp [n_eq_0]
+        simp [segment_starts]
+
 /--
 Extend the initial segment to cover position `limit`.
 Returns the segment that contains position `limit` by advancing from `one`
@@ -403,5 +421,31 @@ theorem coveringSegment_of_next_segment_is_next_of_next :
           · replace lt : t' < t + 2 := by exact lt_of_tsub_lt_tsub_right lt
             exact Nat.le_of_succ_le lt
         exact Nat.le_lt_asymm this
+
+-- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
+
+theorem segmentOver_of_sum_of_trailing_zeros :
+    ∀ n : ℕ, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1)) = n + 2 := by
+  intro n
+  induction n with
+  | zero => simp [segmentIdOver_0]
+  | succ n ih =>
+    rw [sum_range_succ]
+    simp [segmentIdOver]
+    refine
+      (Nat.find_eq_iff
+            (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
+              (fun
+                  [DecidablePred fun i ↦
+                      segment_starts i >
+                        ∑ x ∈ range n, (trailing_zeros (x + 1) + 1) +
+                          (trailing_zeros (n + 1) + 1)] ↦
+                segmentIdOver._proof_1
+                  (∑ x ∈ range n, (trailing_zeros (x + 1) + 1) + (trailing_zeros (n + 1) + 1)))
+              (funext fun i ↦ gt_iff_lt._simp_1))).mpr
+        ?_
+    · constructor
+      · sorry
+      · sorry
 
 end Segment
