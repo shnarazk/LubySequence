@@ -455,7 +455,21 @@ public theorem segmentOver_of_sum_of_trailing_zeros :
               (funext fun i ↦ gt_iff_lt._simp_1))).mpr
         ?_
     · constructor
-      · sorry
-      · sorry
+      · have : ∑ x ∈ range n, (trailing_zeros (x + 1) + 1) + (trailing_zeros (n + 1) + 1) =
+            ∑ x ∈ range (n + 1), (trailing_zeros (x + 1) + 1) := by
+          exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
+        simp [this]
+        rw [←unfold_segment_start]
+        rw [←segment_starts_to_segment_start]
+        exact segment_starts_is_increasing' (Nat.zero_lt_succ (n + 1)) (Nat.lt_succ_self (n + 1 + 1))
+      · intro n' n'_def
+        have : ∑ x ∈ range n, (trailing_zeros (x + 1) + 1) + (trailing_zeros (n + 1) + 1) =
+            ∑ x ∈ range (n + 1), (trailing_zeros (x + 1) + 1) := by
+          exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
+        simp [this]
+        rw [←unfold_segment_start]
+        rw [←segment_starts_to_segment_start]
+        replace n'_def : n' ≤ n + 1 + 1 := by exact Nat.le_of_succ_le_succ n'_def
+        exact segment_starts_is_monotone n'_def
 
 end Segment
