@@ -321,6 +321,11 @@ which identifies the boundary between segments covering and not covering positio
 public def segmentIdOver (n : ℕ) : ℕ :=
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
+/--
+The segment ID covering position 0 is 2.
+This is the base case showing that position 0 lies within the first segment,
+which has index 1, so `segmentIdOver 0` returns the next segment's index (2).
+-/
 public theorem segmentIdOver_0 : segmentIdOver 0 = 2 := by
   simp [segmentIdOver]
   refine
@@ -424,6 +429,11 @@ theorem coveringSegment_of_next_segment_is_next_of_next :
 
 -- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
 
+/--
+For any `n`, the segment ID covering the cumulative sum of segment lengths equals `n + 2`.
+Specifically, `segmentIdOver (∑ i ∈ range n, (trailing_zeros (i + 1) + 1)) = n + 2`.
+This relates the position computed from summing segment lengths to the segment index.
+-/
 public theorem segmentOver_of_sum_of_trailing_zeros :
     ∀ n : ℕ, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1)) = n + 2 := by
   intro n
