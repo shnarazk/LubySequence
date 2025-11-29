@@ -424,7 +424,7 @@ theorem coveringSegment_of_next_segment_is_next_of_next :
 
 -- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
 
-theorem segmentOver_of_sum_of_trailing_zeros :
+public theorem segmentOver_of_sum_of_trailing_zeros :
     ∀ n : ℕ, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1)) = n + 2 := by
   intro n
   induction n with
