@@ -26,8 +26,9 @@ theorem t20250913' : ∀ n > 0, n = 2 ^ n.size - 2 → (Segment.segmentOver n).s
   split <;> expose_names
   · rw [Segment.segmentIdOver] at heq
     simp [Segment.segment_starts] at heq
-  · rw [Segment.segmentIdOver] at heq
-    simp at heq
+  · -- rw [Segment.segmentIdOver] at heq
+    -- simp at heq
+    simp only [Segment.unfold_segment]
     --
     sorry
 
