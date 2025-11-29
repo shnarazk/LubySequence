@@ -28,7 +28,7 @@ after which a new segment begins.
 
 * The state representation is isomorphic to natural numbers
 * Segment heights are determined by trailing zeros of the segment index
-* Each segment's Luby values form the sequence 1, 2, 4, ..., 2^(height-1)
+* Each segment's Luby values form the sequence 1, 2, 4, ..., 2 ^ (height-1)
 -/
 
 open Finset Nat
@@ -70,14 +70,14 @@ public def LubyState.zero := (default : LubyState)
 
 /--
 Computes the Luby sequence value at the current state in O(1) time.
-The value is `2^locIx`, since within each segment the values are 1, 2, 4, ..., 2^(height-1).
+The value is `2 ^ locIx`, since within each segment the values are 1, 2, 4, ..., 2 ^ (height-1).
 -/
 @[expose]
 public def LubyState.luby (self : LubyState) : ℕ := 2 ^ self.locIx
 
 /--
 Returns the height (number of elements) of the current segment.
-Segment height equals `trailing_zeros(segIx) + 1`, which determines
+Segment height equals `trailing_zeros segIx + 1`, which determines
 how many times the Luby value doubles before starting a new segment.
 -/
 @[expose]
@@ -92,7 +92,7 @@ public def LubyState.is_segment_beg (self : LubyState) : Bool := self.locIx = 0
 
 /--
 Returns true if this state is at the end of a segment.
-At segment ends, the Luby value reaches its peak of 2^(height-1),
+At segment ends, the Luby value reaches its peak of 2 ^ (height - 1),
 and the next transition will start a new segment.
 -/
 @[expose]
@@ -142,7 +142,7 @@ theorem segIx_is_increasing : ∀ li : LubyState, li.next.segIx ≥ li.segIx := 
   <;> simp [h]
 
 /--
-The segment index is monotone: for n' ≥ n, (zero.next n').segIx ≥ (zero.next n).segIx.
+The segment index is monotone: `for n' ≥ n, (zero.next n').segIx ≥ (zero.next n).segIx`.
 -/
 theorem segIx_is_mono (n : ℕ) : ∀ n' ≥ n, (zero.next n').segIx ≥ (zero.next n).segIx := by
   let cn := (zero.next n).segIx
@@ -180,7 +180,7 @@ theorem congr (a b : LubyState) (h : a = b) : a.next = b.next := by
   exact congrFun (congrArg (@next) h) 1
 
 /--
-n = 0 if and only if (zero.next n).segIx = 1.
+`n = 0` if and only if `(zero.next n).segIx = 1`.
 This characterizes the initial state.
 -/
 theorem segId0 {n : ℕ} : n = 0 ↔ (zero.next n).segIx = 1 := by
@@ -198,7 +198,7 @@ theorem segId0 {n : ℕ} : n = 0 ↔ (zero.next n).segIx = 1 := by
     grind
 
 /--
-The next function is associative: (li.next n).next = li.next (n + 1).
+The next function is associative: `(li.next n).next = li.next (n + 1)`.
 -/
 theorem next_assoc (li : LubyState) : ∀ n : ℕ, (li.next n).next = li.next (n + 1) := by
   intro n
@@ -216,7 +216,7 @@ Convert a natural number to a LubyState.
 public def ofNat (n : ℕ) : LubyState := zero.next n
 
 /--
-ofNat distributes over addition: ofNat (a + b) = (ofNat a).next b.
+ofNat distributes over addition: `ofNat (a + b) = (ofNat a).next b`.
 -/
 theorem ofNat_dist (a b : ℕ) : ofNat (a + b) = (ofNat a).next b := by
   induction b with
@@ -256,7 +256,7 @@ def toNat (self : LubyState) : ℕ := match self.segIx with
 -- #eval scanList (·.next) zero 24 |>.map (·.toNat)
 
 /--
-The toNat and ofNat functions are inverses: (ofNat n).toNat = n for all n.
+The toNat and ofNat functions are inverses: `(ofNat n).toNat = n` for all `n`.
 This proves that the state-based representation is isomorphic to natural numbers.
 -/
 theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
@@ -309,7 +309,7 @@ theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
         · grind
 
 /--
-Applying next increases toNat by 1: (ofNat n).next.toNat = n + 1.
+Applying next increases toNat by 1: `(ofNat n).next.toNat = n + 1`.
 -/
 theorem next_is_succ : ∀ n : ℕ, (ofNat n).next.toNat = n + 1 := by
   intro n
@@ -323,7 +323,7 @@ theorem next_is_succ : ∀ n : ℕ, (ofNat n).next.toNat = n + 1 := by
 instance : Coe ℕ LubyState where coe n := ofNat n
 
 /--
-If n is at a segment end, then n+1 is at a segment beginning.
+If n is at a segment end, then n + 1 is at a segment beginning.
 -/
 theorem LubyState_segment_prop1 {n : ℕ} (h : (ofNat n).is_segment_end = true) :
     (ofNat (n + 1)).is_segment_beg = true := by
@@ -416,7 +416,7 @@ be used when the result stays within the current segment.
 def next_in_segment (s : LubyState) (d : ℕ) : LubyState := mk s.segIx (s.locIx + d)
 
 /--
-Stepping within a segment d' steps is the same as stepping d'-1 steps then one more step.
+Stepping within a segment `d'` steps is the same as stepping `d'-1` steps then one more step.
 -/
 theorem next_in_segment_is_additive {s : LubyState} {d : ℕ} :
     ∀ d' < d, 0 < d' → s.next_in_segment d' = (s.next_in_segment (d' - 1)).next_in_segment 1 := by
@@ -521,7 +521,7 @@ def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i 
 -/
 
 /--
-For powers of 2, the sum of segment heights equals 2^(n.size) - 1.
+For powers of 2, the sum of segment heights equals `2 ^ n.size - 1`.
 This is a key property connecting segment heights to the binary structure.
 -/
 theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
@@ -663,7 +663,7 @@ theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_
 -- #eval List.range 7 |>.map (2 ^ · - 1) |>.map (fun n ↦ (n, (ofNat (n - 1)).segment_height, n.size))
 
 /--
-For `k ≥ 0`, `segment_height_sum (2^k) = 2^(k+1) - 1`.
+For `k ≥ 0`, `segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1`.
 This connects segment structure to powers of 2.
 -/
 theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by

@@ -33,7 +33,7 @@ Constructs a `LubyTree` of the specified level.
 - Level 0 produces a `leaf`.
 - Level `l + 1` produces `wrap (mk l)`.
 
-The resulting tree has depth `level + 1` and size `2^(level + 1) - 1`.
+The resulting tree has depth `level + 1` and size `2 ^ (level + 1) - 1`.
 -/
 @[expose]
 public def LubyTree.mk (level : ℕ) : LubyTree := match level with
@@ -248,7 +248,7 @@ The envelope is the smallest `LubyTree` that can contain `s` elements.
 public def LubyTree.envelope (s : ℕ) : LubyTree := LubyTree.mk (LubyTree.envelopeDepth s - 1)
 
 /--
-Checks if `s` is an envelope size, i.e., `s = 2^k - 1` for some `k`.
+Checks if `s` is an envelope size, i.e., `s = 2 ^ k - 1` for some `k`.
 Returns `true` if `envelopeSize s = s`.
 -/
 @[expose]
@@ -280,7 +280,7 @@ public def LubyTree.quotient (s : ℕ) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2)
 -- theorem LubyTree.quotient_is_decreasing : ∀ n ≥ 2, n > LubyTree.quotient n := by
 
 /--
-For `n ≥ 2` and `n < (2^n.size - 2) / 2`, the envelope size of `n` is greater than
+For `n ≥ 2` and `n < (2 ^ n.size - 2) / 2`, the envelope size of `n` is greater than
 twice the quotient. This ensures the recursive Luby computation terminates.
 -/
 theorem LubyTree.envelop_of_quotient_is_decreasing :
@@ -541,7 +541,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing':
 
 /--
 Computes the Luby value at position `s` within a tree.
-If the tree's size is at most `s`, returns `2^(depth - 1)` (the maximum Luby value for this tree).
+If the tree's size is at most `s`, returns `2 ^ (depth - 1)` (the maximum Luby value for this tree).
 Otherwise, recursively computes the value in the inner tree.
 -/
 def LubyTree.valueAtSize (self : LubyTree) (s : ℕ) : ℕ := match self with
@@ -552,7 +552,7 @@ def LubyTree.valueAtSize (self : LubyTree) (s : ℕ) : ℕ := match self with
 /--
 Computes the Luby sequence value at position `s` using the tree-based model.
 
-For envelope indices (positions of the form `2^k - 1`), returns `2^(k - 1)`.
+For envelope indices (positions of the form `2 ^ k - 1`), returns `2 ^ (k - 1)`.
 For other positions, recursively computes the value at the quotient position.
 
 This is a well-founded recursive definition that terminates because the envelope size
@@ -585,7 +585,7 @@ public def LubyTree.valueAt (s : ℕ) : ℕ := (LubyTree.mk (s.succ.size - 1)).v
 -- #eval List.range 28 |>.map (fun n ↦ LubyTree.valueAt n.succ)
 
 /--
-The size of `mk n` equals `2^(n + 1) - 1`.
+The size of `mk n` equals `2 ^ (n + 1) - 1`.
 -/
 theorem level_to_size (n : ℕ) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
   induction n with
@@ -603,7 +603,7 @@ theorem level_to_size (n : ℕ) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
 
 /--
 The binary representation of any tree's size consists entirely of 1-bits.
-This reflects that tree sizes are always of the form `2^k - 1`.
+This reflects that tree sizes are always of the form `2 ^ k - 1`.
 -/
 theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true) := by
   induction t

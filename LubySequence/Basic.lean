@@ -276,7 +276,7 @@ theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 :=
 -- #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
 
 /--
-Characterization of envelope property: n + 2 equals 2 ^ ((n + 2).size - 1)
+Characterization of envelope property: `n + 2` equals `2 ^ ((n + 2).size - 1)`
 if and only if n is an envelope.
 -/
 theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
@@ -322,7 +322,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
       exact t1
 
 /--
-Size characterization of envelopes: (n + 2).size = (n + 1).size + 1
+Size characterization of envelopes: `(n + 2).size = (n + 1).size + 1`
 if and only if n is an envelope.
 -/
 theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
@@ -369,7 +369,7 @@ theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
     simp [this]
 
 /--
-Complement of envelope_prop2: (n + 2).size = (n + 1).size
+Complement of envelope_prop2: `(n + 2).size = (n + 1).size`
 if and only if n is not an envelope.
 -/
 theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelope n := by
@@ -388,8 +388,8 @@ theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelop
       exact absurd this h
 
 /--
-Alternative envelope characterization: n + 2 equals 2 ^ ((n + 1).size)
-if and only if n is an envelope.
+Alternative envelope characterization: `n + 2` equals `2 ^ ((n + 1).size)`
+if and only if `n` is an envelope.
 -/
 theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
   have n2size : 2 ≤ (n + 2).size := by
@@ -420,8 +420,8 @@ theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n :
     exact id (Eq.symm h)
 
 /--
-For positive envelopes, the size property: if n > 0 and n is an envelope,
-then (n + 1).size = n.size.
+For positive envelopes, the size property: if `n > 0` and `n` is an envelope,
+then `(n + 1).size = n.size`.
 -/
 theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).size = n.size := by
   have n1size : 2 ≤ (n + 1).size := by
@@ -448,8 +448,8 @@ theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
 -- #eval is_segment_beg 0 -- true
 
 /--
-Key recursion property: either n + 1 is at a segment beginning,
-or luby (n + 1) = 2 * luby n.
+Key recursion property: either `n + 1` is at a segment beginning,
+or `luby (n + 1) = 2 * luby n`.
 -/
 theorem luby_value_not_at_segment_beg (n : ℕ) :
     is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
@@ -685,8 +685,8 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
               exact this
 
 /--
-Main property of the Luby sequence: luby n equals 1 if n is at a segment beginning,
-otherwise it equals 2 * luby (n - 1).
+Main property of the Luby sequence: `luby n` equals 1 if `n` is at a segment beginning,
+otherwise it equals `2 * luby (n - 1)`.
 -/
 theorem luby_sequence_prop (n : ℕ) :
     luby n = if is_segment_beg n then 1 else 2 * luby (n - 1) := by

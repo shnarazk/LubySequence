@@ -57,7 +57,7 @@ theorem mod_gt_right' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) : a % b = 0 → (a -
   grind
 
 /--
-Converse of mod_gt_right': if (a-1) % b + 1 = b, then a is divisible by b.
+Converse of mod_gt_right': if `(a - 1) % b + 1 = b`, then `a` is divisible by `b`.
 -/
 theorem mod_gt_right'_mpr {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
     (a - 1) % b + 1 = b → a % b = 0 := by
@@ -80,7 +80,7 @@ theorem mod_gt_right'_mpr {a b : ℕ} (ha : 0 < a) (hb : 0 < b) :
   exact absurd this h2
 
 /--
-For any natural number a and positive b, (a-1) % b + 1 ≤ b.
+For any natural number `a` and positive `b`, `(a - 1) % b + 1 ≤ b`.
 -/
 public theorem mod_gt_right'' {b : ℕ} (a : ℕ) (hb : 0 < b) : (a - 1) % b + 1 ≤ b := by
   refine add_le_of_le_sub hb ?_
@@ -88,7 +88,7 @@ public theorem mod_gt_right'' {b : ℕ} (a : ℕ) (hb : 0 < b) : (a - 1) % b + 1
     · exact mod_gt_right (a - 1) b hb
 
 /--
-If a is not divisible by b, then (a-1) % b + 1 < b.
+If `a` is not divisible by `b`, then `(a - 1) % b + 1 < b`.
 -/
 theorem mod_gt_right''' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0) :
     (a - 1) % b + 1 < b := by
@@ -96,4 +96,3 @@ theorem mod_gt_right''' {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h1 : a % b ≠ 0)
   · apply mod_gt_right'_mpr ha hb at e
     grind
   · exact l
-
