@@ -136,7 +136,7 @@ $
 Remove the highest non-zero bits until . . .
 */
 
-= An online algorithm
+= Segment sequence
 
 Segmentation of the Luby sequence
 
@@ -161,6 +161,31 @@ $
   L u b y_1(k >= 1) = cases(
     1\, & " if" k "is the beginning of a segment",
     2 times L u b y_1(k - 1)\, & " otherwise" )
+$
+
+== Property: sizes of segments
+
+#let luby = range(1, 32).map(Luby)
+
+$
+#let even = true
+#luby.insert(0, luby.at(0) - 1)
+#for (p, n) in luby.windows(2) {
+  even = if p < n { even } else { not even }
+  text(fill: if even { red } else { blue }, str(n) + ", ")
+}
+$
+
+To sizes
+
+$
+1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3
+$
+
+#pause
+
+$
+  |s e g m e n t (t >= 1)| = "the number of trailing zeros of " t
 $
 
 == indices on the natural number triangle
@@ -199,6 +224,10 @@ $
   #text(size: 16pt, [Iverson's notation])
 ]
 */
+
+= O(1) inprementation of Luby sequence
+
+An Online algorithm on segment sequence
 
 == From segment index to segment length
 
