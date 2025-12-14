@@ -231,7 +231,7 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
         replace t1 : 2 ^ 2 ≤ 2 ^ (n + 1 + 1) := Nat.pow_le_pow_right (by grind) t1
         have t2 : 2 ^ 2 = 4 := by grind
         simp [t2] at t1
-        replace t1 : 4 + 1 ≤ 2 ^ (n + 1 + 1) + 1 := add_le_add_right t1 1
+        replace t1 : 4 + 1 ≤ 2 ^ (n + 1 + 1) + 1 := Nat.add_le_add_iff_right.mpr t1
         replace t1 : (4 + 1).size ≤ (2 ^ (n + 1 + 1) + 1).size := size_le_size t1
         simp at t1
         rewrite (occs := .pos [1]) [size] at t1
@@ -281,7 +281,7 @@ public theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
       · simp [z] at *
         exact absurd k' h1
       · have n2 : (2 ^ n).size = n + 1 := size_of_pow2_eq_self_add_one n
-        have s1 : 2 ^ n + k < 2 ^ n + 2 ^ n := add_lt_add_left k' (2 ^ n)
+        have s1 : 2 ^ n + k < 2 ^ n + 2 ^ n := Nat.add_lt_add_left k' (2 ^ n)
         rw [←mul_two] at s1
         have so : (2 ^ n + k).size = n + 1 := by
           have left : n + 1 ≤ (2 ^ n + k).size := by
