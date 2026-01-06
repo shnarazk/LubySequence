@@ -40,7 +40,7 @@
 #align(center, text(17pt)[*#title*])
 
 #grid(columns: (1fr),align(center)[`shnarazk` and gen. AIs])
-#grid(columns: (1fr),align(center)[2025-0X-XX])
+#grid(columns: (1fr),align(center)[2026-0X-XX])
 
 = Luby sequence
 
