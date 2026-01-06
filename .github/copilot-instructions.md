@@ -40,7 +40,7 @@ LubySequence/
 │   ├── Equivalence.lean      # Proofs connecting models
 │   └── Utils.lean            # Supporting utilities
 ├── lakefile.toml             # Lake build configuration
-├── lean-toolchain           # Lean version specification (v4.26.0-rc2)
+├── lean-toolchain           # Lean version specification (v4.27.0-rc1)
 ├── lake-manifest.json       # Dependency lock file
 ├── memo.typ                 # Typst documentation
 ├── presen.typ               # Typst presentation
@@ -74,7 +74,7 @@ When network connectivity prevents downloading dependencies:
 ## Common Tasks
 
 ### Working with Lean Code
-- The library uses mathlib v4.26.0-rc2 - ensure compatibility when adding dependencies
+- The library uses mathlib v4.27.0-rc1 - ensure compatibility when adding dependencies
 - Key modules to understand:
   - `LubySequence.Basic`: Core recursive definition of Luby sequence
   - `LubySequence.Tree`: Tree-based envelope model
@@ -111,9 +111,9 @@ When network connectivity prevents downloading dependencies:
 - Build must pass before merging - always run `lake build` locally first
 
 ## Dependencies
-- **mathlib**: v4.26.0-rc2 (large library, causes long download times)
+- **mathlib**: v4.27.0-rc1 (large library, causes long download times)
 - **doc-gen4**: main branch (for documentation generation)
-- **Lean**: v4.26.0-rc2 (specified in lean-toolchain)
+- **Lean**: v4.27.0-rc1 (specified in lean-toolchain)
 - Additional transitive dependencies via mathlib (see lake-manifest.json)
 
 ## Performance Expectations
