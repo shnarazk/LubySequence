@@ -810,7 +810,10 @@ theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k)
       simp [t5]
       have t6 : 2 ^ (k + 1) + (2 ^ (k + 1) - x) = 2 ^ (k + 1) + 2 ^ (k + 1) - x := by
         refine Eq.symm (Nat.add_sub_assoc ?_ (2 ^ (k + 1)))
-        · simp [hx] ; rw [add_comm, ←add_assoc] ; simp [add_comm] ; exact base1
+        · simp [hx]
+          rw [add_comm]
+          rw [add_assoc]
+          exact Nat.lt_of_lt_of_eq base1 rfl
       simp [t6]
       have t7 : 2 ^ (k + 1) + 2 ^ (k + 1) = 2 ^ (k + 1 + 1) := by exact Eq.symm (two_pow_succ (k + 1))
       simp [t7, hx]

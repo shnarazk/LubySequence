@@ -270,8 +270,8 @@ theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 :=
               have t4 : 2 ≤ 2 ^ ((n + 1).size - 1) := by exact Nat.le_pow t3
               exact t4
             exact Nat.add_lt_add_left this n
-          have goal := nh (n + 1 - S₂ n) r h
-          exact goal
+          rw [←S₂] at r
+          grind [= luby, = is_segment_beg, = S₂, = is_envelope]
 
 -- #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
 
