@@ -54,7 +54,7 @@ This is a Lean 4 project managed with Lake and using mathlib.
 - Internet access on first build to fetch mathlib
 
 The project pins the Lean version via `lean-toolchain` and depends on:
-- mathlib `v4.26.0-rc2` (as configured in `lakefile.toml`)
+- mathlib `v4.28.0-rc1` (as configured in `lakefile.toml`)
 
 ### Build with Lake
 
