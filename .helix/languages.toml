@@ -2,9 +2,14 @@
 name = "lean"
 auto-format = true
 formatter = { command = "lucr", args = [] }
+language-servers = ["lean-tui"]
 
 [[language]]
 name = "typst"
 auto-format = true
 formatter = { command = "lucr", args = [] }
+
+[language-server.lean-tui]
+args = ["proxy"]
+command = "lean-tui"
 
