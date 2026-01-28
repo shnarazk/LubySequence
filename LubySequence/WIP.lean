@@ -37,7 +37,7 @@ theorem t20250913' : ∀ n > 0, n = 2 ^ n.size - 2 → (Segment.segmentOver n).s
 -- n = 2 ^ n.size - 1 の大きさのenvelopには2 ^ (n.size - 1) segmentsが必要であるため、
 -- 次のn + 1に対しては当然2 ^ n.size segmentsが必要。
 -- この日本語のコメントは正しいのか？
--- segment_heightはacculativeではないので再帰で解ける気がしないのだが。
+-- segment_heightはaccumulativeではないので再帰で解ける気がしないのだが。
 /-
 theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)).segment_height = n.size := by
   intro n hn

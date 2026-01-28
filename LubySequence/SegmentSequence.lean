@@ -313,7 +313,7 @@ public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a < b → (one + 
   exact segment_starts_is_increasing' (Nat.zero_lt_succ a) (Nat.add_lt_add_right ordering 1)
 
 /--
-Find the largest segment index whose start position does not exceed `n`.
+Find the smallest segment index whose start position exceeds `n`.
 Uses `Nat.find` to locate the smallest index where `segment_starts` exceeds `n`,
 which identifies the boundary between segments covering and not covering position `n`.
 -/
