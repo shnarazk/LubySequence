@@ -472,4 +472,12 @@ public theorem segmentOver_of_sum_of_trailing_zeros :
         replace n'_def : n' ≤ n + 1 + 1 := by exact Nat.le_of_succ_le_succ n'_def
         exact segment_starts_is_monotone n'_def
 
+public theorem unfold_segmentIdOver_start (t : ℕ) : segmentIdOver (one + t).start = t + 2 := by
+  -- have s1 : segmentIdOver (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = t + 2 := by
+  --   exact segmentOver_of_sum_of_trailing_zeros t
+  have s2 : (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = (one + t).start := by
+    exact Eq.symm (unfold_segment_start t)
+  rw [←s2]
+  exact segmentOver_of_sum_of_trailing_zeros t
+
 end Segment
