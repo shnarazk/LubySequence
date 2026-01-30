@@ -105,3 +105,10 @@ public theorem t20260129 (n : ℕ) : n = 2 ^ n.size → Segment.segmentIdOver ((
   intro hn
   rw (occs := .pos [1]) [←sum_of_trailing_zeros_prop n hn]
   simp only [Segment.unfold_segmentIdOver_of_sum]
+
+public theorem t20260130 (n : ℕ) : n = 2 ^ n.size → Segment.segmentIdOver ((2 : ℕ) * n - 2) = n + 1 := by
+  intro hn
+  have n2 := t20260129 n hn
+  -- segmentIdOverの性質を使うのではなくone + (n +1)のsegmentのstartとlengthから必要なことは導出できるのでは
+  -- apply?
+  sorry
