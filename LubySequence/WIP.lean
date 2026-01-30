@@ -6,6 +6,7 @@ public import LubySequence.Basic
 -- public import LubySequence.Segment
 public import LubySequence.SegmentSequence
 public import LubySequence.State
+public import LubySequence.TrailingZeros
 
 namespace LubyState
 
@@ -27,8 +28,9 @@ theorem t20250913' : ∀ n > 0, n = 2 ^ n.size - 2 → (Segment.segmentOver n).s
   · rw [Segment.segmentIdOver] at heq
     simp [Segment.segment_starts] at heq
   · -- rw [Segment.segmentIdOver] at heq
-    -- simp at heq
     simp only [Segment.unfold_segment]
+    replace heq : Segment.segmentIdOver n - 1 = t := by
+      exact Eq.symm (Nat.eq_sub_of_add_eq (id (Eq.symm heq)))
     --
     sorry
 
@@ -97,4 +99,9 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       rw [size_of_double_eq_self_add_one (j - 1) (zero_lt_sub_of_lt j_ge_2)]
       rw [segment_height]
       sorry
-      -/
+-/
+
+public theorem t20260129 (n : ℕ) : n = 2 ^ n.size → Segment.segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
+  intro hn
+  rw (occs := .pos [1]) [←sum_of_trailing_zeros_prop n hn]
+  simp only [Segment.unfold_segmentIdOver_of_sum]

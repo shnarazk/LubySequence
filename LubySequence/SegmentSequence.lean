@@ -480,4 +480,14 @@ public theorem unfold_segmentIdOver_start (t : ℕ) : segmentIdOver (one + t).st
   rw [←s2]
   exact segmentOver_of_sum_of_trailing_zeros t
 
+public theorem unfold_segmentIdOver_of_sum (t : ℕ) : segmentIdOver (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = t + 2 := by
+  have unfold_segment_start (t : ℕ): (one + t).start = ∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1) := by
+    exact unfold_segment_start t
+  simp only [←unfold_segment_start]
+  -- have s2 : (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = (one + t).start := by
+  --   exact Eq.symm (unfold_segment_start t)
+  -- rw [←s2]
+  simp only [next_segment_is_covering_segment]
+  simp only [unfold_segment_index]
+
 end Segment
