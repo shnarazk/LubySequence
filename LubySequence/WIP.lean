@@ -101,14 +101,29 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       sorry
 -/
 
-public theorem t20260129 (n : ℕ) : n = 2 ^ n.size → Segment.segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
+/- n = 2 ^ n.size なんて数はない -/
+/-
+public theorem t20260129 (n : ℕ) : n = 2 ^ n.size - 1 → Segment.segmentIdOver ((2 : ℕ) * n + 1) = n + 1 := by
   intro hn
   rw (occs := .pos [1]) [←sum_of_trailing_zeros_prop n hn]
   simp only [Segment.unfold_segmentIdOver_of_sum]
+-/
 
-public theorem t20260130 (n : ℕ) : n = 2 ^ n.size → Segment.segmentIdOver ((2 : ℕ) * n - 2) = n + 1 := by
+-- open Segment
+
+/-
+public theorem t20260130 (n : ℕ) : n = 2 ^ n.size → segmentIdOver ((2 : ℕ) * n - 2) = n + 1 := by
   intro hn
   have n2 := t20260129 n hn
-  -- segmentIdOverの性質を使うのではなくone + (n +1)のsegmentのstartとlengthから必要なことは導出できるのでは
-  -- apply?
+  -- segmentIdOverに戻すことなくone + (n + 1)のstartとlengthから必要なことは導出できるのではでは
+  have start : (one + (n + 2)).start = 2 * n + 1 := by
+    simp only [unfold_segment_start]
+    simp only [Finset.sum_range_add]
+    simp only [sum_of_trailing_zeros_prop n hn]
+    rw (occs := .pos [2]) [hn]
+    simp [Finset.range]
+    have s1 : trailing_zeros (2 ^ n.size + 1 + 1) = trailing_zeros (1 + 1) := by
+      apply?
+    sorry
   sorry
+-/
