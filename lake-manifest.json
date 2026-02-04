@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": null,
    "scope": "leanprover",
-   "rev": "7be6082d00bb0cfc1e136505dba7718cd5fcaa84",
+   "rev": "437bd7d8c71e5cc00132d66eaf96f2acc0382c1c",
    "name": "«doc-gen4»",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",
