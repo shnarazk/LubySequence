@@ -23,8 +23,8 @@
       {
         devShells.default = pkgs.mkShell {
           packages = [
-            pkgs.bashInteractive
             pkgs.elan
+            home.packages.${system}.nvim4lean
             pkgs.tinymist
             pkgs.typst
           ];
