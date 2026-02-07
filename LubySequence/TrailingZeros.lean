@@ -1,6 +1,6 @@
 module
 
-import Mathlib.Tactic
+public import Mathlib.Tactic
 public import Mathlib.Data.Nat.Size
 public import Mathlib.Algebra.BigOperators.Group.Finset.Defs
 public import LubySequence.Size
@@ -643,8 +643,7 @@ public theorem sum_of_trailing_zeros_prop_useless :
       simp [ih]
       grind
 
-/-
-public theorem sum_of_trailing_zeros_prop :
+/- public theorem sum_of_trailing_zeros_prop :
     ∀ n : ℕ, n = (2 : ℕ) ^ (n.size - 1) → ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = (2 : ℕ) * n - 1 := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -660,15 +659,17 @@ public theorem sum_of_trailing_zeros_prop :
         refine even_pow.mpr ?_
         · sorry -- apply?
         -- exact (even_pow' (Nat.pos_iff_ne_zero.mp (size_pos.mpr n_gt_0))).mpr (even_iff.mpr rfl)
-      have : n / 2 = 2 ^ (n / 2).size := by
+      have : n / 2 = 2 ^ ((n / 2).size - 1) := by
+        apply?
         rw (occs := .pos [1]) [n_is_pow2]
-        have left : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
-          refine Nat.div_eq_of_eq_mul_left Nat.two_pos ?_
-          · rw [←pow_succ]
-            exact congrArg (HPow.hPow 2) (id (Eq.symm nsize_pm))
-        have right : 2 ^ (n / 2).size = 2 ^ (n.size - 1) := by
-          exact (Nat.pow_right_inj (Nat.one_lt_two)).mpr (size_div n_gt_0 (Even.two_dvd even))
-        simp [left, right]
+        rw [←mul_cancel_left_mem_nonZeroDivisors 2 _ _]
+        -- have left : 2 ^ n.size / 2 = 2 ^ (n.size - 1) := by
+        --   refine Nat.div_eq_of_eq_mul_left Nat.two_pos ?_
+        --   · rw [←pow_succ]
+        --     exact congrArg (HPow.hPow 2) (id (Eq.symm nsize_pm))
+        -- have right : 2 ^ (n / 2).size = 2 ^ (n.size - 1) := by
+        --   exact (Nat.pow_right_inj (Nat.one_lt_two)).mpr (size_div n_gt_0 (Even.two_dvd even))
+        -- simp [left, right]
       replace ih := ih this
       replace : n = n / 2 + n / 2 := by grind
       rw [this]
