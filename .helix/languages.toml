@@ -1,7 +1,0 @@
-[[language]]
-name = "lean"
-language-servers = ["lean-tui"]
-
-[language-server.lean-tui]
-args = ["proxy"]
-command = "lean-tui"
