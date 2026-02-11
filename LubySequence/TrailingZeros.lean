@@ -644,7 +644,7 @@ public theorem sum_of_trailing_zeros_prop_useless :
       grind
 
 -- The following was proved by Aristotle:
-theorem sum_of_trailing_zeros_prop :
+public theorem sum_of_trailing_zeros_prop :
     ∀ n : ℕ, n = (2 : ℕ) ^ (n.size - 1) → ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = (2 : ℕ) * n - 1 := by
   intro n hn
   have h_sum_powers_of_two : ∀ k : ℕ, ∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (i + 1) + 1) = 2 * 2 ^ k - 1 := by
