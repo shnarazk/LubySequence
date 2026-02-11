@@ -27,6 +27,7 @@
             home.packages.${system}.nvim4lean
             pkgs.tinymist
             pkgs.typst
+            pkgs.uv
           ];
         };
       }
