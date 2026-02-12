@@ -101,6 +101,8 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
       sorry
 -/
 
+open Finset Segment
+
 /--
 For a power of two `n = 2 ^ (n.size - 1)`, the segment ID covering position `2 * n - 1`
 (the last position of the envelope of size `2 * n`) equals `n + 2`.
@@ -110,21 +112,21 @@ since `n = 2 ^ (n.size - 1)` holds exactly when `n` is a power of two.
 The proof rewrites the position `2 * n - 1` as the cumulative sum of trailing-zeros-based
 segment lengths via `sum_of_trailing_zeros_prop`, then applies `unfold_segmentIdOver_of_sum`.
 -/
-public theorem segmentIdAtEnvelope1 (n : ℕ) : n = 2 ^ (n.size - 1) → Segment.segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
+public theorem segmentId_at_next_of_envelope1 (n : ℕ) : n = 2 ^ (n.size - 1) → segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
   intro hn
   rw (occs := .pos [1]) [←sum_of_trailing_zeros_prop n hn]
-  simp only [Segment.unfold_segmentIdOver_of_sum]
+  simp only [unfold_segmentIdOver_of_sum]
 
 /--
 For any `n`, the segment ID covering position `2 ^ (n + 1) - 1`
 (the last position of the envelope of size `2 ^ (n + 1)`) equals `2 ^ n + 2`.
 
-This is the unconditional specialization of `segmentIdAtEnvelope1` obtained by
+This is the unconditional specialization of `segmentId_at_next_envelope1` obtained by
 setting `n := 2 ^ k`. The hypothesis `2 ^ k = 2 ^ ((2 ^ k).size - 1)` is
 discharged automatically using `size_of_pow2_eq_self_add_one`, which gives
 `(2 ^ k).size = k + 1`.
 -/
-public theorem segmentIdAtEnvelope2 (n : ℕ) : Segment.segmentIdOver (2 ^ (n + 1) - 1) = 2 ^ n + 2 := by
+public theorem segmentId_at_next_of_envelope1' (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 1) = 2 ^ n + 2 := by
   have h : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
     rw [size_of_pow2_eq_self_add_one]; simp
   rw [pow_succ, mul_comm]
