@@ -132,7 +132,15 @@ public theorem segmentId_at_next_of_envelope1' (n : ℕ) : segmentIdOver (2 ^ (n
   rw [pow_succ, mul_comm]
   exact segmentId_at_next_of_envelope1 (2 ^ n) h
 
-public theorem segmentId_at_next_of_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 2) = 2 ^ n + 1 := by
+/--
+For any `n`, the segment ID covering position `2 ^ (n + 1) - 2`
+(the last position before the next envelope boundary) equals `2 ^ n + 1`.
+
+This follows by rewriting the envelope position as the cumulative sum of segment lengths,
+then applying the characterization of `segmentIdOver` via `Nat.find` and
+monotonicity of `segment_starts`.
+-/
+public theorem segmentId_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 2) = 2 ^ n + 1 := by
   have hpow : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
     rw [size_of_pow2_eq_self_add_one]; simp
   have hsum : ∑ i ∈ range (2 ^ n), (trailing_zeros (i + 1) + 1) = 2 ^ (n + 1) - 1 := by
@@ -161,5 +169,27 @@ public theorem segmentId_at_next_of_envelope (n : ℕ) : segmentIdOver (2 ^ (n +
       exact Nat.le_pred_of_lt hlt
     exact Nat.not_lt_of_ge (Nat.le_trans hmono hle)
 
--- public theorem segment_length_at_next_of_envelope (n : ℕ) : (Segment.ofNat (segmentIdOver (2 ^ (n + 1) - 1))).length = 2 := by
---   sorry
+/--
+For positive `n`, the segment that covers position `2 ^ (n + 1) - 2`
+has length `1`.
+
+The proof uses `segmentId_at_envelope` to identify the segment index and
+then shows `trailing_zeros (2 ^ n + 1) = 0`, so the length
+`trailing_zeros (2 ^ n + 1) + 1` equals `1`.
+-/
+public theorem segment_length_at_next_of_envelope (n : ℕ) (hn : n > 0) :
+    (Segment.ofNat (segmentIdOver (2 ^ (n + 1) - 2))).length = 1 := by
+  rw [segmentId_at_envelope]
+  have hlt : (1 : ℕ) < 2 ^ n := by
+    exact Nat.one_lt_two_pow (Nat.ne_of_gt hn)
+  have htz' : trailing_zeros (1 + 2 ^ n) = trailing_zeros 1 := by
+    refine trailing_zeros_prop7 n 1 ?_ ?_
+    · exact hlt
+    · exact Nat.one_ne_zero
+  have htz1 : trailing_zeros (1 + 2 ^ n) = 0 := by
+    simpa [trailing_zeros1] using htz'
+  have htz : trailing_zeros (2 ^ n + 1) = 0 := by
+    simpa [add_comm] using htz1
+  have h_ofNat : Segment.ofNat (2 ^ n + 1) = one + 2 ^ n := by rfl
+  rw [h_ofNat, unfold_segment_length]
+  simp [htz]
