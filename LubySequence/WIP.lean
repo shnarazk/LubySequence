@@ -130,4 +130,36 @@ public theorem segmentId_at_next_of_envelope1' (n : ℕ) : segmentIdOver (2 ^ (n
   have h : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
     rw [size_of_pow2_eq_self_add_one]; simp
   rw [pow_succ, mul_comm]
-  exact segmentIdAtEnvelope1 (2 ^ n) h
+  exact segmentId_at_next_of_envelope1 (2 ^ n) h
+
+public theorem segmentId_at_next_of_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 2) = 2 ^ n + 1 := by
+  have hpow : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
+    rw [size_of_pow2_eq_self_add_one]; simp
+  have hsum : ∑ i ∈ range (2 ^ n), (trailing_zeros (i + 1) + 1) = 2 ^ (n + 1) - 1 := by
+    simpa [pow_succ, mul_comm] using (sum_of_trailing_zeros_prop (2 ^ n) hpow)
+  have hstart : segment_starts (2 ^ n + 1) = 2 ^ (n + 1) - 1 := by
+    simp [segment_starts, hsum]
+  simp [segmentIdOver]
+  refine
+    (Nat.find_eq_iff
+          (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
+            (fun [DecidablePred fun i ↦ segment_starts i > 2 ^ (n + 1) - 2] ↦
+              segmentIdOver._proof_1 (2 ^ (n + 1) - 2))
+            (funext fun i ↦ gt_iff_lt._simp_1))).mpr ?_
+  constructor
+  · simp [hstart]
+    refine sub_succ_lt_self (2 ^ (n + 1)) 1 ?_
+    · exact one_lt_two_pow' n
+  · intro t ht
+    have ht' : t ≤ 2 ^ n := by exact Nat.le_of_succ_le_succ ht
+    have hmono : segment_starts t ≤ segment_starts (2 ^ n) := segment_starts_is_monotone ht'
+    have hinc : segment_starts (2 ^ n) < segment_starts (2 ^ n + 1) := by
+      exact segment_starts_is_increasing' (Nat.two_pow_pos n) (lt_add_one (2 ^ n))
+    have hle : segment_starts (2 ^ n) ≤ 2 ^ (n + 1) - 2 := by
+      have hlt : segment_starts (2 ^ n) < 2 ^ (n + 1) - 1 := by
+        simpa [hstart] using hinc
+      exact Nat.le_pred_of_lt hlt
+    exact Nat.not_lt_of_ge (Nat.le_trans hmono hle)
+
+-- public theorem segment_length_at_next_of_envelope (n : ℕ) : (Segment.ofNat (segmentIdOver (2 ^ (n + 1) - 1))).length = 2 := by
+--   sorry
