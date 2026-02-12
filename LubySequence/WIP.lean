@@ -112,7 +112,7 @@ since `n = 2 ^ (n.size - 1)` holds exactly when `n` is a power of two.
 The proof rewrites the position `2 * n - 1` as the cumulative sum of trailing-zeros-based
 segment lengths via `sum_of_trailing_zeros_prop`, then applies `unfold_segmentIdOver_of_sum`.
 -/
-public theorem segmentId_at_next_of_envelope1 (n : ℕ) : n = 2 ^ (n.size - 1) → segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
+public theorem segmentIdOver_at_next_of_envelope1 (n : ℕ) : n = 2 ^ (n.size - 1) → segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
   intro hn
   rw (occs := .pos [1]) [←sum_of_trailing_zeros_prop n hn]
   simp only [unfold_segmentIdOver_of_sum]
@@ -121,16 +121,16 @@ public theorem segmentId_at_next_of_envelope1 (n : ℕ) : n = 2 ^ (n.size - 1) �
 For any `n`, the segment ID covering position `2 ^ (n + 1) - 1`
 (the last position of the envelope of size `2 ^ (n + 1)`) equals `2 ^ n + 2`.
 
-This is the unconditional specialization of `segmentId_at_next_envelope1` obtained by
+This is the unconditional specialization of `segmentIdOver_at_next_envelope1` obtained by
 setting `n := 2 ^ k`. The hypothesis `2 ^ k = 2 ^ ((2 ^ k).size - 1)` is
 discharged automatically using `size_of_pow2_eq_self_add_one`, which gives
 `(2 ^ k).size = k + 1`.
 -/
-public theorem segmentId_at_next_of_envelope1' (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 1) = 2 ^ n + 2 := by
+public theorem segmentIdOver_at_next_of_envelope1' (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 1) = 2 ^ n + 2 := by
   have h : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
     rw [size_of_pow2_eq_self_add_one]; simp
   rw [pow_succ, mul_comm]
-  exact segmentId_at_next_of_envelope1 (2 ^ n) h
+  exact segmentIdOver_at_next_of_envelope1 (2 ^ n) h
 
 /--
 For any `n`, the segment ID covering position `2 ^ (n + 1) - 2`
@@ -140,7 +140,7 @@ This follows by rewriting the envelope position as the cumulative sum of segment
 then applying the characterization of `segmentIdOver` via `Nat.find` and
 monotonicity of `segment_starts`.
 -/
-public theorem segmentId_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 2) = 2 ^ n + 1 := by
+public theorem segmentIdOver_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 2) = 2 ^ n + 1 := by
   have hpow : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
     rw [size_of_pow2_eq_self_add_one]; simp
   have hsum : ∑ i ∈ range (2 ^ n), (trailing_zeros (i + 1) + 1) = 2 ^ (n + 1) - 1 := by
@@ -179,7 +179,7 @@ then shows `trailing_zeros (2 ^ n + 1) = 0`, so the length
 -/
 public theorem segment_length_at_next_of_envelope (n : ℕ) (hn : n > 0) :
     (Segment.ofNat (segmentIdOver (2 ^ (n + 1) - 2))).length = 1 := by
-  rw [segmentId_at_envelope]
+  rw [segmentIdOver_at_envelope]
   have hlt : (1 : ℕ) < 2 ^ n := by
     exact Nat.one_lt_two_pow (Nat.ne_of_gt hn)
   have htz' : trailing_zeros (1 + 2 ^ n) = trailing_zeros 1 := by
