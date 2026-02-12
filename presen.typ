@@ -190,26 +190,29 @@ $
 
 == indices on the natural number triangle
 
+index $arrow$ (\#segment index, index in segment)
+
 #canvas(length: 10pt, {
   draw.set-style(content: (padding: (0.4em, 0.04em)))
   tree.tree(spread: 0.4,
-    ( text(fill: blue, [$15 arrow (\#8, 3)$]),
-      ( text(fill: blue, [$7 arrow (\#4, 2)$]),
-        ( text(fill: blue, [$3 arrow (\#2, 1)$]),
-          (text(fill: red, [$1 arrow (\#1, 0)$])),
-          (text(fill: blue, [$2 arrow (\#2, 0)$])), ),
+    ( text(fill: blue, [$14 arrow (\#8, 3)$]),
+      ( text(fill: blue, [$6 arrow (\#4, 2)$]),
+        ( text(fill: blue, [$2 arrow (\#2, 1)$]),
+          (text(fill: red, [$0 arrow (\#1, 0)$])),
+          (text(fill: blue, [$1 arrow (\#2, 0)$])), ),
         ( text(fill: blue, [$(\#4, 1)$]),
-          (text(fill: red, [$4 arrow (\#3, 0)$])),
-          (text(fill: blue, [$5 arrow (\#4, 0)$])), ), ),
+          (text(fill: red, [$3 arrow (\#3, 0)$])),
+          (text(fill: blue, [$4 arrow (\#4, 0)$])), ), ),
       ( text(fill: blue, [$(\#8, 2)$]),
         ( text(fill: blue, [$(\#6, 1)$]),
-          (text(fill: red, [$8 arrow (\#5, 0)$])),
-          (text(fill: blue, [$9 arrow (\#6, 0)$])), ),
+          (text(fill: red, [$7 arrow (\#5, 0)$])),
+          (text(fill: blue, [$8 arrow (\#6, 0)$])), ),
         ( text(fill: blue, [$(\#8, 1)$]),
-          (text(fill: red, [$11 arrow (\#7, 0)$])),
+          (text(fill: red, [$10 arrow (\#7, 0)$])),
           (text(fill: blue, [$(\#8, 0)$])), ), )) )
 })
-#text(size: 18pt, fill: green.darken(40%))[Both of the index of Luby sequence and the index of segments start from 1.]
+#text(size: 18pt, fill: green.darken(40%))[
+The index of Luby sequence starts from 0; the index of segments starts from 1.]
 #pause
 
 Segments start at 1, 2, 4, 5, 8, 9, 11, 12 ...
