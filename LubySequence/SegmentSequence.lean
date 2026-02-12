@@ -321,6 +321,14 @@ which identifies the boundary between segments covering and not covering positio
 public def segmentIdOver (n : ℕ) : ℕ :=
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
+@[expose]
+public def segmentIdCovering (n : ℕ) : ℕ :=
+  have : segment_starts (n + 1) ≥ n := by
+    have : segment_starts (n - 1 + 2) > n - 1 := by exact segment_starts_gt_self (n - 1)
+    replace : segment_starts (n - 1 + 2) ≥ n := by exact Nat.le_of_pred_lt this
+    exact segment_starts_ge_self n
+  Nat.find (by exact Exists.intro (n + 1) this : ∃ i : ℕ, segment_starts i ≥ n)
+
 /--
 The segment ID covering position 0 is 2.
 This is the base case showing that position 0 lies within the first segment,
