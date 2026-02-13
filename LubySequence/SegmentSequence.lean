@@ -137,12 +137,12 @@ public theorem segment_start_is_increasing : ∀ t : ℕ, (one + t).start < (one
 
 /--
 Convert a natural number to a segment by advancing from the initial segment.
-For `s = 0`, returns a segment with index 0 and start 0.
+For `s = 0`, returns a segment with index 1 and start 0.
 For `s > 0`, returns the segment reached after `s - 1` steps from `one`.
 -/
 @[expose, simp]
 public def ofNat (t : ℕ) : Segment := match t with
-  | 0 => ⟨0, 0⟩
+  | 0 => one
   | i + 1 => one + i
 
 -- Basic examples demonstrating segment operations
