@@ -213,12 +213,13 @@ public theorem unfold_segment_start : ∀ t : ℕ, (one + t).start = ∑ i ∈ r
 /--
 Compute the start position for segment index `t`.
 Returns the cumulative sum of lengths of the 1 to `t`-th segments.
+It is an (zero-based) index, not a (one-based) segment index.
 -/
 @[expose]
 public def segment_starts (t : ℕ) : ℕ := ∑ i ∈ range (t - 1), (trailing_zeros (i + 1) + 1)
 
 -- Examples showing segment_starts computation
-example : segment_starts 0 = 0 := by simp [segment_starts]
+-- example : segment_starts 0 = 0 -- 0 is not a valid segment index
 example : segment_starts 1 = 0 := by simp [segment_starts]
 example : segment_starts 2 = 1 := by simp [segment_starts]
 example : segment_starts 3 = 3 := by simp [segment_starts, range, trailing_zeros]
@@ -329,11 +330,12 @@ This is the non-strict variant of `segmentIdOver`, which uses `>` instead of `�
 -/
 @[expose]
 public def segmentIdCovering (n : ℕ) : ℕ :=
-  have : segment_starts (n + 1) ≥ n := by
+  have s1 : n + 1 > 0 := by exact Nat.zero_lt_succ n
+  have s2 : segment_starts (n + 1) ≥ n := by
     have : segment_starts (n - 1 + 2) > n - 1 := by exact segment_starts_gt_self (n - 1)
     replace : segment_starts (n - 1 + 2) ≥ n := by exact Nat.le_of_pred_lt this
     exact segment_starts_ge_self n
-  Nat.find (by exact Exists.intro (n + 1) this : ∃ i : ℕ, segment_starts i ≥ n)
+  Nat.find (by exact Exists.intro (n + 1) ⟨s1, s2⟩ : ∃ i > 0, segment_starts i ≥ n)
 
 /--
 The segment ID covering position 0 is 2.
@@ -358,7 +360,15 @@ public theorem segmentIdOver_0 : segmentIdOver 0 = 2 := by
         simp [n_eq_0]
         simp [segment_starts]
 
-public theorem segmentIdCovering_0 : segmentIdCovering 0 = 0 := by simp [segmentIdCovering]
+/--
+The segment ID covering position 0 is 1.
+Since `segment_starts i ≥ 0` holds for all `i` and the `i > 0` constraint
+excludes 0, `Nat.find` returns the smallest positive `i`, which is 1.
+-/
+public theorem segmentIdCovering_0 : segmentIdCovering 0 = 1 := by
+  simp [segmentIdCovering]
+  rw [Nat.find_eq_iff]
+  exact ⟨by simp, fun n hn => by omega⟩
 
 /--
 Extend the initial segment to cover position `limit`.
@@ -368,15 +378,18 @@ using `findLargestCoveredSegment` to determine the appropriate number of steps.
 @[expose]
 public def segmentOver (limit : ℕ) : Segment := Segment.ofNat (segmentIdOver limit)
 
+/--
+Returns the segment including index `n`.
+-/
 @[expose]
-public def segmentCovering (limit : ℕ) : Segment := Segment.ofNat (segmentIdCovering limit)
+public def segmentCovering (n : ℕ) : Segment := Segment.ofNat (segmentIdCovering n)
 
+-- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).start, (one + (t + 1)).index)
 /--
 For any segment `one + t`, the segment ID covering its start position is the next segment's index.
 Specifically, `segmentIdOver (one + t).start = (one + (t + 1)).index`.
 This establishes the relationship between segment positions and their covering segment IDs.
 -/
--- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).start, (one + (t + 1)).index)
 public theorem next_segment_is_covering_segment : ∀ t : ℕ,
     segmentIdOver (one + t).start = (one + (t + 1)).index := by
   intro n
