@@ -358,6 +358,8 @@ public theorem segmentIdOver_0 : segmentIdOver 0 = 2 := by
         simp [n_eq_0]
         simp [segment_starts]
 
+public theorem segmentIdCovering_0 : segmentIdCovering 0 = 0 := by simp [segmentIdCovering]
+
 /--
 Extend the initial segment to cover position `limit`.
 Returns the segment that contains position `limit` by advancing from `one`
