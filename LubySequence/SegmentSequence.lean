@@ -321,6 +321,12 @@ which identifies the boundary between segments covering and not covering positio
 public def segmentIdOver (n : ℕ) : ℕ :=
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
+/--
+Find the smallest segment index whose start position is at least `n`.
+Uses `Nat.find` to locate the smallest index `i` where `segment_starts i ≥ n`,
+identifying the segment that covers position `n`.
+This is the non-strict variant of `segmentIdOver`, which uses `>` instead of `≥`.
+-/
 @[expose]
 public def segmentIdCovering (n : ℕ) : ℕ :=
   have : segment_starts (n + 1) ≥ n := by
