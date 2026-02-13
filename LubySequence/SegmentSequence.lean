@@ -440,8 +440,9 @@ public theorem covering_segment_is_self : ∀ t : ℕ,
     simp only [segmentIdCovering]
     rw [Nat.find_eq_iff]
     constructor
-    · -- segment_starts (n + 2) ≥ (one + (n + 1)).start
-      rw [←segment_starts_to_segment_start]
+    · constructor
+      · grind
+      · rw [←segment_starts_to_segment_start]
     · -- ∀ i < n + 2, ¬(segment_starts i ≥ (one + (n + 1)).start)
       intro i hi hge
       obtain rfl | hpos := Nat.eq_zero_or_pos i
