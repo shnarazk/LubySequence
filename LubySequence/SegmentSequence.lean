@@ -368,6 +368,9 @@ using `findLargestCoveredSegment` to determine the appropriate number of steps.
 @[expose]
 public def segmentOver (limit : ℕ) : Segment := Segment.ofNat (segmentIdOver limit)
 
+@[expose]
+public def segmentCovering (limit : ℕ) : Segment := Segment.ofNat (segmentIdCovering limit)
+
 /--
 For any segment `one + t`, the segment ID covering its start position is the next segment's index.
 Specifically, `segmentIdOver (one + t).start = (one + (t + 1)).index`.
