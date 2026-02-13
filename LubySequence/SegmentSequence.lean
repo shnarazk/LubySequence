@@ -409,6 +409,41 @@ public theorem next_segment_is_covering_segment : ∀ t : ℕ,
             exact Nat.le_of_succ_le lt
         exact Nat.le_lt_asymm this
 
+private theorem ofNat_index : ∀ n, (Segment.ofNat n).index = max n 1 := by
+  intro n
+  cases n with
+  | zero => simp [ofNat]
+  | succ k => simp only [ofNat]; rw [unfold_segment_index]; omega
+
+public theorem covering_segment_is_self : ∀ t : ℕ,
+    (Segment.ofNat (segmentIdCovering (one + t).start)).index = (one + t).index := by
+  intro t
+  cases t with
+  | zero =>
+    simp only [HAdd.hAdd, next, segmentIdCovering_0, ofNat, one]
+  | succ n =>
+    rw [ofNat_index, unfold_segment_index]
+    suffices h : segmentIdCovering (one + (n + 1)).start = n + 2 by omega
+    simp only [segmentIdCovering]
+    rw [Nat.find_eq_iff]
+    constructor
+    · -- segment_starts (n + 2) ≥ (one + (n + 1)).start
+      rw [←segment_starts_to_segment_start]
+    · -- ∀ i < n + 2, ¬(segment_starts i ≥ (one + (n + 1)).start)
+      intro i hi hge
+      obtain rfl | hpos := Nat.eq_zero_or_pos i
+      · -- i = 0: segment_starts 0 ≤ segment_starts 1 < (one + (n + 1)).start
+        have h1 : segment_starts 0 ≤ segment_starts 1 := segment_starts_is_monotone (by omega)
+        have h2 : segment_starts 1 < (one + (n + 1)).start := by
+          rw [←segment_starts_to_segment_start]
+          exact segment_starts_is_increasing' (by omega) (by omega)
+        omega
+      · -- i > 0 and i < n + 2: strict monotonicity gives contradiction
+        have : segment_starts i < (one + (n + 1)).start := by
+          rw [←segment_starts_to_segment_start]
+          exact segment_starts_is_increasing' hpos hi
+        omega
+
 /--
 For any segment `one + t`, the segment ID covering its `nextStart` position equals `t + 3`.
 This is expressed as `segmentIdOver (one + t).nextStart = (one + (t + 2)).index`.
