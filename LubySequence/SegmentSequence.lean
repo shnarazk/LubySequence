@@ -734,6 +734,16 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
 
 public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ n.size - 1 → luby_via_segment n = 1 := by
-  sorry
+  intro _
+  simp only [luby_via_segment]
+  -- The covering segment's start is always ≥ n, so n - start = 0 and 2^0 = 1.
+  have hpos := segmentIdCovering_pos n
+  have hge := segmentIdCovering_ge n
+  obtain ⟨k, hk⟩ : ∃ k, segmentIdCovering n = k + 1 := ⟨segmentIdCovering n - 1, by omega⟩
+  rw [hk]
+  have hst : (Segment.ofNat (k + 1)).start = segment_starts (k + 1) :=
+    (segment_starts_to_segment_start k).symm
+  rw [hst, ← hk]
+  simp [Nat.sub_eq_zero_of_le hge]
 
 end Segment
