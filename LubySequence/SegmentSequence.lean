@@ -734,6 +734,17 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
 
 public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ (n.size - 1) - 1 → luby_via_segment n = 1 := by
-  sorry
+  intro hn
+  have hn0 : n = 0 := by
+    by_contra hne
+    have hpos : n > 0 := Nat.pos_iff_ne_zero.mpr hne
+    have hpred : 2 ^ (n.size - 1) - 1 < 2 ^ (n.size - 1) := by
+      exact Nat.sub_lt (Nat.two_pow_pos (n.size - 1)) (by omega)
+    have hlt : 2 ^ (n.size - 1) - 1 < n := by
+      exact lt_of_lt_of_le hpred (n_lower hpos)
+    have : n < n := by simpa [hn] using hlt
+    exact (Nat.lt_irrefl n) this
+  rw [hn0]
+  simp [luby_via_segment, segmentIdCovering_0]
 
 end Segment
