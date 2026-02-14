@@ -734,7 +734,7 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
 
 public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ n.size - 1 → luby_via_segment n = 1 := by
-  intro _
+  intro hn
   have hid_pos : segmentIdCovering n > 0 := segmentIdCovering_pos n
   have hstart_eq : (Segment.ofNat (segmentIdCovering n)).start = segment_starts (segmentIdCovering n) := by
     rcases Nat.exists_eq_succ_of_ne_zero (Nat.ne_of_gt hid_pos) with ⟨k, hk⟩
