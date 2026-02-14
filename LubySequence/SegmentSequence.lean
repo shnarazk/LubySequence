@@ -581,8 +581,8 @@ private theorem segmentIdCovering_ge (m : ℕ) : segment_starts (segmentIdCoveri
   show segment_starts (Nat.find h) ≥ m
   exact hge
 
-public theorem segmentId_is_continuous (n : ℕ) : (h : n > 0) → segmentIdCovering n = segmentIdCovering (n + 1) ∨ segmentIdCovering n + 1 = segmentIdCovering (n + 1) := by
-  intro _
+/-- The segment of the next index is same or add one. -/
+public theorem segmentId_is_continuous (n : ℕ) : segmentIdCovering n = segmentIdCovering (n + 1) ∨ segmentIdCovering n + 1 = segmentIdCovering (n + 1) := by
   -- Lower bound: segmentIdCovering is monotone (weaker predicate ⇒ smaller Nat.find)
   have lb : segmentIdCovering n ≤ segmentIdCovering (n + 1) := by
     simp only [segmentIdCovering]

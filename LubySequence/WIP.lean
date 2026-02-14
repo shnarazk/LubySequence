@@ -188,7 +188,7 @@ the start position of `segmentOver n` minus one equals `n`.
 This follows from `segmentIdOver_at_envelope`, which identifies the covering segment,
 and `sum_of_trailing_zeros_prop`, which computes its start position.
 -/
-theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmentOver n).start - 1 = n := by
+public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmentOver n).start - 1 = n := by
   intro n n_gt_0 n_eq
   -- Step 1: n.size ≥ 2 (since n > 0 and n = 2^(n.size) - 2)
   have h_size_ge : n.size ≥ 2 := by
