@@ -558,4 +558,47 @@ public theorem unfold_segmentIdOver_of_sum (t : ℕ) : segmentIdOver (∑ i ∈ 
   simp only [next_segment_is_covering_segment]
   simp only [unfold_segment_index]
 
+/-- `segmentIdCovering m` is at most `j` whenever `j > 0` and `segment_starts j ≥ m`. -/
+private theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_starts j ≥ m) :
+    segmentIdCovering m ≤ j := by
+  simp only [segmentIdCovering]
+  apply Nat.find_min'
+  constructor
+  · exact hj_pos
+  · exact hj_ge
+
+/-- The value returned by `segmentIdCovering` is always positive. -/
+private theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
+  have h : ∃ i > 0, segment_starts i ≥ m := ⟨m + 1, by omega, segment_starts_ge_self m⟩
+  obtain ⟨hpos, _⟩ := Nat.find_spec h
+  show Nat.find h > 0
+  exact hpos
+
+/-- `segment_starts (segmentIdCovering m) ≥ m`: the covering segment starts at or after `m`. -/
+private theorem segmentIdCovering_ge (m : ℕ) : segment_starts (segmentIdCovering m) ≥ m := by
+  have h : ∃ i > 0, segment_starts i ≥ m := ⟨m + 1, by omega, segment_starts_ge_self m⟩
+  obtain ⟨_, hge⟩ := Nat.find_spec h
+  show segment_starts (Nat.find h) ≥ m
+  exact hge
+
+public theorem segmentId_is_continuous (n : ℕ) : (h : n > 0) → segmentIdCovering n = segmentIdCovering (n + 1) ∨ segmentIdCovering n + 1 = segmentIdCovering (n + 1) := by
+  intro _
+  -- Lower bound: segmentIdCovering is monotone (weaker predicate ⇒ smaller Nat.find)
+  have lb : segmentIdCovering n ≤ segmentIdCovering (n + 1) := by
+    simp only [segmentIdCovering]
+    apply Nat.find_mono
+    intro i hi
+    exact ⟨hi.1, by omega⟩
+  -- Upper bound: segmentIdCovering n + 1 is a valid candidate for segmentIdCovering (n + 1)
+  have ub : segmentIdCovering (n + 1) ≤ segmentIdCovering n + 1 := by
+    have hpos := segmentIdCovering_pos n
+    have hge := segmentIdCovering_ge n
+    have h_incr : segment_starts (segmentIdCovering n) < segment_starts (segmentIdCovering n + 1) :=
+      segment_starts_is_increasing' hpos (by omega : segmentIdCovering n < segmentIdCovering n + 1)
+    exact segmentIdCovering_le (by omega) (by omega)
+  -- Combine: k ≤ segmentIdCovering (n + 1) ≤ k + 1 implies equality to k or k + 1
+  rcases Nat.eq_or_lt_of_le lb with h1 | h1
+  · left; exact h1
+  · right; omega
+
 end Segment
