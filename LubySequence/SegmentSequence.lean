@@ -731,4 +731,9 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
   have : 1 ≤ 2 ^ k := Nat.one_le_two_pow
   omega
 
+public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
+
+public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ (n.size - 1) - 1 → luby_via_segment n = 1 := by
+  sorry
+
 end Segment
