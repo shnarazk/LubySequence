@@ -1,8 +1,12 @@
 module
 
-import Mathlib.Tactic
+public import Mathlib.Tactic
 public import Mathlib.Data.Nat.Find
+-- public import LubySequence.Utils
+-- public import LubySequence.Basic
 public import LubySequence.TrailingZeros
+
+attribute [local simp] Nat.binaryRec
 
 /-!
 # Segment Sequence
@@ -600,5 +604,131 @@ public theorem segmentId_is_continuous (n : ℕ) : segmentIdCovering n = segment
   rcases Nat.eq_or_lt_of_le lb with h1 | h1
   · left; exact h1
   · right; omega
+
+/--
+For a power of two `n = 2 ^ (n.size - 1)`, the segment ID covering position `2 * n - 1`
+(the last position of the envelope of size `2 * n`) equals `n + 2`.
+
+This is the conditional form: the hypothesis restricts `n` to be a power of two,
+since `n = 2 ^ (n.size - 1)` holds exactly when `n` is a power of two.
+The proof rewrites the position `2 * n - 1` as the cumulative sum of trailing-zeros-based
+segment lengths via `sum_of_trailing_zeros_prop`, then applies `unfold_segmentIdOver_of_sum`.
+-/
+public theorem segmentIdOver_at_next_of_envelope1 (n : ℕ) : n = 2 ^ (n.size - 1) → segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
+  intro hn
+  rw (occs := .pos [1]) [←sum_of_trailing_zeros_prop n hn]
+  simp only [unfold_segmentIdOver_of_sum]
+
+/--
+For any `n`, the segment ID covering position `2 ^ (n + 1) - 1`
+(the last position of the envelope of size `2 ^ (n + 1)`) equals `2 ^ n + 2`.
+
+This is the unconditional specialization of `segmentIdOver_at_next_envelope1` obtained by
+setting `n := 2 ^ k`. The hypothesis `2 ^ k = 2 ^ ((2 ^ k).size - 1)` is
+discharged automatically using `size_of_pow2_eq_self_add_one`, which gives
+`(2 ^ k).size = k + 1`.
+-/
+public theorem segmentIdOver_at_next_of_envelope1' (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 1) = 2 ^ n + 2 := by
+  have h : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
+    rw [size_of_pow2_eq_self_add_one]; simp
+  rw [pow_succ, mul_comm]
+  exact segmentIdOver_at_next_of_envelope1 (2 ^ n) h
+
+/--
+For any `n`, the segment ID covering position `2 ^ (n + 1) - 2`
+(the last position before the next envelope boundary) equals `2 ^ n + 1`.
+
+This follows by rewriting the envelope position as the cumulative sum of segment lengths,
+then applying the characterization of `segmentIdOver` via `Nat.find` and
+monotonicity of `segment_starts`.
+-/
+public theorem segmentIdOver_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 2) = 2 ^ n + 1 := by
+  have hpow : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
+    rw [size_of_pow2_eq_self_add_one]; simp
+  have hsum : ∑ i ∈ range (2 ^ n), (trailing_zeros (i + 1) + 1) = 2 ^ (n + 1) - 1 := by
+    simpa [pow_succ, mul_comm] using (sum_of_trailing_zeros_prop (2 ^ n) hpow)
+  have hstart : segment_starts (2 ^ n + 1) = 2 ^ (n + 1) - 1 := by
+    simp [segment_starts, hsum]
+  simp [segmentIdOver]
+  refine
+    (Nat.find_eq_iff
+          (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
+            (fun [DecidablePred fun i ↦ segment_starts i > 2 ^ (n + 1) - 2] ↦
+              segmentIdOver._proof_1 (2 ^ (n + 1) - 2))
+            (funext fun i ↦ gt_iff_lt._simp_1))).mpr ?_
+  constructor
+  · simp [hstart]
+    refine Nat.sub_succ_lt_self (2 ^ (n + 1)) 1 ?_
+    · exact Nat.one_lt_two_pow' n
+  · intro t ht
+    have ht' : t ≤ 2 ^ n := by exact Nat.le_of_succ_le_succ ht
+    have hmono : segment_starts t ≤ segment_starts (2 ^ n) := segment_starts_is_monotone ht'
+    have hinc : segment_starts (2 ^ n) < segment_starts (2 ^ n + 1) := by
+      exact segment_starts_is_increasing' (Nat.two_pow_pos n) (lt_add_one (2 ^ n))
+    have hle : segment_starts (2 ^ n) ≤ 2 ^ (n + 1) - 2 := by
+      have hlt : segment_starts (2 ^ n) < 2 ^ (n + 1) - 1 := by
+        simpa [hstart] using hinc
+      exact Nat.le_pred_of_lt hlt
+    exact Nat.not_lt_of_ge (Nat.le_trans hmono hle)
+
+/--
+For positive `n`, the segment that covers position `2 ^ (n + 1) - 2`
+has length `1`.
+
+The proof uses `segmentId_at_envelope` to identify the segment index and
+then shows `trailing_zeros (2 ^ n + 1) = 0`, so the length
+`trailing_zeros (2 ^ n + 1) + 1` equals `1`.
+-/
+public theorem segment_length_at_next_of_envelope (n : ℕ) (hn : n > 0) :
+    (Segment.ofNat (segmentIdOver (2 ^ (n + 1) - 2))).length = 1 := by
+  rw [segmentIdOver_at_envelope]
+  have hlt : (1 : ℕ) < 2 ^ n := by
+    exact Nat.one_lt_two_pow (Nat.ne_of_gt hn)
+  have htz' : trailing_zeros (1 + 2 ^ n) = trailing_zeros 1 := by
+    refine trailing_zeros_prop7 n 1 ?_ ?_
+    · exact hlt
+    · exact Nat.one_ne_zero
+  have htz1 : trailing_zeros (1 + 2 ^ n) = 0 := by
+    simpa [trailing_zeros1] using htz'
+  have htz : trailing_zeros (2 ^ n + 1) = 0 := by
+    simpa [add_comm] using htz1
+  have h_ofNat : Segment.ofNat (2 ^ n + 1) = one + 2 ^ n := by rfl
+  rw [h_ofNat, unfold_segment_length]
+  simp [htz]
+
+/--
+For `n > 0` with `n = 2 ^ n.size - 2` (i.e., `n` is two less than a power of two),
+the start position of `segmentOver n` minus one equals `n`.
+
+This follows from `segmentIdOver_at_envelope`, which identifies the covering segment,
+and `sum_of_trailing_zeros_prop`, which computes its start position.
+-/
+public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmentOver n).start - 1 = n := by
+  intro n n_gt_0 n_eq
+  -- Step 1: n.size ≥ 2 (since n > 0 and n = 2^(n.size) - 2)
+  have h_size_ge : n.size ≥ 2 := by
+    have : n.size ≥ 1 := Nat.size_pos.mpr n_gt_0
+    by_contra h; push_neg at h
+    have : n.size = 1 := by omega
+    rw [this] at n_eq; norm_num at n_eq; omega
+  -- Step 2: Let k = n.size - 1, so n.size = k + 1 and n = 2^(k+1) - 2
+  set k := n.size - 1
+  have hk : n.size = k + 1 := by omega
+  have n_eq' : n = 2 ^ (k + 1) - 2 := by rw [← hk]; exact n_eq
+  -- Step 3: segmentIdOver n = 2^k + 1
+  have h_id : segmentIdOver n = 2 ^ k + 1 := by
+    rw [n_eq']; exact segmentIdOver_at_envelope k
+  -- Step 4: Unfold segmentOver to (one + 2^k)
+  have h_ofNat : Segment.ofNat (2 ^ k + 1) = one + 2 ^ k := rfl
+  simp only [segmentOver, h_id, h_ofNat]
+  -- Step 5: Compute start via sum_of_trailing_zeros_prop
+  rw [unfold_segment_start]
+  have h_pow : (2 : ℕ) ^ k = 2 ^ (((2 : ℕ) ^ k).size - 1) := by
+    rw [size_of_pow2_eq_self_add_one]; simp
+  rw [sum_of_trailing_zeros_prop _ h_pow, n_eq']
+  -- Step 6: Arithmetic: 2 * 2^k - 1 - 1 = 2^(k+1) - 2
+  rw [show 2 ^ (k + 1) = 2 * 2 ^ k from by rw [pow_succ, mul_comm]]
+  have : 1 ≤ 2 ^ k := Nat.one_le_two_pow
+  omega
 
 end Segment
