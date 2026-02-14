@@ -733,18 +733,17 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
 
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
 
-public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ (n.size - 1) - 1 → luby_via_segment n = 1 := by
-  intro hn
-  have hn0 : n = 0 := by
-    by_contra hne
-    have hpos : n > 0 := Nat.pos_iff_ne_zero.mpr hne
-    have hpred : 2 ^ (n.size - 1) - 1 < 2 ^ (n.size - 1) := by
-      exact Nat.sub_lt (Nat.two_pow_pos (n.size - 1)) (by omega)
-    have hlt : 2 ^ (n.size - 1) - 1 < n := by
-      exact lt_of_lt_of_le hpred (n_lower hpos)
-    have : n < n := by simpa [hn] using hlt
-    exact (Nat.lt_irrefl n) this
-  rw [hn0]
-  simp [luby_via_segment, segmentIdCovering_0]
+public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ n.size - 1 → luby_via_segment n = 1 := by
+  intro _
+  have hid_pos : segmentIdCovering n > 0 := segmentIdCovering_pos n
+  have hstart_eq : (Segment.ofNat (segmentIdCovering n)).start = segment_starts (segmentIdCovering n) := by
+    rcases Nat.exists_eq_succ_of_ne_zero (Nat.ne_of_gt hid_pos) with ⟨k, hk⟩
+    rw [hk]
+    simpa [segment_starts_to_segment_start] using (rfl : (Segment.ofNat (k + 1)).start = (one + k).start)
+  have hstart_ge : (Segment.ofNat (segmentIdCovering n)).start ≥ n := by
+    rw [hstart_eq]
+    exact segmentIdCovering_ge n
+  have hsub : n - (Segment.ofNat (segmentIdCovering n)).start = 0 := Nat.sub_eq_zero_of_le hstart_ge
+  simp [luby_via_segment, hsub]
 
 end Segment
