@@ -35,7 +35,6 @@ LubySequence/
 ├── LubySequence.lean          # Root module (imports all components)
 ├── LubySequence/              # Main library modules
 │   ├── Basic.lean            # Core Luby sequence definitions
-│   ├── Tree.lean             # Tree-based model
 │   ├── State.lean            # Iterator/state-machine model
 │   ├── Equivalence.lean      # Proofs connecting models
 │   └── Utils.lean            # Supporting utilities
@@ -66,8 +65,8 @@ When network connectivity prevents downloading dependencies:
   #check Luby.luby_seq
   ```
 - **Offline Validation**: When network prevents building:
-  - Verify file structure: `ls -la LubySequence/` should show Basic.lean, Tree.lean, State.lean, Equivalence.lean, Utils.lean
-  - Check import structure: `cat LubySequence.lean` should import all 5 modules
+  - Verify file structure: `ls -la LubySequence/` should show: Basic.lean, Segment.lean, SegmentSequence.lean, State.lean, Equivalence.lean, Utils.lean, Size.lean, TrailingZeros.lean, and WIP.lean.
+  - Check import structure: `cat LubySequence.lean` should import `Utils`, `Basic`, `Segment`, `SegmentSequence`, `State`, `Equivalence`, and `WIP`
   - Examine module headers for import dependencies and ensure they match file structure
   - Validate lakefile.toml syntax and dependency versions
 
@@ -77,7 +76,6 @@ When network connectivity prevents downloading dependencies:
 - The library uses mathlib v4.28.0-rc1 - ensure compatibility when adding dependencies
 - Key modules to understand:
   - `LubySequence.Basic`: Core recursive definition of Luby sequence
-  - `LubySequence.Tree`: Tree-based envelope model
   - `LubySequence.State`: Iterator implementation
   - `LubySequence.Utils`: Utility functions for binary operations
 - Always check imports when modifying modules - use relative imports within the library

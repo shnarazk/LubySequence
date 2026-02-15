@@ -25,10 +25,6 @@ If you just want to browse the code, start with the top-level module:
   - Includes lemmas relating natural numbers to their binary representation (e.g., using `Nat.size`).
   - Introduces “envelope” utilities used by other modules.
 
-- `LubySequence.Tree`
-  - A tree-based model (`LubyTree`) with levels (starting at 1) and element indices (starting at 0).
-  - Defines envelope size/depth and captures the notion of the smallest tree containing a given number of elements.
-
 - `LubySequence.State`
   - A state-machine/iterator model (`LubyState`) that steps through the sequence.
   - Tracks segment and local indices and shows how successive states produce the Luby values.
@@ -41,7 +37,7 @@ If you just want to browse the code, start with the top-level module:
   - Small general lemmas and utilities for natural numbers, modular arithmetic, and binary size that the main development relies on.
 
 - `LubySequence` (root)
-  - Umbrella module that imports `Basic`, `Tree`, `State`, and `Equivalence`.
+  - Umbrella module that imports `Basic`, `State`, and `Equivalence`.
 
 ## Building
 
