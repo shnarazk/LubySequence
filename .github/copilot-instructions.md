@@ -65,8 +65,8 @@ When network connectivity prevents downloading dependencies:
   #check Luby.luby_seq
   ```
 - **Offline Validation**: When network prevents building:
-  - Verify file structure: `ls -la LubySequence/` should show Basic.lean, State.lean, Equivalence.lean, Utils.lean
-  - Check import structure: `cat LubySequence.lean` should import all 5 modules
+  - Verify file structure: `ls -la LubySequence/` should show: Basic.lean, Segment.lean, SegmentSequence.lean, State.lean, Equivalence.lean, Utils.lean, Size.lean, TrailingZeros.lean, and WIP.lean.
+  - Check import structure: `cat LubySequence.lean` should import `Utils`, `Basic`, `Segment`, `SegmentSequence`, `State`, `Equivalence`, and `WIP`
   - Examine module headers for import dependencies and ensure they match file structure
   - Validate lakefile.toml syntax and dependency versions
 
