@@ -417,7 +417,6 @@ public theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope 
   rw [h_seg_id, ofNat_start_eq t (by omega : t ≥ 1), ofNat_start_eq t' ht'_ge1]
   exact h_offset_eq
 
-/-
 /-! ### Main theorem -/
 
 /--
@@ -448,11 +447,11 @@ public theorem luby_of_next_of_envelop_is_luby (n : ℕ) : luby_via_segment n = 
         by_contra hlt; push_neg at hlt
         have : n = 0 := by omega
         subst this
-        have : Luby.is_envelope 0 = true := by native_decide
+        have : Luby.is_envelope 0 = true := by simp [Luby.is_envelope, Luby.S₂, Nat.size, Nat.binaryRec]
         exact h_nenv this
       have h_S2_ge2 : Luby.S₂ n ≥ 2 := S₂_ge_two' n (by omega)
       have h_dec : n + 1 - Luby.S₂ n < n := by omega
       rw [luby_via_segment_non_envelope n h_nenv]
       exact ih _ h_dec
--/
-end LubyState
+
+      end LubyState
