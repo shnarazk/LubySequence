@@ -125,18 +125,9 @@ private theorem segment_starts_shift (a : ℕ) (m : ℕ) (hm1 : 1 ≤ m) (hm2 : 
 private theorem segment_starts_gt_self' (t : ℕ) : segment_starts (t + 2) > t :=
   Segment.segment_starts_gt_self t
 
-/-- Local: `segmentIdCovering m ≥ 1`. -/
-private theorem segmentIdCovering_pos' (m : ℕ) : segmentIdCovering m ≥ 1 := by
-  simp only [segmentIdCovering, segmentIdOver]
-  have h_exist : ∃ i, segment_starts i > m := ⟨m + 2, segment_starts_gt_self' m⟩
-  suffices h : Nat.find h_exist ≥ 2 by omega
-  by_contra hlt
-  push_neg at hlt
-  have h0 : segment_starts 0 = 0 := by simp [segment_starts]
-  have h1 : segment_starts 1 = 0 := by simp [segment_starts]
-  obtain h01 | h11 : Nat.find h_exist = 0 ∨ Nat.find h_exist = 1 := by omega
-  · have := Nat.find_spec h_exist; rw [h01, h0] at this; omega
-  · have := Nat.find_spec h_exist; rw [h11, h1] at this; omega
+/-- Local: `segmentIdCovering m ≥ 1`. Delegates to `Segment.segmentIdCovering_pos`. -/
+private theorem segmentIdCovering_pos' (m : ℕ) : segmentIdCovering m ≥ 1 :=
+  Nat.one_le_of_lt (Segment.segmentIdCovering_pos m)
 
 /-- Local: `S₂ n ≥ 2` for `n > 0`. -/
 private theorem S₂_ge_two' (n : ℕ) (hn : n > 0) : Luby.S₂ n ≥ 2 := by

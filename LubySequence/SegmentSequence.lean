@@ -557,7 +557,7 @@ theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_start
   grind
 
 /-- The value returned by `segmentIdCovering` is always positive. -/
-private theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
+public theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
   have h : ∃ i > 0, segment_starts i ≥ m := ⟨m + 1, by omega, segment_starts_ge_self m⟩
   obtain ⟨hpos, _⟩ := Nat.find_spec h
   unfold Segment.segmentIdCovering;
