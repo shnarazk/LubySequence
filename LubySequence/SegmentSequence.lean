@@ -247,7 +247,7 @@ public theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment
 Lower bound for `segment_starts`: for any `s`, `segment_starts (s + 1) ≥ s`.
 This follows from the fact that each segment has length at least 1.
 -/
-theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
+public theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
   intro n
   simp [segment_starts]
   have : ∑ i ∈ range n, 1 ≤ ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
@@ -261,7 +261,7 @@ theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
 Strict lower bound for `segment_starts`: for any `s`, `segment_starts (s + 2) > s`.
 This is a stronger version of `segment_starts_ge_self`.
 -/
-theorem segment_starts_gt_self : ∀ t : ℕ, segment_starts (t + 2) > t := by
+public theorem segment_starts_gt_self : ∀ t : ℕ, segment_starts (t + 2) > t := by
   intro n
   simp [segment_starts]
   have : ∑ i ∈ range (n + 1), 1 ≤ ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) := by
@@ -557,7 +557,7 @@ theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_start
   grind
 
 /-- The value returned by `segmentIdCovering` is always positive. -/
-private theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
+public theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
   have h : ∃ i > 0, segment_starts i ≥ m := ⟨m + 1, by omega, segment_starts_ge_self m⟩
   obtain ⟨hpos, _⟩ := Nat.find_spec h
   unfold Segment.segmentIdCovering;
@@ -707,7 +707,13 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
   omega
 
 /-- define Luby value from segment structure -/
+@[expose]
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
+
+/-- Equation lemma for `luby_via_segment`, usable from downstream modules. -/
+public theorem luby_via_segment_def (n : ℕ) :
+    luby_via_segment n = 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start) := rfl
+
 -- #eval (segmentIdCovering 0)
 -- #eval (segmentIdCovering 1)
 -- #eval (segmentIdCovering 2)
