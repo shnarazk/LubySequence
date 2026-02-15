@@ -202,10 +202,7 @@ theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := 
     simp [s1]
     exact hn
 
-/--
-Deprecated: Use `size_add` instead.
-For `0 < k < 2 ^ n`, the size of `2 ^ n + k` equals `n + 1`.
--/
+/-- For `0 < k < 2 ^ n`, the size of `2 ^ n + k` equals `n + 1`. -/
 public theorem size_add {n k : ℕ} (ha : 0 < k) (hb : k < 2 ^ n) : (2 ^ n + k).size = n + 1 := by
   simp [←bitslength_eq_size]
   have p1 : (2 ^ n).bits.length ≤ (2 ^ n + k).bits.length := by
