@@ -31,7 +31,7 @@
 #let title = [An Online Algorithm for Luby Sequence]
 #align(center, text(30pt, [*#title*]))
 #grid(columns: (1fr),align(center, [`shnarazk`]))
-#grid(columns: (1fr),align(center, [2026-0X-XX]))
+#grid(columns: (1fr),align(center, [2026-02-XX]))
 
 = Luby sequence
 
