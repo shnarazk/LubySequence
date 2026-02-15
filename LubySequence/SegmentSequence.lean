@@ -707,7 +707,13 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
   omega
 
 /-- define Luby value from segment structure -/
+@[expose]
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
+
+/-- Equation lemma for `luby_via_segment`, usable from downstream modules. -/
+public theorem luby_via_segment_def (n : ℕ) :
+    luby_via_segment n = 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start) := rfl
+
 -- #eval (segmentIdCovering 0)
 -- #eval (segmentIdCovering 1)
 -- #eval (segmentIdCovering 2)

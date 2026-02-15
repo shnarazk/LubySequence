@@ -218,9 +218,82 @@ private theorem segmentIdCovering_le' (a : ℕ) (n : ℕ) (hn : n ≤ 2 ^ (a + 1
 /--
 At an envelope `n` (where `is_envelope n`), `luby_via_segment n = S₂ n`.
 -/
-private theorem luby_via_segment_at_envelope (n : ℕ) (h : Luby.is_envelope n = true) :
+public theorem luby_via_segment_at_envelope (n : ℕ) (h : Luby.is_envelope n = true) :
     luby_via_segment n = Luby.S₂ n := by
-    sorry
+  -- Case split: n = 0 vs n > 0
+  obtain rfl | n_pos := Nat.eq_zero_or_pos n
+  · -- n = 0: direct computation
+    rw [luby_via_segment_zero_eq_one]
+    -- Goal: 1 = Luby.S₂ 0
+    -- S₂ 0 = 2 ^ ((0+1).size - 1) = 2 ^ (1.size - 1) = 2 ^ 0 = 1
+    have h_size1 : (1 : ℕ).size = 1 := by
+      have h1eq : (1 : ℕ) = 2 ^ 0 := by norm_num
+      rw [h1eq, size_of_pow2_eq_self_add_one]; norm_num
+    show 1 = Luby.S₂ 0
+    unfold Luby.S₂
+    rw [h_size1]; norm_num
+  -- n > 0: extract j from envelope condition
+  -- is_envelope n means S₂ (n + 2) = n + 2, i.e., 2^((n+3).size - 1) = n + 2
+  have h_pow := envelope_gives_pow2 n h -- n + 2 = 2 ^ ((n + 3).size - 1)
+  set j := (n + 3).size - 1 with hj_def
+  -- j ≥ 2 since n ≥ 1 implies n + 2 ≥ 3
+  have hj_ge2 : j ≥ 2 := by
+    have h4 : (4 : ℕ) ≤ n + 3 := by omega
+    have h4s : (4 : ℕ).size ≤ (n + 3).size := Nat.size_le_size h4
+    have : (4 : ℕ).size = 3 := by
+      show (4 : ℕ).size = 3
+      have h4eq : (4 : ℕ) = 2 ^ 2 := by norm_num
+      rw [h4eq, size_of_pow2_eq_self_add_one]
+    omega
+  have hn_eq : n = 2 ^ j - 2 := by omega
+  -- segmentIdOver n = 2^(j-1) + 1  (from segmentIdOver_at_envelope)
+  have h_over : segmentIdOver n = 2 ^ (j - 1) + 1 := by
+    rw [hn_eq, show j = (j - 1) + 1 from by omega]
+    exact segmentIdOver_at_envelope (j - 1)
+  -- segmentIdCovering n = 2^(j-1)
+  have h_cov : segmentIdCovering n = 2 ^ (j - 1) := by
+    simp [segmentIdCovering, h_over]
+  -- Unfold luby_via_segment and S₂, reduce to showing exponents equal
+  show 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start) = 2 ^ (n.succ.size - 1)
+  rw [h_cov]
+  congr 1
+  -- Goal: n - (Segment.ofNat (2 ^ (j - 1))).start = n.succ.size - 1
+  -- Step 1: n.succ.size = (n + 1).size = j
+  have hn1_size : n.succ.size = j := by
+    show (n + 1).size = j
+    rw [show n + 1 = 2 ^ j - 1 from by omega]
+    exact size_sub (by omega : 0 < j) (by omega : 0 < 1) Nat.one_le_two_pow
+  rw [hn1_size]
+  -- Goal: n - (Segment.ofNat (2 ^ (j - 1))).start = j - 1
+  -- Step 2: Rewrite Segment.ofNat via ofNat_succ
+  have hc_pos : 2 ^ (j - 1) ≥ 1 := Nat.one_le_two_pow
+  rw [ofNat_succ (2 ^ (j - 1)) hc_pos]
+  -- Goal: n - (one + (2 ^ (j - 1) - 1)).start = j - 1
+  -- Step 3: Expand start via unfold_segment_start
+  rw [unfold_segment_start]
+  -- Goal: n - ∑ i ∈ range (2 ^ (j - 1) - 1), (trailing_zeros (i + 1) + 1) = j - 1
+  -- Step 4: Compute the full sum ∑_{i<2^(j-1)} = 2^j - 1 via sum_of_trailing_zeros_prop
+  have h_pow_eq : (2 : ℕ) ^ (j - 1) = 2 ^ ((2 ^ (j - 1)).size - 1) := by
+    rw [size_of_pow2_eq_self_add_one]; simp
+  have h_double : 2 * 2 ^ (j - 1) = 2 ^ j := by
+    conv_rhs => rw [show j = (j - 1) + 1 from by omega]
+    exact (pow_succ' 2 (j - 1)).symm
+  have hsum_full : ∑ i ∈ range (2 ^ (j - 1)), (trailing_zeros (i + 1) + 1) = 2 ^ j - 1 := by
+    have := sum_of_trailing_zeros_prop (2 ^ (j - 1)) h_pow_eq
+    rwa [h_double] at this
+  -- Step 5: Split off the last term: full_sum = partial_sum + trailing_zeros(2^(j-1)) + 1
+  have h_split : 2 ^ (j - 1) = (2 ^ (j - 1) - 1) + 1 := by omega
+  rw [h_split] at hsum_full
+  rw [Finset.sum_range_succ] at hsum_full
+  -- Simplify: 2^(j-1) - 1 + 1 = 2^(j-1)
+  have h_restore : 2 ^ (j - 1) - 1 + 1 = 2 ^ (j - 1) := by omega
+  rw [h_restore] at hsum_full
+  -- trailing_zeros(2^(j-1)) = j - 1
+  have h_tz : trailing_zeros (2 ^ (j - 1)) = j - 1 := trailing_zeros_prop3 (j - 1)
+  rw [h_tz] at hsum_full
+  -- hsum_full: partial_sum + (j - 1 + 1) = 2^j - 1, so partial_sum = 2^j - 1 - j
+  rw [hn_eq]
+  omega
 
 /-
 /-! ### Non-envelope case -/
