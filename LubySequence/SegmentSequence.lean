@@ -247,7 +247,7 @@ public theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment
 Lower bound for `segment_starts`: for any `s`, `segment_starts (s + 1) ≥ s`.
 This follows from the fact that each segment has length at least 1.
 -/
-theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
+public theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
   intro n
   simp [segment_starts]
   have : ∑ i ∈ range n, 1 ≤ ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
@@ -261,7 +261,7 @@ theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
 Strict lower bound for `segment_starts`: for any `s`, `segment_starts (s + 2) > s`.
 This is a stronger version of `segment_starts_ge_self`.
 -/
-theorem segment_starts_gt_self : ∀ t : ℕ, segment_starts (t + 2) > t := by
+public theorem segment_starts_gt_self : ∀ t : ℕ, segment_starts (t + 2) > t := by
   intro n
   simp [segment_starts]
   have : ∑ i ∈ range (n + 1), 1 ≤ ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) := by
