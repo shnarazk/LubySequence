@@ -121,25 +121,9 @@ private theorem segment_starts_shift (a : ℕ) (m : ℕ) (hm1 : 1 ≤ m) (hm2 : 
 
 /-! ### Local re-proofs of non-public lemmas needed from other modules -/
 
-/-- Local: `segment_starts (t + 1) ≥ t`. -/
-private theorem segment_starts_ge_self' (t : ℕ) : segment_starts (t + 1) ≥ t := by
-  simp only [segment_starts]
-  have hsub : t + 1 - 1 = t := by omega
-  rw [hsub]
-  have h1 : ∑ i ∈ Finset.range t, (1 : ℕ) ≤ ∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1) :=
-    Finset.sum_le_sum fun i _ => Nat.le_add_left 1 _
-  simp at h1
-  exact h1
-
-/-- Local: `segment_starts (t + 2) > t`. -/
-private theorem segment_starts_gt_self' (t : ℕ) : segment_starts (t + 2) > t := by
-  simp only [segment_starts]
-  have hsub : t + 2 - 1 = t + 1 := by omega
-  rw [hsub]
-  have h1 : ∑ i ∈ Finset.range (t + 1), (1 : ℕ) ≤ ∑ i ∈ Finset.range (t + 1), (trailing_zeros (i + 1) + 1) :=
-    Finset.sum_le_sum fun i _ => Nat.le_add_left 1 _
-  simp at h1
-  omega
+/-- Local: `segment_starts (t + 2) > t`. Delegates to `Segment.segment_starts_gt_self`. -/
+private theorem segment_starts_gt_self' (t : ℕ) : segment_starts (t + 2) > t :=
+  Segment.segment_starts_gt_self t
 
 /-- Local: `segmentIdCovering m ≥ 1`. -/
 private theorem segmentIdCovering_pos' (m : ℕ) : segmentIdCovering m ≥ 1 := by
