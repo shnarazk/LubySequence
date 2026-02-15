@@ -9,20 +9,26 @@ This directory contains the mutual dependency graph of theorems defined in the L
 
 ## Graph Contents
 
-The dependency graph contains **40 theorems** across 4 Lean files with **31 dependency edges** between them:
+The dependency graph contains **189 theorems** across 10 Lean files with **237 dependency edges** between them:
 
 ### Files and Theorem Counts
-- `Basic.lean` - 11 theorems (envelope properties, Luby sequence properties)
-- `State.lean` - 10 theorems (LubyState properties and proofs)
-- `Tree.lean` - 17 theorems (LubyTree properties and utilities)
-- `Equivalence.lean` - 2 theorems (equivalence proofs between different representations)
+- `Basic.lean` - Core definitions and basic properties
+- `State.lean` - LubyState properties and proofs
+- `Tree.lean` - LubyTree properties and utilities
+- `Equivalence.lean` - Equivalence proofs between different representations
+- `Segment.lean` - Segment-related theorems and properties
+- `SegmentSequence.lean` - Segment sequence theorems
+- `Size.lean` - Size-related properties and lemmas
+- `TrailingZeros.lean` - Trailing zeros theorems
+- `Utils.lean` - Utility theorems
+- `WIP.lean` - Work-in-progress theorems
 
 ### Most Referenced Theorems
-1. `envelope_prop1` - 5 references
-2. `envelope_prop2` - 5 references  
-3. `size_is_two_sub_sizes_add_one` - 5 references
-4. `pow2_le_pow2` - 3 references
-5. `luby_value_at_segment_beg` - 3 references
+1. `size_sub` - 17 references
+2. `size_add` - 11 references
+3. `n_ge_subenvelope` - 9 references
+4. `size_of_pow2_eq_self_add_one` - 8 references
+5. `same_n1size_iff_not_pow2` - 7 references
 
 ## Visualization
 
@@ -47,10 +53,6 @@ The graph uses a hierarchical layout with:
 - **Blue arrows** showing dependency relationships (A → B means A depends on B)
 - **Rectangular nodes** representing individual theorems
 
-Each file is represented as a different colored cluster:
-- Basic.lean: Light cyan
-- State.lean: Light pink  
-- Tree.lean: Light green
-- Equivalence.lean: Light yellow
+Each file is represented as a different colored cluster with consistent color coding for easy identification
 
 Dependencies show which theorems reference/use other theorems in their proofs.
