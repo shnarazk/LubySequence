@@ -333,13 +333,7 @@ identifying the segment that covers position `n`.
 This is the non-strict variant of `segmentIdOver`, which uses `>` instead of `≥`.
 -/
 @[expose]
-public def segmentIdCovering (n : ℕ) : ℕ :=
-  have s1 : n + 1 > 0 := by exact Nat.zero_lt_succ n
-  have s2 : segment_starts (n + 1) ≥ n := by
-    have : segment_starts (n - 1 + 2) > n - 1 := by exact segment_starts_gt_self (n - 1)
-    replace : segment_starts (n - 1 + 2) ≥ n := by exact Nat.le_of_pred_lt this
-    exact segment_starts_ge_self n
-  Nat.find (by exact Exists.intro (n + 1) ⟨s1, s2⟩ : ∃ i > 0, segment_starts i ≥ n)
+public def segmentIdCovering (n : ℕ) : ℕ := segmentIdOver n - 1
 
 /--
 The segment ID covering position 0 is 2.
@@ -371,8 +365,7 @@ excludes 0, `Nat.find` returns the smallest positive `i`, which is 1.
 -/
 public theorem segmentIdCovering_0 : segmentIdCovering 0 = 1 := by
   simp [segmentIdCovering]
-  rw [Nat.find_eq_iff]
-  exact ⟨by simp, fun n hn => by omega⟩
+  exact segmentIdOver_0
 
 /--
 Extend the initial segment to cover position `limit`.
@@ -432,6 +425,7 @@ private theorem ofNat_index : ∀ n, (Segment.ofNat n).index = max n 1 := by
   | zero => simp [ofNat]
   | succ k => simp only [ofNat]; rw [unfold_segment_index]; omega
 
+/-- For indices in a segment, including segment is segment itself -/
 public theorem covering_segment_is_self : ∀ t : ℕ,
     (Segment.ofNat (segmentIdCovering (one + t).start)).index = (one + t).index := by
   intro t
@@ -442,25 +436,13 @@ public theorem covering_segment_is_self : ∀ t : ℕ,
     rw [ofNat_index, unfold_segment_index]
     suffices h : segmentIdCovering (one + (n + 1)).start = n + 2 by omega
     simp only [segmentIdCovering]
-    rw [Nat.find_eq_iff]
-    constructor
-    · constructor
-      · grind
-      · rw [←segment_starts_to_segment_start]
-    · -- ∀ i < n + 2, ¬(segment_starts i ≥ (one + (n + 1)).start)
-      intro i hi hge
-      obtain rfl | hpos := Nat.eq_zero_or_pos i
-      · -- i = 0: segment_starts 0 ≤ segment_starts 1 < (one + (n + 1)).start
-        have h1 : segment_starts 0 ≤ segment_starts 1 := segment_starts_is_monotone (by omega)
-        have h2 : segment_starts 1 < (one + (n + 1)).start := by
-          rw [←segment_starts_to_segment_start]
-          exact segment_starts_is_increasing' (by omega) (by omega)
-        omega
-      · -- i > 0 and i < n + 2: strict monotonicity gives contradiction
-        have : segment_starts i < (one + (n + 1)).start := by
-          rw [←segment_starts_to_segment_start]
-          exact segment_starts_is_increasing' hpos hi
-        omega
+    -- By definition of `segmentIdOver`, we know that `segmentIdOver (one + (n + 1)).start = (one + (n + 2)).index`.
+    have h_segmentIdOver_succ : segmentIdOver (one + (n + 1)).start = (one + (n + 2)).index := by
+      exact next_segment_is_covering_segment (n + 1);
+    -- By definition of `index`, we know that `(one + (n + 2)).index = n + 2 + 1`.
+    have h_index : (one + (n + 2)).index = n + 2 + 1 := by
+      exact unfold_segment_index (n + 2);
+    exact h_segmentIdOver_succ.symm ▸ h_index.symm ▸ rfl
 
 /--
 For any segment `one + t`, the segment ID covering its `nextStart` position equals `t + 3`.
@@ -563,47 +545,40 @@ public theorem unfold_segmentIdOver_of_sum (t : ℕ) : segmentIdOver (∑ i ∈ 
   simp only [unfold_segment_index]
 
 /-- `segmentIdCovering m` is at most `j` whenever `j > 0` and `segment_starts j ≥ m`. -/
-private theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_starts j ≥ m) :
+theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_starts j ≥ m) :
     segmentIdCovering m ≤ j := by
   simp only [segmentIdCovering]
-  apply Nat.find_min'
-  constructor
-  · exact hj_pos
-  · exact hj_ge
+  -- By definition of `segmentIdOver`, we know that `segmentIdOver m` is the smallest index `i` such that `segment_starts i > m`.
+  have h_segmentIdOver : ∀ i, segment_starts i > m → Segment.segmentIdOver m ≤ i := by
+    exact fun i hi => Nat.find_min' _ hi;
+  -- Since `segment_starts j = m` and `j > 0`, by the definition of `segmentIdOver`, the smallest `i` such that `segment_starts i > m` must be `j + 1`.
+  have h_segmentIdOver_j1 : Segment.segmentIdOver (Segment.segment_starts j) = j + 1 := by
+    have := unfold_segmentIdOver_of_sum ( j - 1 ) ; cases j <;> aesop;
+  grind
 
 /-- The value returned by `segmentIdCovering` is always positive. -/
 private theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
   have h : ∃ i > 0, segment_starts i ≥ m := ⟨m + 1, by omega, segment_starts_ge_self m⟩
   obtain ⟨hpos, _⟩ := Nat.find_spec h
-  show Nat.find h > 0
-  exact hpos
-
-/-- `segment_starts (segmentIdCovering m) ≥ m`: the covering segment starts at or after `m`. -/
-private theorem segmentIdCovering_ge (m : ℕ) : segment_starts (segmentIdCovering m) ≥ m := by
-  have h : ∃ i > 0, segment_starts i ≥ m := ⟨m + 1, by omega, segment_starts_ge_self m⟩
-  obtain ⟨_, hge⟩ := Nat.find_spec h
-  show segment_starts (Nat.find h) ≥ m
-  exact hge
+  unfold Segment.segmentIdCovering;
+  unfold Segment.segmentIdOver;
+  simp +zetaDelta at *;
+  intro i hi; interval_cases i <;> norm_num [ Segment.segment_starts ] ;
 
 /-- The segment of the next index is same or add one. -/
 public theorem segmentId_is_continuous (n : ℕ) : segmentIdCovering n = segmentIdCovering (n + 1) ∨ segmentIdCovering n + 1 = segmentIdCovering (n + 1) := by
-  -- Lower bound: segmentIdCovering is monotone (weaker predicate ⇒ smaller Nat.find)
-  have lb : segmentIdCovering n ≤ segmentIdCovering (n + 1) := by
-    simp only [segmentIdCovering]
-    apply Nat.find_mono
-    intro i hi
-    exact ⟨hi.1, by omega⟩
-  -- Upper bound: segmentIdCovering n + 1 is a valid candidate for segmentIdCovering (n + 1)
-  have ub : segmentIdCovering (n + 1) ≤ segmentIdCovering n + 1 := by
-    have hpos := segmentIdCovering_pos n
-    have hge := segmentIdCovering_ge n
-    have h_incr : segment_starts (segmentIdCovering n) < segment_starts (segmentIdCovering n + 1) :=
-      segment_starts_is_increasing' hpos (by omega : segmentIdCovering n < segmentIdCovering n + 1)
-    exact segmentIdCovering_le (by omega) (by omega)
-  -- Combine: k ≤ segmentIdCovering (n + 1) ≤ k + 1 implies equality to k or k + 1
-  rcases Nat.eq_or_lt_of_le lb with h1 | h1
-  · left; exact h1
-  · right; omega
+  have h_monotone : ∀ n, segmentIdCovering n ≤ segmentIdCovering (n + 1) := by
+    intro n
+    unfold Segment.segmentIdCovering;
+    refine' Nat.sub_le_sub_right _ _;
+    exact Nat.find_mono fun x hx => by linarith;
+  have h_eq_or_succ : ∀ n, segmentIdCovering (n + 1) ≤ segmentIdCovering n + 1 := by
+    intros n
+    apply segmentIdCovering_le;
+    · exact Nat.succ_pos _;
+    · have := Nat.find_spec ( show ∃ i, segment_starts i > n from ⟨ n + 2, by linarith [ segment_starts_gt_self n ] ⟩ );
+      unfold Segment.segmentIdCovering; aesop;
+  grind
 
 /--
 For a power of two `n = 2 ^ (n.size - 1)`, the segment ID covering position `2 * n - 1`
@@ -731,19 +706,46 @@ public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmen
   have : 1 ≤ 2 ^ k := Nat.one_le_two_pow
   omega
 
+/-- define Luby value from segment structure -/
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
+-- #eval (segmentIdCovering 0)
+-- #eval (segmentIdCovering 1)
+-- #eval (segmentIdCovering 2)
+-- #eval (segmentIdCovering 3)
+-- #eval (segmentIdCovering 4)
+-- #eval (segmentIdCovering 5)
+-- #eval (segmentIdCovering 6)
+-- #eval (segmentIdCovering 7)
+-- #eval (segmentIdCovering 8)
 
+
+/-- The Luby value of index 0 is 1. -/
+public theorem luby_via_segment_zero_eq_one : luby_via_segment 0 = 1 := by
+  have h_id : segmentIdOver 0 = 2 := by simp [segmentIdOver_0]
+  simp only [luby_via_segment, segmentIdCovering, h_id]
+  simp [ofNat, ←next_as_add]
+
+/-- The Luby value of index 1 is 1. -/
+public theorem luby_via_segment_one_eq_one : luby_via_segment 1 = 1 := by
+  have h_id : segmentIdOver 1 = 3 := by
+    have := segmentIdOver_at_next_of_envelope1' 0
+    norm_num at this
+    exact this
+  simp only [luby_via_segment, segmentIdCovering, h_id]
+  simp [ofNat, ←next_as_add, nextStart, length]
+
+/-- At `n = 2  ^n.size - 1` (the next of an envelope), the Luby vaule is one. -/
 public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ n.size - 1 → luby_via_segment n = 1 := by
-  intro _
-  simp only [luby_via_segment]
-  -- The covering segment's start is always ≥ n, so n - start = 0 and 2^0 = 1.
-  have hpos := segmentIdCovering_pos n
-  have hge := segmentIdCovering_ge n
-  obtain ⟨k, hk⟩ : ∃ k, segmentIdCovering n = k + 1 := ⟨segmentIdCovering n - 1, by omega⟩
-  rw [hk]
-  have hst : (Segment.ofNat (k + 1)).start = segment_starts (k + 1) :=
-    (segment_starts_to_segment_start k).symm
-  rw [hst, ← hk]
-  simp [Nat.sub_eq_zero_of_le hge]
+  intro hn;
+  have := segmentIdOver_at_next_of_envelope1' ( n.size - 1 );
+  rcases k : n.size with ( _ | _ | k ) <;> simp +decide [ k ] at *;
+  · unfold Segment.luby_via_segment; simp +decide [ hn ] ;
+  · subst hn; exact luby_via_segment_one_eq_one;
+  · unfold Segment.luby_via_segment; simp +decide [ hn ] ;
+    unfold Segment.segmentIdCovering; simp +decide [ this ] ;
+    erw [ unfold_segment_start ] ; simp +arith +decide [ Nat.pow_succ' ];
+    rw [ show ( 2 * 2 ^ _ : ℕ ) = 2 ^ ( ‹_› + 1 ) by ring, sum_of_trailing_zeros_prop ] ; norm_num [ Nat.pow_succ' ];
+    · omega;
+    · rw [ size_of_pow2_eq_self_add_one ] ; norm_num
 
 end Segment

@@ -44,6 +44,18 @@ The number of trailing zeros in 1 is 0.
 public theorem trailing_zeros1 : trailing_zeros 1 = 0 := by simp [trailing_zeros]
 
 /--
+The number of trailing zeros in 2 is 1.
+-/
+@[simp]
+public theorem trailing_zeros2 : trailing_zeros 2 = 1 := by simp [trailing_zeros]
+
+/--
+The number of trailing zeros in 3 is 0.
+-/
+@[simp]
+public theorem trailing_zeros3 : trailing_zeros 3 = 0 := by simp [trailing_zeros]
+
+/--
 Returns the number of consecutive ones at the end of bit representation of Nat `n`.
 For example, `trailing_ones 7 = 3` since 7 in binary is 111.
 -/
@@ -218,8 +230,6 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
   induction n with
   | zero =>
     simp
-    rw [trailing_zeros]
-    simp [size]
   | succ n hn =>
     rw [trailing_zeros]
     split
@@ -454,7 +464,7 @@ theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
         exact hn
     · simp [n_eq_two] at *
       obtain n₂|n₂ : n₂ = 0 ∨ n₂ = 1 := le_one_iff_eq_zero_or_eq_one.mp (le_of_lt_succ hn'2)
-      <;> { simp [n₂, trailing_zeros] }
+      <;> { simp [n₂] }
     · have sub1 : m < n := by
         refine le_if_le_size ?_
         · simp [hm]

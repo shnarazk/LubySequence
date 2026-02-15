@@ -1207,10 +1207,10 @@ def segment_length (n : ℕ) : ℕ := trailing_zeros (segment n) + 1
 theorem segment_length_of_0_eq_1 : segment_length 0 = 1 := by simp [segment_length]
 
 @[simp]
-theorem segment_length_of_1_eq_2 : segment_length 1 = 2 := by simp [segment_length, trailing_zeros]
+theorem segment_length_of_1_eq_2 : segment_length 1 = 2 := by simp [segment_length]
 
 @[simp]
-theorem segment_length_of_2_eq_2 : segment_length 2 = 2 := by simp [segment_length, segment, trailing_zeros]
+theorem segment_length_of_2_eq_2 : segment_length 2 = 2 := by simp [segment_length, segment]
 
 /- #eval List.range 64
   |>.filter (fun n ↦ n = 2 ^ n.size - 2)
@@ -1230,7 +1230,7 @@ theorem segment_length_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 →
     have : n = 1 := by exact Nat.eq_of_le_of_lt_succ n_gt_0 n_eq_1
     simp [this] at n_is_envelope
   by_cases n_eq_2 : n = 2
-  · simp [n_eq_2, segment_length, segment, size, trailing_zeros]
+  · simp [n_eq_2, segment_length, segment, size]
   · have n_ge_4 : n ≥ 4 := by
       have n_ge_3 : n > 2 := by
         exact Nat.lt_of_le_of_ne n_gt_2 fun a ↦ n_eq_2 (id (Eq.symm a))
@@ -1558,7 +1558,7 @@ theorem segment_length_prop3 : ∀ n > 0, ¬segment n = 2 ^ ((n + 1).size - 1) �
           exact s1
         obtain n_eq_3|n_ge_4 : n = 3 ∨ n > 3 := LE.le.eq_or_lt' n_ge_3
         · simp [n_eq_3] at *
-          simp [size, trailing_zeros]
+          simp [size]
         · replace n_ge_4 : n ≥ 4 := n_ge_4
           have n_ge_7 : n ≥ 7 := by
             obtain eq|gt : n = 4 ∨ n > 4 := LE.le.eq_or_lt' n_ge_4

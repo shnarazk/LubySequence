@@ -89,3 +89,10 @@ theorem t20250913_sorry : ∀ n > 0, n = 2 ^ (n.size - 1) - 1 → (ofNat (n - 1)
 -/
 
 open Finset Segment
+
+-- #eval (luby_via_segment 0, Luby.luby 0)
+-- #eval (luby_via_segment 1, Luby.luby 1)
+-- #eval (luby_via_segment 2, Luby.luby 2)
+
+public theorem luby_of_next_of_envelop_is_luby (n : ℕ) : luby_via_segment n = Luby.luby n := by
+  sorry
