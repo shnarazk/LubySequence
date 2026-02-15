@@ -94,5 +94,58 @@ open Finset Segment
 -- #eval (luby_via_segment 1, Luby.luby 1)
 -- #eval (luby_via_segment 2, Luby.luby 2)
 
+/-! ### Helper lemmas for the main equivalence theorem -/
+
+/--
+Shift identity for segment_starts: adding `2^a` to the segment index shifts
+the start position by `2^(a+1) - 1`.
+This captures the self-similar structure of the Luby sequence segments.
+-/
+private theorem segment_starts_shift (a : ℕ) (m : ℕ) (hm1 : 1 ≤ m) (hm2 : m ≤ 2 ^ a) :
+    segment_starts (2 ^ a + m) = (2 ^ (a + 1) - 1) + segment_starts m := by
+  simp only [segment_starts]
+  -- Rewrite 2^a + m - 1 = 2^a + (m - 1) since m ≥ 1
+  have h_sub : 2 ^ a + m - 1 = 2 ^ a + (m - 1) := by omega
+  rw [h_sub, Finset.sum_range_add]
+  -- First part: ∑ i ∈ range (2^a), (trailing_zeros (i+1)+1) = 2^(a+1) - 1
+  have h_pow : (2 : ℕ) ^ a = 2 ^ ((2 ^ a).size - 1) := by
+    rw [size_of_pow2_eq_self_add_one]; simp
+  have h_first : ∑ i ∈ Finset.range (2 ^ a), (trailing_zeros (i + 1) + 1) = 2 ^ (a + 1) - 1 := by
+    rw [sum_of_trailing_zeros_prop (2 ^ a) h_pow, pow_succ, mul_comm]
+  -- Second part: shifted trailing_zeros sums equal unshifted ones
+  have h_m_lt : m - 1 < 2 ^ a := by omega
+  have h_second : ∑ i ∈ Finset.range (m - 1), (trailing_zeros (2 ^ a + i + 1) + 1) =
+      ∑ i ∈ Finset.range (m - 1), (trailing_zeros (i + 1) + 1) := by
+    exact trailing_zeros_prop9 a (m - 1) h_m_lt
+  rw [h_first, h_second]
+
+/--
+`is_envelope n` means `n + 2` is a power of 2: `n + 2 = 2 ^ ((n+2).size - 1)`.
+We derive this from the definition of `is_envelope`.
+-/
+private theorem is_envelope_iff_pow2 (n : ℕ) :
+    Luby.is_envelope n = true → n + 2 = 2 ^ ((n + 2).size - 1) := by
+  intro h
+  simp [Luby.is_envelope, Luby.S₂] at h
+  -- h : 2 ^ ((n + 3).size - 1) = n + 2
+  -- We need: n + 2 = 2 ^ ((n + 2).size - 1)
+  -- Since n + 2 = 2^j for some j, (n+2).size = j+1, so (n+2).size - 1 = j
+  -- And (n + 3) = 2^j + 1, (n+3).size = j+1 (by size_add), so (n+3).size - 1 = j
+  set j := (n + 3).size - 1 with hj_def
+  have h_eq : n + 2 = 2 ^ j := by omega
+  have hj_pos : j ≥ 1 := by
+    by_contra hlt; push_neg at hlt
+    have : j = 0 := by omega
+    rw [this] at h_eq; omega
+  -- Now show (n+2).size - 1 = j
+  have h_n2_size : (n + 2).size = j + 1 := by
+    rw [h_eq]; exact size_of_pow2_eq_self_add_one j
+  rw [h_n2_size]; simp; exact h_eq
+
+/--
+The Luby sequence computed via segment structure equals the recursive definition.
+-/
 public theorem luby_of_next_of_envelop_is_luby (n : ℕ) : luby_via_segment n = Luby.luby n := by
   sorry
+
+end LubyState
