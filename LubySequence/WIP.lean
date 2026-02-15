@@ -295,20 +295,19 @@ public theorem luby_via_segment_at_envelope (n : ℕ) (h : Luby.is_envelope n = 
   rw [hn_eq]
   omega
 
-/-
 /-! ### Non-envelope case -/
 
 /--
 For `¬is_envelope n`, the Luby recursion step preserves the offset within the covering segment.
 -/
-private theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope n = true)) :
+public theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope n = true)) :
     luby_via_segment n = luby_via_segment (n + 1 - Luby.S₂ n) := by
   -- n ≥ 1 (since is_envelope 0 = true)
   have n_pos : n ≥ 1 := by
     by_contra hlt; push_neg at hlt
     have : n = 0 := by omega
     subst this
-    have : Luby.is_envelope 0 = true := by native_decide
+    have : Luby.is_envelope 0 = true := by simp [Luby.is_envelope, Luby.S₂, Nat.size, Nat.binaryRec]
     exact h this
   -- Set up notation
   set a := (n + 1).size - 1 with ha_def
@@ -330,9 +329,18 @@ private theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope
   have h_not_pow : n + 2 ≠ 2 ^ (a + 1) := by
     intro heq
     have : Luby.is_envelope n = true := by
+      have h_S2_eq : Luby.S₂ (n + 2) = n + 2 := by
+        simp only [Luby.S₂]
+        have h_succ_eq : (n + 2).succ = 2 ^ (a + 1) + 1 := by omega
+        rw [h_succ_eq]
+        have h_one_lt : (1 : ℕ) < 2 ^ (a + 1) := by
+          calc (1 : ℕ) < 2 ^ 1 := by norm_num
+            _ ≤ 2 ^ (a + 1) := Nat.pow_le_pow_right (by norm_num) (by omega)
+        rw [size_of_pow2 h_one_lt, size_of_pow2_eq_self_add_one,
+            show a + 1 + 1 - 1 = a + 1 from by omega]
+        exact heq.symm
       unfold Luby.is_envelope
-      apply of_decide_eq_true
-      sorry
+      exact decide_eq_true_eq.mpr h_S2_eq
     exact h this
   have h_n_upper : n ≤ 2 ^ (a + 1) - 3 := by omega
   -- n' bounds
@@ -359,10 +367,10 @@ private theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope
   have h_over_n' : segmentIdOver n' = t' + 1 := by
     simp only [segmentIdCovering] at ht'_def; omega
   have h_starts_t'_le : segment_starts t' ≤ n' := by
-    by_contra hgt; push_neg at hgt
-    have h_exist : ∃ i, segment_starts i > n' := ⟨n' + 2, segment_starts_gt_self' n'⟩
-    have hle := Nat.find_min' h_exist hgt
-    sorry
+    have h_lt : t' < segmentIdOver n' := by rw [h_over_n']; omega
+    unfold segmentIdOver at h_lt
+    have h_neg := Nat.find_min _ h_lt
+    omega
   -- segment_starts t ≤ n
   have h_starts_t_le : segment_starts t ≤ n := by
     rw [h_shift, hn'_add]; omega
@@ -387,14 +395,13 @@ private theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope
       have h_rw : 2 ^ (a - 1) + (t' + 1) = 2 ^ a + 1 := by
         rw [ht'_eq_bound]
         have : 2 ^ (a - 1) + 2 ^ (a - 1) = 2 ^ a := by
-          rw [← two_mul, show a = (a - 1) + 1 from by omega, pow_succ, mul_comm]
-          sorry
+          rw [← two_pow_succ (a - 1), show a - 1 + 1 = a from by omega]
         omega
       rw [h_rw, segment_starts_pow2_add_one, hn'_add]; omega
   -- Prove segmentIdCovering n = t
   have h_seg_id : segmentIdCovering n = t := by
     suffices h_over_n : segmentIdOver n = t + 1 by
-      sorry
+      simp [segmentIdCovering, h_over_n]
     simp only [segmentIdOver]
     have h_exist : ∃ i, segment_starts i > n := ⟨n + 2, segment_starts_gt_self' n⟩
     refine (Nat.find_eq_iff h_exist).mpr ⟨h_starts_t1_gt, ?_⟩
@@ -404,8 +411,13 @@ private theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope
   have h_offset_eq : n - segment_starts t = n' - segment_starts t' := by
     rw [h_shift, hn'_add]; omega
   -- Conclude: both luby_via_segment values use the same exponent
-  sorry
+  show luby_via_segment n = luby_via_segment n'
+  rw [luby_via_segment_def n, luby_via_segment_def n']
+  congr 1
+  rw [h_seg_id, ofNat_start_eq t (by omega : t ≥ 1), ofNat_start_eq t' ht'_ge1]
+  exact h_offset_eq
 
+/-
 /-! ### Main theorem -/
 
 /--
