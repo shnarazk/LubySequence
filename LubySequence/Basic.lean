@@ -68,7 +68,7 @@ theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
 /--
 For positive k, S₂ k is at least 2.
 -/
-theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
+public theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
   simp [S₂]
   rw [(by rfl : 2 = 2 ^1)]
   apply pow2_le_pow2
