@@ -454,4 +454,4 @@ public theorem luby_of_next_of_envelop_is_luby (n : ℕ) : luby_via_segment n = 
       rw [luby_via_segment_non_envelope n h_nenv]
       exact ih _ h_dec
 
-      end LubyState
+end LubyState
