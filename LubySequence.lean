@@ -6,6 +6,5 @@ public import LubySequence.Utils
 public import LubySequence.Basic
 public import LubySequence.Segment
 public import LubySequence.SegmentSequence
-public import LubySequence.State
 public import LubySequence.Equivalence
 public import LubySequence.WIP

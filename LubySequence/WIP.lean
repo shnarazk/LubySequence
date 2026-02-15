@@ -3,12 +3,8 @@ module
 public import Mathlib.Tactic
 public import LubySequence.Utils
 public import LubySequence.Basic
--- public import LubySequence.Segment
 public import LubySequence.SegmentSequence
-public import LubySequence.State
 public import LubySequence.TrailingZeros
-
-namespace LubyState
 
 open Nat
 
@@ -421,5 +417,3 @@ public theorem luby_via_segment_eq_luby (n : ℕ) : luby_via_segment n = Luby.lu
       have h_dec : n + 1 - Luby.S₂ n < n := by omega
       rw [luby_via_segment_non_envelope n h_nenv]
       exact ih _ h_dec
-
-end LubyState
