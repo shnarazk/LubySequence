@@ -131,14 +131,7 @@ private theorem segmentIdCovering_pos' (m : ℕ) : segmentIdCovering m ≥ 1 :=
 
 /-- Local: `S₂ n ≥ 2` for `n > 0`. -/
 private theorem S₂_ge_two' (n : ℕ) (hn : n > 0) : Luby.S₂ n ≥ 2 := by
-  simp only [Luby.S₂]
-  have h1 : (2 : ℕ).size ≤ (n + 1).size := by
-    exact Nat.size_le_size (by omega)
-  have h2 : (2 : ℕ).size = 2 := size2_eq_2
-  rw [h2] at h1
-  have h3 : 1 ≤ (n + 1).size - 1 := by omega
-  calc 2 = 2 ^ 1 := by ring
-    _ ≤ 2 ^ ((n + 1).size - 1) := Nat.pow_le_pow_right (by norm_num) h3
+  exact Luby.S₂_ge_two n hn
 
 /-- Local: from `is_envelope n`, derive `S₂ (n + 2) = n + 2`. -/
 private theorem envelope_S₂_eq (n : ℕ) (h : Luby.is_envelope n = true) :
