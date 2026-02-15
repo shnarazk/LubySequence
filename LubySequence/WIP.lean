@@ -400,7 +400,7 @@ The proof is by strong induction on `n`, following the recursion of `Luby.luby`:
   preserving the offset. So `luby_via_segment n = luby_via_segment n'`, and by the
   inductive hypothesis `luby_via_segment n' = Luby.luby n'`.
 -/
-public theorem luby_of_next_of_envelop_is_luby (n : ℕ) : luby_via_segment n = Luby.luby n := by
+public theorem luby_via_segment_eq_luby (n : ℕ) : luby_via_segment n = Luby.luby n := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
     rw [Luby.luby]
