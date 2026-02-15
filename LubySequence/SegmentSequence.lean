@@ -2,8 +2,6 @@ module
 
 public import Mathlib.Tactic
 public import Mathlib.Data.Nat.Find
--- public import LubySequence.Utils
--- public import LubySequence.Basic
 public import LubySequence.TrailingZeros
 
 attribute [local simp] Nat.binaryRec

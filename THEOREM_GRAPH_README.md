@@ -9,26 +9,22 @@ This directory contains the mutual dependency graph of theorems defined in the L
 
 ## Graph Contents
 
-The dependency graph contains **189 theorems** across 10 Lean files with **237 dependency edges** between them:
+The dependency graph contains **123 theorems** across 6 Lean files with **129 dependency edges** between them:
 
 ### Files and Theorem Counts
 - `Basic.lean` - Core definitions and basic properties
-- `State.lean` - LubyState properties and proofs
-- `Tree.lean` - LubyTree properties and utilities
 - `Equivalence.lean` - Equivalence proofs between different representations
-- `Segment.lean` - Segment-related theorems and properties
 - `SegmentSequence.lean` - Segment sequence theorems
 - `Size.lean` - Size-related properties and lemmas
 - `TrailingZeros.lean` - Trailing zeros theorems
 - `Utils.lean` - Utility theorems
-- `WIP.lean` - Work-in-progress theorems
 
 ### Most Referenced Theorems
-1. `size_sub` - 17 references
-2. `size_add` - 11 references
-3. `n_ge_subenvelope` - 9 references
-4. `size_of_pow2_eq_self_add_one` - 8 references
-5. `same_n1size_iff_not_pow2` - 7 references
+1. `size_add` - 8 references
+2. `size_of_pow2_eq_self_add_one` - 8 references
+3. `n_ge_subenvelope` - 6 references
+4. `size_sub` - 6 references
+5. `envelope_prop1` - 5 references
 
 ## Visualization
 
