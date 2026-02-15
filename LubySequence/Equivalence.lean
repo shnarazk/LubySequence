@@ -1,7 +1,6 @@
 module
 
 public import Mathlib.Tactic
-public import LubySequence.Utils
 public import LubySequence.Basic
 public import LubySequence.SegmentSequence
 public import LubySequence.TrailingZeros

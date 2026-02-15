@@ -29,9 +29,6 @@ If you just want to browse the code, start with the top-level module:
   - Bridges the models: shows how the iterator/state and tree envelopes agree with the recursive definition.
   - Contains in-progress and completed proofs connecting segment indices to envelope depths.
 
-- `Utils`
-  - Small general lemmas and utilities for natural numbers, modular arithmetic, and binary size that the main development relies on.
-
 - `LubySequence` (root)
   - Umbrella module that imports `Basic`, and `Equivalence`.
 
