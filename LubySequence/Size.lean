@@ -318,14 +318,6 @@ public theorem size_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size =
   exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
 
 /--
-If a ≤ b, then the bit length of a is at most the bit length of b.
--/
-public theorem bitslength_le_bitslength {a b : ℕ} (h : a ≤ b) : a.bits.length ≤ b.bits.length := by
-  have t := size_le_size h
-  simp [←bitslength_eq_size] at t
-  exact t
-
-/--
 If a has a strictly smaller size than b, then a < b.
 -/
 public theorem le_if_le_size {a b : ℕ} : a.size < b.size → a < b := by
@@ -608,14 +600,3 @@ theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
       replace : 1 ≤ 2 ^ (n.size - 2) := this
       replace : 2 ^ (n.size - 2) + 1 ≤ n := add_le_of_add_le_left lower this
       exact this
-
-/--
-Upper bound on n based on its bit size. For any natural number n,
-`n < 2 ^ sn.size`. This shows that n is strictly less than the power of 2
-corresponding to its bit length.
--/
-theorem n_upper (n : ℕ) : n < 2 ^ n.size := by
-  have : n.size < (2 ^ n.size).size := by
-    have : (2 ^ n.size).size = n.size + 1 := size_pow
-    simp [this]
-  exact lt_size_self n

@@ -306,16 +306,6 @@ public theorem segment_starts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b 
   exact Nat.lt_of_lt_of_le d_ge_1 this
 
 /--
-The `segment_starts` function is strictly increasing for positive indices.
-For any `a < b`, the start position `(one + a).start` is strictly less than `(one + b).start`.
-This is a more convenient form of `segment_starts_is_increasing'` working directly with segments.
--/
-public theorem segment_starts_is_increasing : ∀ {a b : ℕ}, a < b → (one + a).start < (one + b).start := by
-  intro a b ordering
-  simp only [←segment_starts_to_segment_start]
-  exact segment_starts_is_increasing' (Nat.zero_lt_succ a) (Nat.add_lt_add_right ordering 1)
-
-/--
 Find the smallest segment index whose start position exceeds `n`.
 Uses `Nat.find` to locate the smallest index where `segment_starts` exceeds `n`,
 which identifies the boundary between segments covering and not covering position `n`.
@@ -441,43 +431,6 @@ public theorem covering_segment_is_self : ∀ t : ℕ,
     have h_index : (one + (n + 2)).index = n + 2 + 1 := by
       exact unfold_segment_index (n + 2);
     exact h_segmentIdOver_succ.symm ▸ h_index.symm ▸ rfl
-
-/--
-For any segment `one + t`, the segment ID covering its `nextStart` position equals `t + 3`.
-This is expressed as `segmentIdOver (one + t).nextStart = (one + (t + 2)).index`.
-Since `(one + k).index = k + 1` by `unfold_segment_index`, we have
-`(one + (t + 2)).index = (t + 2) + 1 = t + 3`.
-This characterizes which segment covers the position immediately after a segment ends.
--/
--- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).nextStart, (one + (t + 2)).index)
-theorem coveringSegment_of_next_segment_is_next_of_next :
-    ∀ t : ℕ, segmentIdOver (one + t).nextStart = (one + (t + 2)).index := by
-  intro t
-  simp only [unfold_segment_index]
-  simp only [nextStart]
-  have : (one + t).start + (one + t).length = (one + (t + 1)).start := rfl
-  simp only [this]
-  simp only [segmentIdOver]
-  refine (Nat.find_eq_iff (segmentIdOver._proof_1 (one + (t + 1)).start)).mpr ?_
-  · constructor
-    · simp only [←segment_starts_to_segment_start]
-      exact segment_starts_is_increasing' (Nat.zero_lt_succ (t + 1)) (lt_add_one (t + 2))
-    · intro t' t'_cond
-      replace t'_cond : t' ≤ t + 2 := by exact Nat.le_of_succ_le_succ t'_cond
-      replace t'_cond : t' - 1 ≤ t + 1 := by exact Nat.sub_le_of_le_add t'_cond
-      obtain eq|lt : t' - 1 = t + 1 ∨ t' - 1 < t + 1 := by exact Nat.eq_or_lt_of_le t'_cond
-      · rw [←segment_starts_to_segment_start]
-        have : segment_starts t' ≤ segment_starts (t + 2) := by
-          refine segment_starts_is_monotone ?_
-          · replace eq : t' = t + 2 := by grind
-            exact Nat.le_of_eq eq
-        exact Nat.le_lt_asymm this
-      · rw [←segment_starts_to_segment_start]
-        have : segment_starts t' ≤ segment_starts (t + 2) := by
-          refine segment_starts_is_monotone ?_
-          · replace lt : t' < t + 2 := by exact lt_of_tsub_lt_tsub_right lt
-            exact Nat.le_of_succ_le lt
-        exact Nat.le_lt_asymm this
 
 -- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
 
