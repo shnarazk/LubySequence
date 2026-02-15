@@ -516,21 +516,6 @@ public theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
   simp +zetaDelta at *;
   intro i hi; interval_cases i <;> norm_num [ Segment.segment_starts ] ;
 
-/-- The segment of the next index is same or add one. -/
-public theorem segmentId_is_continuous (n : ℕ) : segmentIdCovering n = segmentIdCovering (n + 1) ∨ segmentIdCovering n + 1 = segmentIdCovering (n + 1) := by
-  have h_monotone : ∀ n, segmentIdCovering n ≤ segmentIdCovering (n + 1) := by
-    intro n
-    unfold Segment.segmentIdCovering;
-    refine' Nat.sub_le_sub_right _ _;
-    exact Nat.find_mono fun x hx => by linarith;
-  have h_eq_or_succ : ∀ n, segmentIdCovering (n + 1) ≤ segmentIdCovering n + 1 := by
-    intros n
-    apply segmentIdCovering_le;
-    · exact Nat.succ_pos _;
-    · have := Nat.find_spec ( show ∃ i, segment_starts i > n from ⟨ n + 2, by linarith [ segment_starts_gt_self n ] ⟩ );
-      unfold Segment.segmentIdCovering; aesop;
-  grind
-
 /--
 For a power of two `n = 2 ^ (n.size - 1)`, the segment ID covering position `2 * n - 1`
 (the last position of the envelope of size `2 * n`) equals `n + 2`.
@@ -690,19 +675,5 @@ public theorem luby_via_segment_one_eq_one : luby_via_segment 1 = 1 := by
     exact this
   simp only [luby_via_segment, segmentIdCovering, h_id]
   simp [ofNat, ←next_as_add, nextStart, length]
-
-/-- At `n = 2  ^n.size - 1` (the next of an envelope), the Luby vaule is one. -/
-public theorem luby_of_next_of_envelop_is_one (n : ℕ) : n = 2 ^ n.size - 1 → luby_via_segment n = 1 := by
-  intro hn;
-  have := segmentIdOver_at_next_of_envelope1' ( n.size - 1 );
-  rcases k : n.size with ( _ | _ | k ) <;> simp +decide [ k ] at *;
-  · unfold Segment.luby_via_segment; simp +decide [ hn ] ;
-  · subst hn; exact luby_via_segment_one_eq_one;
-  · unfold Segment.luby_via_segment; simp +decide [ hn ] ;
-    unfold Segment.segmentIdCovering; simp +decide [ this ] ;
-    erw [ unfold_segment_start ] ; simp +arith +decide [ Nat.pow_succ' ];
-    rw [ show ( 2 * 2 ^ _ : ℕ ) = 2 ^ ( ‹_› + 1 ) by ring, sum_of_trailing_zeros_prop ] ; norm_num [ Nat.pow_succ' ];
-    · omega;
-    · rw [ size_of_pow2_eq_self_add_one ] ; norm_num
 
 end Segment

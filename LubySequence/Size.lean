@@ -301,23 +301,6 @@ public theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n 
   exact le_antisymm t1 t2
 
 /--
-For `n ≥ 1` divisible by 2, the size of `n / 2` is one less than the size of n.
--/
-public theorem size_div {n : ℕ} (h1 : 1 ≤ n) (h2 : 2 ∣ n) : (n / 2).size = n.size - 1 := by
-  let n2b := (n / 2).bits
-  have n2bp : n2b = value_of% n2b := by rfl
-  have np : (2 * (n / 2)).size = (n / 2).size + 1 := by
-    have s1 : (2 * (n / 2)).bits = false :: (n / 2).bits := bit0_bits (n / 2) (by grind)
-    have s2 : (false :: (n / 2).bits).length = 1 + (n / 2).bits.length := by
-      exact succ_eq_one_add (n / 2).bits.length
-    simp only [←s1, bitslength_eq_size] at s2
-    simp [s2]
-    exact add_comm 1 (n / 2).size
-  have : 2 * (n /2) = n := Nat.mul_div_cancel' h2
-  simp [this] at np
-  exact Nat.eq_sub_of_add_eq (id (Eq.symm np))
-
-/--
 If a has a strictly smaller size than b, then a < b.
 -/
 public theorem le_if_le_size {a b : ℕ} : a.size < b.size → a < b := by
@@ -429,12 +412,6 @@ public theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) 
         exact zero_lt_of_lt h2
       exact le_if_le_size this
     exact le_of_pred_lt this
-
-/--
-For positive n, `2 ^ n.size ≤ 2 * n`.
--/
-public theorem pow2size_has_upper_bound : ∀ n > 0, 2 ^ n.size ≤ 2 * n := by
-  exact fun n a ↦ pow_two_of_size_le_self a
 
 /--
 If incrementing n increases the size by 1, then n + 1 must be a power of 2.
