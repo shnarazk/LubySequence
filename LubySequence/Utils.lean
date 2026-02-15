@@ -1,6 +1,6 @@
 module
 
-import Mathlib.Tactic
+public import Mathlib.Tactic
 
 open Finset Nat
 
