@@ -108,36 +108,6 @@ public theorem next_as_add : ∀ s : Segment, ∀ t : ℕ, next s t = s + t := b
   exact rfl
 
 /--
-The `next` operation is additive: advancing `a + b` steps is equivalent to
-advancing `a` steps and then advancing `b` more steps.
--/
-public theorem segment_add_is_associative (a b : ℕ) : one + (a + b) = (one + a) + b := by
-  simp [←next_as_add]
-  induction b with
-  | zero => exact rfl
-  | succ b' ih =>
-    simp [next]
-    constructor
-    · exact congrArg index ih
-    · exact congrArg nextStart ih
-
-/--
-The start position increases strictly monotonically with each segment step.
-For any `n`, the start position of segment `one + (n + 1)` is strictly greater
-than the start position of segment `one + n`.
--/
-public theorem segment_start_is_increasing : ∀ t : ℕ, (one + t).start < (one + (t + 1)).start := by
-  intro t
-  simp only [←next_as_add]
-  induction t with
-  | zero => simp [nextStart, length]
-  | succ t ih =>
-    simp only [next] at *
-    rw (occs := .pos [2]) [nextStart]
-    rw [length]
-    simp
-
-/--
 Convert a natural number to a segment by advancing from the initial segment.
 For `s = 0`, returns a segment with index 1 and start 0.
 For `s > 0`, returns the segment reached after `s - 1` steps from `one`.
@@ -407,12 +377,6 @@ public theorem next_segment_is_covering_segment : ∀ t : ℕ,
             exact Nat.le_of_succ_le lt
         exact Nat.le_lt_asymm this
 
-private theorem ofNat_index : ∀ n, (Segment.ofNat n).index = max n 1 := by
-  intro n
-  cases n with
-  | zero => simp [ofNat]
-  | succ k => simp only [ofNat]; rw [unfold_segment_index]; omega
-
 -- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
 
 /--
@@ -457,14 +421,6 @@ public theorem segmentOver_of_sum_of_trailing_zeros :
         rw [←segment_starts_to_segment_start]
         replace n'_def : n' ≤ n + 1 + 1 := by exact Nat.le_of_succ_le_succ n'_def
         exact segment_starts_is_monotone n'_def
-
-public theorem unfold_segmentIdOver_start (t : ℕ) : segmentIdOver (one + t).start = t + 2 := by
-  -- have s1 : segmentIdOver (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = t + 2 := by
-  --   exact segmentOver_of_sum_of_trailing_zeros t
-  have s2 : (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = (one + t).start := by
-    exact Eq.symm (unfold_segment_start t)
-  rw [←s2]
-  exact segmentOver_of_sum_of_trailing_zeros t
 
 public theorem unfold_segmentIdOver_of_sum (t : ℕ) : segmentIdOver (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = t + 2 := by
   have unfold_segment_start (t : ℕ): (one + t).start = ∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1) := by

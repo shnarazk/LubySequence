@@ -54,11 +54,6 @@ public theorem size4_add_0_ge_2 {n : ℕ} (h : n ≥ 4) : n.size ≥ 3 := by
   exact s1
 
 /--
-Every natural number is strictly less than 2 raised to the power of its size plus one.
--/
-public theorem self_ne_pow_two_succ_of_size (n : ℕ) : n < 2 ^ n.size.succ := by exact size_le.mp (by grind)
-
-/--
 The length of the bit representation equals the size of a natural number.
 -/
 public theorem bitslength_eq_size (n : ℕ) : n.bits.length = n.size := by exact size_eq_bits_len n
