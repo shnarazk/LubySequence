@@ -82,53 +82,6 @@ theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := 
       · simp [n2] at h
 
 /--
-For positive n not equal to 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-1)).
--/
-theorem trailing_zeros_prop1 : ∀ n > 0,
-    ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
-  intro n hn
-  induction n using Nat.strong_induction_on with
-  | h n ih =>
-    intro n_ne_envenlop
-    rw [trailing_zeros.eq_def]
-    split
-    · contradiction
-    · split <;> expose_names
-      · exact absurd h n_ne_envenlop
-      · exact rfl
-
-/--
-For positive n and k where 2^k > n, adding 2^k to n preserves the number of trailing zeros.
-This shows that adding a sufficiently large power of 2 does not affect trailing zeros.
--/
-public theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
-    2 ^ k > n → trailing_zeros (n + 2 ^ k) = trailing_zeros n := by
-  intro n n_gt_0 k pow2k_gt_n
-  rw [trailing_zeros.eq_def]
-  split <;> expose_names
-  · have n_eq_0 : n = 0 := Nat.eq_zero_of_add_eq_zero_right heq
-    replace n_gt_0 : ¬n = 0 := Nat.ne_zero_of_lt n_gt_0
-    exact absurd n_eq_0 n_gt_0
-  · split <;> expose_names
-    · have : 2 ^ (k + 1) = 2 ^ ((n + 2 ^ k).size - 1) := by
-        have : (2 ^ k + n).size = k + 1 := size_add n_gt_0 pow2k_gt_n
-        rw (occs := .pos [2]) [add_comm] at h
-        simp [this] at h
-        replace n_gt_0 : ¬n = 0 := Nat.ne_zero_of_lt n_gt_0
-        exact absurd h n_gt_0
-      rw (occs := .pos [1]) [←this] at h
-      replace : 2 ^ (k + 1) = 2 ^ k + 2 ^ k := two_pow_succ k
-      simp [this] at h
-      have h' : ¬n = 2 ^ k := Nat.ne_of_lt pow2k_gt_n
-      exact absurd h h'
-    · simp
-      have : 2 ^ ((n + 2 ^ k).size - 1) = 2 ^ k := by
-        have : (2 ^ k + n).size = k + 1 := size_add n_gt_0 pow2k_gt_n
-        rw (occs := .pos [1]) [add_comm] at this
-        simp [this]
-      simp [this]
-
-/--
 For n > 1 where n = 2^(n.size-1), the trailing zeros of n equals
 the trailing zeros of (n - 2^(n.size-2)) plus 1.
 -/
@@ -174,42 +127,6 @@ public theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n :=
       simp [t1] at h
 
 /--
-The number of trailing zeros in 2^n - 1 is always 0.
--/
-public theorem trailing_zeros_prop4 : ∀ n : ℕ, trailing_zeros (2 ^ n - 1) = 0 := by
-  intro n
-  induction n with
-  | zero => simp [trailing_zeros.eq_def]
-  | succ n hn =>
-    rw [trailing_zeros.eq_def]
-    split <;> expose_names
-    · exact heq
-    · split <;> expose_names
-      · have t1 : (2 ^ (n + 1) - 1).size = n + 1 := by
-          exact size_sub ( zero_lt_succ n) one_pos Nat.one_le_two_pow
-        simp [t1] at h
-        obtain z|p : n = 0 ∨ ¬n = 0 := Or.symm (ne_or_eq n 0)
-        · simp [z] at *
-        · have even : 2 ∣ 2 ^ n := Dvd.dvd.pow (by grind) p
-          have odd : ¬2 ∣ 2 ^ (n + 1) := by
-            simp [←h] at even
-            refine two_dvd_ne_zero.mpr ?_
-            have h' : 2 ^ (n + 1) = 2 ^ n + 1 := by grind
-            simp [h']
-            grind
-          have even' : 2 ∣ 2 ^ (n + 1) := Dvd.intro_left (Nat.pow 2 n) rfl
-          exact absurd even' odd
-      · simp
-        have : 2 ^ (n + 1) - 1 - 2 ^ ((2 ^ (n + 1) - 1).size - 1) = 2 ^ n - 1 := by
-          have t1 : (2 ^ (n + 1) - 1).size = n + 1 := size_sub (by grind) (by grind) (by grind)
-          simp [t1]
-          replace t1 : 2 ^ (n + 1) = 2 ^ n + 2 ^ n := by grind
-          simp [t1]
-          grind
-        simp [this]
-        exact hn
-
-/--
 Powers of 2 plus 1 cannot equal other powers of 2 (contradiction lemma).
 -/
 theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
@@ -220,22 +137,6 @@ theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 
   have odd : ¬2 ∣ 2 ^ a + 1 := by
     exact Odd.not_two_dvd_nat (Even.add_one ((even_iff_exists_two_nsmul (2 ^ a)).mpr two_pow_a_is_even))
   exact absurd even odd
-
-/--
-For positive n not equal to 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-1)).
--/
-theorem trailing_zeros_prop6 : ∀ n > 0,
-    ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
-  intro n hn
-  induction n using Nat.strong_induction_on with
-  | h n ih =>
-    intro hn'
-    rw [trailing_zeros.eq_def]
-    split
-    · contradiction
-    · split <;> expose_names
-      · exact absurd h hn'
-      · simp
 
 /--
 For k < 2^n and k ≠ 0, trailing_zeros(k + 2^n) = trailing_zeros(k).
@@ -399,119 +300,6 @@ public theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
     exact rfl
   simp only [bitslength_eq_size] at t1
   exact t1
-
-/--
-If `n ≥ 2` and `n = 2 ^ (n.size - 1)` (so `n` is a power of two), then
-for every `n' < n` we have `trailing_zeros n' < trailing_zeros n`.
-
-In other words, among all natural numbers strictly less than a positive power of two,
-that power of two itself has the maximum possible number of trailing zero bits.
-
-This lemma is useful for measure-based arguments: when splitting an interval at the
-largest power-of-two boundary below an upper limit, the `trailing_zeros` measure strictly
-drops on the left part.
--/
-theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
-    ∀ n' < n, trailing_zeros n' < trailing_zeros n := by
-  intro n hn
-  have nsize2 : n.size ≥ 2 := by
-    have t1 : (2 : ℕ).size ≤ n.size := size_le_size hn
-    have t2 : (2 : ℕ).size = 2 := by simp [size]
-    simp [t2] at t1
-    exact t1
-  induction n using Nat.strong_induction_on with
-  | h n hn' =>
-    intro n₁ n₂ hn'2
-    let m := 2 ^ (n.size - 2)
-    have hm : m = value_of% m := rfl
-    obtain n_eq_two|n_gt_two : n = 2 ∨ n > 2 := by
-      refine Nat.eq_or_lt_of_not_lt ?_
-      · simp
-        exact hn
-    · simp [n_eq_two] at *
-      obtain n₂|n₂ : n₂ = 0 ∨ n₂ = 1 := le_one_iff_eq_zero_or_eq_one.mp (le_of_lt_succ hn'2)
-      <;> { simp [n₂] }
-    · have sub1 : m < n := by
-        refine le_if_le_size ?_
-        · simp [hm]
-          have : (2 ^ (n.size - 2)).size = n.size - 2 + 1 := by
-            exact size_of_pow2_eq_self_add_one (n.size - 2)
-          simp [this]
-          grind
-      have n4 : n ≥ 4 := by
-        obtain n_eq_3|n_gt_3 : n = 3 ∨ n > 3 := LE.le.eq_or_lt' n_gt_two
-        · simp [n_eq_3] at *
-        · exact n_gt_3
-      have n4size : n.size ≥ 3 := by
-        have t1 : n.size ≥ (4 : ℕ).size := size_le_size n4
-        have t2 : (4 : ℕ).size = 3 := by simp [size]
-        simp [t2] at t1
-        exact t1
-      have sub2 : m ≥ 2 := Nat.le_self_pow (Nat.sub_ne_zero_iff_lt.mpr n4size) 2
-      have sub3 : m.size ≥ 2 := by
-        have t1 : m.size ≥ (2 : ℕ).size := size_le_size sub2
-        have t2 : (2 : ℕ).size = 2 := by simp [size]
-        simp [t2] at t1
-        exact t1
-      have sub4 : m = 2 ^ (m.size - 1) := by
-        simp [hm]
-        have t1 : (2 ^ (n.size - 2)).size = n.size - 2 + 1 := by
-          exact size_of_pow2_eq_self_add_one (n.size - 2)
-        simp [t1]
-      have trailing_zeros_m : trailing_zeros m = n.size - 2 := by
-        simp [hm]
-        exact trailing_zeros_prop3 (n.size - 2)
-      have trailing_zeros_n : trailing_zeros n = n.size - 1 := by
-        rewrite (occs := .pos [1]) [n₁]
-        exact trailing_zeros_prop3 (n.size - 1)
-      obtain first_part|others : n₂ < m ∨ n₂ ≥ m := Nat.lt_or_ge n₂ m
-      · have trans1 : trailing_zeros m < trailing_zeros n := by
-          simp [trailing_zeros_m, trailing_zeros_n]
-          exact sub_succ_lt_self n.size 1 nsize2
-        have g := hn' m sub1 sub2 sub3 sub4 n₂ first_part
-        have trans2 : trailing_zeros n₂ < trailing_zeros m := g
-        exact Nat.lt_trans g trans1
-      · obtain n₂_eq_m|n₂_gt_m : n₂ = m ∨ n₂ > m := LE.le.eq_or_lt' others
-        · simp [n₂_eq_m] at *
-          simp [trailing_zeros_m, trailing_zeros_n]
-          exact sub_succ_lt_self n.size 1 nsize2
-        · -- slide to the left
-          let n₂' := n₂ - m
-          have n₂_def : n₂' = value_of% n₂' := rfl
-          have n₂_def' : n₂ = 2 ^ (m.size - 1) + n₂' := by
-            simp [←sub4]
-            exact Eq.symm (add_sub_of_le others)
-          have n₂'_range : n₂' < m := by
-            have t1 : m + m = n := by
-              simp [hm]
-              calc
-                2 ^ (n.size - 2) + 2 ^ (n.size - 2) = 2 ^ (n.size - 2) * 2 := by
-                  exact Eq.symm (Nat.mul_two (2 ^ (n.size - 2)))
-                _ = 2 ^ (n.size - 2 + 1) := rfl
-                _ = 2 ^ (n.size - 1) := by
-                  have : n.size - 2 + 1 = n.size - 1 := by
-                    refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
-                    exact (Nat.sub_eq_iff_eq_add nsize2).mp rfl
-                  simp [this]
-                _ = n := by simp [←n₁]
-            have t2 : n₂ = n₂' + m := (Nat.sub_eq_iff_eq_add others).mp n₂_def
-            simp [←t1, t2] at hn'2
-            exact hn'2
-          have shift_left : trailing_zeros n₂ = trailing_zeros n₂' := by
-            rewrite [n₂_def', add_comm]
-            refine trailing_zeros_prop7 (m.size - 1) n₂' ?_ ?_
-            · simp [←sub4] ; exact n₂'_range
-            · by_contra h
-              simp [h] at *
-              have c : n₂ = m := by grind
-              have : ¬n₂ = m := Nat.ne_of_lt' n₂_gt_m
-              exact absurd c this
-          simp [shift_left]
-          have g := hn' m sub1 sub2 sub3 sub4 n₂' n₂'_range
-          have g' : trailing_zeros m < trailing_zeros n := by
-            simp [trailing_zeros_m, trailing_zeros_n]
-            exact sub_succ_lt_self n.size 1 nsize2
-          exact Nat.lt_trans g g'
 
 -- #eval List.range 6
 --    |>.map (fun n ↦ 2 ^ n)

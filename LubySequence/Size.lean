@@ -355,32 +355,6 @@ theorem size_of_pow2_eq_size_of_envelope_add_1 {n : ℕ} :
   simp [this]
 
 /--
-For positive n equal to `2 ^ (n.size - 1)`, the size of n is one more than the size of `n - 1`.
-This is a variant characterization showing when a number is exactly a power of 2.
--/
-public theorem size_of_pow2_eq_size_of_envelope_add_1' {n : ℕ} (h : n > 0) :
-    n = 2 ^ (n.size - 1) → n.size = (n - 1).size + 1 := by
-  intro n_is_envelope
-  have n_mp : n - 1 + 1 = n := Nat.sub_add_cancel h
-  have nsize_mp : n.size - 1 + 1 = n.size := by
-    refine Nat.sub_add_cancel ?_
-    · replace h : n ≥ 1 := h
-      exact one_le_iff_ne_zero.mpr (Nat.pos_iff_ne_zero.mp (size_pos.mpr h))
-  obtain eq|gt : (n - 1 + 1).size = (n - 1).size ∨ (n - 1 + 1).size = (n - 1).size + 1 := size_limit (n - 1)
-  · have s1 : (n - 1).size < n.size := by
-      have s1 : n - 1 < 2 ^ (n.size - 1) := by
-        rw [←n_is_envelope]
-        exact sub_one_lt_of_lt h
-      have : (n - 1).size ≤ n.size - 1 := pow2_is_minimum (n.size - 1) (n - 1) s1
-      replace : (n - 1).size < n.size - 1 + 1 := Order.lt_add_one_iff.mpr this
-      simp [nsize_mp] at this
-      exact this
-    simp [n_mp] at eq
-    simp [eq] at s1
-  · simp [n_mp] at gt
-    exact gt
-
-/--
 For `n ≥ 1`, n is at least `2 ^ (n.size - 1)`.
 -/
 public theorem n_ge_subenvelope {n: ℕ} (h : 1 ≤ n) : n ≥ 2 ^ (n.size - 1) := by
@@ -547,30 +521,3 @@ Lower bound on n based on its bit size. For any positive natural number n,
 -/
 public theorem n_lower {n : ℕ} (n_gt_0 : n > 0) : 2 ^ (n.size - 1) ≤ n := by
   exact n_ge_subenvelope n_gt_0
-
-/--
-Stricter lower bound on n. For any natural number `n > 1`,
-`2 ^ (n.size - 2) < n`. This is a tighter bound than n_lower.
--/
-theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
-  obtain n_eq_2|n_bound : n = 2 ∨ n > 2 := LE.le.eq_or_lt' n_bound
-  · simp [n_eq_2]
-  · obtain n_eq_3|n_bound : n = 3 ∨ n > 3 := LE.le.eq_or_lt' n_bound
-    · simp [n_eq_3]
-    · replace n_bound : n ≥ 4 := n_bound
-      rename' n_bound => n_gt_4
-      have nsize_ge_3 : n.size ≥ 3 := size4_add_0_ge_2 n_gt_4
-      have lower : 2 ^ (n.size - 1) ≤ n := n_lower (zero_lt_of_lt n_gt_4)
-      have : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 1) := by
-        have s1 : 2 * 2 ^ (n.size - 2) = 2 ^ (n.size - 2 + 1) := Eq.symm Nat.pow_succ'
-        have s2 : n.size - 2 + 1 = n.size - 1 := by
-          refine Eq.symm ((fun {n m} ↦ pred_eq_succ_iff.mpr) ?_)
-          · exact Eq.symm (Nat.sub_add_cancel (le_of_add_left_le nsize_ge_3))
-        simp [s2] at s1
-        exact s1
-      simp [←this] at lower
-      rw [mul_comm, mul_two] at lower
-      replace : 0 < 2 ^ (n.size - 2) := Nat.two_pow_pos (n.size - 2)
-      replace : 1 ≤ 2 ^ (n.size - 2) := this
-      replace : 2 ^ (n.size - 2) + 1 ≤ n := add_le_of_add_le_left lower this
-      exact this

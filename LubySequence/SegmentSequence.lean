@@ -413,25 +413,6 @@ private theorem ofNat_index : ∀ n, (Segment.ofNat n).index = max n 1 := by
   | zero => simp [ofNat]
   | succ k => simp only [ofNat]; rw [unfold_segment_index]; omega
 
-/-- For indices in a segment, including segment is segment itself -/
-public theorem covering_segment_is_self : ∀ t : ℕ,
-    (Segment.ofNat (segmentIdCovering (one + t).start)).index = (one + t).index := by
-  intro t
-  cases t with
-  | zero =>
-    simp only [HAdd.hAdd, next, segmentIdCovering_0, ofNat, one]
-  | succ n =>
-    rw [ofNat_index, unfold_segment_index]
-    suffices h : segmentIdCovering (one + (n + 1)).start = n + 2 by omega
-    simp only [segmentIdCovering]
-    -- By definition of `segmentIdOver`, we know that `segmentIdOver (one + (n + 1)).start = (one + (n + 2)).index`.
-    have h_segmentIdOver_succ : segmentIdOver (one + (n + 1)).start = (one + (n + 2)).index := by
-      exact next_segment_is_covering_segment (n + 1);
-    -- By definition of `index`, we know that `(one + (n + 2)).index = n + 2 + 1`.
-    have h_index : (one + (n + 2)).index = n + 2 + 1 := by
-      exact unfold_segment_index (n + 2);
-    exact h_segmentIdOver_succ.symm ▸ h_index.symm ▸ rfl
-
 -- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
 
 /--
