@@ -126,14 +126,6 @@ example : Segment.ofNat 1 = { index := 1, start := 0 } := by simp [←next_as_ad
 example : Segment.ofNat 2 = { index := 2, start := 1 } := by simp [←next_as_add, nextStart, length]
 
 /--
-Every segment reached from `one` has a length of at least 1.
-This ensures that segments are non-empty and partition the sequence properly.
--/
-public theorem segment_length_gt_0 : ∀ t : ℕ, (one + t).length ≥ 1 := by
-  intro t
-  simp [length]
-
-/--
 Explicit formula for the segment after `n` steps from `one`.
 The segment has index `n + 1` and its start position is the sum of all
 previous segment lengths, where each length is `trailing_zeros (i + 1) + 1`.
@@ -543,41 +535,6 @@ public theorem segment_length_at_next_of_envelope (n : ℕ) (hn : n > 0) :
   have h_ofNat : Segment.ofNat (2 ^ n + 1) = one + 2 ^ n := by rfl
   rw [h_ofNat, unfold_segment_length]
   simp [htz]
-
-/--
-For `n > 0` with `n = 2 ^ n.size - 2` (i.e., `n` is two less than a power of two),
-the start position of `segmentOver n` minus one equals `n`.
-
-This follows from `segmentIdOver_at_envelope`, which identifies the covering segment,
-and `sum_of_trailing_zeros_prop`, which computes its start position.
--/
-public theorem envelop_segment_prop1 : ∀ n > 0, n = 2 ^ n.size - 2 → (segmentOver n).start - 1 = n := by
-  intro n n_gt_0 n_eq
-  -- Step 1: n.size ≥ 2 (since n > 0 and n = 2^(n.size) - 2)
-  have h_size_ge : n.size ≥ 2 := by
-    have : n.size ≥ 1 := Nat.size_pos.mpr n_gt_0
-    by_contra h; push_neg at h
-    have : n.size = 1 := by omega
-    rw [this] at n_eq; norm_num at n_eq; omega
-  -- Step 2: Let k = n.size - 1, so n.size = k + 1 and n = 2^(k+1) - 2
-  set k := n.size - 1
-  have hk : n.size = k + 1 := by omega
-  have n_eq' : n = 2 ^ (k + 1) - 2 := by rw [← hk]; exact n_eq
-  -- Step 3: segmentIdOver n = 2^k + 1
-  have h_id : segmentIdOver n = 2 ^ k + 1 := by
-    rw [n_eq']; exact segmentIdOver_at_envelope k
-  -- Step 4: Unfold segmentOver to (one + 2^k)
-  have h_ofNat : Segment.ofNat (2 ^ k + 1) = one + 2 ^ k := rfl
-  simp only [segmentOver, h_id, h_ofNat]
-  -- Step 5: Compute start via sum_of_trailing_zeros_prop
-  rw [unfold_segment_start]
-  have h_pow : (2 : ℕ) ^ k = 2 ^ (((2 : ℕ) ^ k).size - 1) := by
-    rw [size_of_pow2_eq_self_add_one]; simp
-  rw [sum_of_trailing_zeros_prop _ h_pow, n_eq']
-  -- Step 6: Arithmetic: 2 * 2^k - 1 - 1 = 2^(k+1) - 2
-  rw [show 2 ^ (k + 1) = 2 * 2 ^ k from by rw [pow_succ, mul_comm]]
-  have : 1 ≤ 2 ^ k := Nat.one_le_two_pow
-  omega
 
 /-- define Luby value from segment structure -/
 @[expose]

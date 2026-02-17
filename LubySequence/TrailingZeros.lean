@@ -32,28 +32,10 @@ public def trailing_zeros (n : ℕ) : ℕ := match h : n with
 -- #eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
 
 /--
-The number of trailing zeros in 0 is 0.
--/
-@[simp]
-public theorem trailing_zeros0 : trailing_zeros 0 = 0 := by simp [trailing_zeros]
-
-/--
 The number of trailing zeros in 1 is 0.
 -/
 @[simp]
 public theorem trailing_zeros1 : trailing_zeros 1 = 0 := by simp [trailing_zeros]
-
-/--
-The number of trailing zeros in 2 is 1.
--/
-@[simp]
-public theorem trailing_zeros2 : trailing_zeros 2 = 1 := by simp [trailing_zeros]
-
-/--
-The number of trailing zeros in 3 is 0.
--/
-@[simp]
-public theorem trailing_zeros3 : trailing_zeros 3 = 0 := by simp [trailing_zeros]
 
 /--
 Returns the number of consecutive ones at the end of bit representation of Nat `n`.
@@ -276,30 +258,6 @@ public theorem trailing_zeros_prop9 : ∀ n : ℕ, ∀ k < 2 ^ n,
   replace k_def : k' = k - 1 := by grind
   simp [k_def] at *
   exact trailing_zeros_prop8 n k k_lt_pow2
-
-/--
-  For any positive natural number `n`, appending a `1` bit to the front of the binary
-  representation of `n` (i.e. going from `2 * n` to `2 * n + 1`) does not change the
-  length of the bit-list, and hence does not change the `size` (the bit-length)
-  of the corresponding natural number.
-
-  In binary terms, for `n > 0` we have
-  `(2 * n).bits = false :: n.bits` and `(2 * n + 1).bits = true :: n.bits`,
-  so both bit-lists have the same length `n.bits.length + 1`. Note that the
-  assumption `n > 0` is necessary: for `n = 0` we have `0.size = 0` but `1.size = 1`.
-  -/
-public theorem size_of_even_add_one_eq_size_of_self : ∀ n > 0,
-    ((2 : ℕ) * n).size = ((2 : ℕ) * n + 1).size := by
-  intro n h
-  let bv := n.bits
-  have hbv : bv = value_of% bv := rfl
-  have two0 : (2 * n).bits = false :: bv := bits_of_double_eq_cons_false_and_bits n h
-  have two1 : (2 * n + 1).bits = true :: bv := bit1_bits n
-  have t1 : (2 * n).bits.length = (2 * n + 1).bits.length := by
-    simp only [two0, two1]
-    exact rfl
-  simp only [bitslength_eq_size] at t1
-  exact t1
 
 -- #eval List.range 6
 --    |>.map (fun n ↦ 2 ^ n)

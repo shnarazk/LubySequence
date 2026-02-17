@@ -26,15 +26,6 @@ The size (bit length) of 4 is 3.
 public theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
 
 /--
-For any natural number n ≥ 2, its size (bit length) is at least 2.
--/
-@[simp]
-public theorem size2_ge_2 {n : ℕ} (h : n ≥ 2) : n.size ≥ 2 := by
-  have s1 : n.size ≥ (2 : ℕ).size := by exact size_le_size h
-  simp at s1
-  exact s1
-
-/--
 For any natural number n ≥ 2, the size of n + 2 is at least 3.
 -/
 @[simp]
@@ -105,13 +96,6 @@ example (n : ℕ) : (2 * n + 1).bits = true :: n.bits := by
   exact bit1_bits n
 
 /--
-The size of `n * 2` equals `n.size + 1` (for positive n).
--/
-theorem size_of_two_mul_eq_aize_add_one (n : ℕ) (h : n > 0) :
-    n.size + 1 = (n * 2).size := by
-  simp [←size_eq_bits_len, mul_comm n 2, bits_of_double_eq_cons_false_and_bits n h]
-
-/--
 If `2 * a < b`, then the size of a is less than the size of b.
 -/
 public theorem size_lt {a b : ℕ} (h : 0 < a) : (2 : ℕ) * a < b → a.size < b.size := by
@@ -164,17 +148,6 @@ The size of `2 ^ n` equals `n + 1`.
 public theorem size_of_pow2_eq_self_add_one (n : ℕ) : ((2 : ℕ) ^ n).size = n + 1 := by
   simp [←bitslength_eq_size]
   exact bitslength_of_pow2_eq_self_add_one n
-
-/--
-The bit representation of `2 ^ n` consists of n false bits followed by one true bit.
--/
-theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
-  induction n with
-  | zero => simp
-  | succ n hn =>
-    have s1 : 2 ^ (n + 1) = 2 * (2 ^ n) := pow_succ'
-    simp [s1]
-    exact hn
 
 /--
 The bit representation of `2 ^ n - 1` consists of n true bits.
