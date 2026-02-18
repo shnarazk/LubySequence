@@ -200,7 +200,9 @@ public theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment
     expose_names
     have : segment_starts m ≤ segment_starts m.succ := by
       simp [segment_starts]
-      exact sum_le_sum_of_subset (GCongr.finset_range_subset_of_le (Nat.sub_le m 1))
+      refine  sum_le_sum_of_subset ?_
+      · refine range_subset_range.mpr ?_
+        · exact Nat.sub_le m 1
     exact Nat.le_trans ih this
 
 /--
@@ -438,12 +440,14 @@ theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_start
 
 /-- The value returned by `segmentIdCovering` is always positive. -/
 public theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
-  have h : ∃ i > 0, segment_starts i ≥ m := ⟨m + 1, by omega, segment_starts_ge_self m⟩
-  obtain ⟨hpos, _⟩ := Nat.find_spec h
-  unfold Segment.segmentIdCovering;
-  unfold Segment.segmentIdOver;
-  simp +zetaDelta at *;
-  intro i hi; interval_cases i <;> norm_num [ Segment.segment_starts ] ;
+  simp only [segmentIdCovering, segmentIdOver]
+  have h_ex : ∃ i : ℕ, segment_starts i > m := ⟨m + 2, segment_starts_gt_self m⟩
+  change Nat.find h_ex - 1 > 0
+  have h0 : ¬(segment_starts 0 > m) := by simp [segment_starts]
+  have h1 : ¬(segment_starts 1 > m) := by simp [segment_starts]
+  have hne0 : Nat.find h_ex ≠ 0 := fun heq => h0 (heq ▸ Nat.find_spec h_ex)
+  have hne1 : Nat.find h_ex ≠ 1 := fun heq => h1 (heq ▸ Nat.find_spec h_ex)
+  omega
 
 /--
 For a power of two `n = 2 ^ (n.size - 1)`, the segment ID covering position `2 * n - 1`

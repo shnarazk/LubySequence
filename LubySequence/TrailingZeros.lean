@@ -275,7 +275,8 @@ public theorem sum_of_trailing_zeros_prop :
     · rw [ pow_succ' ];
       -- We can split the sum into two parts: the sum over the first half and the sum over the second half.
       have h_split : ∑ i ∈ Finset.range (2 * 2 ^ k), (trailing_zeros (i + 1) + 1) = (∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (i + 1) + 1)) + (∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (2 ^ k + i + 1) + 1)) := by
-        rw [ two_mul, Finset.sum_range_add ];
+        rw [Nat.two_mul]
+        exact sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) (2 ^ k) (2 ^ k)
       -- By the properties of trailing zeros, we can simplify the second sum.
       have h_simplify : ∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (2 ^ k + i + 1) + 1) = ∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (i + 1) + 1) + 1 := by
         have h_simplify : ∀ i ∈ Finset.range (2 ^ k), trailing_zeros (2 ^ k + i + 1) = trailing_zeros (i + 1) + (if i + 1 = 2 ^ k then 1 else 0) := by
@@ -289,7 +290,7 @@ public theorem sum_of_trailing_zeros_prop :
           show { x ∈ Finset.range ( 2 ^ k ) | 1 + x = 2 ^ k } = { 2 ^ k - 1 } from
             Finset.eq_singleton_iff_unique_mem.mpr ⟨
               Finset.mem_filter.mpr ⟨
-                Finset.mem_range.mpr ( Nat.sub_lt ( by norm_num ) ( by norm_num ) ),
+                Finset.mem_range.mpr ( Nat.sub_lt ( by exact Nat.two_pow_pos k) ( by norm_num ) ),
                 by rw [ add_tsub_cancel_of_le ( Nat.one_le_pow _ _ ( by norm_num ) ) ] ⟩,
               fun x hx => by linarith [ Finset.mem_filter.mp hx, Nat.sub_add_cancel ( Nat.one_le_pow k 2 ( by norm_num ) ) ] ⟩
            ] ; norm_num ; -- ring;
