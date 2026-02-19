@@ -31,7 +31,7 @@
 #let title = [An Online Algorithm for Luby Sequence]
 #align(center, text(30pt, [*#title*]))
 #grid(columns: (1fr),align(center, [`shnarazk`]))
-#grid(columns: (1fr),align(center, [2026-02-XX]))
+#grid(columns: (1fr),align(center, [2026-02-2X]))
 
 = Luby sequence
 
@@ -232,7 +232,7 @@ $
 
 An Online algorithm on segment sequence
 
-== From segment index to segment length
+== From segment index to segment length to Luby value
 
 #canvas(length: 10pt, {
   draw.set-style(content: (padding: 0.1em))
@@ -253,25 +253,34 @@ An Online algorithm on segment sequence
           (text(fill: red, [$\#7 = "b111"$])),
           (text(fill: blue, [$\#8 = "b1000"$])), ), )) )
 })
+$ "Luby value" = 2 ^ "index in segment" $
 
-$ "segment_beg"_n = 1 + sum_(i = 0)^n #pin(1)i."trailing_zero"#pin(2) + 1 $
+$ "segment_len"(n) = #pin(1)"trailing_zeros"(n)#pin(2) $
+
+$ "segment_beg"(n) = "segment_beg"(n - 1) + "segment_length"(n - 1) $
+
+// # $ "segment_beg"_n = 1 + sum_(i = 0)^n #pin(1)i."trailing_zero"#pin(2) + 1 $
+
+$ "Luby value"(n) = 2 ^ (n - "segment_beg"(n)) $
 
 #pinit-highlight(1, 2)
 
-#pinit-point-from(2)[
-  #text(size: 16pt, [$8."trailing_zero" = 3$])
+#pinit-point-from(2, pin-dy: -6mm, offset-dy: -14mm, body-dy: -6mm)[
+  #text(size: 16pt, [$"trailing_zero"(8) = 3$])
 ]
 
 #pause
 
-$ "segment_beg"_(2^k) = 2^k $
+Therefore this is a recursive function. (not strong recursion)
 
-== Luby state
+== Segment state
+- Save the last segment info
+from $O(log n)$ time to $O(1)$ time and $O(1)$ space
 
 ```lean
 structure State where
-  segIx : ℕ  -- 単調増加部分数列(segment)の何番目か(1-based)
-  locIx : ℕ　-- 現在のsegment内で何番目(local index)か(0-based)
+  segIx : ℕ  -- (one-based) segment index
+  locIx : ℕ　-- (zero-based) local index in a segment
 
 /-- O(1) -/
 def State.next (s : State) : State := . . .
