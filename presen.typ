@@ -233,7 +233,6 @@ $
 An Online algorithm on segment sequence
 
 == From segment index to segment length to Luby value
-
 #canvas(length: 10pt, {
   draw.set-style(content: (padding: 0.1em))
   tree.tree(spread: 0.3,
@@ -253,29 +252,27 @@ An Online algorithm on segment sequence
           (text(fill: red, [$\#7 = "b111"$])),
           (text(fill: blue, [$\#8 = "b1000"$])), ), )) )
 })
-$ "Luby value" = 2 ^ "index in segment" $
+$ "Luby value" = 2 ^ "index_in_segment" $
 
-$ "segment_len"(n) = #pin(1)"trailing_zeros"(n)#pin(2) $
+$ "segment_len"(s) = #pin(1)"trailing_zeros"(s)#pin(2) + 1 $
 
-$ "segment_beg"(n) = "segment_beg"(n - 1) + "segment_length"(n - 1) $
+$ #pin(3)"segment_beg"(s) = "segment_beg"(s - 1)#pin(4) + "segment_length"(s - 1) $
 
-// # $ "segment_beg"_n = 1 + sum_(i = 0)^n #pin(1)i."trailing_zero"#pin(2) + 1 $
-
-$ "Luby value"(n) = 2 ^ (n - "segment_beg"(n)) $
+$ "index_in_segment"_n = n - "segment_beg"("index_to_segment_index"(n)) $
 
 #pinit-highlight(1, 2)
 
 #pinit-point-from(2, pin-dy: -6mm, offset-dy: -14mm, body-dy: -6mm)[
   #text(size: 16pt, [$"trailing_zero"(8) = 3$])
 ]
+#pinit-highlight(3, 4)
 
-#pause
+#pinit-point-from(4, offset-dy: 20mm)[simple recursion]
 
-Therefore this is a recursive function. (not strong recursion)
 
 == Segment state
 - Save the last segment info
-from $O(log n)$ time to $O(1)$ time and $O(1)$ space
+from $O(1)$ time to $O(1)$ time and $O(1)$ space implementation
 
 ```lean
 structure State where
@@ -287,6 +284,8 @@ def State.next (s : State) : State := . . .
 /-- O(1) -/
 def State.luby (s : State) : ℕ := 2 ^ s.locIx
 ```
+
+This is better than the original Luby $O(log n)$.
 
 == Archievement
 
