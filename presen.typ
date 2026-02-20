@@ -350,6 +350,12 @@ theorem LubyState_is_additive : ∀ n : ℕ,
 
 == proved theorems
 
-#image("graph.png", height: 72%)
+#image("graph-20260215.svg")
 
+== trim unused theorems
+#pad(top: -10mm)[#image("graph.svg", height: 83%)]
+
+#pad(top: -14mm)[
+#scale(70%)[
 #box(fill: rgb("AED6F1"), inset: 1mm)[about bit length or `size`] / #box(fill: rgb("F9E79F"), inset: 1mm)[about $"trailing_zeros"$]
+]]
