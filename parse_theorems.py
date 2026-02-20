@@ -178,10 +178,6 @@ def write_dot(
     # Only emit edges between known declarations
     all_names = set(decl_to_file.keys())
 
-    # Assign a stable color to each file
-    def node_color(fname: str) -> str:
-        return FILE_COLORS.get(fname, DEFAULT_COLOR)
-
     with output_path.open("w", encoding="utf-8") as f:
         f.write("digraph LubyDependencies {\n")
         f.write('  rankdir=LR;\n')
@@ -189,31 +185,13 @@ def write_dot(
         f.write('  edge [arrowsize=0.6];\n')
         f.write("\n")
 
-        # Legend subgraph
-        f.write("  subgraph cluster_legend {\n")
-        f.write('    label="Legend (by file)";\n')
-        f.write('    fontsize=10;\n')
-        f.write('    style=dashed;\n')
-        for fname, color in FILE_COLORS.items():
-            legend_id = "legend_" + sanitize_dot_id(fname.replace(".lean", ""))
-            label = fname.replace(".lean", "")
-            f.write(f'    {legend_id} [label="{label}", fillcolor="{color}"];\n')
-        f.write("  }\n\n")
-
-        # Group nodes by file in subgraphs
-        files = sorted(set(decl_to_file.values()))
-        for fname in files:
-            names_in_file = sorted(n for n, fn in decl_to_file.items() if fn == fname)
-            color = node_color(fname)
-            cluster_id = "cluster_" + sanitize_dot_id(fname.replace(".lean", ""))
-            f.write(f"  subgraph {cluster_id} {{\n")
-            f.write(f'    label="{fname}";\n')
-            f.write('    style=filled;\n')
-            f.write('    color="#CCCCCC";\n')
-            for name in names_in_file:
-                node_id = sanitize_dot_id(name)
-                f.write(f'    {node_id} [label="{name}", fillcolor="{color}"];\n')
-            f.write("  }\n\n")
+        # All nodes in a single flat list, colored by source file
+        for name in sorted(all_names):
+            fname = decl_to_file[name]
+            node_id = sanitize_dot_id(name)
+            color = FILE_COLORS.get(fname, DEFAULT_COLOR)
+            f.write(f'  {node_id} [label="{name}", fillcolor="{color}"];\n')
+        f.write("\n")
 
         # Edges
         for src_name in sorted(all_names):
