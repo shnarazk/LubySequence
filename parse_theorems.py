@@ -15,26 +15,27 @@ Requires Python 3.9 or later.
 
 from __future__ import annotations
 
+import argparse
+
+# import os
 import re
 import sys
-import os
-import argparse
 from pathlib import Path
 
 # Color palette per source file (fill color for nodes)
 FILE_COLORS = {
-    "Size.lean":            "#AED6F1",  # light blue
-    "Basic.lean":           "#A9DFBF",  # light green
-    "TrailingZeros.lean":   "#F9E79F",  # light yellow
+    "Size.lean": "#AED6F1",  # light blue
+    "Basic.lean": "#A9DFBF",  # light green
+    "TrailingZeros.lean": "#F9E79F",  # light yellow
     "SegmentSequence.lean": "#F5CBA7",  # light orange
-    "Equivalence.lean":     "#D7BDE2",  # light purple
+    "Equivalence.lean": "#D7BDE2",  # light purple
 }
 DEFAULT_COLOR = "#DDDDDD"
 
 # Simpler line-level pattern used in the two-pass approach
 DECL_LINE_RE = re.compile(
     r"^(?:public\s+|private\s+|protected\s+)?"
-    r"(?:theorem|lemma|def|abbrev|structure|class|instance)"
+    r"(?:theorem)"
     r"\s+([\w'₀-₉ᵤ\u00B2-\u00B9\u2070-\u207F\u2080-\u209F]+)"
 )
 
@@ -155,10 +156,26 @@ def sanitize_dot_id(name: str) -> str:
     """
     # Replace Unicode subscript digits (₀–₉) and superscript digits (⁰–⁹)
     replacements = {
-        "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4",
-        "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9",
-        "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4",
-        "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9",
+        "₀": "0",
+        "₁": "1",
+        "₂": "2",
+        "₃": "3",
+        "₄": "4",
+        "₅": "5",
+        "₆": "6",
+        "₇": "7",
+        "₈": "8",
+        "₉": "9",
+        "⁰": "0",
+        "¹": "1",
+        "²": "2",
+        "³": "3",
+        "⁴": "4",
+        "⁵": "5",
+        "⁶": "6",
+        "⁷": "7",
+        "⁸": "8",
+        "⁹": "9",
         "'": "_prime",
     }
     result = name
@@ -180,13 +197,19 @@ def write_dot(
 
     with output_path.open("w", encoding="utf-8") as f:
         f.write("digraph LubyDependencies {\n")
-        f.write('  rankdir=LR;\n')
+        f.write("  rankdir=TB;\n")
         f.write('  node [shape=box, style=filled, fontname="Helvetica", fontsize=9];\n')
-        f.write('  edge [arrowsize=0.6];\n')
+        f.write("  edge [arrowsize=0.6];\n")
         f.write("\n")
 
         # All nodes in a single flat list, colored by source file
         for name in sorted(all_names):
+            # Some callers may pass an `edges` mapping that doesn't include
+            # every declaration name (historical or filtered graphs). Skip
+            # nodes for which we have no edge-entry to avoid KeyError.
+            if name not in [x for sub in edges.values() for x in sub] and edges.keys():
+                print(f"Warning: No edge entry for {name}")
+                continue
             fname = decl_to_file[name]
             node_id = sanitize_dot_id(name)
             color = FILE_COLORS.get(fname, DEFAULT_COLOR)
@@ -195,11 +218,13 @@ def write_dot(
 
         # Edges
         for src_name in sorted(all_names):
+            if src_name not in edges.keys():
+                continue
             src_id = sanitize_dot_id(src_name)
             for dst_name in sorted(edges.get(src_name, set())):
                 if dst_name in all_names:
                     dst_id = sanitize_dot_id(dst_name)
-                    f.write(f"  {src_id} -> {dst_id};\n")
+                    f.write(f"  {dst_id} -> {src_id};\n")
 
         f.write("}\n")
 
@@ -231,7 +256,9 @@ def main() -> int:
 
     total_decls = len(decl_to_file)
     total_edges = sum(len(v) for v in edges.values())
-    print(f"Found {total_decls} declarations across {len(set(decl_to_file.values()))} files.")
+    print(
+        f"Found {total_decls} declarations across {len(set(decl_to_file.values()))} files."
+    )
     print(f"Found {total_edges} dependency edges.")
 
     write_dot(decl_to_file, edges, output_path)
