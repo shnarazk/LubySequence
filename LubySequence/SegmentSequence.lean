@@ -144,24 +144,6 @@ public theorem unfold_segment : ∀ t : ℕ,
       exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) t)
     simp [this]
 
--- #eval List.range 20 |>.map (fun t ↦ (t + 1, (Segment.zero.next t).index))
-
-/--
-The index of the segment after `n` steps from the zero segment is `n + 1`.
-This establishes a direct relationship between the number of steps and the segment index.
--/
-public theorem unfold_segment_index : ∀ t : ℕ, (one + t).index = t + 1 := by
-  intro t
-  simp only [unfold_segment t]
-
-/--
-The length of the segment after `n` steps from zero equals
-`trailing_zeros (n + 1) + 1`, which follows from the segment index being `n + 1`.
--/
-public theorem unfold_segment_length : ∀ t : ℕ, (one + t).length = trailing_zeros (t + 1) + 1 := by
-  intro t
-  simp only [unfold_segment, length]
-
 /- #eval List.range 20
     |>.map (fun n ↦ (n, (Segment.zero.next n).start, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
 -/
@@ -311,15 +293,6 @@ public theorem segmentIdOver_0 : segmentIdOver 0 = 2 := by
         simp [segment_starts]
 
 /--
-The segment ID covering position 0 is 1.
-Since `segment_starts i ≥ 0` holds for all `i` and the `i > 0` constraint
-excludes 0, `Nat.find` returns the smallest positive `i`, which is 1.
--/
-public theorem segmentIdCovering_0 : segmentIdCovering 0 = 1 := by
-  simp [segmentIdCovering]
-  exact segmentIdOver_0
-
-/--
 Extend the initial segment to cover position `limit`.
 Returns the segment that contains position `limit` by advancing from `one`
 using `findLargestCoveredSegment` to determine the appropriate number of steps.
@@ -333,110 +306,7 @@ Returns the segment including index `n`.
 @[expose]
 public def segmentCovering (n : ℕ) : Segment := Segment.ofNat (segmentIdCovering n)
 
--- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).start, (one + (t + 1)).index)
-/--
-For any segment `one + t`, the segment ID covering its start position is the next segment's index.
-Specifically, `segmentIdOver (one + t).start = (one + (t + 1)).index`.
-This establishes the relationship between segment positions and their covering segment IDs.
--/
-public theorem next_segment_is_covering_segment : ∀ t : ℕ,
-    segmentIdOver (one + t).start = (one + (t + 1)).index := by
-  intro n
-  rw [unfold_segment_index]
-  simp only [segmentIdOver]
-  refine
-    (Nat.find_eq_iff
-          (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
-            (fun [DecidablePred fun t ↦ segment_starts t > (one + n).start] ↦
-              segmentIdOver._proof_1 (one + n).start)
-            (funext fun t ↦ gt_iff_lt._simp_1))).mpr
-      ?_
-  · constructor
-    · simp only [←segment_starts_to_segment_start]
-      exact segment_starts_is_increasing' (Nat.zero_lt_succ n) (lt_add_one (n + 1))
-    · intro t' t'_cond
-      replace t'_cond : t' ≤ n + 1 := Nat.le_of_succ_le_succ t'_cond
-      replace t'_cond : t' - 1 ≤ n := Nat.sub_le_of_le_add t'_cond
-      obtain eq|lt : t' - 1 = n ∨ t' - 1 < n := Nat.eq_or_lt_of_le t'_cond
-      · rw [←segment_starts_to_segment_start]
-        have : segment_starts t' ≤ segment_starts (n + 1) := by
-          refine segment_starts_is_monotone ?_
-          · simp [←eq]
-            exact le_tsub_add
-        exact Nat.le_lt_asymm this
-      · rw [←segment_starts_to_segment_start]
-        have : segment_starts t' ≤ segment_starts (n + 1) := by
-          refine segment_starts_is_monotone ?_
-          · replace lt : t' < n + 1 := lt_add_of_tsub_lt_right lt
-            exact Nat.le_of_succ_le lt
-        exact Nat.le_lt_asymm this
-
 -- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
-
-/--
-For any `n`, the segment ID covering the cumulative sum of segment lengths equals `n + 2`.
-Specifically, `segmentIdOver (∑ i ∈ range n, (trailing_zeros (i + 1) + 1)) = n + 2`.
-This relates the position computed from summing segment lengths to the segment index.
--/
-public theorem segmentOver_of_sum_of_trailing_zeros :
-    ∀ n : ℕ, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1)) = n + 2 := by
-  intro n
-  induction n with
-  | zero => simp [segmentIdOver_0]
-  | succ n ih =>
-    rw [sum_range_succ]
-    simp [segmentIdOver]
-    refine
-      (Nat.find_eq_iff
-            (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
-              (fun
-                  [DecidablePred fun i ↦
-                      segment_starts i >
-                        ∑ x ∈ range n, (trailing_zeros (x + 1) + 1) +
-                          (trailing_zeros (n + 1) + 1)] ↦
-                segmentIdOver._proof_1
-                  (∑ x ∈ range n, (trailing_zeros (x + 1) + 1) + (trailing_zeros (n + 1) + 1)))
-              (funext fun i ↦ gt_iff_lt._simp_1))).mpr
-        ?_
-    · constructor
-      · have : ∑ x ∈ range n, (trailing_zeros (x + 1) + 1) + (trailing_zeros (n + 1) + 1) =
-            ∑ x ∈ range (n + 1), (trailing_zeros (x + 1) + 1) := by
-          exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
-        simp [this]
-        rw [←unfold_segment_start]
-        rw [←segment_starts_to_segment_start]
-        exact segment_starts_is_increasing' (Nat.zero_lt_succ (n + 1)) (Nat.lt_succ_self (n + 1 + 1))
-      · intro n' n'_def
-        have : ∑ x ∈ range n, (trailing_zeros (x + 1) + 1) + (trailing_zeros (n + 1) + 1) =
-            ∑ x ∈ range (n + 1), (trailing_zeros (x + 1) + 1) := by
-          exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) n)
-        simp [this]
-        rw [←unfold_segment_start]
-        rw [←segment_starts_to_segment_start]
-        replace n'_def : n' ≤ n + 1 + 1 := by exact Nat.le_of_succ_le_succ n'_def
-        exact segment_starts_is_monotone n'_def
-
-public theorem unfold_segmentIdOver_of_sum (t : ℕ) : segmentIdOver (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = t + 2 := by
-  have unfold_segment_start (t : ℕ): (one + t).start = ∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1) := by
-    exact unfold_segment_start t
-  simp only [←unfold_segment_start]
-  -- have s2 : (∑ i ∈ Finset.range t, (trailing_zeros (i + 1) + 1)) = (one + t).start := by
-  --   exact Eq.symm (unfold_segment_start t)
-  -- rw [←s2]
-  simp only [next_segment_is_covering_segment]
-  simp only [unfold_segment_index]
-
-/-- `segmentIdCovering m` is at most `j` whenever `j > 0` and `segment_starts j ≥ m`. -/
-theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_starts j ≥ m) :
-    segmentIdCovering m ≤ j := by
-  simp only [segmentIdCovering]
-  -- By definition of `segmentIdOver`, we know that `segmentIdOver m` is the smallest index `i` such that `segment_starts i > m`.
-  have h_segmentIdOver : ∀ i, segment_starts i > m → Segment.segmentIdOver m ≤ i := by
-    exact fun i hi => Nat.find_min' _ hi;
-  -- Since `segment_starts j = m` and `j > 0`, by the definition of `segmentIdOver`, the smallest `i` such that `segment_starts i > m` must be `j + 1`.
-  have h_segmentIdOver_j1 : Segment.segmentIdOver (Segment.segment_starts j) = j + 1 := by
-    have := unfold_segmentIdOver_of_sum ( j - 1 ) ; cases j <;> aesop;
-  grind
 
 /-- The value returned by `segmentIdCovering` is always positive. -/
 public theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
@@ -448,35 +318,6 @@ public theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
   have hne0 : Nat.find h_ex ≠ 0 := fun heq => h0 (heq ▸ Nat.find_spec h_ex)
   have hne1 : Nat.find h_ex ≠ 1 := fun heq => h1 (heq ▸ Nat.find_spec h_ex)
   omega
-
-/--
-For a power of two `n = 2 ^ (n.size - 1)`, the segment ID covering position `2 * n - 1`
-(the last position of the envelope of size `2 * n`) equals `n + 2`.
-
-This is the conditional form: the hypothesis restricts `n` to be a power of two,
-since `n = 2 ^ (n.size - 1)` holds exactly when `n` is a power of two.
-The proof rewrites the position `2 * n - 1` as the cumulative sum of trailing-zeros-based
-segment lengths via `sum_of_trailing_zeros_prop`, then applies `unfold_segmentIdOver_of_sum`.
--/
-public theorem segmentIdOver_at_next_of_envelope1 (n : ℕ) : n = 2 ^ (n.size - 1) → segmentIdOver ((2 : ℕ) * n - 1) = n + 2 := by
-  intro hn
-  rw (occs := .pos [1]) [←sum_of_trailing_zeros_prop n hn]
-  simp only [unfold_segmentIdOver_of_sum]
-
-/--
-For any `n`, the segment ID covering position `2 ^ (n + 1) - 1`
-(the last position of the envelope of size `2 ^ (n + 1)`) equals `2 ^ n + 2`.
-
-This is the unconditional specialization of `segmentIdOver_at_next_envelope1` obtained by
-setting `n := 2 ^ k`. The hypothesis `2 ^ k = 2 ^ ((2 ^ k).size - 1)` is
-discharged automatically using `size_of_pow2_eq_self_add_one`, which gives
-`(2 ^ k).size = k + 1`.
--/
-public theorem segmentIdOver_at_next_of_envelope1' (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 1) = 2 ^ n + 2 := by
-  have h : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
-    rw [size_of_pow2_eq_self_add_one]; simp
-  rw [pow_succ, mul_comm]
-  exact segmentIdOver_at_next_of_envelope1 (2 ^ n) h
 
 /--
 For any `n`, the segment ID covering position `2 ^ (n + 1) - 2`
@@ -515,31 +356,6 @@ public theorem segmentIdOver_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) 
       exact Nat.le_pred_of_lt hlt
     exact Nat.not_lt_of_ge (Nat.le_trans hmono hle)
 
-/--
-For positive `n`, the segment that covers position `2 ^ (n + 1) - 2`
-has length `1`.
-
-The proof uses `segmentId_at_envelope` to identify the segment index and
-then shows `trailing_zeros (2 ^ n + 1) = 0`, so the length
-`trailing_zeros (2 ^ n + 1) + 1` equals `1`.
--/
-public theorem segment_length_at_next_of_envelope (n : ℕ) (hn : n > 0) :
-    (Segment.ofNat (segmentIdOver (2 ^ (n + 1) - 2))).length = 1 := by
-  rw [segmentIdOver_at_envelope]
-  have hlt : (1 : ℕ) < 2 ^ n := by
-    exact Nat.one_lt_two_pow (Nat.ne_of_gt hn)
-  have htz' : trailing_zeros (1 + 2 ^ n) = trailing_zeros 1 := by
-    refine trailing_zeros_prop7 n 1 ?_ ?_
-    · exact hlt
-    · exact Nat.one_ne_zero
-  have htz1 : trailing_zeros (1 + 2 ^ n) = 0 := by
-    simpa [trailing_zeros1] using htz'
-  have htz : trailing_zeros (2 ^ n + 1) = 0 := by
-    simpa [add_comm] using htz1
-  have h_ofNat : Segment.ofNat (2 ^ n + 1) = one + 2 ^ n := by rfl
-  rw [h_ofNat, unfold_segment_length]
-  simp [htz]
-
 /-- define Luby value from segment structure -/
 @[expose]
 public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
@@ -564,14 +380,5 @@ public theorem luby_via_segment_zero_eq_one : luby_via_segment 0 = 1 := by
   have h_id : segmentIdOver 0 = 2 := by simp [segmentIdOver_0]
   simp only [luby_via_segment, segmentIdCovering, h_id]
   simp [ofNat, ←next_as_add]
-
-/-- The Luby value of index 1 is 1. -/
-public theorem luby_via_segment_one_eq_one : luby_via_segment 1 = 1 := by
-  have h_id : segmentIdOver 1 = 3 := by
-    have := segmentIdOver_at_next_of_envelope1' 0
-    norm_num at this
-    exact this
-  simp only [luby_via_segment, segmentIdCovering, h_id]
-  simp [ofNat, ←next_as_add, nextStart, length]
 
 end Segment

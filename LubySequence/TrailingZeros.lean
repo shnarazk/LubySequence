@@ -46,49 +46,6 @@ def trailing_ones (n : ℕ) : ℕ :=
   then n
   else if n % 2 = 1 then 1 + trailing_ones (n / 2) else 0
 
-  /--
-The number of trailing zeros in 2^n equals n.
--/
-theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
-  intro n
-  induction n with
-  | zero => simp [trailing_zeros.eq_def]
-  | succ n hn' =>
-    rw [trailing_zeros.eq_def]
-    split <;> expose_names
-    · have c : ¬2 ^ (n + 1) = 0 := NeZero.ne (2 ^ (n + 1))
-      exact absurd heq c
-    · have n2 : (2 ^ (n + 1)).size = n + 2 := size_of_pow2_eq_self_add_one (n + 1)
-      split <;> expose_names
-      · simp [n2]
-      · simp [n2] at h
-
-/--
-For n > 1 where n = 2^(n.size-1), the trailing zeros of n equals
-the trailing zeros of (n - 2^(n.size-2)) plus 1.
--/
-theorem trailing_zeros_prop2 :
-    ∀ n : ℕ, n > 1 → n = 2 ^ (n.size - 1) → trailing_zeros (n - 2 ^ (n.size - 2)) + 1 = trailing_zeros n := by
-  intro n hn1 hn2
-  have n2 : 2 ≤ n.size := by
-    have t1 : (2 : ℕ).size ≤ n.size := size_le_size hn1
-    have t2 : (2 : ℕ).size = 2 := by simp [size]
-    exact le_of_eq_of_le (id (Eq.symm t2)) t1
-  have t1 : trailing_zeros n = n.size - 1 := by
-    rewrite (occs := .pos [1]) [hn2]
-    exact trailing_zeros_of_envelope (n.size - 1)
-  have t2 : n - 2 ^ (n.size - 2) = 2 ^ (n.size - 2) := by
-    rewrite (occs := .pos [1]) [hn2]
-    refine Nat.sub_eq_of_eq_add ?_
-    rw [←mul_two]
-    have : 2 ^ (n.size - 2) * 2 = 2 ^ (n.size - 2 + 1) := rfl
-    simp [this]
-    exact (Nat.sub_eq_iff_eq_add n2).mp rfl
-  simp [t1, t2]
-  have : trailing_zeros (2 ^ (n.size - 2)) = n.size - 2 := trailing_zeros_of_envelope (n.size - 2)
-  simp [this]
-  grind
-
 /--
 The number of trailing zeros in 2^n equals n.
 -/
