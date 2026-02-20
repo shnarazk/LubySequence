@@ -252,23 +252,26 @@ An Online algorithm on segment sequence
           (text(fill: red, [$\#7 = "b111"$])),
           (text(fill: blue, [$\#8 = "b1000"$])), ), )) )
 })
-$ "Luby value" = 2 ^ "index_in_segment" $
+$ "Luby value"(n) = 2 ^ "index_in_segment(n)" $
 
-$ "segment_len"(s) = #pin(1)"trailing_zeros"(s)#pin(2) + 1 $
+$ "segment_length"(s) = #pin(1)"trailing_zeros"(s)#pin(2) + 1 $
 
 $ #pin(3)"segment_beg"(s) = "segment_beg"(s - 1)#pin(4) + "segment_length"(s - 1) $
 
-$ "index_in_segment"_n = n - "segment_beg"("index_to_segment_index"(n)) $
+$ "index_in_segment"(n) = n - "segment_beg"(#pin(5)"index_to_segment_index"(n)#pin(6)) $
 
 #pinit-highlight(1, 2)
 
-#pinit-point-from(2, pin-dy: -6mm, offset-dy: -14mm, body-dy: -6mm)[
-  #text(size: 16pt, [$"trailing_zero"(8) = 3$])
+#pinit-point-from(2, pin-dy: -6mm, offset-dy: -14mm, body-dy: -6mm, fill: rgb("#aaf"))[
+  #text(size: 16pt, fill: rgb("#77f"), [$"trailing_zero"(8) = 3$])
 ]
 #pinit-highlight(3, 4)
 
-#pinit-point-from(4, offset-dy: 20mm)[simple recursion]
+#pinit-point-from(4, offset-dx: 55mm, offset-dy: -13mm, pin-dy: -6mm, body-dy: -6mm, fill: rgb("#aaf"))[#text(fill: rgb("#77f"))[_simple recursion_]]
 
+#pinit-highlight(5, 6)
+
+#pinit-point-from((5, 6), offset-dx: 0mm, offset-dy: 8mm, pin-dy: 3mm, pin-dx: -4mm, body-dx: -8mm, fill: rgb("#aaf"))[#text(fill: rgb("#77f"))[_based on $"segment_length"$_]]
 
 == Segment state
 - Save the last segment info
