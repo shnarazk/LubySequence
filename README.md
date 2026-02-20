@@ -94,6 +94,12 @@ lake build
   ```
   dot -Tpdf graph.dot -o graph.pdf
   ```
+  To regenerate the graph from the current source files, run:
+  ```
+  python3 parse_theorems.py
+  ```
+  Each node in the graph represents a theorem, lemma, or definition and is colored
+  by its source file. Directed edges indicate proof dependencies.
 
 ## Acknowledgments
 
