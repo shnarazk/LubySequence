@@ -190,8 +190,6 @@ $
 
 == indices on the natural number triangle
 
-index $arrow$ (\#segment index, index in segment)
-
 #canvas(length: 10pt, {
   draw.set-style(content: (padding: (0.4em, 0.04em)))
   tree.tree(spread: 0.4,
@@ -211,6 +209,10 @@ index $arrow$ (\#segment index, index in segment)
           (text(fill: red, [$10 arrow (\#7, 0)$])),
           (text(fill: blue, [$(\#8, 0)$])), ), )) )
 })
+#pad(top: -6mm)[
+#align(center)[#text(size: 15pt)[sequence index $arrow$ (\#segment index, index in segment)]]
+]
+
 #text(size: 18pt, fill: green.darken(40%))[
 The index of Luby sequence starts from 0; the index of segments starts from 1.]
 #pause
@@ -346,14 +348,8 @@ theorem LubyState_is_additive : ∀ n : ℕ,
     (↑ n + 1 : State) = (↑ n : State).next := by ...
 ```
 
-== Process of proof
+== proved theorems
 
-- `rg "luby" Mathlib4` -> nothing
-- `rg "bandid" Mathlib4` -> nothing
-- `rg "bits" Mathlib4` -> `Data.Nat.Bits`
+#image("graph.png", height: 72%)
 
-Add many aux. theorems about
-
-- modulo
-- `n.size`
-- `2 ^ (...)`
+#box(fill: rgb("AED6F1"), inset: 1mm)[about bit length or `size`] / #box(fill: rgb("F9E79F"), inset: 1mm)[about $"trailing_zeros"$]
