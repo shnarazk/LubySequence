@@ -353,9 +353,11 @@ theorem LubyState_is_additive : ∀ n : ℕ,
 #image("graph-20260215.svg")
 
 == trim unused theorems
-#pad(top: -10mm)[#image("graph.svg", height: 83%)]
 
-#pad(top: -14mm)[
-#scale(70%)[
-#box(fill: rgb("AED6F1"), inset: 1mm)[about bit length or `size`] / #box(fill: rgb("F9E79F"), inset: 1mm)[about $"trailing_zeros"$]
-]]
+#image("graph.svg", height: 75%)
+
+#scale(75%)[
+#box(fill: rgb("AED6F1"), inset: 1mm)[about bit length or `size`] /
+#box(fill: rgb("F9E79F"), inset: 1mm)[about $"trailing_zeros"$] /
+total 45 theorems (847 LoC)
+]
