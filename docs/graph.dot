@@ -6,7 +6,6 @@ digraph LubyDependencies {
   S2_ge_two [label="S₂_ge_two", fillcolor="#A9DFBF"];
   S2_ge_two_prime [label="S₂_ge_two'", fillcolor="#D7BDE2"];
   bitslength_eq_size [label="bitslength_eq_size", fillcolor="#AED6F1"];
-  bitslength_of_pow2_eq_self_add_one [label="bitslength_of_pow2_eq_self_add_one", fillcolor="#AED6F1"];
   envelope_S2_eq [label="envelope_S₂_eq", fillcolor="#D7BDE2"];
   envelope_gives_pow2 [label="envelope_gives_pow2", fillcolor="#D7BDE2"];
   le_if_le_size [label="le_if_le_size", fillcolor="#AED6F1"];
@@ -94,10 +93,9 @@ digraph LubyDependencies {
   trailing_zeros_prop9 -> segment_starts_shift;
   unfold_segment -> segment_starts_to_segment_start;
   bitslength_eq_size -> size_of_pow2_eq_self_add_one;
-  bitslength_of_pow2_eq_self_add_one -> size_of_pow2_eq_self_add_one;
   bitslength_eq_size -> size_sub;
-  bitslength_of_pow2_eq_self_add_one -> size_sub;
   pow2_sub_one -> size_sub;
+  size_of_pow2_eq_self_add_one -> size_sub;
   trailing_zeros_prop3 -> sum_of_trailing_zeros_prop;
   trailing_zeros_prop7 -> sum_of_trailing_zeros_prop;
   size_of_pow2_eq_self_add_one -> trailing_zeros_prop3;
