@@ -28,10 +28,10 @@
 }
 #let cetz-canvas = touying-reducer.with(reduce: cetz.canvas, cover: cetz.draw.hide.with(bounds: true))
 
-#let title = [An Online Algorithm for Luby Sequence]
+#let title = [_O_(1) implementation of Luby Sequence]
 #align(center, text(30pt, [*#title*]))
 #grid(columns: (1fr),align(center, [`shnarazk`]))
-#grid(columns: (1fr),align(center, [2026-02-2X]))
+#grid(columns: (1fr),align(center, [2026-02-23]))
 
 = Luby sequence
 
@@ -348,11 +348,7 @@ theorem LubyState_is_additive : ∀ n : ℕ,
     (↑ n + 1 : State) = (↑ n : State).next := by ...
 ```
 
-== proved theorems
-
-#image("graph-20260215.svg")
-
-== trim unused theorems
+== flow of theorems
 
 #image("graph.svg", height: 75%)
 
@@ -361,3 +357,14 @@ theorem LubyState_is_additive : ∀ n : ℕ,
 #box(fill: rgb("F9E79F"), inset: 1mm)[about $"trailing_zeros"$] /
 total 45 theorems (847 LoC)
 ]
+
+== cf. snapshot just after proved
+
+#image("graph-20260215.svg")
+
+#table(
+  columns: 3, // (1fr, 1fr, 1fr),
+  [tag], [\#theorems], [Loc],
+  [completed], [149], [5448],
+  [reduced], [45], [847]
+)
