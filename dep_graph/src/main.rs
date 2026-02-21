@@ -17,11 +17,11 @@ use {
         path::{Path, PathBuf},
     },
     winnow::{
+        Parser as WinnowParser,
         ascii::{multispace1, space1},
         combinator::{alt, opt, preceded},
         error::ContextError,
         token::{any, take_while},
-        Parser as WinnowParser,
     },
 };
 
@@ -34,11 +34,11 @@ use {
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Directory containing .lean source files
-    #[arg(long, default_value = "LubySequence")]
+    #[arg(long, short, default_value = "LubySequence")]
     dir: PathBuf,
 
     /// Output DOT file path
-    #[arg(long, default_value = "graph.dot")]
+    #[arg(long, short, default_value = "graph.dot")]
     output: PathBuf,
 }
 

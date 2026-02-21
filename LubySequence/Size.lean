@@ -80,7 +80,7 @@ public theorem size_of_pow2_eq_self_add_one (n : ℕ) : ((2 : ℕ) ^ n).size = n
 /--
 The bit representation of `2 ^ n - 1` consists of n true bits.
 -/
-theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := by
+public theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := by
   induction n with
   | zero => simp
   | succ n hn =>
