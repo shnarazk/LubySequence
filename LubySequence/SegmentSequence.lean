@@ -188,22 +188,7 @@ public theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment
     exact Nat.le_trans ih this
 
 /--
-Lower bound for `segment_starts`: for any `s`, `segment_starts (s + 1) ≥ s`.
-This follows from the fact that each segment has length at least 1.
--/
-public theorem segment_starts_ge_self : ∀ t : ℕ, segment_starts (t + 1) ≥ t := by
-  intro n
-  simp [segment_starts]
-  have : ∑ i ∈ range n, 1 ≤ ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) := by
-    refine sum_le_sum ?_
-    · intro i ih
-      exact Nat.le_add_left 1 (trailing_zeros (i + 1))
-  have aux : ∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
-  exact le_of_eq_of_le (id (Eq.symm aux)) this
-
-/--
 Strict lower bound for `segment_starts`: for any `s`, `segment_starts (s + 2) > s`.
-This is a stronger version of `segment_starts_ge_self`.
 -/
 public theorem segment_starts_gt_self : ∀ t : ℕ, segment_starts (t + 2) > t := by
   intro n

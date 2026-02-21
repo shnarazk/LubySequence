@@ -44,12 +44,6 @@ public theorem pow2_le_pow2 (a b : ℕ) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
   exact Nat.pow_le_pow_right (by grind : 2 > 0)
 
 /--
-The function S₂ is always non-negative (trivially true for natural numbers).
--/
-theorem S₂_ge_zero (n : ℕ) : S₂ n ≥ 0 := by
-  simp [S₂]
-
-/--
 For positive k, S₂ k is at least 2.
 -/
 public theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
@@ -71,26 +65,6 @@ public theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
   exact this
 
 -- #eval List.range 50 |>.map (fun n ↦ (if n + 1 ≥ S₂ n then 1 else 0))
-
-/--
-Powers of 2 grow faster than linear: `n + 1 ≤ 2 ^ n` for all natural numbers n.
--/
-theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
-  induction n with
-  | zero => simp
-  | succ k h =>
-    have h2 : 2 ^ (k + 1) = 2 ^ k * 2 := by omega
-    rw [h2]
-    have t1 : k + 1 + 1 ≤ 2 ^ k + 1 := by omega
-    have t2 : 2 ^ k + 1 ≤ 2 ^ k + 2 ^ k := by
-      have : 1 ≤ 2 ^ k := by omega
-      exact Nat.add_le_add_iff_left.mpr this
-    have (k : ℕ) : k + k = k * 2 := by exact Eq.symm (Nat.mul_two k)
-    rw [this] at t2
-    exact Nat.le_trans t1 t2
-
--- #eval List.range 24 |>.map (fun k ↦ S₂ k == k)
--- #eval List.range 24 |>.map (fun k ↦ S₂ (k + 2) == k + 2)
 
 /--
 Checks whether `n` is an "envelope" position in the Luby sequence.

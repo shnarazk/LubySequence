@@ -66,18 +66,6 @@ public theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n :=
       simp [t1] at h
 
 /--
-Powers of 2 plus 1 cannot equal other powers of 2 (contradiction lemma).
--/
-theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
-  have two_pow_a_is_even : 2 ∣ 2 ^ a := by exact dvd_pow_self 2 (ne_zero_of_lt ha)
-  have even : 2 ∣ 2 ^ a + 1 := by
-    simp [h]
-    exact Nat.ne_zero_of_lt hb
-  have odd : ¬2 ∣ 2 ^ a + 1 := by
-    exact Odd.not_two_dvd_nat (Even.add_one ((even_iff_exists_two_nsmul (2 ^ a)).mpr two_pow_a_is_even))
-  exact absurd even odd
-
-/--
 For k < 2^n and k ≠ 0, trailing_zeros(k + 2^n) = trailing_zeros(k).
 -/
 public theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,

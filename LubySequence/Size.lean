@@ -14,18 +14,6 @@ The size (bit length) of the natural number 2 is 2.
 public theorem size2_eq_2 : (2 : ℕ).size = 2 := by simp [size, binaryRec]
 
 /--
-The size (bit length) of 3 is 2.
--/
-@[simp]
-public theorem size3_eq_2 : (3 : ℕ).size = 2 := by simp [size, binaryRec]
-
-/--
-The size (bit length) of 4 is 3.
--/
-@[simp]
-public theorem size4_eq_3 : (4 : ℕ).size = 3 := by simp [size, binaryRec]
-
-/--
 For any natural number n ≥ 2, the size of n + 2 is at least 3.
 -/
 @[simp]
@@ -48,14 +36,6 @@ public theorem size4_add_0_ge_2 {n : ℕ} (h : n ≥ 4) : n.size ≥ 3 := by
 The length of the bit representation equals the size of a natural number.
 -/
 public theorem bitslength_eq_size (n : ℕ) : n.bits.length = n.size := by exact size_eq_bits_len n
-
-/--
-The bit representation of `2 * n` is false (0) prepended to the bit representation of n.
--/
-public theorem bits_of_double_eq_cons_false_and_bits (n : ℕ) (h : n > 0) :
-    ((2 : ℕ) * n).bits = false :: n.bits := by
-  have : n ≠ 0 := by exact ne_zero_of_lt h
-  exact bit0_bits n this
 
 /--
 For `n ≥ 2` and `k < 2 ^ n`, adding k to `2 ^ n` does not change the bit size.
