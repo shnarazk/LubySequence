@@ -45,7 +45,7 @@ Converts a `LubyTree` to a string representation.
 - A `leaf` is displayed as "leaf".
 - A wrapped tree is displayed with an "↑" prefix followed by its inner tree's representation.
 -/
-def LubyTree.toString (self : LubyTree) : String := match self with
+public def LubyTree.toString (self : LubyTree) : String := match self with
   | .leaf => "leaf"
   | wrap (tree : LubyTree) => s!"↑{tree.toString}"
 
@@ -58,7 +58,7 @@ def t4 := LubyTree.mk 4
 /--
 The `wrap` constructor is injective: `t1.wrap = t2.wrap ↔ t1 = t2`.
 -/
-theorem LubyTree.wrap_is_congruent (t1 t2 : LubyTree) : t1.wrap = t2.wrap ↔ t1 = t2 := by
+public theorem LubyTree.wrap_is_congruent (t1 t2 : LubyTree) : t1.wrap = t2.wrap ↔ t1 = t2 := by
   constructor
   { intro h ; simp at h ; exact h }
   { intro h ; simp ; exact h }
@@ -68,21 +68,21 @@ Returns the depth of a `LubyTree`.
 - A `leaf` has depth 1.
 - A wrapped tree has depth equal to its inner tree's depth plus 1.
 -/
-def LubyTree.depth (self : LubyTree) : ℕ := match self with
+public def LubyTree.depth (self : LubyTree) : ℕ := match self with
   | .leaf => 1
   | wrap tree => tree.depth + 1
 
 /--
 Every `LubyTree` has depth at least 1.
 -/
-theorem LubyTree.depth_gt_one : ∀ t : LubyTree, t.depth ≥ 1 := by
+public theorem LubyTree.depth_gt_one : ∀ t : LubyTree, t.depth ≥ 1 := by
   intro t
   induction t <;> simp [LubyTree.depth]
 
 /--
 A tree can be reconstructed from its depth: `mk (t.depth - 1) = t`.
 -/
-theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) = t := by
+public theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) = t := by
   induction t with
   | leaf => simp [LubyTree.depth, LubyTree.mk]
   | wrap sub =>
@@ -105,7 +105,7 @@ theorem LubyTree.mk_of_depth_eq_self (t : LubyTree) : LubyTree.mk (t.depth - 1) 
 /--
 The depth of `mk n` equals `n + 1`.
 -/
-theorem LubyTree.mk_self_eq_depth_add_one (n: ℕ) : (LubyTree.mk n).depth = n + 1 := by
+public theorem LubyTree.mk_self_eq_depth_add_one (n: ℕ) : (LubyTree.mk n).depth = n + 1 := by
   induction n with
   | zero =>
     simp [LubyTree.mk]
@@ -118,7 +118,7 @@ theorem LubyTree.mk_self_eq_depth_add_one (n: ℕ) : (LubyTree.mk n).depth = n +
 /--
 If `mk n` equals `leaf`, then `n = 0`.
 -/
-theorem LubyTree.mk_zero_is_leaf {n : ℕ} : LubyTree.mk n = LubyTree.leaf → n = 0 := by
+public theorem LubyTree.mk_zero_is_leaf {n : ℕ} : LubyTree.mk n = LubyTree.leaf → n = 0 := by
   induction n with
   | zero => intro h ; simp [mk] at h ; exact rfl
   | succ n hn => intro h ; simp [mk] at h
@@ -126,7 +126,7 @@ theorem LubyTree.mk_zero_is_leaf {n : ℕ} : LubyTree.mk n = LubyTree.leaf → n
 /--
 Wrapping `mk n` produces `mk (n + 1)`.
 -/
-theorem LubyTree.wrap_n_eq_n_add_one (n : ℕ) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
+public theorem LubyTree.wrap_n_eq_n_add_one (n : ℕ) : LubyTree.wrap (LubyTree.mk n) = LubyTree.mk (n + 1) := by
   induction n with
   | zero => rfl
   | succ n ih =>
@@ -145,7 +145,7 @@ theorem LubyTree.wrap_n_eq_n_add_one (n : ℕ) : LubyTree.wrap (LubyTree.mk n) =
 /--
 The `mk` function is injective: `mk m = mk n → m = n`.
 -/
-theorem LubyTree.mk_unique (m n : ℕ) : LubyTree.mk m = LubyTree.mk n → m = n := by
+public theorem LubyTree.mk_unique (m n : ℕ) : LubyTree.mk m = LubyTree.mk n → m = n := by
   induction m generalizing n with
   | zero =>
     intro z
@@ -169,7 +169,7 @@ theorem LubyTree.mk_unique (m n : ℕ) : LubyTree.mk m = LubyTree.mk n → m = n
 /--
 `mk (d + 1) = t.wrap` if and only if `mk d = t`.
 -/
-theorem LubyTree.unwrap_wrap_self_eq_self (d : ℕ) (t : LubyTree) :
+public theorem LubyTree.unwrap_wrap_self_eq_self (d : ℕ) (t : LubyTree) :
     LubyTree.mk (d + 1) = t.wrap ↔ LubyTree.mk d = t := by
   constructor
   { intro h ; simp [LubyTree.mk] at h ; exact h }
@@ -182,7 +182,7 @@ Returns the size (number of nodes) of a `LubyTree`.
 
 For a tree `mk n`, the size equals `2^(n + 1) - 1`.
 -/
-def LubyTree.size (self : LubyTree) : ℕ := match self with
+public def LubyTree.size (self : LubyTree) : ℕ := match self with
   | .leaf => 1
   | wrap tree => tree.size * 2 + 1
 
@@ -191,22 +191,22 @@ def LubyTree.size (self : LubyTree) : ℕ := match self with
 /--
 Every `LubyTree` has size at least 1.
 -/
-theorem LubyTree.size_ge_one (t : LubyTree) : t.size ≥ 1 := by
+public theorem LubyTree.size_ge_one (t : LubyTree) : t.size ≥ 1 := by
   induction t <;> simp [LubyTree.size]
 
 /--
 Size recurrence: `(mk (n + 1)).size = 2 * (mk n).size + 1`.
 -/
-theorem size_is_two_sub_sizes_add_one (n : ℕ) :
-    (LubyTree.mk (n + 1)).size = 2 * (LubyTree.mk n).size + 1 := by
+public theorem size_is_two_sub_sizes_add_one (n : ℕ) :
+    (LubyTree.mk (n + 1)).size = (2 : ℕ) * (LubyTree.mk n).size + 1 := by
   rw [LubyTree.mk, LubyTree.size]
   grind
 
 /--
 Size recurrence (alternative form): `(mk n).wrap.size = 2 * (mk n).size + 1`.
 -/
-theorem size_is_two_sub_sizes_add_one' (n : ℕ) :
-    (LubyTree.mk n).wrap.size = 2 * (LubyTree.mk n).size + 1 := by
+public theorem size_is_two_sub_sizes_add_one' (n : ℕ) :
+    (LubyTree.mk n).wrap.size = (2 : ℕ) * (LubyTree.mk n).size + 1 := by
   simp [←size_is_two_sub_sizes_add_one]
   exact rfl
 
@@ -215,7 +215,7 @@ theorem size_is_two_sub_sizes_add_one' (n : ℕ) :
 /--
 The depth of a tree equals the bit-length of its size: `tree.depth = tree.size.size`.
 -/
-theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
+public theorem depth_and_size (tree : LubyTree) : tree.depth = tree.size.size := by
   induction tree
   { simp [LubyTree.depth, LubyTree.size] }
   { expose_names
@@ -258,7 +258,7 @@ public def LubyTree.is_envelope (s : ℕ) : Bool := LubyTree.envelopeSize s = s
 Computes the quotient of size `s` with respect to envelope size `e`.
 Used in the recursive computation of Luby values.
 -/
-def LubyTree.quotientOfSize (s : ℕ) (e : ℕ) := (s - 1) % ((e - 1) / 2) + 1
+public def LubyTree.quotientOfSize (s : ℕ) (e : ℕ) := (s - 1) % ((e - 1) / 2) + 1
 
 /--
 Computes the quotient for a given size `s`.
@@ -283,8 +283,8 @@ public def LubyTree.quotient (s : ℕ) := (s - 1) % (((2 ^ s.size - 1) - 1) / 2)
 For `n ≥ 2` and `n < (2 ^ n.size - 2) / 2`, the envelope size of `n` is greater than
 twice the quotient. This ensures the recursive Luby computation terminates.
 -/
-theorem LubyTree.envelop_of_quotient_is_decreasing :
-    ∀ n ≥ 2, n < (2 ^ n.size - 1 - 1) / 2 → LubyTree.envelopeSize n > 2 * (LubyTree.quotient n) := by
+public theorem LubyTree.envelop_of_quotient_is_decreasing :
+    ∀ n ≥ 2, n < (2 ^ n.size - 1 - 1) / 2 → LubyTree.envelopeSize n > (2 : ℕ) * (LubyTree.quotient n) := by
   intro n hn h
   simp only [LubyTree.quotient, LubyTree.envelopeSize, LubyTree.envelopeDepth]
   have s2 : Nat.size 2 = 2 := by simp [Nat.size, Nat.binaryRec]
@@ -391,7 +391,7 @@ theorem LubyTree.envelop_of_quotient_is_decreasing :
 For `n ≥ 2` that is not an envelope, the envelope size decreases when taking the quotient.
 This is the key termination condition for the recursive Luby computation.
 -/
-theorem LubyTree.envelop_of_quotient_is_decreasing':
+public theorem LubyTree.envelop_of_quotient_is_decreasing':
     ∀ n ≥ 2, ¬LubyTree.is_envelope n → LubyTree.envelopeSize n > LubyTree.envelopeSize (LubyTree.quotient n) := by
   intro n hn env
   -- basic facts
@@ -544,7 +544,7 @@ Computes the Luby value at position `s` within a tree.
 If the tree's size is at most `s`, returns `2 ^ (depth - 1)` (the maximum Luby value for this tree).
 Otherwise, recursively computes the value in the inner tree.
 -/
-def LubyTree.valueAtSize (self : LubyTree) (s : ℕ) : ℕ := match self with
+public def LubyTree.valueAtSize (self : LubyTree) (s : ℕ) : ℕ := match self with
   | .leaf     => 1
   | .wrap sub =>
     if self.size ≤ s then 2 ^ self.depth.pred else sub.valueAtSize ((s - 1) % sub.size + 1)
@@ -587,7 +587,7 @@ public def LubyTree.valueAt (s : ℕ) : ℕ := (LubyTree.mk (s.succ.size - 1)).v
 /--
 The size of `mk n` equals `2 ^ (n + 1) - 1`.
 -/
-theorem level_to_size (n : ℕ) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
+public theorem level_to_size (n : ℕ) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
   induction n with
   | zero => simp [LubyTree.mk, LubyTree.size]
   | succ n hn =>
@@ -605,7 +605,7 @@ theorem level_to_size (n : ℕ) : (LubyTree.mk n).size = 2 ^ (n + 1) - 1 := by
 The binary representation of any tree's size consists entirely of 1-bits.
 This reflects that tree sizes are always of the form `2 ^ k - 1`.
 -/
-theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true) := by
+public theorem LubyTree.bit_patterns_of_top (t : LubyTree) : t.size.bits.all (· = true) := by
   induction t
   { simp [LubyTree.size] }
   { expose_names
@@ -630,7 +630,7 @@ the value at position `n` equals the value at position `n + (tree.size - 1) / 2`
 
 This reflects the self-similar structure of the Luby sequence.
 -/
-theorem LubyTree.is_symmetry (d : ℕ) :
+public theorem LubyTree.is_symmetry (d : ℕ) :
     ∀ n ≤ ((LubyTree.mk d).size - 1) / 2,
       n > 0 → (LubyTree.mk d).valueAtSize n = (LubyTree.mk d).valueAtSize (n + ((LubyTree.mk d).size - 1) / 2) := by
   intro n hn nz

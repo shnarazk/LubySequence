@@ -127,7 +127,7 @@ namespace LubyState
 The next state is never equal to the current state, ensuring progress.
 This shows that the state transition function is divergent (always makes progress).
 -/
-theorem is_divergent (li : LubyState) : ¬li.next = li := by
+public theorem is_divergent (li : LubyState) : ¬li.next = li := by
   by_contra! x
   simp at x
   by_cases h : li.locIx + 1 = li.segment_height <;> grind
@@ -135,7 +135,7 @@ theorem is_divergent (li : LubyState) : ¬li.next = li := by
 /--
 The segment index is non-decreasing: moving to the next state never decreases segIx.
 -/
-theorem segIx_is_increasing : ∀ li : LubyState, li.next.segIx ≥ li.segIx := by
+public theorem segIx_is_increasing : ∀ li : LubyState, li.next.segIx ≥ li.segIx := by
   intro li
   simp [is_segment_end]
   by_cases h : li.locIx + 1 = li.segment_height
@@ -144,7 +144,7 @@ theorem segIx_is_increasing : ∀ li : LubyState, li.next.segIx ≥ li.segIx := 
 /--
 The segment index is monotone: `for n' ≥ n, (zero.next n').segIx ≥ (zero.next n).segIx`.
 -/
-theorem segIx_is_mono (n : ℕ) : ∀ n' ≥ n, (zero.next n').segIx ≥ (zero.next n).segIx := by
+public theorem segIx_is_mono (n : ℕ) : ∀ n' ≥ n, (zero.next n').segIx ≥ (zero.next n).segIx := by
   let cn := (zero.next n).segIx
   have cp : cn = value_of% cn := rfl
   intro n' np
@@ -164,26 +164,26 @@ theorem segIx_is_mono (n : ℕ) : ∀ n' ≥ n, (zero.next n').segIx ≥ (zero.n
 /--
 The segment index is always at least 1.
 -/
-theorem segId_ge_one : ∀ n : ℕ, (zero.next n).segIx ≥ 1 := by
+public theorem segId_ge_one : ∀ n : ℕ, (zero.next n).segIx ≥ 1 := by
   intro n
   exact (segIx_is_mono 0 n (Nat.zero_le n))
 
 /--
 Applying next 0 times returns the original state.
 -/
-theorem next0 (a : LubyState) : a.next 0 = a := by simp
+public theorem next0 (a : LubyState) : a.next 0 = a := by simp
 
 /--
 The next function preserves equality of states.
 -/
-theorem congr (a b : LubyState) (h : a = b) : a.next = b.next := by
+public theorem congr (a b : LubyState) (h : a = b) : a.next = b.next := by
   exact congrFun (congrArg (@next) h) 1
 
 /--
 `n = 0` if and only if `(zero.next n).segIx = 1`.
 This characterizes the initial state.
 -/
-theorem segId0 {n : ℕ} : n = 0 ↔ (zero.next n).segIx = 1 := by
+public theorem segId0 {n : ℕ} : n = 0 ↔ (zero.next n).segIx = 1 := by
   constructor
   · intro h ; rw [h] ; exact rfl
   · intro h
@@ -200,7 +200,7 @@ theorem segId0 {n : ℕ} : n = 0 ↔ (zero.next n).segIx = 1 := by
 /--
 The next function is associative: `(li.next n).next = li.next (n + 1)`.
 -/
-theorem next_assoc (li : LubyState) : ∀ n : ℕ, (li.next n).next = li.next (n + 1) := by
+public theorem next_assoc (li : LubyState) : ∀ n : ℕ, (li.next n).next = li.next (n + 1) := by
   intro n
   induction n with
   | zero => dsimp [next]
@@ -218,7 +218,7 @@ public def ofNat (n : ℕ) : LubyState := zero.next n
 /--
 ofNat distributes over addition: `ofNat (a + b) = (ofNat a).next b`.
 -/
-theorem ofNat_dist (a b : ℕ) : ofNat (a + b) = (ofNat a).next b := by
+public theorem ofNat_dist (a b : ℕ) : ofNat (a + b) = (ofNat a).next b := by
   induction b with
   | zero => simp
   | succ b hb =>
@@ -249,7 +249,7 @@ def segIdToLastIndex (n : ℕ) : ℕ := match n with
 Converts a `LubyState` back to the corresponding natural number index.
 The result is the cumulative segment height sum plus the local index.
 -/
-def toNat (self : LubyState) : ℕ := match self.segIx with
+public def toNat (self : LubyState) : ℕ := match self.segIx with
   | 0 => 0
   | n + 1 => segIdToLastIndex n + self.locIx
 
@@ -259,7 +259,7 @@ def toNat (self : LubyState) : ℕ := match self.segIx with
 The toNat and ofNat functions are inverses: `(ofNat n).toNat = n` for all `n`.
 This proves that the state-based representation is isomorphic to natural numbers.
 -/
-theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
+public theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
   intro n
   change (zero.next n).toNat = n
   induction n with
@@ -311,7 +311,7 @@ theorem is_iso : ∀ n : ℕ, (ofNat n).toNat = n := by
 /--
 Applying next increases toNat by 1: `(ofNat n).next.toNat = n + 1`.
 -/
-theorem next_is_succ : ∀ n : ℕ, (ofNat n).next.toNat = n + 1 := by
+public theorem next_is_succ : ∀ n : ℕ, (ofNat n).next.toNat = n + 1 := by
   intro n
   calc
     (ofNat n).next.toNat = (zero.next n).next.toNat := by exact rfl
@@ -325,7 +325,7 @@ instance : Coe ℕ LubyState where coe n := ofNat n
 /--
 If n is at a segment end, then n + 1 is at a segment beginning.
 -/
-theorem LubyState_segment_prop1 {n : ℕ} (h : (ofNat n).is_segment_end = true) :
+public theorem LubyState_segment_prop1 {n : ℕ} (h : (ofNat n).is_segment_end = true) :
     (ofNat (n + 1)).is_segment_beg = true := by
   rw [is_segment_beg]
   have p1 : ofNat (n + 1) = (ofNat n).next := by exact rfl
@@ -339,7 +339,7 @@ theorem LubyState_segment_prop1 {n : ℕ} (h : (ofNat n).is_segment_end = true) 
 /--
 At the beginning of a segment, the Luby value is 1.
 -/
-theorem LubyState_segment_prop2 {n : ℕ} (h : is_segment_beg n) : (ofNat n).luby = 1 := by
+public theorem LubyState_segment_prop2 {n : ℕ} (h : is_segment_beg n) : (ofNat n).luby = 1 := by
   simp [is_segment_beg] at h
   simp [luby]
   exact h
@@ -348,7 +348,7 @@ theorem LubyState_segment_prop2 {n : ℕ} (h : is_segment_beg n) : (ofNat n).lub
 The Luby value at position n is 1 if at segment beginning, otherwise 2 * (previous Luby value).
 This is the main recurrence relation for the Luby sequence.
 -/
-theorem LubyState_prop (n : ℕ) :
+public theorem LubyState_prop (n : ℕ) :
     (ofNat n).luby = if is_segment_beg n then 1 else 2 * (ofNat (n - 1)).luby := by
   have segbeg0 : Luby.is_segment_beg 0 := by simp [Luby.is_segment_beg.eq_def]
   have segbeg1 : Luby.is_segment_beg 1 := by simp [Luby.is_segment_beg.eq_def]
@@ -418,7 +418,7 @@ def next_in_segment (s : LubyState) (d : ℕ) : LubyState := mk s.segIx (s.locIx
 /--
 Stepping within a segment `d'` steps is the same as stepping `d'-1` steps then one more step.
 -/
-theorem next_in_segment_is_additive {s : LubyState} {d : ℕ} :
+public theorem next_in_segment_is_additive {s : LubyState} {d : ℕ} :
     ∀ d' < d, 0 < d' → s.next_in_segment d' = (s.next_in_segment (d' - 1)).next_in_segment 1 := by
   intro n hn hd
   simp [next_in_segment]
@@ -428,7 +428,7 @@ theorem next_in_segment_is_additive {s : LubyState} {d : ℕ} :
 /--
 When staying within a segment, locIx increments by the step amount.
 -/
-theorem next_in_segment_increments_locIx (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
+public theorem next_in_segment_increments_locIx (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
     (s.next_in_segment d).locIx = s.locIx + d := by
   induction d with
   | zero => simp [next_in_segment]
@@ -443,7 +443,7 @@ theorem next_in_segment_increments_locIx (s : LubyState) (d : ℕ) (h : s.locIx 
 /--
 When staying within a segment, next_in_segment and next produce the same result.
 -/
-theorem next_in_segment_is_next (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
+public theorem next_in_segment_is_next (s : LubyState) (d : ℕ) (h : s.locIx + d < s.segment_height) :
     next_in_segment s d = s.next d := by
   induction d with
   | zero => simp [next_in_segment]
@@ -462,7 +462,7 @@ theorem next_in_segment_is_next (s : LubyState) (d : ℕ) (h : s.locIx + d < s.s
 /--
 After traversing a complete segment starting from its beginning, we reach the next segment's beginning.
 -/
-theorem segment_beg_transition' : ∀ n : ℕ, (ofNat n).is_segment_beg = true →
+public theorem segment_beg_transition' : ∀ n : ℕ, (ofNat n).is_segment_beg = true →
     (ofNat (n + (ofNat n).segment_height)).is_segment_beg := by
   intro n hz
   let n' := ofNat n
@@ -524,7 +524,7 @@ def segment_height_sum (b : ℕ) : ℕ := ∑ i ∈ range b, (trailing_zeros (i 
 For powers of 2, the sum of segment heights equals `2 ^ n.size - 1`.
 This is a key property connecting segment heights to the binary structure.
 -/
-theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
+public theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
     ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = 2 ^ n.size - 1 := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -643,7 +643,7 @@ theorem segment_height_sum_pow2' : ∀ n > 0, n = 2 ^ (n.size - 1) →
 For powers of 2, the sum of segment heights from 1 to `b` equals `2 * b - 1`
 when `b = 2^(b.size - 1)`.
 -/
-theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_height_sum b = 2 * b - 1 := by
+public theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_height_sum b = 2 * b - 1 := by
   intro b b_is_pow2
   have b_ge_1 : b ≥ 1 := by
     by_contra x
@@ -666,7 +666,7 @@ theorem segment_height_sum_pow2 : ∀ b : ℕ, b = 2 ^ (b.size - 1) → segment_
 For `k ≥ 0`, `segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1`.
 This connects segment structure to powers of 2.
 -/
-theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
+public theorem segment_height_sum_is_envelope : ∀ k : ℕ, segment_height_sum (2 ^ k) = 2 ^ (k + 1) - 1 := by
   intro k
   simp [segment_height_sum]
   induction k with
@@ -862,7 +862,7 @@ Work in progress: For envelopes, the local index equals size - 1.
 これの前に漸化式が必要なのでは? あるいは左右対称性が必要なのでは?
 でもそれを証明するにはenvelopeでの定数化が先に必要なのでは?
 -/
-theorem t20250919 : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = n.size - 1 := by
+public theorem t20250919 : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = n.size - 1 := by
   intro n n1_is_pow2
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -912,7 +912,7 @@ theorem t20250919 : ∀ n : ℕ, n + 1 = 2 ^ n.size → (ofNat (n - 1)).locIx = 
 /--
 Work in progress: Segment index doubling property at envelope boundaries.
 -/
-theorem t20250910 : ∀ n > 0 , n = 2 ^ n.size - 2 →
+public theorem t20250910 : ∀ n > 0 , n = 2 ^ n.size - 2 →
     (ofNat n).segIx = 2 * (ofNat (n - (2 ^ (n.size - 1)))).segIx := by
   intro n hn1 hn2
   induction n using Nat.strong_induction_on with
@@ -961,7 +961,7 @@ theorem t20250910 : ∀ n > 0 , n = 2 ^ n.size - 2 →
 /--
 Work in progress: Sum of index in segment corresponds to segment index.
 -/
-theorem locIx_eq_0_at_segment_beg : ∀ n : ℕ,
+public theorem locIx_eq_0_at_segment_beg : ∀ n : ℕ,
     (ofNat (∑ k ∈ range (ofNat n).segIx, (trailing_zeros k + 1) - 1)).locIx = 0 := by
   intro n
   induction n with
@@ -986,7 +986,7 @@ theorem locIx_eq_0_at_segment_beg : ∀ n : ℕ,
 /--
 Work in progress: Sum of segment heights corresponds to segment index.
 -/
-theorem t20250904_sorry : ∀ n : ℕ,
+public theorem t20250904_sorry : ∀ n : ℕ,
     (ofNat (∑ k ∈ Iio (ofNat n).segIx, (trailing_zeros k + 1) - 1)).segIx = (ofNat n).segIx := by
   intro n
   induction n using Nat.strong_induction_on with
@@ -1010,7 +1010,7 @@ theorem t20250904_sorry : ∀ n : ℕ,
 /--
 Work in progress: Segment index relates to power-of-two subtraction.
 -/
-theorem segIx_prop_20250914_sorry : ∀ n > 0,
+public theorem segIx_prop_20250914_sorry : ∀ n > 0,
     (ofNat n).segIx = 2 * (ofNat (n - 2 ^ (n.size - 1))).segIx := by
   intro n hn1
   induction n using Nat.strong_induction_on with
@@ -1026,7 +1026,7 @@ theorem segIx_prop_20250914_sorry : ∀ n > 0,
 /--
 Work in progress: Segment height preservation property.
 -/
-theorem segment_height_prop1_sorry : ∀ n > 0, ¬n = 2 ^ (n.size - 1) →
+public theorem segment_height_prop1_sorry : ∀ n > 0, ¬n = 2 ^ (n.size - 1) →
     (ofNat n).segment_height = (ofNat (n - 2 ^ (n.size - 1))).segment_height := by
   intro n hn1 hn2
   simp [segment_height]
@@ -1040,7 +1040,7 @@ theorem segment_height_prop1_sorry : ∀ n > 0, ¬n = 2 ^ (n.size - 1) →
 /--
 Work in progress: Segment beginning preservation property.
 -/
-theorem segment_beg_prop1_sorry : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
+public theorem segment_beg_prop1_sorry : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
     (ofNat n).is_segment_beg = (ofNat (n - 2 ^ (n.size - 1))).is_segment_beg := by
   simp [is_segment_beg, ofNat]
   sorry -- FIXME: todo
@@ -1048,7 +1048,7 @@ theorem segment_beg_prop1_sorry : ∀ n > 0, n ≠ 2 ^ (n.size - 1) →
 /--
 Work in progress: Recursive definition of state using toSegIx and toLocIx.
 -/
-theorem define_recursively2_sorry : ∀ n : ℕ, zero.next n = mk (toSegIx n 0 0) (toLocIx n) := by
+public theorem define_recursively2_sorry : ∀ n : ℕ, zero.next n = mk (toSegIx n 0 0) (toLocIx n) := by
   sorry
 
 end WIP

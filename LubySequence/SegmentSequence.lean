@@ -419,7 +419,7 @@ public theorem next_segment_is_covering_segment : ∀ t : ℕ,
             exact Nat.le_of_succ_le lt
         exact Nat.le_lt_asymm this
 
-private theorem ofNat_index : ∀ n, (Segment.ofNat n).index = max n 1 := by
+public theorem ofNat_index : ∀ n, (Segment.ofNat n).index = max n 1 := by
   intro n
   cases n with
   | zero => simp [ofNat]
@@ -452,7 +452,7 @@ Since `(one + k).index = k + 1` by `unfold_segment_index`, we have
 This characterizes which segment covers the position immediately after a segment ends.
 -/
 -- #eval List.range 20 |>.map fun t ↦ (t + 2, segmentIdOver (one + t).nextStart, (one + (t + 2)).index)
-theorem coveringSegment_of_next_segment_is_next_of_next :
+public theorem coveringSegment_of_next_segment_is_next_of_next :
     ∀ t : ℕ, segmentIdOver (one + t).nextStart = (one + (t + 2)).index := by
   intro t
   simp only [unfold_segment_index]
@@ -545,7 +545,7 @@ public theorem unfold_segmentIdOver_of_sum (t : ℕ) : segmentIdOver (∑ i ∈ 
   simp only [unfold_segment_index]
 
 /-- `segmentIdCovering m` is at most `j` whenever `j > 0` and `segment_starts j ≥ m`. -/
-theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_starts j ≥ m) :
+public theorem segmentIdCovering_le {m j : ℕ} (hj_pos : j > 0) (hj_ge : segment_starts j ≥ m) :
     segmentIdCovering m ≤ j := by
   simp only [segmentIdCovering]
   -- By definition of `segmentIdOver`, we know that `segmentIdOver m` is the smallest index `i` such that `segment_starts i > m`.

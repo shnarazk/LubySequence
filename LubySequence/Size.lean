@@ -112,8 +112,8 @@ example (n : ℕ) : (2 * n + 1).bits = true :: n.bits := by
 /--
 The size of `n * 2` equals `n.size + 1` (for positive n).
 -/
-theorem size_of_two_mul_eq_aize_add_one (n : ℕ) (h : n > 0) :
-    n.size + 1 = (n * 2).size := by
+public theorem size_of_two_mul_eq_aize_add_one (n : ℕ) (h : n > 0) :
+    n.size + 1 = (n * (2 : ℕ)).size := by
   simp [←size_eq_bits_len, mul_comm n 2, bits_of_double_eq_cons_false_and_bits n h]
 
 /--
@@ -152,7 +152,7 @@ public theorem pow_two_of_size_le_self {n : ℕ} (h : 0 < n) : 2 ^ n.size ≤ (2
 /--
 The bit representation length of `2 ^ n` equals `n + 1`.
 -/
-theorem bitslength_of_pow2_eq_self_add_one (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
+public theorem bitslength_of_pow2_eq_self_add_one (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
   induction n with
   | zero => simp
   | succ n hn =>
@@ -173,7 +173,7 @@ public theorem size_of_pow2_eq_self_add_one (n : ℕ) : ((2 : ℕ) ^ n).size = n
 /--
 The bit representation of `2 ^ n` consists of n false bits followed by one true bit.
 -/
-theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
+public theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] := by
   induction n with
   | zero => simp
   | succ n hn =>
@@ -184,7 +184,7 @@ theorem pow2_bit {n : ℕ} : (2 ^ n).bits = List.iterate (·) false n ++ [true] 
 /--
 The bit representation of `2 ^ n - 1` consists of n true bits.
 -/
-theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := by
+public theorem pow2_sub_one {n : ℕ} : (2 ^ n - 1).bits = List.iterate (·) true n := by
   induction n with
   | zero => simp
   | succ n hn =>
@@ -553,13 +553,13 @@ public theorem increase_n2size_if_pow2₂ (n : ℕ) : n + 2 = 2 ^ n.size → (n 
 For n ≥ 4, if `n + 2` is a power of 2, then its size is one more than `n.size`.
 This is a variant of `increase_size_iff_pow2` specialized for the case of adding 2.
 -/
-theorem increase_n2size_if_pow2 {n : ℕ} (h : n ≥ 4) :
+public theorem increase_n2size_if_pow2 {n : ℕ} (h : n ≥ 4) :
     n + 1 = 2 ^ n.size ∨ n + 2 = 2 ^ n.size → (n + 2).size = n.size + 1 := by
   rintro (h1|h2)
   · exact increase_n2size_if_pow2₁ h h1
   · exact increase_n2size_if_pow2₂ n h2
 
-theorem increase_n2size_iff_pow2 {n : ℕ} (h : n ≥ 4) :
+public theorem increase_n2size_iff_pow2 {n : ℕ} (h : n ≥ 4) :
     n + 1 = 2 ^ n.size ∨ n + 2 = 2 ^ n.size ↔ (n + 2).size = n.size + 1 := by
   constructor
   · exact fun a ↦ increase_n2size_if_pow2 h a
@@ -586,7 +586,7 @@ public theorem n_lower {n : ℕ} (n_gt_0 : n > 0) : 2 ^ (n.size - 1) ≤ n := by
 Stricter lower bound on n. For any natural number `n > 1`,
 `2 ^ (n.size - 2) < n`. This is a tighter bound than n_lower.
 -/
-theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
+public theorem n_lower' {n : ℕ} (n_bound : n > 1) : 2 ^ (n.size - 2) < n := by
   obtain n_eq_2|n_bound : n = 2 ∨ n > 2 := LE.le.eq_or_lt' n_bound
   · simp [n_eq_2]
   · obtain n_eq_3|n_bound : n = 3 ∨ n > 3 := LE.le.eq_or_lt' n_bound
@@ -614,7 +614,7 @@ Upper bound on n based on its bit size. For any natural number n,
 `n < 2 ^ sn.size`. This shows that n is strictly less than the power of 2
 corresponding to its bit length.
 -/
-theorem n_upper (n : ℕ) : n < 2 ^ n.size := by
+public theorem n_upper (n : ℕ) : n < 2 ^ n.size := by
   have : n.size < (2 ^ n.size).size := by
     have : (2 ^ n.size).size = n.size + 1 := size_pow
     simp [this]

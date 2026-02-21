@@ -3,7 +3,7 @@ module
 import Mathlib.Tactic
 public import LubySequence.Basic
 public import LubySequence.Tree
-public import LubySequence.State
+-- public import LubySequence.State
 
 open Tree
 
@@ -11,7 +11,7 @@ open Tree
 -- #eval List.range 24 |>.map (fun n ↦ Luby.luby n)
 -- #eval ∀ n < 20, LubyTree.valueAt (n + 1) == Luby.luby n
 
-theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := by
+/- public theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := by
   intro n
   induction n using Nat.strong_induction_on with
   | h n hn =>
@@ -273,7 +273,7 @@ theorem LubyTree_is_Luby : ∀ n : ℕ, LubyTree.luby (n + 1) = Luby.luby n := b
 -- #eval List.range 30 |>.map (fun n ↦ (Luby.luby n, (LubyState.ofNat n).luby))
 -- #eval List.range 22 |>.map (fun n ↦ ((LubyState.ofNat n).is_segment_beg, Luby.is_segment_beg n))
 
-theorem LubyStateSegment_is_LubySegment :
+public theorem LubyStateSegment_is_LubySegment :
     ∀ n : ℕ, (LubyState.ofNat n).is_segment_beg = Luby.is_segment_beg n := by
   have defaultSegIx : (default : LubyState).segIx = 1 := by exact rfl
   have defaultLocIx : (default : LubyState).locIx = 0 := by exact rfl
@@ -296,12 +296,12 @@ theorem LubyStateSegment_is_LubySegment :
       · expose_names
         sorry
 
-theorem LubyState_is_Luby : ∀ n : ℕ, Luby.luby n = (LubyState.ofNat n).luby := by
+public theorem LubyState_is_Luby : ∀ n : ℕ, Luby.luby n = (LubyState.ofNat n).luby := by
   intro n
   sorry
 
 /- TODO: And we have to prove LubyTree.luby is equivalent to f(LubyTree.depth).
-theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx = LubyTree.envelopeDepth (n + 1) := by
+public theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx = LubyTree.envelopeDepth (n + 1) := by
   -- sapply?
   sorry -/
 
@@ -358,7 +358,7 @@ theorem LubyState_segIx_is_tree_depth : ∀ n : Nat, (LubyState.ofNat n).segIx =
       simp [s2]
   sorry
 
-theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
+public theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n := by
   intro n
   induction n /- using Nat.strong_induction_on -/ with
   | zero =>
@@ -370,4 +370,5 @@ theorem LubyState_is_Luby' : ∀ n : Nat, (LubyState.ofNat n).luby = Luby.luby n
     have : LubyState.ofNat (n + 1) = (LubyState.ofNat n).next := by exact rfl
     simp [this]
     sorry
+-/
 -/

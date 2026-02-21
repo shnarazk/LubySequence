@@ -67,7 +67,7 @@ def trailing_ones (n : ℕ) : ℕ :=
   /--
 The number of trailing zeros in 2^n equals n.
 -/
-theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
+public theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
   intro n
   induction n with
   | zero => simp [trailing_zeros.eq_def]
@@ -84,7 +84,7 @@ theorem trailing_zeros_of_envelope : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := 
 /--
 For positive n not equal to 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-1)).
 -/
-theorem trailing_zeros_prop1 : ∀ n > 0,
+public theorem trailing_zeros_prop1 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn
   induction n using Nat.strong_induction_on with
@@ -132,7 +132,7 @@ public theorem trailing_zeros_prop1' : ∀ n > 0, ∀ k : ℕ,
 For n > 1 where n = 2^(n.size-1), the trailing zeros of n equals
 the trailing zeros of (n - 2^(n.size-2)) plus 1.
 -/
-theorem trailing_zeros_prop2 :
+public theorem trailing_zeros_prop2 :
     ∀ n : ℕ, n > 1 → n = 2 ^ (n.size - 1) → trailing_zeros (n - 2 ^ (n.size - 2)) + 1 = trailing_zeros n := by
   intro n hn1 hn2
   have n2 : 2 ≤ n.size := by
@@ -212,7 +212,7 @@ public theorem trailing_zeros_prop4 : ∀ n : ℕ, trailing_zeros (2 ^ n - 1) = 
 /--
 Powers of 2 plus 1 cannot equal other powers of 2 (contradiction lemma).
 -/
-theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
+public theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 ^ b) : false := by
   have two_pow_a_is_even : 2 ∣ 2 ^ a := by exact dvd_pow_self 2 (ne_zero_of_lt ha)
   have even : 2 ∣ 2 ^ a + 1 := by
     simp [h]
@@ -225,7 +225,7 @@ theorem parity_unmatch {a b : ℕ} (ha : 0 < a) (hb : 0 < b) (h : 2 ^ a + 1 = 2 
 The number of trailing zeros in 2^(n+1) + 1 is always 0.
 TODO: no need to induction
 -/
-theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
+public theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0 := by
   intro n
   induction n with
   | zero =>
@@ -258,7 +258,7 @@ theorem trailing_zeros_prop5 : ∀ n : ℕ, trailing_zeros (2 ^ (n + 1) + 1) = 0
 /--
 For positive n not equal to 2^(n.size-1), trailing_zeros(n) = trailing_zeros(n - 2^(n.size-1)).
 -/
-theorem trailing_zeros_prop6 : ∀ n > 0,
+public theorem trailing_zeros_prop6 : ∀ n > 0,
     ¬n = 2 ^ (n.size - 1) → trailing_zeros n = trailing_zeros (n - 2 ^ (n.size - 1)) := by
   intro n hn
   induction n using Nat.strong_induction_on with
@@ -445,7 +445,7 @@ This lemma is useful for measure-based arguments: when splitting an interval at 
 largest power-of-two boundary below an upper limit, the `trailing_zeros` measure strictly
 drops on the left part.
 -/
-theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
+public theorem trailing_zeros_of_pow2_is_max : ∀ n ≥ 2, n = 2 ^ (n.size - 1) →
     ∀ n' < n, trailing_zeros n' < trailing_zeros n := by
   intro n hn
   have nsize2 : n.size ≥ 2 := by

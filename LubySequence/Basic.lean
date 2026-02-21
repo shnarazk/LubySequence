@@ -46,13 +46,13 @@ public theorem pow2_le_pow2 (a b : ℕ) : a ≤ b → 2 ^ a ≤ 2 ^ b := by
 /--
 The function S₂ is always non-negative (trivially true for natural numbers).
 -/
-theorem S₂_ge_zero (n : ℕ) : S₂ n ≥ 0 := by
+public theorem S₂_ge_zero (n : ℕ) : S₂ n ≥ 0 := by
   simp [S₂]
 
 /--
 The S₂ function is monotonic: `S₂ n ≤ S₂ (n + 1)` for all `n ≥ 0`.
 -/
-theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
+public theorem S₂_is_mono : ∀ n ≥ 0, S₂ n ≤ S₂ (n + 1) := by
   intro i n0
   induction i with
   | zero => simp [S₂, Nat.size, Nat.binaryRec]
@@ -91,7 +91,7 @@ public theorem S₂_ge_two (k : ℕ) (h : k > 0) : S₂ k ≥ 2 := by
 /--
 Upper bound for S₂: `S₂ n ≤ n + 1` for all natural numbers n.
 -/
-theorem S₂_upper_bound : ∀ n : ℕ, S₂ n ≤ n + 1 := by
+public theorem S₂_upper_bound : ∀ n : ℕ, S₂ n ≤ n + 1 := by
   intro n
   simp [S₂]
   refine n_ge_subenvelope ?_
@@ -100,7 +100,7 @@ theorem S₂_upper_bound : ∀ n : ℕ, S₂ n ≤ n + 1 := by
 /--
 Powers of 2 grow faster than linear: `n + 1 ≤ 2 ^ n` for all natural numbers n.
 -/
-theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
+public theorem power2_ge_linear (n : ℕ) : n + 1 ≤ 2 ^ n := by
   induction n with
   | zero => simp
   | succ k h =>
@@ -223,7 +223,7 @@ decreasing_by
 /--
 If n is at the beginning of a segment, then luby n = 1.
 -/
-theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 := by
+public theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 := by
   have luby0 : luby 0 = 1 := by
     rw [luby]
     simp [is_envelope, S₂, Nat.size, Nat.binaryRec]
@@ -279,7 +279,7 @@ theorem luby_value_at_segment_beg (n : ℕ) : is_segment_beg n → luby n = 1 :=
 Characterization of envelope property: `n + 2` equals `2 ^ ((n + 2).size - 1)`
 if and only if n is an envelope.
 -/
-theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
+public theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelope n := by
   constructor
   · intro n2
     simp [is_envelope, S₂]
@@ -325,7 +325,7 @@ theorem envelope_prop1 (n : ℕ) : n + 2 = 2 ^ ((n + 2).size - 1) ↔ is_envelop
 Size characterization of envelopes: `(n + 2).size = (n + 1).size + 1`
 if and only if n is an envelope.
 -/
-theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
+public theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelope n := by
   have size2_eq_2 : (0 + 2).size = 2 := by simp [Nat.size, Nat.binaryRec]
   have n2size : 2 ≤ (n + 2).size := by
     have t1 : (0 + 2).size ≤ (n + 2).size := by
@@ -372,7 +372,7 @@ theorem envelope_prop2 (n : ℕ) : (n + 2).size = (n + 1).size + 1 ↔ is_envelo
 Complement of envelope_prop2: `(n + 2).size = (n + 1).size`
 if and only if n is not an envelope.
 -/
-theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelope n := by
+public theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelope n := by
   constructor
   · intro h
     by_contra h1
@@ -391,7 +391,7 @@ theorem envelope_prop2' (n : ℕ) : (n + 2).size = (n + 1).size ↔ ¬is_envelop
 Alternative envelope characterization: `n + 2` equals `2 ^ ((n + 1).size)`
 if and only if `n` is an envelope.
 -/
-theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
+public theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n := by
   have n2size : 2 ≤ (n + 2).size := by
     have t1 : (0 + 2).size ≤ (n + 2).size := by
       refine Nat.size_le_size ?_
@@ -423,7 +423,7 @@ theorem envelope_prop1' (n : ℕ) : n + 2 = 2 ^ (n + 1).size ↔ is_envelope n :
 For positive envelopes, the size property: if `n > 0` and `n` is an envelope,
 then `(n + 1).size = n.size`.
 -/
-theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).size = n.size := by
+public theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).size = n.size := by
   have n1size : 2 ≤ (n + 1).size := by
     have t1 : (1 + 1).size ≤ (n + 1).size := by
       refine Nat.size_le_size ?_
@@ -451,8 +451,8 @@ theorem envelope_prop3 {n : ℕ} (h : 0 < n) (env : is_envelope n) : (n + 1).siz
 Key recursion property: either `n + 1` is at a segment beginning,
 or `luby (n + 1) = 2 * luby n`.
 -/
-theorem luby_value_not_at_segment_beg (n : ℕ) :
-    is_segment_beg (n + 1) ∨ luby (n + 1) = 2 * luby n := by
+public theorem luby_value_not_at_segment_beg (n : ℕ) :
+    is_segment_beg (n + 1) ∨ luby (n + 1) = (2 : ℕ) * luby n := by
   induction n using Nat.strong_induction_on with
   | h n nh =>
     obtain beg|h : is_segment_beg (n + 1) ∨ ¬is_segment_beg (n + 1) := by
@@ -688,8 +688,8 @@ theorem luby_value_not_at_segment_beg (n : ℕ) :
 Main property of the Luby sequence: `luby n` equals 1 if `n` is at a segment beginning,
 otherwise it equals `2 * luby (n - 1)`.
 -/
-theorem luby_sequence_prop (n : ℕ) :
-    luby n = if is_segment_beg n then 1 else 2 * luby (n - 1) := by
+public theorem luby_sequence_prop (n : ℕ) :
+    luby n = if is_segment_beg n then 1 else (2 : ℕ) * luby (n - 1) := by
   obtain z|p : n = 0 ∨ n > 0 := by exact Nat.eq_zero_or_pos n
   · expose_names
     simp [z] at *
