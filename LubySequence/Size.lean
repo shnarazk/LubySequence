@@ -63,9 +63,10 @@ example (n : ℕ) : (2 * n + 1).bits = true :: n.bits := by
   exact bit1_bits n
 
 /--
-The bit representation length of `2 ^ n` equals `n + 1`.
+The size of `2 ^ n` equals `n + 1`.
 -/
-theorem bitslength_of_pow2_eq_self_add_one (n : ℕ) : (2 ^ n).bits.length = n + 1 := by
+public theorem size_of_pow2_eq_self_add_one (n : ℕ) : ((2 : ℕ) ^ n).size = n + 1 := by
+  simp [←bitslength_eq_size]
   induction n with
   | zero => simp
   | succ n hn =>
@@ -75,13 +76,6 @@ theorem bitslength_of_pow2_eq_self_add_one (n : ℕ) : (2 ^ n).bits.length = n +
     have : 2 ^ (n + 1) = 2 * 2 ^ n := by grind
     simp [this]
     exact hn
-
-/--
-The size of `2 ^ n` equals `n + 1`.
--/
-public theorem size_of_pow2_eq_self_add_one (n : ℕ) : ((2 : ℕ) ^ n).size = n + 1 := by
-  simp [←bitslength_eq_size]
-  exact bitslength_of_pow2_eq_self_add_one n
 
 /--
 The bit representation of `2 ^ n - 1` consists of n true bits.
@@ -156,9 +150,9 @@ public theorem size_sub {n k : ℕ} (h : 0 < n) (ha : 0 < k) (hb : k ≤ 2 ^ (n 
       exact this
     simp [e2] at r2
     replace e2 : (2 ^ (n - 1)).size = n := by
-      have step1 : (2 ^ (n - 1)).bits.length = n - 1 + 1 := bitslength_of_pow2_eq_self_add_one (n - 1)
+      have step1 : (2 ^ (n - 1)).size = n - 1 + 1 := size_of_pow2_eq_self_add_one (n - 1)
       have step2 : n - 1 + 1 = n := Nat.sub_add_cancel p1
-      simp [step2, bitslength_eq_size] at step1
+      simp [step2] at step1
       exact step1
     simp [e2] at r2
     exact r2
