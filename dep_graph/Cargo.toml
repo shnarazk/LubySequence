@@ -1,0 +1,13 @@
+[package]
+name = "dep_graph"
+version = "0.1.0"
+edition = "2021"
+description = "Generate a Graphviz DOT dependency graph for LubySequence theorems."
+
+[[bin]]
+name = "dep_graph"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+winnow = "0.6"
