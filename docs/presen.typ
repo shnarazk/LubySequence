@@ -37,6 +37,10 @@
 
 $ #range(1, 32).map(Luby).map(str).join(", ") , dots.h.c $
 
+== definition
+
+$ #range(1, 32).map(Luby).map(str).join(", ") , dots.h.c $
+
 #pause
 
 $
@@ -46,16 +50,12 @@ $
   )
 $
 
-#pause
-
 $
-  L u b y_1(k >= 1) = cases(
-    2^(k".size" - 1) & " if" k = 2^(k".size") - 1,
-    L u b y_1(k - (2^(k".size"-1) - 1)). & " otherwise"
+  L u b y_0(k >= 0) = cases(
+    2^(k".size" - 1) & " if" k = 2^(k".size") - 2,
+    L u b y_0(k - (2^(k".size" - 1) - 1)). & " otherwise"
   )
 $
-
-#pause
 
 Luby, M. et al., Optimal Speedup of Las Vegas Algorithms,
 In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
@@ -89,7 +89,6 @@ In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
   (pause, )
   draw.bezier((38, -8), (15, -8), (24, 1),
     stroke: 1pt + red, mark: (end: ">"))
-  (pause, )
   draw.bezier((14, -8), (0, -8), (8, -3),
     stroke: 1pt + red, mark: (end: ">"))
 })
@@ -138,12 +137,6 @@ Remove the highest non-zero bits until . . .
 
 = Segment sequence
 
-Segmentation of the Luby sequence
-
-== Segments
-
-Monotone increasing subsequences in the Luby sequence.
-
 #let luby = range(1, 32).map(Luby)
 
 $
@@ -155,40 +148,17 @@ $
 }
 $
 
-#pause
+== Segments -- monotone increasing subsequences
 
-$
-  L u b y_1(k >= 1) = cases(
-    1\, & " if" k "is the beginning of a segment",
-    2 times L u b y_1(k - 1)\, & " otherwise" )
-$
-
-== Property: sizes of segments
-
-#let luby = range(1, 32).map(Luby)
+// #let luby = range(1, 32).map(Luby)
 
 $
 #let even = true
-#luby.insert(0, luby.at(0) - 1)
 #for (p, n) in luby.windows(2) {
   even = if p < n { even } else { not even }
   text(fill: if even { red } else { blue }, str(n) + ", ")
 }
 $
-
-To sizes
-
-$
-1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3
-$
-
-#pause
-
-$
-  |s e g m e n t (t >= 1)| = "the number of trailing zeros of " t
-$
-
-== indices on the natural number triangle
 
 #canvas(length: 10pt, {
   draw.set-style(content: (padding: (0.4em, 0.04em)))
@@ -215,9 +185,48 @@ $
 
 #text(size: 18pt, fill: green.darken(40%))[
 The index of Luby sequence starts from 0; the index of segments starts from 1.]
+
+== From segment to Luby
+#canvas(length: 10pt, {
+  draw.set-style(content: (padding: (0.4em, 0.04em)))
+  tree.tree(spread: 0.4,
+    ( text(fill: blue, [$14 arrow (\#8, 3)$]),
+      ( text(fill: blue, [$6 arrow (\#4, 2)$]),
+        ( text(fill: blue, [$2 arrow (\#2, 1)$]),
+          (text(fill: red, [$0 arrow (\#1, 0)$])),
+          (text(fill: blue, [$1 arrow (\#2, 0)$])), ),
+        ( text(fill: blue, [$(\#4, 1)$]),
+          (text(fill: red, [$3 arrow (\#3, 0)$])),
+          (text(fill: blue, [$4 arrow (\#4, 0)$])), ), ),
+      ( text(fill: blue, [$(\#8, 2)$]),
+        ( text(fill: blue, [$(\#6, 1)$]),
+          (text(fill: red, [$7 arrow (\#5, 0)$])),
+          (text(fill: blue, [$8 arrow (\#6, 0)$])), ),
+        ( text(fill: blue, [$(\#8, 1)$]),
+          (text(fill: red, [$10 arrow (\#7, 0)$])),
+          (text(fill: blue, [$(\#8, 0)$])), ), )) )
+})
+
 #pause
 
-Segments start at 1, 2, 4, 5, 8, 9, 11, 12 ...
+$
+"segment_length" = 1, 2, 1, 3, 1, 2, 1, 4, 1, 2, 1, 3, ...
+$
+
+$
+  "segment_length"(s >= 1) = "the number of trailing zeros of " s
+$
+
+$
+   "Luby value" = 2 ^ "index_in_segment" " 😳"
+$
+
+// $
+//   L u b y_0(k >= 0) = cases(
+//     1\, & " if" k "is the beginning of a segment",
+//     2 times L u b y_0(k - 1)\, & " otherwise" )
+// $
+
 /*
 $
   "segment_beg"_i & = 1 + sum_(i>= 0) #pin(1) [ "use envelope"_i ]#pin(2) |"envelope"_i| \
@@ -281,7 +290,7 @@ $ "index_in_segment"(n) = n - "segment_beg"(#pin(5)"index_to_segment_index"(n)#p
 structure Segment where
   index : ℕ  -- (one-based) segment index
   start : ℕ　-- (zero-based) local index in a segment
-  ofNat (n : ℕ) : Segment := ...
+  ofNat (n : ℕ) : Segment := ...      -- O(n)?
   next (s : Segment) : Segment := ... -- O(1)
 ```
 
@@ -297,11 +306,11 @@ structure SegmentedState where
   next : SegmentedState := ... -- O(1)
   luby : ℕ := 2 ^ i            -- O(1)
 
-theorem segmentedState_prop (n : ℕ) :
+🎉theorem segmentedState_prop (n : ℕ) :
     (↑(n + 1) : SegmentedState) = (↑n : segmentedStat).next
 ```
 
-This is better than the original Luby $O(log n)$ definition.
+This is better than the original Luby $O(log n) + O(0)$ definition.
 
 == Archievement
 
@@ -313,13 +322,13 @@ This is better than the original Luby $O(log n)$ definition.
   node((0, 1), $S_0$)
   edge((0, 1), (1, 1), "~>", stroke: luma(150))
   node((2, 0), $n + 1$)
-  edge((2, 0), (2, 2), $O(log(n + 1))$, label-pos: 25%, bend: 30deg, "-straight", stroke: red)
+  edge((2, 0), (2, 2), [], label-pos: 25%, bend: 30deg, "-straight", stroke: red)
   edge((2, 0), (2, 1), "<-->")
   node((1, 1), $S_n$)
   edge((1, 1), (2, 1), [ $S_n$.next ], "->", stroke: blue)
   edge((1, 1), (1, 2), [ $S_n$.luby ], label-side: left, "-straight", stroke: blue)
   node((2, 1), $S_(n + 1)$)
-  edge((2, 1), (2, 2), [ $-$.luby ], label-side: right, "-straight", stroke: blue)
+  edge((2, 1), (2, 2), [ ], label-side: right, "-straight", stroke: blue)
 	node((1, 2), $L u b y(n)$)
 	node((2, 2), $L u b y(n + 1)$)
 })]
@@ -335,17 +344,17 @@ _*Prove it in Lean4*_
 def Luby (n : ℕ) : ℕ :=
     if is_envelope n then ... else Luby (n + 1 - S₂ n)
 
-theorem eq_at_envelope         (n : ℕ) (h : is_envelope n) :
+🎉theorem eq_at_envelope         (n : ℕ) (h : is_envelope n) :
     (↑n).luby = Luby n := by ...
 
-theorem eq_at_non_envelope     (n : ℕ) (h : ¬is_envelope n) :
+🎉theorem eq_at_non_envelope     (n : ℕ) (h : ¬is_envelope n) :
     (↑n).luby = Luby n := by ...
 
-theorem segmented_luby_eq_luby (n : ℕ) :
+🎉theorem segmented_luby_eq_luby (n : ℕ) :
     (↑n).luby = Luby n := by ...
 ```
 
-Using Aristotle, Clarde Opus 4.6
+Using Aristotle, Claude Opus 4.6
 
 == flow of theorems
 
