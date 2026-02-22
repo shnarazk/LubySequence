@@ -275,22 +275,33 @@ $ "index_in_segment"(n) = n - "segment_beg"(#pin(5)"index_to_segment_index"(n)#p
 
 #pinit-point-from((5, 6), offset-dx: 0mm, offset-dy: 8mm, pin-dy: 3mm, pin-dx: -4mm, body-dx: -8mm, fill: rgb("#aaf"))[#text(fill: rgb("#77f"))[_based on $"segment_length"$_]]
 
-== Segment state
-- Save the last segment info
-from $O(1)$ time to $O(1)$ time and $O(1)$ space implementation
+== Segment sequence (in Lean4)
 
 ```lean
-structure State where
-  segIx : ℕ  -- (one-based) segment index
-  locIx : ℕ　-- (zero-based) local index in a segment
-
-/-- O(1) -/
-def State.next (s : State) : State := . . .
-/-- O(1) -/
-def State.luby (s : State) : ℕ := 2 ^ s.locIx
+structure Segment where
+  index : ℕ  -- (one-based) segment index
+  start : ℕ　-- (zero-based) local index in a segment
+  ofNat (n : ℕ) : Segment := ...
+  next (s : Segment) : Segment := ... -- O(1)
 ```
 
-This is better than the original Luby $O(log n)$.
+== SegmentedState
+
+- Save the last segment info: $O(1)$ time and $O(1)$ space implementation
+
+```lean
+structure SegmentedState where
+  s : Segment
+  i : ℕ                        -- local index in the current segment
+  ofNat (n : ℕ) : SegmentedState := ⟨↑n, (n - (↑n : Segment).start⟩
+  next : SegmentedState := ... -- O(1)
+  luby : ℕ := 2 ^ i            -- O(1)
+
+theorem segmentedState_prop (n : ℕ) :
+    (↑(n + 1) : SegmentedState) = (↑n : segmentedStat).next
+```
+
+This is better than the original Luby $O(log n)$ definition.
 
 == Archievement
 
@@ -305,48 +316,36 @@ This is better than the original Luby $O(log n)$.
   edge((2, 0), (2, 2), $O(log(n + 1))$, label-pos: 25%, bend: 30deg, "-straight", stroke: red)
   edge((2, 0), (2, 1), "<-->")
   node((1, 1), $S_n$)
-  edge((1, 1), (2, 1), [ .next ], "->", stroke: blue)
-  edge((1, 1), (1, 2), [ .luby ], label-side: left, "-straight", stroke: blue)
+  edge((1, 1), (2, 1), [ $S_n$.next ], "->", stroke: blue)
+  edge((1, 1), (1, 2), [ $S_n$.luby ], label-side: left, "-straight", stroke: blue)
   node((2, 1), $S_(n + 1)$)
-  edge((2, 1), (2, 2), [ .luby ], label-side: right, "-straight", stroke: blue)
+  edge((2, 1), (2, 2), [ $-$.luby ], label-side: right, "-straight", stroke: blue)
 	node((1, 2), $L u b y(n)$)
 	node((2, 2), $L u b y(n + 1)$)
 })]
 #pause
 *only if $forall n, L u b y(n) = S_n.l u b y$*
 
-= Equivalence of Luby and Luby state
+= Equivalence of Luby and SegmentedState.luby
 _*Prove it in Lean4*_
 
-== Outline in Lean4
+== Proof outline in Lean4
 
 ```lean
-theorem Luby_values : ∀ n : ℕ,
-    luby n = if n.is_segment_beg
-      then 1
-      else 2 * Luby (n - 1) := by ...
+def Luby (n : ℕ) : ℕ :=
+    if is_envelope n then ... else Luby (n + 1 - S₂ n)
 
-theorem LubyState_values : ∀ n : ℕ,
-    (↑ n : State).luby = if (↑ n : State).is_segment_beg
-      then 1
-      else 2 * (↑ n - 1 : State).luby := by ...
+theorem eq_at_envelope         (n : ℕ) (h : is_envelope n) :
+    (↑n).luby = Luby n := by ...
+
+theorem eq_at_non_envelope     (n : ℕ) (h : ¬is_envelope n) :
+    (↑n).luby = Luby n := by ...
+
+theorem segmented_luby_eq_luby (n : ℕ) :
+    (↑n).luby = Luby n := by ...
 ```
 
-```lean
-theorem segments_are_equivalent : ∀ n : ℕ,
-    (↑ n : State).is_segment_beg = n.is_segment_beg := by ...
-```
-
-== contd.
-
-```lean
-theorem LubyState_eq_Luby : ∀ n : ℕ,
-    (↑ n : State).luby = luby n := by ...
-```
-```lean
-theorem LubyState_is_additive : ∀ n : ℕ,
-    (↑ n + 1 : State) = (↑ n : State).next := by ...
-```
+Using Aristotle, Clarde Opus 4.6
 
 == flow of theorems
 
@@ -358,13 +357,15 @@ theorem LubyState_is_additive : ∀ n : ℕ,
 total 45 theorems (847 LoC)
 ]
 
-== cf. snapshot just after proved
+== cf. a snapshot just after proved
 
 #image("graph-20260215.svg")
 
 #table(
-  columns: 3, // (1fr, 1fr, 1fr),
-  [tag], [\#theorems], [Loc],
+  columns: 3,
+  align: (auto, right, right),
+  inset: (x: 4pt, y: 6pt),
+  [tag], [\#theorems], [LoC],
   [completed], [149], [5448],
   [reduced], [45], [847]
 )
