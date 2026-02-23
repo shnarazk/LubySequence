@@ -2,35 +2,49 @@
 
 <img width="539" alt="Image" src="https://github.com/user-attachments/assets/3a6b91de-ca05-4cf4-8939-378b366f0cf5" />
 
-A Lean 4 formalization and study of the Luby sequence, including multiple equivalent characterizations (recursive, tree-based, and iterator/state-based), supporting lemmas on natural numbers and binary representations, and notes/papers about the construction.
+A Lean 4 library focused on proving the correctness of a new O(1) implementation of the Luby sequence based on segments, along with supporting lemmas on natural numbers and binary representations, and notes/papers about the construction.
 
 The Luby sequence was introduced in: Michael Luby, Alistair Sinclair, and David Zuckerman. “Optimal Speedup of Las Vegas Algorithms.” _Information Processing Letters_, 47(4): 173–180, 1993.
-It is sometimes used as a restart schedule in randomized algorithms (notably SAT solvers). This repository explores the sequence’s structure and equivalences and provides a Lean library you can build locally.
+It is sometimes used as a restart schedule in randomized algorithms (notably SAT solvers). This repository provides a Lean 4 library you can build locally.
 
 ## Overview
 
 - Formal definitions of zero-based and one-based variants of the Luby sequence
-- A tree model that captures the “envelope” structure of Luby segments
-- An iterator/state-machine view that produces the sequence step-by-step
-- Proofs connecting the models and basic facts about binary sizes
+- A segment-based O(1) implementation (`SegmentSequence`, `SegmentedState`) with correctness proofs
+- Supporting lemmas on binary sizes and trailing zeros
+- Proofs connecting the segment-based implementation to the recursive definition
 - Accompanying notes in Typst describing the definitions and complexity intuition
 
 If you just want to browse the code, start with the top-level module:
-- `LubySequence/LubySequence.lean` (imports the core modules)
+- `LubySequence.lean` (imports the core modules)
 
 ## Modules
+
+- `LubySequence.Size`
+  - Supporting lemmas about the binary size (`Nat.size`) of natural numbers.
+
+- `LubySequence.TrailingZeros`
+  - Defines `trailing_zeros` and proves its key properties.
 
 - `LubySequence.Basic`
   - Defines the Luby sequence and supporting functions.
   - Includes lemmas relating natural numbers to their binary representation (e.g., using `Nat.size`).
   - Introduces “envelope” utilities used by other modules.
 
+- `LubySequence.SegmentSequence`
+  - Defines `Segment` and the O(1) segment-based computation of Luby values.
+  - Proves segment boundary properties and monotonicity.
+
+- `LubySequence.SegmentedState`
+  - Defines `SegmentedState`, a stateful O(1) iterator over the Luby sequence.
+  - Proves correctness of the iterator with respect to the recursive definition.
+
 - `LubySequence.Equivalence`
-  - Bridges the models: shows how the iterator/state and tree envelopes agree with the recursive definition.
-  - Contains in-progress and completed proofs connecting segment indices to envelope depths.
+  - Proves that the segment-based implementation agrees with the recursive definition.
+  - Contains completed proofs connecting segment indices to envelope depths.
 
 - `LubySequence` (root)
-  - Umbrella module that imports `Basic`, and `Equivalence`.
+  - Umbrella module that imports `Basic`, `SegmentSequence`, `SegmentedState`, and `Equivalence`.
 
 ## Building
 
