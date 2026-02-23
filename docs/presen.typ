@@ -358,12 +358,12 @@ Using Aristotle, Claude Opus 4.6
 
 == flow of theorems
 
-#image("graph.svg", height: 75%)
+#image("graph.svg", width: auto)
 
 #scale(75%)[
 #box(fill: rgb("AED6F1"), inset: 1mm)[about bit length or `size`] /
 #box(fill: rgb("F9E79F"), inset: 1mm)[about $"trailing_zeros"$] /
-total 45 theorems (847 LoC)
+total 45+19 theorems (1012 LoC)
 ]
 
 == cf. a snapshot just after proved
@@ -376,5 +376,11 @@ total 45 theorems (847 LoC)
   inset: (x: 4pt, y: 6pt),
   [tag], [\#theorems], [LoC],
   [completed], [149], [5448],
-  [reduced], [45], [847]
+  [reduced], [45+19], [1012]
 )
+
+== Conclusion
+
+- O(1) implentation of Luby sequence
+- with the proof of equivalence
+- (will be) used in my SAT solver

@@ -54,6 +54,7 @@ fn file_color(filename: &str) -> &'static str {
         "TrailingZeros.lean" => "#F9E79F",   // light yellow
         "SegmentSequence.lean" => "#F5CBA7", // light orange
         "Equivalence.lean" => "#D7BDE2",     // light purple
+        "SegmentedState.lean" => "#A2D9CE",  // light teal
         _ => "#DDDDDD",
     }
 }
