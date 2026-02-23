@@ -51,7 +51,7 @@ $
 $
 
 $
-  L u b y_0(k >= 0) = cases(
+  L u b y(k : ℕ) = cases(
     2^(k".size" - 1) & " if" k = 2^(k".size") - 2,
     L u b y_0(k - (2^(k".size" - 1) - 1)). & " otherwise"
   )
@@ -71,30 +71,30 @@ In _The 2nd Israel Symp. on Theory and Comp. Sys._, pp. 127-133, 1993.
   draw.set-style(content: (padding: 0.4em))
   tree.tree(
     spread: 0.45,
-    ([ $15 = "b1111"$ #encircle(8) ],
-      ([ $7 = "b111"$ #encircle(4) ],
-        ([ $3 = "b11"$ #encircle(2) ],
-          ([ $1 = "b1"$ #encircle(1) ]),
-          ([ $2 arrow_(- 1) 1$ ]), ),
-        ([ $6 arrow_(- 3) 3$ ],
-          ([ $4 arrow_(- 3) 1$ ]),
-          ([ $5 arrow_(- 3) 2$ ]), ), ),
-      ([ $14 arrow_(- 7) 7$ ],
-        ([ $10 arrow_(- 7) 3$ ],
-          ([ $8 arrow_(- 7) 1$ ]),
-          ([ $9 arrow_(- 7) 2$ ]), ),
-        ([ $13 arrow_(- 7) 6$ ],
-          ([ $11 arrow_(- 7) 4$ ]),
-          ([ $12 arrow_(- 7) 5$ ]), ), ), ),)
+    ([ $14$ #encircle(8) ],
+      ([ $6$ #encircle(4) ],
+        ([ $2$ #encircle(2) ],
+          ([ $0 = "b1"$ #encircle(1) ]),
+          ([ $1 arrow_(- 1) 0$ ]), ),
+        ([ $5 arrow_(- 3) 2$ ],
+          ([ $3 arrow_(- 3) 0$ ]),
+          ([ $4 arrow_(- 3) 1$ ]), ), ),
+      ([ $13 arrow_(- 7) 6$ ],
+        ([ $9 arrow_(- 7) 2$ ],
+          ([ $7 arrow_(- 7) 0$ ]),
+          ([ $8 arrow_(- 7) 1$ ]), ),
+        ([ $12 arrow_(- 7) 5$ ],
+          ([ $10 arrow_(- 7) 3$ ]),
+          ([ $11 arrow_(- 7) 4$ ]), ), ), ),)
   (pause, )
-  draw.bezier((38, -8), (15, -8), (24, 1),
+  draw.bezier((37.5, -7), (13.5, -7), (20, 7),
     stroke: 1pt + red, mark: (end: ">"))
-  draw.bezier((14, -8), (0, -8), (8, -3),
+  draw.bezier((15, -7), (2, -7), (8, -1),
     stroke: 1pt + red, mark: (end: ">"))
 })
 
 $
-  L u b y_1(13) & arrow L u b y_1(13-(2^3-1)=6) arrow L u b y_1(6-(2^2-1) = 3) = 2
+  L u b y(12) & arrow L u b y(12-(2^3-1)=5) arrow L u b y(5-(2^2-1) = 2) = 2 ^ (2."size" - 1) = 2
 $
 
 //- The worst recursion depth of $L u b y (N)$ would be $O(log(N))$.
@@ -239,7 +239,7 @@ $
 ]
 */
 
-= O(1) inprementation of Luby sequence
+= O(1) implementation of Luby sequence
 
 An Online algorithm on segment sequence
 
