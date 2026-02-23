@@ -1,6 +1,6 @@
-# LubySequence
+# O(1) implementation of LubySequence
 
-<img width="539" height="221" alt="Image" src="https://github.com/user-attachments/assets/db6c12f4-22f2-4416-847a-4321ad35566c" />
+<img width="539" alt="Image" src="https://github.com/user-attachments/assets/3a6b91de-ca05-4cf4-8939-378b366f0cf5" />
 
 A Lean 4 formalization and study of the Luby sequence, including multiple equivalent characterizations (recursive, tree-based, and iterator/state-based), supporting lemmas on natural numbers and binary representations, and notes/papers about the construction.
 
