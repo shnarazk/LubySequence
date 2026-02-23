@@ -53,7 +53,7 @@ $
 $
   L u b y(k : ℕ) = cases(
     2^(k".size" - 1) & " if" k = 2^(k".size") - 2,
-    L u b y_0(k - (2^(k".size" - 1) - 1)). & " otherwise"
+    L u b y(k - (2^(k".size" - 1) - 1)). & " otherwise"
   )
 $
 
@@ -221,12 +221,6 @@ $
    "Luby value" = 2 ^ "index_in_segment" " 😳"
 $
 
-// $
-//   L u b y_0(k >= 0) = cases(
-//     1\, & " if" k "is the beginning of a segment",
-//     2 times L u b y_0(k - 1)\, & " otherwise" )
-// $
-
 /*
 $
   "segment_beg"_i & = 1 + sum_(i>= 0) #pin(1) [ "use envelope"_i ]#pin(2) |"envelope"_i| \
@@ -289,10 +283,13 @@ $ "index_in_segment"(n) = n - "segment_beg"(#pin(5)"index_to_segment_index"(n)#p
 ```lean
 structure Segment where
   index : ℕ  -- (one-based) segment index
-  start : ℕ　-- (zero-based) local index in a segment
+  start : ℕ　-- (zero-based) local index in segment
   ofNat (n : ℕ) : Segment := ...      -- O(n)?
   next (s : Segment) : Segment := ... -- O(1)
 ```
+
+- $"Luby"(n)$ can be calculated from `[Segment]` recursively ($O(n)$)
+- $O(1)$ by saving the previous segment
 
 == SegmentedState
 
