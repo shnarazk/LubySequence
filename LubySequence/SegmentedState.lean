@@ -6,6 +6,7 @@ public import LubySequence.SegmentSequence
 
 open Segment
 
+/-- save the current state to eliminate recursion -/
 public structure SegmentedState where
   /-- segment is -/
   public s : Segment
@@ -20,10 +21,12 @@ public def ofNat (n : ℕ) : SegmentedState :=
   let i := n - s.start
   ⟨s, i⟩
 
+/-- return the next state -/
 @[expose]
 public def next (s : SegmentedState) : SegmentedState :=
   if s.i + 1 = s.s.length then ⟨s.s.next, 0⟩ else ⟨s.s, s.i + 1⟩
 
+/-- return the corresponding Luby value -/
 @[expose]
 public def luby (s : SegmentedState) : ℕ := 2 ^ s.i
 
