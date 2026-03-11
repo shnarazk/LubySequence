@@ -77,7 +77,7 @@ theorem ofNat_start_eq (t : ℕ) (ht : t ≥ 1) :
   rw [← segment_starts_to_segment_start]
 
 /-- `ofNat(t)` for `t ≥ 1` equals `one + (t - 1)`. -/
-theorem ofNat_succ (t : ℕ) (ht : t ≥ 1) : Segment.ofNat t = one + (t - 1) := by
+theorem ofNat_succ (t : ℕ) (ht : t ≥ 1) : Segment.ofNat t = (one : Segment) + (t - 1) := by
   obtain ⟨k, rfl⟩ : ∃ k, t = k + 1 := ⟨t - 1, by omega⟩
   rfl
 

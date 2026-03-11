@@ -95,11 +95,11 @@
         "tree-sitter-cli": "tree-sitter-cli"
       },
       "locked": {
-        "lastModified": 1769826708,
-        "narHash": "sha256-y+fqh2jNWSzcZWu4+Y1pxw7q5C/5TJazMm3Rc724IAw=",
+        "lastModified": 1772254570,
+        "narHash": "sha256-c5VJQHzYaeamwkNlr/vzfbl4GrGdLA8lhbFI6PekA34=",
         "owner": "shnarazk",
         "repo": "flakes",
-        "rev": "d4db8aa3bb266dc49415337f6e2f68096501c1e9",
+        "rev": "0abf3477ab5f1fbb0c1153fbba4da75174b74c58",
         "type": "github"
       },
       "original": {
@@ -165,11 +165,11 @@
     },
     "nixpkgs_10": {
       "locked": {
-        "lastModified": 1771177547,
-        "narHash": "sha256-trTtk3WTOHz7hSw89xIIvahkgoFJYQ0G43IlqprFoMA=",
+        "lastModified": 1772956932,
+        "narHash": "sha256-M0yS4AafhKxPPmOHGqIV0iKxgNO8bHDWdl1kOwGBwRY=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "ac055f38c798b0d87695240c7b761b82fc7e5bc2",
+        "rev": "608d0cadfed240589a7eea422407a547ad626a14",
         "type": "github"
       },
       "original": {
