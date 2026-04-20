@@ -193,7 +193,7 @@ theorem luby_via_segment_non_envelope (n : ℕ) (h : ¬(Luby.is_envelope n = tru
     luby_via_segment n = luby_via_segment (n + 1 - Luby.S₂ n) := by
   -- n ≥ 1 (since is_envelope 0 = true)
   have n_pos : n ≥ 1 := by
-    by_contra hlt; push_neg at hlt
+    by_contra hlt; push Not at hlt
     have : n = 0 := by omega
     subst this
     have : Luby.is_envelope 0 = true := by simp [Luby.is_envelope, Luby.S₂, Nat.size, Nat.binaryRec]
@@ -333,7 +333,7 @@ public theorem luby_via_segment_eq_luby (n : ℕ) : luby_via_segment n = Luby.lu
       rename_i h_nenv
       -- Show n + 1 - S₂ n < n (for the inductive hypothesis)
       have n_pos : n ≥ 1 := by
-        by_contra hlt; push_neg at hlt
+        by_contra hlt; push Not at hlt
         have : n = 0 := by omega
         subst this
         have : Luby.is_envelope 0 = true := by simp [Luby.is_envelope, Luby.S₂, Nat.size, Nat.binaryRec]
