@@ -1,4 +1,4 @@
-#import "@preview/cetz:0.4.2": canvas, draw, tree
+#import "@preview/cetz:0.5.1": canvas, draw, tree
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 
 #let title = [An Online Algorithm for Luby Sequence]
@@ -17,7 +17,7 @@
 #set text(
   font: ((name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
   size: 10pt)
-#show raw: set text(font: "Monaspace Neon")
+#show raw: set text(font: "Monaspace Neon Var")
 #set heading(numbering: "1.")
 #show raw: it => {
   if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]

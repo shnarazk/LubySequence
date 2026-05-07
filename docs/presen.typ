@@ -1,6 +1,6 @@
-#import "@preview/cetz:0.4.2" as cetz: canvas, draw, tree
+#import "@preview/cetz:0.5.1" as cetz: canvas, draw, tree
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
-#import "@preview/touying:0.7.1": *
+#import "@preview/touying:0.7.3": *
 #import themes.simple: *
 #import "@preview/pinit:0.2.2": *
 #set par(justify: true)
@@ -8,7 +8,7 @@
 #set text(
   font: ((name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
   size: 20pt)
-#show raw: set text(font: "Monaspace Neon", size: 16pt)
+#show raw: set text(font: "Monaspace Neon Var", size: 16pt)
 #set heading(numbering: "1.")
 #show raw: it => {
   if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]
