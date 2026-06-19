@@ -227,7 +227,7 @@ public theorem sum_of_trailing_zeros_prop :
         have h_simplify : ∀ i ∈ Finset.range (2 ^ k), trailing_zeros (2 ^ k + i + 1) = trailing_zeros (i + 1) + (if i + 1 = 2 ^ k then 1 else 0) := by
           intro i hi; split_ifs <;> simp_all +singlePass [ add_comm, add_left_comm ] ;
           · rw [ show i + ( 1 + 2 ^ k ) = 2 ^ k + 2 ^ k by linarith ] ; simp +arith +decide [ *, trailing_zeros_prop3 ] ; ring_nf;
-            convert trailing_zeros_prop3 ( k + 1 ) using 1 ; ring;
+            convert trailing_zeros_prop3 ( k + 1 ) using 1 ; ring_nf;
           · convert trailing_zeros_prop7 k ( i + 1 ) _ _ using 1 <;> norm_num [ add_comm, add_left_comm, add_assoc ];
             exact lt_of_le_of_ne hi ( by tauto );
         rw [ Finset.sum_congr rfl fun i hi => by rw [ h_simplify i hi ] ] ; simp +arith +decide [ Finset.sum_add_distrib ] ; ring_nf;
