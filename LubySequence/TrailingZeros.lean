@@ -216,8 +216,8 @@ public theorem sum_of_trailing_zeros_prop :
     -- We proceed by induction on $k$.
     intro k
     induction' k with k ih;
-    · native_decide +revert;
-    · rw [ pow_succ' ];
+    · simp
+    · rw [ Nat.pow_succ' ];
       -- We can split the sum into two parts: the sum over the first half and the sum over the second half.
       have h_split : ∑ i ∈ Finset.range (2 * 2 ^ k), (trailing_zeros (i + 1) + 1) = (∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (i + 1) + 1)) + (∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (2 ^ k + i + 1) + 1)) := by
         rw [Nat.two_mul]
