@@ -24,7 +24,7 @@ If you just want to browse the code, start with the top-level module:
   - Supporting lemmas about the binary size (`Nat.size`) of natural numbers.
 
 - `LubySequence.TrailingZeros`
-  - Defines `trailing_zeros` and proves its key properties.
+  - Defines `trailingZeros` and proves its key properties.
 
 - `LubySequence.Basic`
   - Defines the Luby sequence and supporting functions.

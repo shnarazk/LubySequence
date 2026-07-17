@@ -77,13 +77,13 @@ equals `2^(i-1)`, the largest power of 2 in the current segment.
 For example, envelopes occur at positions 0, 2, 6, 14, 30, ... (i.e., `2^i - 2`).
 -/
 @[expose]
-public def is_envelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
+public def isEnvelope (n : ℕ) : Bool := S₂ (n + 2) = n + 2
 
 /--
 The Luby sequence, a well-founded recursive function computing `L(n)`.
 
 The Luby sequence is defined as:
-- `luby n = S₂ n` if `n` is an envelope (i.e., `is_envelope n = true`)
+- `luby n = S₂ n` if `n` is an envelope (i.e., `isEnvelope n = true`)
 - `luby n = luby (n + 1 - S₂ n)` if `n` is not an envelope
 
 The first 16 values (indices 0-15) are: 1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, 1, ...
@@ -93,12 +93,12 @@ in SAT solvers and other optimization problems, where it provides a balance betw
 short and long runs.
 -/
 @[expose]
-public def luby (n : ℕ) : ℕ := if is_envelope n then S₂ n else luby (n + 1 - S₂ n)
+public def luby (n : ℕ) : ℕ := if isEnvelope n then S₂ n else luby (n + 1 - S₂ n)
 termination_by n
 decreasing_by
   obtain z|k := n
   · expose_names
-    simp [is_envelope] at h
+    simp [isEnvelope] at h
     simp at *
     have : S₂ 2 = 2 := by simp [S₂, Nat.size, Nat.binaryRec]
     exact absurd this h
@@ -130,10 +130,10 @@ beginning after subtracting the current envelope value `S₂ n`.
 Returns `true` if `n` is either 0, 1, or maps to a segment beginning after folding.
 -/
 @[expose]
-public def is_segment_beg (n : ℕ) : Bool := match h : n with
+public def isSegmentBeg (n : ℕ) : Bool := match h : n with
   | 0 => true
   | 1 => true
-  | m + 1 + 1 => if is_envelope n then false else is_segment_beg (n + 1 - S₂ n)
+  | m + 1 + 1 => if isEnvelope n then false else isSegmentBeg (n + 1 - S₂ n)
 termination_by n
 decreasing_by
   expose_names
@@ -166,12 +166,12 @@ decreasing_by
   simp only [←h]
   exact decreasing
 
--- #eval! is_segment_beg 7 -- false
--- #eval! is_envelope 0 -- false
+-- #eval! isSegmentBeg 7 -- false
+-- #eval! isEnvelope 0 -- false
 
--- #eval (is_envelope 14, (14 + 2).size == (14 + 1).size + 1)
+-- #eval (isEnvelope 14, (14 + 2).size == (14 + 1).size + 1)
 
--- #eval is_segment_beg 0 -- true
+-- #eval isSegmentBeg 0 -- true
 
 end Luby
 
