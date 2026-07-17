@@ -245,6 +245,10 @@ which identifies the boundary between segments covering and not covering positio
 public def segmentIdOver (n : ℕ) : ℕ :=
   Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
 
+theorem segment_starts_is_infinite (n: ℕ) : ∃ i, segment_starts i > n := by
+  use n + 2
+  exact segment_starts_gt_self n
+
 /--
 Find the smallest segment index whose start position is at least `n`.
 Uses `Nat.find` to locate the smallest index `i` where `segment_starts i ≥ n`,
@@ -264,8 +268,9 @@ public theorem segmentIdOver_0 : segmentIdOver 0 = 2 := by
   refine
     (Nat.find_eq_iff
           (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
-            (fun [DecidablePred fun i ↦ segment_starts i > 0] ↦ segmentIdOver._proof_1 0)
-            (funext fun i ↦ gt_iff_lt._simp_1))).mpr
+            (fun [DecidablePred fun i ↦ segment_starts i > 0] ↦ segment_starts_is_infinite 0)
+            (funext fun i ↦ by exact Eq.propIntro (fun a ↦ a) fun a ↦ a))).mpr
+            -- (funext fun i ↦ gt_iff_lt._simp_1))).mpr
       ?_
   · constructor
     · simp [segment_starts]
@@ -324,8 +329,8 @@ public theorem segmentIdOver_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) 
     (Nat.find_eq_iff
           (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
             (fun [DecidablePred fun i ↦ segment_starts i > 2 ^ (n + 1) - 2] ↦
-              segmentIdOver._proof_1 (2 ^ (n + 1) - 2))
-            (funext fun i ↦ gt_iff_lt._simp_1))).mpr ?_
+              segment_starts_is_infinite (2 ^ (n + 1) - 2))
+            (funext fun i ↦ by exact Eq.propIntro (fun a ↦ a) fun a ↦ a))).mpr ?_
   constructor
   · simp [hstart]
     refine Nat.sub_succ_lt_self (2 ^ (n + 1)) 1 ?_
