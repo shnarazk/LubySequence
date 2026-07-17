@@ -11,11 +11,11 @@ attribute [local simp] binaryRec
 
 /--
 Returns the number of zeros at the end of bit representation of Nat `n`.
-Note: `trailing_zeros 0 = 0`
+Note: `trailingZeros 0 = 0`
 It differs from the Rust implementation which returns 64 if n = 0_u64.
 -/
 @[expose]
-public def trailing_zeros (n : ℕ) : ℕ := match h : n with
+public def trailingZeros (n : ℕ) : ℕ := match h : n with
   | 0      => n
   | n' + 1 =>
     if n = 2 ^ (n.size - 1)
@@ -26,16 +26,16 @@ public def trailing_zeros (n : ℕ) : ℕ := match h : n with
         have n1 : n > 0 := by exact Nat.lt_of_sub_eq_succ h
         have t1 : 0 < 2 ^ (n.size - 1) := by exact Nat.two_pow_pos (n.size - 1)
         exact sub_lt n1 t1
-      trailing_zeros (n - 2 ^ (n.size - 1))
-  -- | _ => if n < 2 then 0 else if n % 2 = 0 then 1 + trailing_zeros (n / 2) else 0
+      trailingZeros (n - 2 ^ (n.size - 1))
+  -- | _ => if n < 2 then 0 else if n % 2 = 0 then 1 + trailingZeros (n / 2) else 0
 
--- #eval List.range 9 |>.map (fun n ↦ (n, trailing_zeros n))
+-- #eval List.range 9 |>.map (fun n ↦ (n, trailingZeros n))
 
 /--
 The number of trailing zeros in 1 is 0.
 -/
 @[simp]
-public theorem trailing_zeros1 : trailing_zeros 1 = 0 := by simp [trailing_zeros]
+public theorem trailingZeros1 : trailingZeros 1 = 0 := by simp [trailingZeros]
 
 /--
 Returns the number of consecutive ones at the end of bit representation of Nat `n`.
@@ -49,9 +49,9 @@ def trailing_ones (n : ℕ) : ℕ :=
 /--
 The number of trailing zeros in 2^n equals n.
 -/
-public theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n := by
+public theorem trailingZeros_prop3 : ∀ n : ℕ, trailingZeros (2 ^ n) = n := by
   intro n
-  rw [trailing_zeros.eq_def]
+  rw [trailingZeros.eq_def]
   split <;> expose_names
   · have : ¬2 ^ n = 0 := by exact NeZero.ne (2 ^ n)
     exact absurd heq this
@@ -66,15 +66,15 @@ public theorem trailing_zeros_prop3 : ∀ n : ℕ, trailing_zeros (2 ^ n) = n :=
       simp [t1] at h
 
 /--
-For k < 2^n and k ≠ 0, trailing_zeros(k + 2^n) = trailing_zeros(k).
+For k < 2^n and k ≠ 0, trailingZeros(k + 2^n) = trailingZeros(k).
 -/
-public theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
-    ¬k = 0 → trailing_zeros (k + 2 ^ n) = trailing_zeros k := by
+public theorem trailingZeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
+    ¬k = 0 → trailingZeros (k + 2 ^ n) = trailingZeros k := by
   intro n k
   induction n using Nat.strong_induction_on with
   | h n ih =>
     intro k' h1
-    rw [trailing_zeros.eq_def]
+    rw [trailingZeros.eq_def]
     split
     · expose_names
       have c : ¬k + 2 ^ n = 0 := by
@@ -116,37 +116,37 @@ public theorem trailing_zeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
                 exact eq_size
               simp only [this, n2]
             simp [t1]
-          exact congrArg trailing_zeros this
+          exact congrArg trailingZeros this
 
 /- #eval List.range 6 |>.map (fun n' ↦
     let o := n'
     let n := n' + 2
-    ((∑ i ∈ range (o - 1), (trailing_zeros (2 ^ n + i + 1) + 1) + 1),
-    (∑ i ∈ range (o - 1), (trailing_zeros (        i + 1) + 1) + 1))) -/
+    ((∑ i ∈ range (o - 1), (trailingZeros (2 ^ n + i + 1) + 1) + 1),
+    (∑ i ∈ range (o - 1), (trailingZeros (        i + 1) + 1) + 1))) -/
 
 /--
-For k ≤ 2^n, the sum of (trailing_zeros(2^n + i + 1) + 1) over i ∈ [0, k-2] equals
-the sum of (trailing_zeros(i + 1) + 1) over the same range.
+For k ≤ 2^n, the sum of (trailingZeros(2^n + i + 1) + 1) over i ∈ [0, k-2] equals
+the sum of (trailingZeros(i + 1) + 1) over the same range.
 -/
-public theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
-    ∑ i ∈ range (k - 1), (trailing_zeros (2 ^ n + i + 1) + 1)
-    = ∑ i ∈ range (k - 1), (trailing_zeros (      i + 1) + 1) := by
+public theorem trailingZeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
+    ∑ i ∈ range (k - 1), (trailingZeros (2 ^ n + i + 1) + 1)
+    = ∑ i ∈ range (k - 1), (trailingZeros (      i + 1) + 1) := by
   intro n k hk
-  let f1 := (fun i ↦ if h : i < 2 ^ n then trailing_zeros (i + 2 ^ n) else 0)
+  let f1 := (fun i ↦ if h : i < 2 ^ n then trailingZeros (i + 2 ^ n) else 0)
   have f1_def : f1 = value_of% f1 := rfl
   have f1eq : f1 = (fun i ↦
       if h : i < 2 ^ n
-      then if h' : i == 0 then trailing_zeros (2 ^ n) else trailing_zeros i
+      then if h' : i == 0 then trailingZeros (2 ^ n) else trailingZeros i
       else 0) := by
     simp [f1_def]
     ext x
     split <;> expose_names
     · split <;> expose_names
       · simp [h_1]
-      · exact trailing_zeros_prop7 n x h h_1
+      · exact trailingZeros_prop7 n x h h_1
     · simp at h ; exact rfl
   have t1 :
-     (∑ x ∈ range (k - 1), (trailing_zeros (2 ^ n + x + 1) + 1)) =
+     (∑ x ∈ range (k - 1), (trailingZeros (2 ^ n + x + 1) + 1)) =
      (∑ x ∈ range (k - 1), (f1             (        x + 1) + 1)) := by
     simp [f1_def]
     refine sum_congr rfl ?_
@@ -160,24 +160,24 @@ public theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
         exact absurd t1 h
   simp [t1]
   clear t1
-  let f2 := (fun i ↦ if h : (i + 1) < 2 ^ n then trailing_zeros ((i + 1) + 2 ^ n) else 0)
+  let f2 := (fun i ↦ if h : (i + 1) < 2 ^ n then trailingZeros ((i + 1) + 2 ^ n) else 0)
   have f2_def : f2 = value_of% f2 := rfl
   have t2 :
       (∑ i ∈ range (k - 1), (f1 (i + 1) + 1)) =
       (∑ i ∈ range (k - 1), (f2  i      + 1)) := by
     exact rfl
   simp [t2]
-  let f3 := (fun i ↦ if h : i +1 < 2 ^ n then trailing_zeros (i + 1) else 0)
+  let f3 := (fun i ↦ if h : i +1 < 2 ^ n then trailingZeros (i + 1) else 0)
   have f3_def : f3 = value_of% f3 := rfl
   have f2eqf3 : f2 = f3 := by
     simp [f2_def, f3_def]
     ext i
     split
-    · expose_names ; exact trailing_zeros_prop7 n (i + 1) h (by grind)
+    · expose_names ; exact trailingZeros_prop7 n (i + 1) h (by grind)
     · exact rfl
   simp [f2eqf3]
   have t3 :
-     (∑ i ∈ range (k - 1), (trailing_zeros (i + 1) + 1)) =
+     (∑ i ∈ range (k - 1), (trailingZeros (i + 1) + 1)) =
      (∑ i ∈ range (k - 1), (f3              i + 1)) := by
     simp [f3_def]
     refine sum_congr rfl ?_
@@ -191,47 +191,47 @@ public theorem trailing_zeros_prop8 : ∀ n : ℕ, ∀ k ≤ 2 ^ n,
   simp [t3]
 
 /--
-For `k < 2 ^ n`, the sum of `(trailing_zeros (2 ^ n + i + 1) + 1)` over i in range k equals
-the sum of `(trailing_zeros (i + 1) + 1)` over the same range.
-This is a strict version of `trailing_zeros_prop8` using strict inequality.
+For `k < 2 ^ n`, the sum of `(trailingZeros (2 ^ n + i + 1) + 1)` over i in range k equals
+the sum of `(trailingZeros (i + 1) + 1)` over the same range.
+This is a strict version of `trailingZeros_prop8` using strict inequality.
 -/
-public theorem trailing_zeros_prop9 : ∀ n : ℕ, ∀ k < 2 ^ n,
-    ∑ i ∈ range k, (trailing_zeros (2 ^ n + i + 1) + 1) = ∑ i ∈ range k, (trailing_zeros (i + 1) + 1) := by
+public theorem trailingZeros_prop9 : ∀ n : ℕ, ∀ k < 2 ^ n,
+    ∑ i ∈ range k, (trailingZeros (2 ^ n + i + 1) + 1) = ∑ i ∈ range k, (trailingZeros (i + 1) + 1) := by
   intro n k' k_lt_pow2
   let k := k' + 1
   have k_def : k = value_of% k := rfl
   replace k_def : k' = k - 1 := by grind
   simp [k_def] at *
-  exact trailing_zeros_prop8 n k k_lt_pow2
+  exact trailingZeros_prop8 n k k_lt_pow2
 
 -- #eval List.range 6
 --    |>.map (fun n ↦ 2 ^ n)
---    |>.map (fun n ↦ (n, range n, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1), 2 * n - 1))
+--    |>.map (fun n ↦ (n, range n, ∑ i ∈ range n, (trailingZeros (i + 1) + 1), 2 * n - 1))
 
 -- The following was proved by Aristotle:
-public theorem sum_of_trailing_zeros_prop :
-    ∀ n : ℕ, n = (2 : ℕ) ^ (n.size - 1) → ∑ i ∈ range n, (trailing_zeros (i + 1) + 1) = (2 : ℕ) * n - 1 := by
+public theorem sum_of_trailingZeros_prop :
+    ∀ n : ℕ, n = (2 : ℕ) ^ (n.size - 1) → ∑ i ∈ range n, (trailingZeros (i + 1) + 1) = (2 : ℕ) * n - 1 := by
   intro n hn
-  have h_sum_powers_of_two : ∀ k : ℕ, ∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (i + 1) + 1) = 2 * 2 ^ k - 1 := by
+  have h_sum_powers_of_two : ∀ k : ℕ, ∑ i ∈ Finset.range (2 ^ k), (trailingZeros (i + 1) + 1) = 2 * 2 ^ k - 1 := by
     -- We proceed by induction on $k$.
     intro k
     induction' k with k ih;
     · simp
     · rw [ Nat.pow_succ' ];
       -- We can split the sum into two parts: the sum over the first half and the sum over the second half.
-      have h_split : ∑ i ∈ Finset.range (2 * 2 ^ k), (trailing_zeros (i + 1) + 1) = (∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (i + 1) + 1)) + (∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (2 ^ k + i + 1) + 1)) := by
+      have h_split : ∑ i ∈ Finset.range (2 * 2 ^ k), (trailingZeros (i + 1) + 1) = (∑ i ∈ Finset.range (2 ^ k), (trailingZeros (i + 1) + 1)) + (∑ i ∈ Finset.range (2 ^ k), (trailingZeros (2 ^ k + i + 1) + 1)) := by
         rw [Nat.two_mul]
-        exact sum_range_add (fun x ↦ trailing_zeros (x + 1) + 1) (2 ^ k) (2 ^ k)
+        exact sum_range_add (fun x ↦ trailingZeros (x + 1) + 1) (2 ^ k) (2 ^ k)
       -- By the properties of trailing zeros, we can simplify the second sum.
-      have h_simplify : ∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (2 ^ k + i + 1) + 1) = ∑ i ∈ Finset.range (2 ^ k), (trailing_zeros (i + 1) + 1) + 1 := by
-        have h_simplify : ∀ i ∈ Finset.range (2 ^ k), trailing_zeros (2 ^ k + i + 1) = trailing_zeros (i + 1) + (if i + 1 = 2 ^ k then 1 else 0) := by
+      have h_simplify : ∑ i ∈ Finset.range (2 ^ k), (trailingZeros (2 ^ k + i + 1) + 1) = ∑ i ∈ Finset.range (2 ^ k), (trailingZeros (i + 1) + 1) + 1 := by
+        have h_simplify : ∀ i ∈ Finset.range (2 ^ k), trailingZeros (2 ^ k + i + 1) = trailingZeros (i + 1) + (if i + 1 = 2 ^ k then 1 else 0) := by
           intro i hi; split_ifs <;> simp_all +singlePass [ add_comm, add_left_comm ] ;
           · rw [ show i + ( 1 + 2 ^ k ) = 2 ^ k + 2 ^ k by linarith ]
-            simp +arith +decide [ *, trailing_zeros_prop3 ]
+            simp +arith +decide [ *, trailingZeros_prop3 ]
             ring_nf
-            convert trailing_zeros_prop3 ( k + 1 ) using 1 ; ring_nf;
+            convert trailingZeros_prop3 ( k + 1 ) using 1 ; ring_nf;
             exact Nat.add_comm 1 k
-          · convert trailing_zeros_prop7 k ( i + 1 ) _ _ using 1 <;> norm_num [ add_comm, add_left_comm, add_assoc ];
+          · convert trailingZeros_prop7 k ( i + 1 ) _ _ using 1 <;> norm_num [ add_comm, add_left_comm, add_assoc ];
             exact lt_of_le_of_ne hi ( by tauto );
         rw [ Finset.sum_congr rfl fun i hi => by rw [ h_simplify i hi ] ] ; simp +arith +decide [ Finset.sum_add_distrib ] ; ring_nf;
         rw [

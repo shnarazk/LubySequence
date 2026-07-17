@@ -21,7 +21,7 @@ and establish relationships between segment indices and positions.
 - `Segment`: A structure with an index and start position
 - `one`: The initial segment with index 1 and start position 0
 - `next`: Advance a segment by n steps
-- `segment_starts`: Compute the cumulative start positions
+- `segmentStarts`: Compute the cumulative start positions
 - `segmentIdOver`, `segmentOver`: Find the segment containing a given position
 
 ## Key Theorems
@@ -64,7 +64,7 @@ The length of a segment, computed as the number of trailing zeros in its index p
 This corresponds to how many elements in the Luby sequence belong to this segment.
 -/
 @[expose]
-public def length (s : Segment) : ℕ := trailing_zeros s.index + 1
+public def length (s : Segment) : ℕ := trailingZeros s.index + 1
 
 /--
 The sum of a segment's start position and its length.
@@ -128,10 +128,10 @@ example : Segment.ofNat 2 = { index := 2, start := 1 } := by simp [←next_as_ad
 /--
 Explicit formula for the segment after `n` steps from `one`.
 The segment has index `n + 1` and its start position is the sum of all
-previous segment lengths, where each length is `trailing_zeros (i + 1) + 1`.
+previous segment lengths, where each length is `trailingZeros (i + 1) + 1`.
 -/
 public theorem unfold_segment : ∀ t : ℕ,
-    one + t = { index := t + 1, start := ∑ i ∈ range t, (trailing_zeros (i + 1) + 1) } := by
+    one + t = { index := t + 1, start := ∑ i ∈ range t, (trailingZeros (i + 1) + 1) } := by
   intro t
   simp only [←next_as_add] at *
   induction t with
@@ -139,20 +139,20 @@ public theorem unfold_segment : ∀ t : ℕ,
   | succ t ih =>
     rw [next]
     simp only [ih, nextStart, length]
-    have : ∑ i ∈ range t, (trailing_zeros (i + 1) + 1) + (trailing_zeros (t + 1) + 1) =
-        ∑ i ∈ range (t + 1), (trailing_zeros (i + 1) + 1) := by
-      exact Eq.symm (sum_range_succ (fun x ↦ trailing_zeros (x + 1) + 1) t)
+    have : ∑ i ∈ range t, (trailingZeros (i + 1) + 1) + (trailingZeros (t + 1) + 1) =
+        ∑ i ∈ range (t + 1), (trailingZeros (i + 1) + 1) := by
+      exact Eq.symm (sum_range_succ (fun x ↦ trailingZeros (x + 1) + 1) t)
     simp [this]
 
 /- #eval List.range 20
-    |>.map (fun n ↦ (n, (Segment.zero.next n).start, ∑ i ∈ range n, (trailing_zeros (i + 1) + 1)))
+    |>.map (fun n ↦ (n, (Segment.zero.next n).start, ∑ i ∈ range n, (trailingZeros (i + 1) + 1)))
 -/
 
 /--
 The start position of the segment after `n` steps from zero is the sum of
-the lengths of all previous segments (each length is `trailing_zeros (i + 1) + 1`).
+the lengths of all previous segments (each length is `trailingZeros (i + 1) + 1`).
 -/
-public theorem unfold_segment_start : ∀ t : ℕ, (one + t).start = ∑ i ∈ range t, (trailing_zeros (i + 1) + 1) := by
+public theorem unfold_segment_start : ∀ t : ℕ, (one + t).start = ∑ i ∈ range t, (trailingZeros (i + 1) + 1) := by
   intro t
   simp only [unfold_segment]
 
@@ -162,63 +162,63 @@ Returns the cumulative sum of lengths of the 1 to `t`-th segments.
 It is an (zero-based) index, not a (one-based) segment index.
 -/
 @[expose]
-public def segment_starts (t : ℕ) : ℕ := ∑ i ∈ range (t - 1), (trailing_zeros (i + 1) + 1)
+public def segmentStarts (t : ℕ) : ℕ := ∑ i ∈ range (t - 1), (trailingZeros (i + 1) + 1)
 
--- Examples showing segment_starts computation
--- example : segment_starts 0 = 0 -- 0 is not a valid segment index
-example : segment_starts 1 = 0 := by simp [segment_starts]
-example : segment_starts 2 = 1 := by simp [segment_starts]
-example : segment_starts 3 = 3 := by simp [segment_starts, range, trailing_zeros]
+-- Examples showing segmentStarts computation
+-- example : segmentStarts 0 = 0 -- 0 is not a valid segment index
+example : segmentStarts 1 = 0 := by simp [segmentStarts]
+example : segmentStarts 2 = 1 := by simp [segmentStarts]
+example : segmentStarts 3 = 3 := by simp [segmentStarts, range, trailingZeros]
 
 /--
-The `segment_starts` function is monotonic: if `a ≤ b`, then `segment_starts a ≤ segment_starts b`.
+The `segmentStarts` function is monotonic: if `a ≤ b`, then `segmentStarts a ≤ segmentStarts b`.
 This follows from the fact that each term in the sum is non-negative.
 -/
-public theorem segment_starts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segment_starts a ≤ segment_starts b := by
+public theorem segmentStarts_is_monotone : ∀ {a b : ℕ}, a ≤ b → segmentStarts a ≤ segmentStarts b := by
   intros a b h
   induction h with
-  | refl => simp [segment_starts]
+  | refl => simp [segmentStarts]
   | step h ih =>
     expose_names
-    have : segment_starts m ≤ segment_starts m.succ := by
-      simp [segment_starts]
+    have : segmentStarts m ≤ segmentStarts m.succ := by
+      simp [segmentStarts]
       refine  sum_le_sum_of_subset ?_
       · refine range_subset_range.mpr ?_
         · exact Nat.sub_le m 1
     exact Nat.le_trans ih this
 
 /--
-Strict lower bound for `segment_starts`: for any `s`, `segment_starts (s + 2) > s`.
+Strict lower bound for `segmentStarts`: for any `s`, `segmentStarts (s + 2) > s`.
 -/
-public theorem segment_starts_gt_self : ∀ t : ℕ, segment_starts (t + 2) > t := by
+public theorem segmentStarts_gt_self : ∀ t : ℕ, segmentStarts (t + 2) > t := by
   intro n
-  simp [segment_starts]
-  have : ∑ i ∈ range (n + 1), 1 ≤ ∑ i ∈ range (n + 1), (trailing_zeros (i + 1) + 1) := by
+  simp [segmentStarts]
+  have : ∑ i ∈ range (n + 1), 1 ≤ ∑ i ∈ range (n + 1), (trailingZeros (i + 1) + 1) := by
     refine sum_le_sum ?_
     · intro i ih
-      exact Nat.le_add_left 1 (trailing_zeros (i + 1))
+      exact Nat.le_add_left 1 (trailingZeros (i + 1))
   have aux (n : ℕ) : ∑ i ∈ range n, 1 = n := sum_range_induction (fun k ↦ 1) id rfl n fun k ↦ congrFun rfl
   exact le_of_eq_of_le (id (Eq.symm (aux (n + 1)))) this
 
 /--
-Relationship between `segment_starts` and the `start` field of a segment.
-For any `n`, `segment_starts (n + 1)` equals the start position of the segment
+Relationship between `segmentStarts` and the `start` field of a segment.
+For any `n`, `segmentStarts (n + 1)` equals the start position of the segment
 reached after `n` steps from `one`.
 -/
-public theorem segment_starts_to_segment_start : ∀ n, segment_starts (n + 1) = (one + n).start := by
+public theorem segmentStarts_to_segment_start : ∀ n, segmentStarts (n + 1) = (one + n).start := by
   intro n
-  simp only [segment_starts]
+  simp only [segmentStarts]
   rw [unfold_segment n]
   exact rfl
 
 /--
-The `segment_starts` function is strictly increasing for positive indices.
-If `0 < a < b`, then `segment_starts a < segment_starts b`.
+The `segmentStarts` function is strictly increasing for positive indices.
+If `0 < a < b`, then `segmentStarts a < segmentStarts b`.
 This follows from the fact that each segment has positive length.
 -/
-public theorem segment_starts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b → segment_starts a < segment_starts b := by
+public theorem segmentStarts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b → segmentStarts a < segmentStarts b := by
   intros a b a_ge_1 h
-  simp [segment_starts]
+  simp [segmentStarts]
   let d := b - a
   have d_def : d = value_of% d := rfl
   have d_ge_1 : d ≥ 1 := by exact Nat.le_sub_of_add_le' h
@@ -227,10 +227,10 @@ public theorem segment_starts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b 
   have : a + d - 1 = a - 1 + d := Nat.sub_add_comm a_ge_1
   simp [this]
   simp [sum_range_add]
-  replace : ∑ x ∈ range d, 1 ≤ ∑ x ∈ range d, (trailing_zeros (a - 1 + x + 1) + 1) := by
+  replace : ∑ x ∈ range d, 1 ≤ ∑ x ∈ range d, (trailingZeros (a - 1 + x + 1) + 1) := by
     refine sum_le_sum ?_
     · intro i i_def
-      exact Nat.le_add_left 1 (trailing_zeros (a - 1 + i + 1))
+      exact Nat.le_add_left 1 (trailingZeros (a - 1 + i + 1))
   have aux : ∑ x ∈ range d, 1 = 1 * d := sum_range_induction (fun k ↦ 1) (HMul.hMul 1) rfl d fun k ↦ congrFun rfl
   simp [aux] at this
   replace aux : 0 < d := d_ge_1
@@ -238,20 +238,20 @@ public theorem segment_starts_is_increasing' : ∀ {a b : ℕ}, a > 0 → a < b 
 
 /--
 Find the smallest segment index whose start position exceeds `n`.
-Uses `Nat.find` to locate the smallest index where `segment_starts` exceeds `n`,
+Uses `Nat.find` to locate the smallest index where `segmentStarts` exceeds `n`,
 which identifies the boundary between segments covering and not covering position `n`.
 -/
 @[expose]
 public def segmentIdOver (n : ℕ) : ℕ :=
-  Nat.find (by use n + 2 ; exact segment_starts_gt_self n : ∃ i : ℕ, segment_starts i > n)
+  Nat.find (by use n + 2 ; exact segmentStarts_gt_self n : ∃ i : ℕ, segmentStarts i > n)
 
-theorem segment_starts_is_infinite (n: ℕ) : ∃ i, segment_starts i > n := by
+theorem segmentStarts_is_infinite (n: ℕ) : ∃ i, segmentStarts i > n := by
   use n + 2
-  exact segment_starts_gt_self n
+  exact segmentStarts_gt_self n
 
 /--
 Find the smallest segment index whose start position is at least `n`.
-Uses `Nat.find` to locate the smallest index `i` where `segment_starts i ≥ n`,
+Uses `Nat.find` to locate the smallest index `i` where `segmentStarts i ≥ n`,
 identifying the segment that covers position `n`.
 This is the non-strict variant of `segmentIdOver`, which uses `>` instead of `≥`.
 -/
@@ -268,19 +268,19 @@ public theorem segmentIdOver_0 : segmentIdOver 0 = 2 := by
   refine
     (Nat.find_eq_iff
           (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
-            (fun [DecidablePred fun i ↦ segment_starts i > 0] ↦ segment_starts_is_infinite 0)
+            (fun [DecidablePred fun i ↦ segmentStarts i > 0] ↦ segmentStarts_is_infinite 0)
             (funext fun i ↦ by exact Eq.propIntro (fun a ↦ a) fun a ↦ a))).mpr
             -- (funext fun i ↦ gt_iff_lt._simp_1))).mpr
       ?_
   · constructor
-    · simp [segment_starts]
+    · simp [segmentStarts]
     · intro n n_def
       replace n_def : n ≤ 1 := Nat.le_of_succ_le_succ n_def
       obtain n_eq_1|n_eq_0 : n = 1 ∨ n < 1 := by exact Nat.eq_or_lt_of_le n_def
-      · simp [n_eq_1, segment_starts]
+      · simp [n_eq_1, segmentStarts]
       · replace n_eq_0 : n = 0 := by exact Nat.lt_one_iff.mp n_eq_0
         simp [n_eq_0]
-        simp [segment_starts]
+        simp [segmentStarts]
 
 /--
 Extend the initial segment to cover position `limit`.
@@ -296,15 +296,15 @@ Returns the segment including index `n`.
 @[expose]
 public def segmentCovering (n : ℕ) : Segment := Segment.ofNat (segmentIdCovering n)
 
--- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailing_zeros (i + 1) + 1))))
+-- #eval List.range 30 |>.map (fun n ↦ (n + 2, segmentIdOver (∑ i ∈ Finset.range n, (trailingZeros (i + 1) + 1))))
 
 /-- The value returned by `segmentIdCovering` is always positive. -/
 public theorem segmentIdCovering_pos (m : ℕ) : segmentIdCovering m > 0 := by
   simp only [segmentIdCovering, segmentIdOver]
-  have h_ex : ∃ i : ℕ, segment_starts i > m := ⟨m + 2, segment_starts_gt_self m⟩
+  have h_ex : ∃ i : ℕ, segmentStarts i > m := ⟨m + 2, segmentStarts_gt_self m⟩
   change Nat.find h_ex - 1 > 0
-  have h0 : ¬(segment_starts 0 > m) := by simp [segment_starts]
-  have h1 : ¬(segment_starts 1 > m) := by simp [segment_starts]
+  have h0 : ¬(segmentStarts 0 > m) := by simp [segmentStarts]
+  have h1 : ¬(segmentStarts 1 > m) := by simp [segmentStarts]
   have hne0 : Nat.find h_ex ≠ 0 := fun heq => h0 (heq ▸ Nat.find_spec h_ex)
   have hne1 : Nat.find h_ex ≠ 1 := fun heq => h1 (heq ▸ Nat.find_spec h_ex)
   omega
@@ -315,21 +315,21 @@ For any `n`, the segment ID covering position `2 ^ (n + 1) - 2`
 
 This follows by rewriting the envelope position as the cumulative sum of segment lengths,
 then applying the characterization of `segmentIdOver` via `Nat.find` and
-monotonicity of `segment_starts`.
+monotonicity of `segmentStarts`.
 -/
 public theorem segmentIdOver_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) - 2) = 2 ^ n + 1 := by
   have hpow : (2 : ℕ) ^ n = 2 ^ ((2 ^ n).size - 1) := by
     rw [size_of_pow2_eq_self_add_one]; simp
-  have hsum : ∑ i ∈ range (2 ^ n), (trailing_zeros (i + 1) + 1) = 2 ^ (n + 1) - 1 := by
-    simpa [pow_succ, mul_comm] using (sum_of_trailing_zeros_prop (2 ^ n) hpow)
-  have hstart : segment_starts (2 ^ n + 1) = 2 ^ (n + 1) - 1 := by
-    simp [segment_starts, hsum]
+  have hsum : ∑ i ∈ range (2 ^ n), (trailingZeros (i + 1) + 1) = 2 ^ (n + 1) - 1 := by
+    simpa [pow_succ, mul_comm] using (sum_of_trailingZeros_prop (2 ^ n) hpow)
+  have hstart : segmentStarts (2 ^ n + 1) = 2 ^ (n + 1) - 1 := by
+    simp [segmentStarts, hsum]
   simp [segmentIdOver]
   refine
     (Nat.find_eq_iff
           (Eq.ndrec (motive := fun {p} ↦ ∀ [DecidablePred p], ∃ n, p n)
-            (fun [DecidablePred fun i ↦ segment_starts i > 2 ^ (n + 1) - 2] ↦
-              segment_starts_is_infinite (2 ^ (n + 1) - 2))
+            (fun [DecidablePred fun i ↦ segmentStarts i > 2 ^ (n + 1) - 2] ↦
+              segmentStarts_is_infinite (2 ^ (n + 1) - 2))
             (funext fun i ↦ by exact Eq.propIntro (fun a ↦ a) fun a ↦ a))).mpr ?_
   constructor
   · simp [hstart]
@@ -337,22 +337,22 @@ public theorem segmentIdOver_at_envelope (n : ℕ) : segmentIdOver (2 ^ (n + 1) 
     · exact Nat.one_lt_two_pow' n
   · intro t ht
     have ht' : t ≤ 2 ^ n := by exact Nat.le_of_succ_le_succ ht
-    have hmono : segment_starts t ≤ segment_starts (2 ^ n) := segment_starts_is_monotone ht'
-    have hinc : segment_starts (2 ^ n) < segment_starts (2 ^ n + 1) := by
-      exact segment_starts_is_increasing' (Nat.two_pow_pos n) (lt_add_one (2 ^ n))
-    have hle : segment_starts (2 ^ n) ≤ 2 ^ (n + 1) - 2 := by
-      have hlt : segment_starts (2 ^ n) < 2 ^ (n + 1) - 1 := by
+    have hmono : segmentStarts t ≤ segmentStarts (2 ^ n) := segmentStarts_is_monotone ht'
+    have hinc : segmentStarts (2 ^ n) < segmentStarts (2 ^ n + 1) := by
+      exact segmentStarts_is_increasing' (Nat.two_pow_pos n) (lt_add_one (2 ^ n))
+    have hle : segmentStarts (2 ^ n) ≤ 2 ^ (n + 1) - 2 := by
+      have hlt : segmentStarts (2 ^ n) < 2 ^ (n + 1) - 1 := by
         simpa [hstart] using hinc
       exact Nat.le_pred_of_lt hlt
     exact Nat.not_lt_of_ge (Nat.le_trans hmono hle)
 
 /-- define Luby value from segment structure -/
 @[expose]
-public def luby_via_segment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
+public def lubyViaSegment (n : ℕ) := 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start)
 
-/-- Equation lemma for `luby_via_segment`, usable from downstream modules. -/
-public theorem luby_via_segment_def (n : ℕ) :
-    luby_via_segment n = 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start) := rfl
+/-- Equation lemma for `lubyViaSegment`, usable from downstream modules. -/
+public theorem lubyViaSegment_def (n : ℕ) :
+    lubyViaSegment n = 2 ^ (n - (Segment.ofNat (segmentIdCovering n)).start) := rfl
 
 -- #eval (segmentIdCovering 0)
 -- #eval (segmentIdCovering 1)
@@ -366,9 +366,9 @@ public theorem luby_via_segment_def (n : ℕ) :
 
 
 /-- The Luby value of index 0 is 1. -/
-public theorem luby_via_segment_zero_eq_one : luby_via_segment 0 = 1 := by
+public theorem lubyViaSegment_zero_eq_one : lubyViaSegment 0 = 1 := by
   have h_id : segmentIdOver 0 = 2 := by simp [segmentIdOver_0]
-  simp only [luby_via_segment, segmentIdCovering, h_id]
+  simp only [lubyViaSegment, segmentIdCovering, h_id]
   simp [ofNat, ←next_as_add]
 
 end Segment
