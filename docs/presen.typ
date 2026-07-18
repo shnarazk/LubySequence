@@ -8,7 +8,7 @@
 #set text(
   font: ((name: "New Computer Modern", covers: "latin-in-cjk"), "Hiragino Mincho Pro"),
   size: 20pt)
-#show raw: set text(font: "Monaspace Neon Var", size: 16pt)
+#show raw: set text(font: "Monaspace Neon", size: 16pt)
 #set heading(numbering: "1.")
 #show raw: it => {
   if it.block [ #block(width: 98%, inset: 8pt, radius: 2pt, fill: luma(245), it) ] else [ #it ]
