@@ -184,7 +184,12 @@ public def segmentStarts (t : ℕ) : ℕ := ∑ i ∈ range (t - 1), (trailingZe
 -- example : segmentStarts 0 = 0 -- 0 is not a valid segment index
 example : segmentStarts 1 = 0 := by simp [segmentStarts]
 example : segmentStarts 2 = 1 := by simp [segmentStarts]
-example : segmentStarts 3 = 3 := by simp [segmentStarts, range, trailingZeros]
+example : segmentStarts 3 = 3 := by
+  simp [segmentStarts, range, trailingZeros]
+  exact
+    Nat.add_succ 2
+      (if 1 = 2 ^ (Nat.size 1 - 1) then Nat.size 1 - 1
+      else trailingZeros (1 - 2 ^ (Nat.size 1 - 1)))
 
 /--
 The `segmentStarts` function is monotonic: if `a ≤ b`, then `segmentStarts a ≤ segmentStarts b`.
