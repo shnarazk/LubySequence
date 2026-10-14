@@ -235,7 +235,7 @@ public theorem segmented_state_prop1 (n : ℕ) : ofNat (n + 1) = (ofNat n).next 
     show (⟨Segment.segmentCovering (n + 1), n + 1 - (Segment.segmentCovering (n + 1)).start⟩ : SegmentedState) =
       next ⟨Segment.segmentCovering n, n - (Segment.segmentCovering n).start⟩
     simp only [next]
-    rw [if_pos h_at_boundary]
+    rw [ite_eq_left h_at_boundary]
     rw [h_seg_n1, h_idx_zero, h_seg_next]
   · -- Case 2: n + 1 stays in same segment (idx + 1 < length)
     have h_n1_lt : n + 1 < segmentStarts (k + 1) := by omega
@@ -250,7 +250,7 @@ public theorem segmented_state_prop1 (n : ℕ) : ofNat (n + 1) = (ofNat n).next 
     show (⟨Segment.segmentCovering (n + 1), n + 1 - (Segment.segmentCovering (n + 1)).start⟩ : SegmentedState) =
       next ⟨Segment.segmentCovering n, n - (Segment.segmentCovering n).start⟩
     simp only [next]
-    rw [if_neg h_at_boundary]
+    rw [ite_eq_right h_at_boundary]
     rw [h_seg_n1, h_idx_succ]
 
 end SegmentedState

@@ -25,7 +25,7 @@
           packages = [
             pkgs.elan
             pkgs.graphviz
-            home.packages.${system}.nvim4lean
+            # home.packages.${system}.nvim4lean
             pkgs.tinymist
             pkgs.typst
             pkgs.uv
