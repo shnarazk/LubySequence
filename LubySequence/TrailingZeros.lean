@@ -100,8 +100,7 @@ public theorem trailingZeros_prop7 : ∀ n : ℕ, ∀ k < 2 ^ n,
         exact NeZero.ne (k + 2 ^ n)
       exact absurd heq c
     · obtain z|p : n = 0 ∨ 0 < n := Nat.eq_zero_or_pos n
-      · simp [z] at *
-        exact absurd k' h1
+      · grind
       · have n2 : (2 ^ n).size = n + 1 := size_of_pow2_eq_self_add_one n
         have s1 : 2 ^ n + k < 2 ^ n + 2 ^ n := Nat.add_lt_add_left k' (2 ^ n)
         rw [←mul_two] at s1
